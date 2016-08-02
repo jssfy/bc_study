@@ -139,9 +139,9 @@ http://www.cnblogs.com/linjiqin/p/3805683.html
   如果非默认端口，可指定端口:
   redis-cli -p 6380 shutdown
 
-~~~~~~~~~~ yii 
+~~~~~~~~~~ to install yii 2.0
 curl -sS https://getcomposer.org/installer | php 
-  [vpn should be enabled]
+  [vpn is not necessary]
 sudo mv composer.phar /usr/local/bin/composer
 如果你已经安装有 Composer 请确保使用的是最新版本， 你可以用 composer self-update 命令更新 Composer 为最新版本。
   [vpn should be enabled]
@@ -164,6 +164,8 @@ enter the token above and auth.json is generated:
         "github.com": "669858c98bc6a09b6cd574aa7fc51f22e1edf044"
     }
 }
+
+the token for t430:  fdaa5cd95804cbe7aecfb67f0e5b94074fb210f1
 
     Tip: 如果你想安装 Yii 的最新开发版本，可以使用以下命令代替， 它添加了一个 stability 选项（中文版）:
     composer create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic

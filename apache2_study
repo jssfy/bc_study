@@ -1,4 +1,9 @@
 
+
+
+--------------- 2016-08-03 01:20:43
+if DocumentRoot is not set neither in apache2.conf or any other .conf files, it seems /var/www will be adopted as the default one.
+
 --------------- 2016-08-02 18:57:57
 
 root@iZ255ajr7y4Z:/var/log/apache2# tail -f error.log
@@ -72,13 +77,14 @@ conf.d  php.ini
 
 ----------- 2016-08-01 21:48:23
 to add an extra web site:
-  2 modifications: 
+  3 modifications: 
     add listen port into ports.conf
     add a new conf filel into sites-available and sites-enabled
+    add folder access priviledge into apache.conf
 
   restart the server: 
 
-8081-default.conf
+8081-default.conf [add to sites-available, then sudo a2ensite 8081-default.conf]
 
 <VirtualHost *:8081>
   # The ServerName directive sets the request scheme, hostname and port that
