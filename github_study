@@ -1,0 +1,14 @@
+
+---------- 2016-08-02 19:30:11
+jssfy/a....
+
+echo "# python_tools" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/jssfy/python_tools.git
+git push -u origin master
+
+$ git push -u origin master
+Username for 'https://github.com': jssfy
+Password for 'https://jssfy@github.com': 

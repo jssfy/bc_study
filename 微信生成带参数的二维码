@@ -1,0 +1,625 @@
+
+calling post_ticket.py with the same scene id returns the same ticket, even using an updated access token.
+calling get_qrcode.py multiple times return the same .jpeg image.
+
+
+309228933@qq.com
+暂不支持个人类型的公众帐号申请微信认证。
+
+你还没有成为开发者
+
+成为微信公众平台开发者，你将可以使用公众平台的开发接口，在你自身服务器上接收用户的微信消息，并可按需回复。此外，我们还提供了更多更高级的接口来完善公众号的功能：
+
+    1. 会话界面的自定义菜单
+    2. 多客服接口，提供贴心快捷的客服服务
+    3. 获取用户地址位置，精确提供服务
+    4. 高级群发接口，实现更灵活的群发能力
+    5. 用户分组接口，方便管理用户
+    还有很多接口，等你来体验。
+
+1. 
+AppID(应用ID)
+wx256025636fad78ae
+AppSecret(应用密钥)
+2a8eb69d48f04deffe3f10efb25613fc
+
+2. test account
+http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+
+http://www.cnblogs.com/txw1958/p/weixin-qrcode-with-parameters.html
+http://www.cnblogs.com/mchina/archive/2013/06/07/3120592.html
+http://blog.csdn.net/zhutulang/article/details/50614042 在你有了个微信公众号之后，你还要有个服务器（你可以用百度bae，或者新浪sae或者阿里云服务器），登录微信公众号后台，在最左边的菜单“开发”—“基本配置”里，你可以启用服务器配置。[http://sae.sina.com.cn/]
+
+sina sae:
+  http://sae.sina.com.cn/
+http://bbs.csdn.net/topics/390980382
+  微信公众平台--〉管理测试号--〉接口配置信息
+
+https://home.console.aliyun.com/#/
+网页空间: 2048M (0%)
+临时域名: ew-2lh4ubqe8.aliapp.com 
+支持语言: PHP
+开通日:  2016-08-02 10:50:13
+到期日:  2017-08-03 00:00:00
+ftp: hz206691.ftp.aliapp.com/hz206691
+  Aa...
+https://help.aliyun.com/knowledge_detail/36922.html
+  办理首次备案
+
+steps:
+1. get access token
+  http://mp.weixin.qq.com/debug/
+  wx256025636fad78ae
+  2a8eb69d48f04deffe3f10efb25613fc
+2. get ticket
+  http://mp.weixin.qq.com/debug
+    similar to writing a .python script to send a post request
+  get the ticket used by the below url:
+3. get qrcode (an image)
+  https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQFP8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL05FVF9RN3JsZjVnR3dZeGJUR3BXAAIEucyeVwMEgDoJAA==
+  notice: personal account does not have this kind of priviledge. try the public test account:
+    http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+
+
+1. 
+/home/kidd/workspace/python/wx/get_token.py
+$ python get_token.py 
+{"access_token":"UqqhsaKy5kHUiEOmqaVVCsqhbiYJRuK3ANPB-wMAX5_xZifpfMIm_QrRZH7Qsls06D7ApWHN1MZRiegT8qXY87dv0MoPbbMWocTDw_ANBD5gydsN6UuDmBgTbiDrD0KOJXLcAJAAOC","expires_in":7200}
+
+2.
+/home/kidd/workspace/python/wx/post_ticket.py
+$ python post_ticket.py 
+{"ticket":"gQFj8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzAwUlZlQzNsNlppUWltdGQ1MnBXAAIEk2igVwMEgDoJAA==","expire_seconds":604800,"url":"http:\/\/weixin.qq.com\/q\/00RVeC3l6ZiQimtd52pW"}
+
+3. 
+$ python get_qrcode.py > qrcode.jpeg
+$ eog qrcode.jpeg
+获取二维码ticket后，开发者可用ticket换取二维码图片。请注意，本接口无须登录态即可调用。
+请求说明
+HTTP GET请求（请使用https协议）
+https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
+提醒：TICKET记得进行UrlEncode
+
+
+----------- 2016-08-02 18:54:31
+http://mp.weixin.qq.com/wiki/18/167e7d94df85d8389df6c94a7a8f78ba.html
+scene_id  场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+scene_str   场景值ID（字符串形式的ID），字符串类型，长度限制为1到64，仅永久二维码支持此字段 
+
+
+
+------------ 2016-08-01 10:30:31
+
+
+http://www.zhihu.com/question/23018377
+
+带参数二维码，相当于给进入公众号的入口来源加了个参数，相当于PC网站url后面加了个?=XXX。
+本质，还是区分来源，提供不同服务内容或做后续统计。
+网站的url后面加参数，现在最主要的应用就是：1、CPS，2、统计跟踪。 
+
+------------ 2016-08-01 11:47:18
+
+$ python http_post.py 
+{"errcode":40001,"errmsg":"invalid credential, access_token is invalid or not latest hint: [TpsfSa0904vr21]"}
+
+http://mp.weixin.qq.com/debug/
+get access token from the above (with app id and app secret)
+
+then below error
+{"errcode":48001,"errmsg":"api unauthorized hint: [x0lr60229vr23]"}
+
+48001: 
+    api功能未授权，请确认公众号已获得该接口，可以在公众平台官网-开发者中心页中查看接口权限 
+
+
+-------------- 2016-08-01 11:53:45
+https://mp.weixin.qq.com/wiki/18/28fc21e7ed87bec960651f0ce873ef8a.html
+
+
+生成带参数的二维码
+
+为了满足用户渠道推广分析的需要，公众平台提供了生成带参数二维码的接口。使用该接口可以获得多个带不同场景值的二维码，用户扫描后，公众号可以接收到事件推送。
+
+目前有2种类型的二维码：
+
+1、临时二维码，是有过期时间的，最长可以设置为在二维码生成后的7天（即604800秒）后过期，但能够生成较多数量。临时二维码主要用于帐号绑定等不要求二维码永久保存的业务场景
+2、永久二维码，是无过期时间的，但数量较少（目前为最多10万个）。永久二维码主要用于适用于帐号绑定、用户来源统计等场景。
+
+用户扫描带场景值二维码时，可能推送以下两种事件：
+
+    如果用户还未关注公众号，则用户可以关注公众号，关注后微信会将带场景值关注事件推送给开发者。
+    如果用户已经关注公众号，在用户扫描后会自动进入会话，微信也会将带场景值扫描事件推送给开发者。 
+
+获取带参数的二维码的过程包括两步，首先创建二维码ticket，然后凭借ticket到指定URL换取二维码。 
+
+
+python:
+# below access token can also be obatined from "http://mp.weixin.qq.com/debug/"
+#!/usr/bin/env python
+#  -*- coding:utf-8 -*-
+# File http_post.py
+
+import urllib
+import urllib2
+import json
+    
+def http_post():
+    url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=7bRFKzr_ggoqfYyZEja6cfjx3D1L5-SnVLM8eys_RNMkxWPDCEsYbk4DIGWQmu-dCicnYfHhDs0t7EPnQM27eRIiVzqTQDtkYz0abZU_FU8xPIJCbx8iZlGASjUBwor9ACCcACAKMM'
+    # values = { 'user':'Smith','passwd':'123456' }
+    values = {"expire_seconds": 604800, "action_name": "QR_SCENE", "action_info": {"scene": {"scene_id": 123}}}
+    # {
+    #     "expire_seconds": 1800,
+    #     "action_name": "QR_SCENE",
+    #     "action_info": {
+    #         "scene": {
+    #             "scene_id": 100000
+    #         }
+    #     }
+    # }
+    jdata = json.dumps(values)             # 对数据进行JSON格式化编码
+    req = urllib2.Request(url, jdata)       # 生成页面请求的完整数据
+    response = urllib2.urlopen(req)       # 发送页面请求
+    return response.read()                    # 获取服务器返回的页面信息
+
+resp = http_post()
+print resp
+
+
+
+
+--------------- 2016-08-01 12:00:07
+access token
+
+1.
+Windows操作系统安全性的一个概念。一个访问令牌包含了此登陆会话的安全信息。当用户登陆时，系统创建一个访问令牌，然后以该用户身份运行的的所有进程都拥有该令牌的一个拷贝。该令牌唯一表示该用户、用户的组和用户的特权。系统使用令牌控制用户可以访问哪些安全对象，并控制用户执行相关系统操作的能力。有两种令牌：主令牌和模拟的令牌。主令牌是与进程相关的；模拟的令牌是与模拟令牌的线程相关的。
+进程拥有某种令牌就表示它拥有某种特权。什么是特权呢？特权是指用户进程进行各种系统操作的权利。如：关机，加载设备驱动程序，改变系统时间也是一种特权。可以对用户或用户所在的组授予特权。
+
+2.
+微信公众平台开发的时候会用到access_token，如：添加自定义菜单的时候需要用到access_token。本文介绍如何快速获取access_token的方法，希望对开发者有所帮助。提示：只有认证过的订阅号或者服务号才能获取access_token。
+需要的微信公众平台是认证过的订阅号或者服务号
+steps: [http://jingyan.baidu.com/article/ed2a5d1f340dd409f7be177c.html]
+1. 登录微信公众平台，点击左侧开发者中心，如图所示，记下AppId和AppSecret。
+2. 在开发者中心页下面，点击进入在线接口调试工具。
+3. 填写好appid和appsecret，然后点击检查问题。
+4. 出现如图提示，其中红色框里的就是你想要的access_token。
+
+
+to get access token with personal service account:
+基础支持: 获取access_token接口 /token
+
+请求地址：
+    https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx256025636fad78ae&secret=2a8eb69d48f04deffe3f10efb25613fc 
+
+返回结果:
+
+        200 OK
+
+        Connection: close
+        Date: Mon, 01 Aug 2016 03:46:15 GMT
+        Content-Type: application/json; encoding=utf-8
+        Content-Length: 175
+
+        {
+            "access_token": "7bRFKzr_ggoqfYyZEja6cfjx3D1L5-SnVLM8eys_RNMkxWPDCEsYbk4DIGWQmu-dCicnYfHhDs0t7EPnQM27eRIiVzqTQDtkYz0abZU_FU8xPIJCbx8iZlGASjUBwor9ACCcACAKMM", 
+            "expires_in": 7200
+        }
+
+提示:
+    Request successful 
+
+but the personal service account does not have the priviledge to create a ticket:
+
+推广支持: 创建二维码ticket接口 /qrcode/create
+
+请求地址：
+    https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=7bRFKzr_ggoqfYyZEja6cfjx3D1L5-SnVLM8eys_RNMkxWPDCEsYbk4DIGWQmu-dCicnYfHhDs0t7EPnQM27eRIiVzqTQDtkYz0abZU_FU8xPIJCbx8iZlGASjUBwor9ACCcACAKMM 
+
+返回结果:
+
+        200 OK
+
+        Connection: keep-alive
+        Date: Mon, 01 Aug 2016 03:50:22 GMT
+        Content-Type: application/json; encoding=utf-8
+        Content-Length: 68
+
+        {
+            "errcode": 48001, 
+            "errmsg": "api unauthorized hint: [KU97Ma0422vr19]"
+        }
+
+提示:
+    Unauthorized API function 
+
+!!!!!!!!!! try with the test account: [with personal wechat to log in]
+2015年3月13日
+
+微信公众平台接口测试账号是为满足公众号开发者了解平台接口能力以及新功能开发上线前进行测试，其地址为http://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login，本次更新让测试帐号获得了与认证服务号相同的能力，包括JS-SDK相关能力。查看详情
+
+微信号： gh_d790e147d0b7
+测试号信息
+appID
+wxc0f1b124629429c4
+appsecret
+da83a792f6df9fb0ee695e4a3335e542
+
+
+推广支持: 创建二维码ticket接口 /qrcode/create
+
+请求地址：
+    https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=arLN8rS87TJ4EGR_1VgicfneDQJzrC5kc55H-glVq3aQNhGgrqkckstmMdVDoLCBzvWBkp2IEYv6_O9SfpvIRSJcuuW1YhNFx9LcyzRz8xeg56uTzysEBYLvzwZb1CKWOEAjAFAEUQ 
+
+返回结果:
+
+        200 OK
+
+        Connection: keep-alive
+        Date: Mon, 01 Aug 2016 04:12:32 GMT
+        Content-Type: application/json; encoding=utf-8
+        Content-Length: 189
+
+        {
+            "ticket": "gQF_8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL3ZFUkx4Tkxsd3BpN3BnVFVfV3BXAAIEMMyeVwMEgDoJAA==", 
+            "expire_seconds": 604800, 
+            "url": "http://weixin.qq.com/q/vERLxNLlwpi7pgTU_WpW"
+        }
+
+提示:
+    Request successful 
+
+$ python http_post.py 
+{"ticket":"gQFP8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL05FVF9RN3JsZjVnR3dZeGJUR3BXAAIEucyeVwMEgDoJAA==","expire_seconds":604800,"url":"http:\/\/weixin.qq.com\/q\/NET_Q7rlf5gGwYxbTGpW"}
+
+三、通过ticket换取二维码
+https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQFP8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL05FVF9RN3JsZjVnR3dZeGJUR3BXAAIEucyeVwMEgDoJAA==
+
+
+五、扫描带参数二维码事件 ??
+
+用户扫描带场景值二维码时，可能推送以下两种事件：
+
+如果用户还未关注公众号，则用户可以关注公众号，关注后微信会将带场景值关注事件推送给开发者。
+
+如果用户已经关注公众号，则微信会将带场景值扫描事件推送给开发者。
+
+你好博主， 请问微信会将消息推送到服务端是吗？还是推送到公众号？
+  推送到你填的url里面
+
+http://sae.sina.com.cn/
+log in with sina microblog account, 
+新浪SAE设置
+a. 注册SAE帐户并登录 [sina app engine]
+http://sae.sina.com.cn/
+b. http://sae.sina.com.cn/?m=dashboard
+app name: wechatcb
+  blank app
+
+c. https://sae.sina.com.cn/?m=vermng&a=manage&app_id=wechatcb
+  code management
+
+
+
+仓库地址
+    https://git.sinacloud.com/wechatcb 如何使用?
+用户名
+    309228933@qq.com
+密码
+    您的安全密码 忘记密码?
+
+Git代码部署说明
+    在你应用的git代码目录里，添加一个新的git远程仓库 sae
+    $ git remote add sae https://git.sinacloud.com/wechatcb
+    编辑代码并将代码部署到 `sae` 的版本1。
+    $ git add .
+    $ git commit -am "make it better"
+    $ git push sae master:1
+
+$ git push sae master:1
+Username for 'https://git.sinacloud.com': 309228933@qq.com
+Password for 'https://309228933@qq.com@git.sinacloud.com': 
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 1.00 KiB | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://git.sinacloud.com/wechatcb
+ * [new branch]      master -> 1
+
+基本配置
+URL
+  http://1.wechatcb.applinzi.com/wx_sample.php
+Token
+  as defined in wx_sample.php: weixin
+EncodingAESKey
+  generated randomly
+
+
+if access token is expired, obtaining ticket will fail due to the expiration. [generally 2 hours]
+
+token
+必须为英文或数字，长度为3-32字符。
+
+?? 
+请把wechatcb.applinzi.com CNAME到wechatcb.applinzi.com以完成域名绑定。
+同时把968773ec30.applinzi.com通过A记录解析到85.97.12.129以完成域名身份认证
+
+请 把wechatcb.applinzi.com CNAME到wechatcb.applinzi.com，并 把968773ec30.applinzi.com通过A记录解析到85.97.12.129完成域名身份验证。 域名身份验证将在SAE获取到相关DNS记录后完成（由于各地DNS Cache的影响，此过程可能需要较长时间，但一般情况下在您解析完验证域名后一天之内能完成验证）。 验证通过后，会自动为您完成域名绑定 
+
+------------- 
+公司去年申请的公众号，刚开始配置成功了
+后来要给客户部署，对方提供了开发者的参数，可进行配置的时候提示token验证失败。
+回来用我们自己的账号登陆，修改服务器配置，直接点确定也提示token验证失败……
+于是我觉得问题还是出在我们代码这边
+但调试的时候发现代码已经可以原样返回echoStr参数的值（Response.Write），消息加解密使用明文模式，但就是提示token验证失败，有遇到过类似问题的朋友么 
+
+http://www.sinacloud.com/home/index/faq_detail/doc_id/59.html
+填写服务器配置 token验证失败
+  1. 新浪云服务器要求要实名认证才能正常使用微信开发的，我也是查了好久才知道的，希望能帮到大家！！！！ 
+  2. 最后终于找到解决方法了，楼主结贴了但是没有留下解决方法，我现在给出我的问题和解决方法，希望对大家有用：
+我也遇到这个问题，我的情况是这样的，用的框架，echo $echoStr也是对的，但是就是提升token验证失败，没有bom头，编码也是正确的，响应时间也是对的，最后在echo $echoStr前面加一句ob_clean();就好了，回答出来希望对大家有用。  
+我也遇到上述问题，如果是修改了服务器配置，在验证那段代码里面把 Response Clear() 下就可以了 
+
+---------- 2016-08-01 18:05:53
+
+
+订阅号
+    为媒体和个人提供一种新的信息传播方式，构建与读者之间更好的沟通与管理模式。 
+    适用于个人和组织
+    群发消息
+    1条/天
+    消息显示位置
+    订阅号列表
+    基础消息接口
+    有
+    自定义菜单
+    有
+    微信支付
+    无
+
+了解详情
+
+选择并继续
+
+服务号
+    给企业和组织提供更强大的业务服务与用户管理能力，帮助企业快速实现全新的公众号服务平台。 
+    不适用于个人
+    群发消息
+    4条/月
+    消息显示位置
+    会话列表
+    基础消息接口/自定义菜单
+    有
+    高级接口能力
+    有
+    微信支付
+    可申请
+
+了解详情
+
+选择并继续
+
+企业号
+    帮助企业和组织内部建立员工、上下游合作伙伴与企业IT系统间的连接。 
+    粉丝关注需验证身份且关注有上限
+    群发消息
+    无限制
+    消息显示位置
+    会话列表
+    基础消息接口/自定义菜单
+    有
+    高级接口能力
+    有
+
+了解详情 
+
+
+
+-------- 2016-08-02 10:10:51
+sina sae:
+  http://sae.sina.com.cn/
+http://bbs.csdn.net/topics/390980382
+  微信公众平台--〉管理测试号--〉接口配置信息
+
+官方有DOME
+URL是你服务的网址，需要上传一个验证文件
+Token可以自定义 
+
+
+http://download.csdn.net/detail/wyx100/8860015
+  微信公众平台开发最佳实践第2版 源代码 解密
+  
+tried with index_debug.php from 微信公众平台开发最佳实践第2版, did not help.
+
+aliyun
+弹性Web托管如何上传网站程序？
+上传网站文件分为三步，打包压缩、上传与解压缩，下面来具体说明一下详细的操作：
+一．将所有需要上传的文件打成压缩包。
+1、进入源代码文件夹，将所有的文件和文件夹选中，选择“添加到压缩文件”。
+$ sudo apt-get install filezilla
+
+
+---------- 2016-08-02 12:00:21
+微信公众平台申请测试接口URL和TOKEN的配置，怎么在本地让微信能通过80端口访问 
+http://blog.csdn.net/gebitan505/article/details/39497843
+
+http://1.wechatcallback.applinzi.com/index.php
+1.wechatcallback.applinzi.com 101.226.103.73 1668 2 [02/Aug/2016:12:15:36 +0800] wechatcallback 997 1 "GET /index.php?signature=a41bafbbb56154964c9a8807ec3be53035d3d37a&echostr=599759379402448894&timestamp=1470111336&nonce=1983986096 HTTP/1.0" 200 18 "-" "Mozilla/4.0" yq147
+
+日志类型： 错误日志
+https://sae.sina.com.cn/?service=http&m=applog&level=debug&keyword=%E5%85%B3%E9%94%AE%E5%AD%97&date_start=2016-08-02&date_end=2016-08-02&limit=20&app_id=wechatcallback&start_index=0
+101.226.103.73 [02-Aug-2016:12:24:20 +0800] this->checkSignature, true  yq27 
+
+101.226.103.61 [02/Aug/2016:12:30:04 +0800] /index.php?signature=402fc17b411968f9655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441 200 2347 1 19 
+  101.226.103.61 [02-Aug-2016:12:30:04 +0800] 6385042265780401630  yq53
+  101.226.103.61 [02-Aug-2016:12:30:04 +0800] this->checkSignature, true. echoed   yq53 
+
+http://ew-2lh4ubqe8.aliapp.com/index.php
+
+
+--------------- 2016-08-02 12:39:42
+$ curl http://1.wechatcallback.applinzi.com/index.php?signature=402fc17b411968f9655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441%20200%202347%201%2019
+[1] 9030
+[2] 9031
+[3] 9032
+kidd@kidd-OptiPlex-9020:
+~/tmp
+$ hello jssfy<script type="text/javascript">!function(){var closed=false,bdiv;var charset=document.charset||document.characterSet;var utf8=['该页面的提供者尚未完成','实名认证','您的访问可能存在风险'];var gbk=['��ҳ�����ṩ����δ����','ʵ����֤','���ķ��ʿ��ܴ��ڷ���'];var en=['The provider of this page is not','verified','there are risks when you visiting'];function banner(){var char=charset.toLowerCase(),lang='';switch(true){case char.indexOf('utf')==0:lang=utf8;break;case char.indexOf('gb')==0:lang=gbk;break;default:lang=en;}var _div='<div style="position:fixed;_position:absolute;top:0;left:0;right:0;padding:12px;background-color:rgba(0,0,0,0.5);filter: progid:DXImageTransform.Microsoft.gradient(startcolorstr=#7F000000,endcolorstr=#7F000000);color:#fff;text-align:center;font-size:16px;font-family:simsun,serif;cursor:default;z-index:2147483647;"><p style="margin:0;padding:0;">'+lang[0]+' <a style="text-decoration:none;color:#37afe4;" target="_blank" href="http://sae.sina.com.cn/?m=faq&a=view&doc_id=22">'+lang[1]+'</a> '+lang[2]+'</p><a style="position:absolute;right:12px;top:50%;font-size:20px;color:#fff;border:none;margin:0;padding:0;;margin-top:-10px;line-height:20px;background:none;cursor:pointer;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;outline:none;">x</a></div>',div=document.createElement('div');div.innerHTML=_div;var close=div.getElementsByTagName('a')[1],x=0,y=0;close.onmouseover=function(event){var e=event?event:window.event;x=e.clientX;y=e.clientY;};close.onclick=function(event){if(event&&!event.initMouseEvent){return}var e=event?event:window.event;if(Math.abs(e.clientX-x)<10&&Math.abs(e.clientY-y)<10){div.style.display='none';closed=true;}};return div}function t(){if(closed){clearInterval(tt);return}if(bdiv&&bdiv.parentNode){bdiv.parentNode.removeChild(bdiv)}bdiv=banner();document.body.appendChild(bdiv);}t();var tt=setInterval(t,5000);}();</script>curl http://1.wechatcall655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441%20200%202347%201%2019^C
+[1]   Done                    curl http://1.wechatcallback.applinzi.com/index.php?signature=402fc17b411968f9655185e9681362110ed80c53
+[2]-  Done                    echostr=6385042265780401630
+[3]+  Done                    timestamp=1470112204
+
+$ curl "http://ew-2lh4ubqe8.aliapp.com/index.php?signature=402fc17b411968f9655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441%20200%202347%201%2019" -v
+* Hostname was NOT found in DNS cache
+*   Trying 42.120.217.152...
+* Connected to ew-2lh4ubqe8.aliapp.com (42.120.217.152) port 80 (#0)
+> GET /index.php?signature=402fc17b411968f9655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441%20200%202347%201%2019 HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: ew-2lh4ubqe8.aliapp.com
+> Accept: */*
+> 
+< HTTP/1.1 302 Found
+* Server Tengine is not blacklisted
+< Server: Tengine
+< Date: Tue, 02 Aug 2016 04:38:16 GMT
+< Content-Type: text/html
+< Content-Length: 258
+< Connection: keep-alive
+< Location: http://ace.console.aliyun.com/access/index?domain=ew-2lh4ubqe8.aliapp.com&info=Rq4ZxD82rOIeZAeU2iQ92mjrd5pWz4tZQZHGv5uf0iDrXizvxeBVr4Bw1dQ77ewV
+< 
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+<head><title>302 Found</title></head>
+<body bgcolor="white">
+<h1>302 Found</h1>
+<p>The requested resource resides temporarily under a different URI.</p>
+<hr/>Powered by Tengine</body>
+</html>
+* Connection #0 to host ew-2lh4ubqe8.aliapp.com left intact
+
+
+---------- 2016-08-02 12:58:50
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421135319&token=&lang=zh_CN
+however, from curl, both sae and aliyun returned something invalid. instead of the echostr.
+
+开发者通过检验signature对请求进行校验（下面有校验方式）。若确认此次GET请求来自微信服务器，请原样返回echostr参数内容，则接入生效，成为开发者成功，否则接入失败。加密/校验流程如下：
+
+1）将token、timestamp、nonce三个参数进行字典序排序
+
+2）将三个参数字符串拼接成一个字符串进行sha1加密
+
+3）开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
+
+aliyun ecs
+  cannot buy with firefox, chrome works.
+包年包月产品仅提供 5天无理由退款服务
+订单对应的发票信息，请在 管理控制台-费用中心-发票管理 中设置。
+https://www.aliyun.com/support/jpfw?spm=5176.6883001.ecsPrepayConfirm.1.hCyaiV#gold-tab-06
+
+7月更新，9折阿里云推荐码:2GHQXP
+$ ping -c 2 123.57.227.173
+PING 123.57.227.173 (123.57.227.173) 56(84) bytes of data.
+64 bytes from 123.57.227.173: icmp_seq=1 ttl=51 time=5.06 ms
+64 bytes from 123.57.227.173: icmp_seq=2 ttl=51 time=5.33 ms
+
+to connect to the machine: 6 digits password
+user: root
+pwd: Ki...0
+$ ssh root@123.57.227.173
+
+i-255ajr7y4
+iZ255ajr7y4Z
+ 
+华北 2 可用区 B  
+123.57.227.173 (公)
+10.44.48.150 (内)
+ 运行中  
+经典网络
+CPU： 1核    内存： 1024 MB
+1Mbps
+包年包月
+16-09-03 00:00到期
+管理 | 升降配
+续费 | 更多
+
+
+------------- 2016-08-02 18:13:57
+scan return
+
+[Tue Aug 02 18:12:53.028944 2016] [:error] [pid 3779] [client 58.247.206.144:63398] error log test again!
+[Tue Aug 02 18:12:53.029265 2016] [:error] [pid 3779] [client 58.247.206.144:63398] ----------------
+[Tue Aug 02 18:12:53.029345 2016] [:error] [pid 3779] [client 58.247.206.144:63398] \r\nPOST /index.php?signature=7820a7b100437be3f665259fc071a8ad45e3ba2f&timestamp=1470132772&nonce=738159161&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\r\nUSER-AGENT: Mozilla/4.0\r\nACCEPT: */*\r\nHOST: 123.57.227.173\r\nPRAGMA: no-cache\r\n\r\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470132772</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[SCAN]]></Event>\n<EventKey><![CDATA[123]]></EventKey>\n<Ticket><![CDATA[gQFj8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzAwUlZlQzNsNlppUWltdGQ1MnBXAAIEk2igVwMEgDoJAA==]]></Ticket>\n</xml>
+
+                                                              |
+                                                              V
+
+POST /index.php?signature=7820a7b100437be3f665259fc071a8ad45e3ba2f&timestamp=1470132772&nonce=738159161&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1
+USER-AGENT: Mozilla/4.0\r\nACCEPT: */*
+HOST: 123.57.227.173
+PRAGMA: no-cache
+
+<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470132772</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[SCAN]]></Event>\n<EventKey><![CDATA[123]]></EventKey>\n<Ticket><![CDATA[gQFj8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzAwUlZlQzNsNlppUWltdGQ1MnBXAAIEk2igVwMEgDoJAA==]]></Ticket>\n</xml>
+
+------------- 2016-08-02 18:47:56
+/home/kidd/workspace/python/wx/get_token.py
+#!/usr/bin/env python
+#  -*- coding:utf-8 -*-
+# File http_post.py
+
+import urllib
+import urllib2
+import json
+def http_get():
+    # public test account
+    appid = 'wxc0f1b124629429c4'
+    secret = 'da83a792f6df9fb0ee695e4a3335e542'
+    params = urllib.urlencode({'grant_type': 'client_credential', 'appid': appid, 'secret': secret})
+    f = urllib.urlopen("https://api.weixin.qq.com/cgi-bin/token?%s" % params)
+    return f.read()
+resp = http_post()
+print resp
+
+/home/kidd/workspace/python/wx/post_ticket.py
+def http_post():
+    at = 'RQdT3CyCHDfu6I8bD4-e1TcuCibiNL0Iy1YK7ME0E-z4uezzptbMM-Dr0l7ffwS7dLABcG7O_67cf7BU1TIFXmsMYFsFi5VM-xNluUwmpW-W7CFgFzbfTqZ2K13e-ZkHYHIjACAUDE'
+    url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' + at
+    # to get temporary ticket
+    # values = {"expire_seconds": 604800, "action_name": "QR_SCENE", "action_info": {"scene": {"scene_id": 123}}}
+
+    # to get eternal ticket
+    values = {"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": 321}}}
+    # to get string form eternal qrcode
+    # values = {"action_name": "QR_LIMIT_STR_SCENE", "action_info": {"scene": {"scene_str": "234"}}}
+
+    jdata = json.dumps(values)             # 对数据进行JSON格式化编码
+    req = urllib2.Request(url, jdata)       # 生成页面请求的完整数据
+    response = urllib2.urlopen(req)       # 发送页面请求
+    return response.read()                    # 获取服务器返回的页面信息
+
+/home/kidd/workspace/python/wx/get_qrcode.py
+def http_get():
+    # public test account
+    # temporary
+    # ticket = 'gQFj8ToAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzAwUlZlQzNsNlppUWltdGQ1MnBXAAIEk2igVwMEgDoJAA=='
+
+    # eternal
+    ticket = 'gQFf7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL3FFVGdkRTNsYnBnWG54SmpVbWhXAAIEXHagVwMEAAAAAA=='
+    # ticket = 'gQFf7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL3FFVGdkRTNsYnBnWG54SmpVbWhXAAIEXHagVwMEAAAAAA=='
+
+    # eternal string
+
+    params = urllib.urlencode({'ticket': ticket})
+    f = urllib.urlopen("https://mp.weixin.qq.com/cgi-bin/showqrcode?%s" % params)
+    return f.read()
+
+-------------- 2016-08-02 19:03:07
+below are the logs from both "scan" and "subscribe" types, refer to the "Event" attribute.
+
+[Tue Aug 02 18:58:50.202970 2016] [:error] [pid 3775] [client 58.247.206.154:12253] error log test again!
+[Tue Aug 02 18:58:50.203095 2016] [:error] [pid 3775] [client 58.247.206.154:12253] ----------------
+[Tue Aug 02 18:58:50.203107 2016] [:error] [pid 3775] [client 58.247.206.154:12253] \nPOST /index.php?signature=e0dc49c5bd489d277f03cc67f621024c5ba97b5f&timestamp=1470135530&nonce=1461095147&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470135530</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[SCAN]]></Event>\n<EventKey><![CDATA[kidd]]></EventKey>\n<Ticket><![CDATA[gQFx7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVVGZObWZsWDVnbXJrc3ZiV3hXAAIEJXygVwMEAAAAAA==]]></Ticket>\n</xml>
+
+[Tue Aug 02 19:02:56.226224 2016] [:error] [pid 3788] [client 58.247.206.144:20587] error log test again!
+[Tue Aug 02 19:02:56.226402 2016] [:error] [pid 3788] [client 58.247.206.144:20587] ----------------
+[Tue Aug 02 19:02:56.226414 2016] [:error] [pid 3788] [client 58.247.206.144:20587] \nPOST /index.php?signature=399d33f2082d56a7c3d3b5e2a0e7792c51f5f711&timestamp=1470135776&nonce=223004458&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470135776</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[subscribe]]></Event>\n<EventKey><![CDATA[qrscene_kidd]]></EventKey>\n<Ticket><![CDATA[gQFx7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVVGZObWZsWDVnbXJrc3ZiV3hXAAIEJXygVwMEAAAAAA==]]></Ticket>\n</xml>
+
+

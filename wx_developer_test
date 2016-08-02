@@ -1,0 +1,55 @@
+
+
+123.57.227.173
+
+1. 
+AppID(应用ID)
+wx256025636fad78ae
+AppSecret(应用密钥)
+2a8eb69d48f04deffe3f10efb25613fc
+
+public:
+appID
+wxc0f1b124629429c4
+appsecret
+da83a792f6df9fb0ee695e4a3335e542
+
+
+2. test account
+http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+
+
+to get access token
+  http://mp.weixin.qq.com/debug/
+  wx256025636fad78ae
+  2a8eb69d48f04deffe3f10efb25613fc
+
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1433401084&token=&lang=zh_CN
+  公众号接口权限说明
+
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1433744592&token=&lang=zh_CN
+  公众号调用或第三方平台帮公众号调用对公众号的所有api调用（包括第三方帮其调用）次数进行清零：
+
+微信公众号接口必须以http://或https://开头，分别支持80端口和443端口。
+
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421135319&token=&lang=zh_CN
+成为开发者后，用户每次向公众号发送消息、或者产生自定义菜单[how?]、或产生微信支付订单等情况时，开发者填写的服务器配置URL将得到微信服务器推送过来的消息和事件，开发者可以依据自身业务逻辑进行响应，如回复消息。
+用户向公众号发送消息时，公众号方收到的消息发送者是一个OpenID，是使用用户微信号加密后的结果，每个用户对每个公众号有一个唯一的OpenID。
+此外，由于开发者经常有需在多个平台（移动应用、网站、公众帐号）之间共通用户帐号，统一帐号体系的需求，微信开放平台（open.weixin.qq.com）提供了UnionID机制。开发者可通过OpenID来获取用户基本信息，而如果开发者拥有多个应用（移动应用、网站应用和公众帐号，公众帐号只有在被绑定到微信开放平台帐号下后，才会获取UnionID），可通过获取用户基本信息中的UnionID来区分用户的唯一性，因为只要是同一个微信开放平台帐号下的移动应用、网站应用和公众帐号，用户的UnionID是唯一的。换句话说，同一用户，对同一个微信开放平台帐号下的不同应用，UnionID是相同的。
+
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183&token=&lang=zh_CN
+access_token是公众号的全局唯一接口调用凭据，公众号调用各接口时都需使用access_token。开发者需要进行妥善保存。access_token的存储至少要保留512个字符空间。access_token的有效期目前为2个小时，需定时刷新，重复获取将导致上次获取的access_token失效。
+公众号可以使用AppID和AppSecret调用本接口来获取access_token。
+注意调用所有微信接口时均需使用https协议。如果第三方不使用中控服务器，而是选择各个业务逻辑点各自去刷新access_token，那么就可能会产生冲突，导致服务不稳定。
+
+---------- 2016-08-02 15:06:11
+https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421141013&token=&lang=zh_CN
+
+after adding a subfolder, it is not always in effect immediately.
+
+
+Mlfb_-3BX-OrAZEJm_okShKYDSI8B4ddB3GbgY3nRq_c4FoOzK8qby3ab9WHT6aJwlmqsrFCK93G7pT3H9K4WfEw9scbFgRkda3KtEE9MNniFcEsPiX8RdJmGAk3TeK0OCLiAJAAOX
+NvR2pNHyHqEdrDrbp6LnJPvA5-ELBuMmxcpBmHvFq64BHjNdTCNUycwd_a3TH87tFvLeheS1xwMIEyigNbMqfDZcO4ZzM2QOW0zrjhkAdyuznzmVT5tNhzuEaei8OuQHUAUfAHAOUO
+etBx7J_fi65UV7l6dLfdp9N0BDIojK6OifiSjxf-67x8R7wEBznvdlwKshqNveuIYmKU448drsOmISpVuhefCW7maeex1GoxknYqESNt8djT8UX7nbKOKjgMy5b4DVJUDMHhAGANWR
+
+http://mp.weixin.qq.com/debug/cgi-bin/apiagent?url=https%3A%2F%2Fapi.weixin.qq.com%2Fcgi-bin%2Ftoken%3Fgrant_type%3Dclient_credential%26appid%3Dwx256025636fad78ae%26secret%3D2a8eb69d48f04deffe3f10efb25613fc&method=GET&body=0

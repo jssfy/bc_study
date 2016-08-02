@@ -1,0 +1,185 @@
+
+
+
+------------- 2016-08-02 13:36:34
+
+$ ssh root@123.57.227.173
+
+
+aliyun ecs
+  cannot buy with firefox, chrome works.
+包年包月产品仅提供 5天无理由退款服务
+订单对应的发票信息，请在 管理控制台-费用中心-发票管理 中设置。
+https://www.aliyun.com/support/jpfw?spm=5176.6883001.ecsPrepayConfirm.1.hCyaiV#gold-tab-06
+
+7月更新，9折阿里云推荐码:2GHQXP
+$ ping -c 2 123.57.227.173
+PING 123.57.227.173 (123.57.227.173) 56(84) bytes of data.
+64 bytes from 123.57.227.173: icmp_seq=1 ttl=51 time=5.06 ms
+64 bytes from 123.57.227.173: icmp_seq=2 ttl=51 time=5.33 ms
+
+to connect to the machine: 6 digits password
+user: root
+pwd: Ki...0
+$ ssh root@123.57.227.173
+
+i-255ajr7y4
+iZ255ajr7y4Z
+ 
+华北 2 可用区 B  
+123.57.227.173 (公)
+10.44.48.150 (内)
+ 运行中  
+经典网络
+CPU： 1核    内存： 1024 MB
+1Mbps
+包年包月
+16-09-03 00:00到期
+管理 | 升降配
+续费 | 更多
+
+
+
+----------- 2016-08-02 13:36:52
+apache2
+apt-get update [otherwise some pkgs will not be found]
+apt-get install apache2
+
+apt-get install php5 libapache2-mod-php5
+
+/etc/init.d/apache2 restart
+
+root@iZ255ajr7y4Z:/var/www/html# vim test.php
+  <?phpphinfo();?>
+
+check configuration file: /etc/apache2/sites-enabled/000-default.conf
+cat /var/log/apache2/error.log
+[Tue Aug 02 13:42:19.549024 2016] [:error] [pid 3778] [client 123.126.24.14:45750] PHP Fatal error:  Call to undefined function phinfo() in /var/www/html/test.php on line 2
+
+$ curl http://123.57.227.173/index.php
+hello jssfy
+
+curl "http://123.57.227.173/index.php?signature=402fc17b411968f9655185e9681362110ed80c53&echostr=6385042265780401630&timestamp=1470112204&nonce=1945859441%20200%202347%201%2019"
+
+finally, succeeded to submit: 
+
+URL(服务器地址)
+http://123.57.227.173/index.php
+Token(令牌)
+jssfy
+EncodingAESKey(消息加解密密钥)
+kVEZnlLd0c4Q0mn1JjJRmq23L4zvRFsFCNEWkMY4biy
+消息加解密方式
+明文模式
+
+fix:
+  1. used ali ecs
+  2. echo $echoStr; // added before echo
+
+http://www.sinacloud.com/home/index/faq_detail/doc_id/59.html
+填写服务器配置 token验证失败
+  1. 新浪云服务器要求要实名认证才能正常使用微信开发的，我也是查了好久才知道的，希望能帮到大家！！！！ 
+  2. 最后终于找到解决方法了，楼主结贴了但是没有留下解决方法，我现在给出我的问题和解决方法，希望对大家有用：
+我也遇到这个问题，我的情况是这样的，用的框架，echo $echoStr也是对的，但是就是提升token验证失败，没有bom头，编码也是正确的，响应时间也是对的，最后在echo $echoStr前面加一句ob_clean();就好了，回答出来希望对大家有用。  
+我也遇到上述问题，如果是修改了服务器配置，在验证那段代码里面把 Response Clear() 下就可以了 
+
+notice:
+  remember to use curl to verify the http response. e.g., when server is expected to return a string, send the same url request and validate the result. use "curl -v" if necessary.
+
+Meanwhile, tried several times with "http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index", also succeeded.
+
+
+----------- 2016-08-02 14:03:25
+index.php
+<?php
+/**
+  * wechat php test
+  */
+
+//define your token
+define("TOKEN", "jssfy");
+// ini_set('display_errors',1);
+// echo "hello jssfy<br />";
+// sae_debug("----------- enabled -----------");
+$wechatObj = new wechatCallbackapiTest();
+$wechatObj->valid();
+
+class wechatCallbackapiTest
+{
+  public function valid()
+    {
+        $echoStr = $_GET["echostr"];
+
+        //valid signature , option
+        // sae_debug("this->checkSignature");
+        // echo "this->checkSignature<br />";
+        if($this->checkSignature()){
+            ob_clean();
+            // sae_debug("this->checkSignature, true. echoed ");
+          echo $echoStr;
+            // sae_debug($echoStr);
+          exit;
+        }
+        else {
+            echo "check false";
+        }
+    }
+
+    public function responseMsg()
+    {
+    //get post data, May be due to the different environments
+    $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+
+        //extract post data
+    if (!empty($postStr)){
+                
+                $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+                $fromUsername = $postObj->FromUserName;
+                $toUsername = $postObj->ToUserName;
+                $keyword = trim($postObj->Content);
+                $time = time();
+                $textTpl = "<xml>
+              <ToUserName><![CDATA[%s]]></ToUserName>
+              <FromUserName><![CDATA[%s]]></FromUserName>
+              <CreateTime>%s</CreateTime>
+              <MsgType><![CDATA[%s]]></MsgType>
+              <Content><![CDATA[%s]]></Content>
+              <FuncFlag>0</FuncFlag>
+              </xml>";             
+        if(!empty( $keyword ))
+                {
+                  $msgType = "text";
+                  $contentStr = "Welcome to wechat world!";
+                  $resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
+                  echo $resultStr;
+                }else{
+                  echo "Input something...";
+                }
+
+        }else {
+          echo "";
+          exit;
+        }
+    }
+    
+  private function checkSignature()
+  {
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];  
+            
+    $token = TOKEN;
+    $tmpArr = array($token, $timestamp, $nonce);
+    sort($tmpArr);
+    $tmpStr = implode( $tmpArr );
+    $tmpStr = sha1( $tmpStr );
+    
+    if( $tmpStr == $signature ){
+      return true;
+    }else{
+      return false;
+    }
+  }
+}
+
+?>

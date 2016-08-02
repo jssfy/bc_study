@@ -1,0 +1,538 @@
+
+
+开发环境
+
+    centos 7.0 [ubuntu 14.04]
+    Redis server v=2.8.19
+    mysql-5.6.22
+    php-7
+    yii-2
+
+服务器
+
+    IP: 10.12.0.43
+    username: niub/123456
+    mysql: 10.12.0.61, tz8_dev/P@55word
+
+ubuntu 14.04
+  mysql 5.6.31
+  redis 2.8.19
+  php 7.0.9
+
+my github oauth token:
+   669858c98bc6a09b6cd574aa7fc51f22e1edf044
+
+---------- 2016-07-27 17:43:03
+ubuntu 14.04
+
+sudo apt-get install apache2 -y
+$ which apache2
+/usr/sbin/apache2
+$ ls /var/www/html/
+index.html
+  access localhost:80 and see when occurs.
+
+sudo apt-get install mysql-server
+  [input pwd twice in the mid]
+
+?? mysql_secure_installation
+/usr/bin/mysql_secure_installation
+根据提示，我们需要清理默认表以及设置数据库的安全。这里以前有不少的文档设置过，可以参考。
+
+ubuntu: php 7.0
+wget http://cn2.php.net/distributions/php-7.0.0.tar.bz2
+sudo apt-get install libfcgi-dev libfcgi0ldbl libmcrypt-dev libssl-dev libc-client2007e libc-client2007e-dev libxml2-dev libbz2-dev libcurl4-openssl-dev libjpeg-dev libpng12-dev libfreetype6-dev libkrb5-dev libpq-dev libxml2-dev libxslt1-dev
+
+sudo ln -s /usr/lib/libc-client.a /usr/lib/x86_64-linux-gnu/libc-client.a
+解决configure错误：Cannot find imap library (libc-client.a). Please check your c-client installation.
+
+tar jxf php-7.0.0.tar.bz2
+
+./configure --prefix=/opt/php-7.0.0 --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-fpm-user=www-data --with-fpm-group=www-data --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-fpm
+make [?? Don't forget to run 'make test'.]
+sudo make install
+
+按照mysql官网的指南A Quick Guide to Using the MySQL APT Repository ，卸载 原来的旧版本的mysql，安装最新的5.7。 - 安装的时候配置mysql版本并apply，或者事后使用sudo dpkg-reconfigure mysql-apt-config配置
+
+~/software/bc/php-7.0.0
+$ sudo cp php.ini-production /opt/php-7.0.0/lib/php.ini
+~/software/bc/php-7.0.0
+$ cd /opt/php-7.0.0/etc
+/opt/php-7.0.0/etc
+$ sudo cp php-fpm.conf.default php-fpm.conf
+/opt/php-7.0.0/etc
+$ cd php-fpm.d/
+/opt/php-7.0.0/etc/php-fpm.d
+$ sudo cp www.conf.default www.conf
+
+拷贝PHP7.0.0到云端使用
+本地同样的系统，安装的目录是/opt/php7.0.0，打包拷贝到云端同样的目录
+
+http://www.geiliedu.com/manual/2
+mysql更新
+按照mysql官网的指南A Quick Guide to Using the MySQL APT Repository ，卸载 原来的旧版本的mysql，安装最新的5.7。 - 安装的时候配置mysql版本并apply，或者事后使用sudo dpkg-reconfigure mysql-apt-config配置
+    发现5.7.9还有问题
+    mysql.user缺字段，导致grant命令报错。 mysqldump也报错。 text字段长度不够，同样的长度在mysql5.5没有问题
+由于重新安装5.6会有问题，启动不了Mysql5.6。所以重新恢复服务器快照到干净实例。
+wget http://dev.mysql.com/get/mysql-apt-config_0.5.3-1_all.deb
+sudo dpkg -i mysql-apt-config_0.5.3-1_all.deb
+
+确认版本，或者更改版本：
+sudo dpkg-reconfigure mysql-apt-config
+
+sudo apt-get update
+  W: There is no public key available for the following key IDs:
+  1397BC53640DB551
+
+sudo apt-get install mysql-server
+$ mysql -V
+mysql  Ver 14.14 Distrib 5.6.31, for Linux (x86_64) using  EditLine wrapper
+
+$ /opt/php-7.0.0/bin/php -v
+PHP 7.0.0 (cli) (built: Jul 27 2016 18:17:26) ( NTS )
+Copyright (c) 1997-2015 The PHP Group
+Zend Engine v3.0.0, Copyright (c) 1998-2015 Zend Technologies
+
+http://www.laozuo.org/8303.html
+/etc/apache2/apache2.conf
+
+!!!! it works [access .php from apache2]
+
+redis: 2.8.19
+wget http://download.redis.io/releases/redis-2.8.19.tar.gz
+enter and then
+  sudo make && sudo make install
+  sudo make test [在安装成功之后，可以运行测试，确认Redis的功能是否正常]
+or
+  apt-cache search redis
+  apt-get install redis-server
+  a、redis配置文件：/etc/redis/redis.conf 
+    [logfile /var/log/redis/redis-server.log ...]
+  b、redis服务路径：/etc/init.d/redis-server
+
+http://www.cnblogs.com/linjiqin/p/3805683.html
+  $ redis-cli
+  127.0.0.1:6379> set name kidd
+  OK
+  127.0.0.1:6379> get name
+  "kidd"
+  127.0.0.1:6379> exit
+  kidd@kidd-OptiPlex-9020:
+  /var/log
+  $ redis-cli
+  127.0.0.1:6379> get name
+  "kidd"
+  127.0.0.1:6379> quit
+
+  $ netstat -apn | grep 6379
+  (Not all processes could be identified, non-owned process info
+   will not be shown, you would have to be root to see it all.)
+  tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      -  
+
+  测试启动 redis-cli ping 返回PONG，启动成功。
+  $ redis-cli ping
+  PONG
+
+  停止Redis：
+  关闭服务
+  redis-cli shutdown
+  如果非默认端口，可指定端口:
+  redis-cli -p 6380 shutdown
+
+~~~~~~~~~~ yii 
+curl -sS https://getcomposer.org/installer | php 
+  [vpn should be enabled]
+sudo mv composer.phar /usr/local/bin/composer
+如果你已经安装有 Composer 请确保使用的是最新版本， 你可以用 composer self-update 命令更新 Composer 为最新版本。
+  [vpn should be enabled]
+composer global require "fxp/composer-asset-plugin:~1.1.1"
+composer create-project --prefer-dist yiisoft/yii2-app-basic basic
+  第一条命令安装 Composer asset plugin， 它是通过 Composer 管理 bower 和 npm 包所必须的，此命令全局生效，一劳永逸。 第二条命令会将 Yii 安装在名为 basic 的目录中，你也可以随便选择其他名称。the 2nd cmd takes quite some time. refer to http://www.tuicool.com/articles/iauq2qN
+
+Could not fetch https://api.github.com/repos/RobinHerbots/jquery.inputmask/contents/bower.json?ref=ba392f1c9c1f7a05d1b89a5e49cbd0610face768, please create a GitHub OAuth token to go over the API rate limit
+Head to https://github.com/settings/tokens/new?scopes=repo&description=Composer+on+kidd-OptiPlex-9020+2016-07-28+1506
+to retrieve a token. It will be stored in "/home/kidd/.config/composer/auth.json" for future use by Composer.
+Token (hidden): 
+
+Make sure to copy your new personal access token now. You won’t be able to see it again! 
+  669858c98bc6a09b6cd574aa7fc51f22e1edf044
+  Personal access tokens function like ordinary OAuth access tokens. They can be used instead of a password for Git over HTTPS, or can be used to authenticate to the API over Basic Authentication. 
+
+enter the token above and auth.json is generated:
+{
+    "github-oauth": {
+        "github.com": "669858c98bc6a09b6cd574aa7fc51f22e1edf044"
+    }
+}
+
+    Tip: 如果你想安装 Yii 的最新开发版本，可以使用以下命令代替， 它添加了一个 stability 选项（中文版）:
+    composer create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
+    注意，Yii 的开发版(dev 版)不应该用于生产环境中，它可能会破坏运行中的代码。
+
+$ php yii serve
+PHP Warning:  require(/var/www/html/yii/basic/vendor/autoload.php): failed to open stream: No such file or directory in /var/www/html/yii/basic/yii on line 14
+PHP Fatal error:  require(): Failed opening required '/var/www/html/yii/basic/vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/html/yii/basic/yii on line 14
+  http://stackoverflow.com/questions/18407208/why-no-such-file-or-directory-autoload-php-when-accessing-laravel-app
+  /var/www/html/yii/basic
+  $ composer install
+    Problem 1
+        - yiisoft/yii2 2.0.9 requires ext-mbstring * -> the requested PHP extension mbstring is missing from your system.
+
+      http://askubuntu.com/questions/764782/install-laravel-5-on-ubuntu-16-04
+      PHP mbstring extension now resides in a separate package, so you need to do:
+          $ sudo apt-get install php-mbstring
+          and modify php.ini for apache if necessary
+你应该可以在浏览器中看到如上所示的 “Congratulations!” 页面。如果没有， 请通过以下任意一种方式，检查当前 PHP 环境是否满足 Yii 最基本需求：
+http://localhost/html/yii/basic/requirements.php
+  for easy access, change DocumentRoot to "DocumentRoot /var/www/html/yii/basic/web" for apache2.
+
+
+------------ 2016-07-27 19:27:31
+
+http://unix.stackexchange.com/questions/75807/no-public-key-available-on-apt-get-update
+the other answers will work, or not, depending on whether or not the key '8B48AD6246925553' is present in the packages they indicate.
+if you need a key, you have to get that key, and where to find it, it's in a key server (very probably any key server will do):
+  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1397BC53640DB551
+
+but there are still below warnings:
+  W: Failed to fetch http://dl.google.com/linux/chrome/deb/dists/stable/Release  Unable to find expected entry 'main/binary-i386/Packages' in Release file (Wrong sources.list entry or malformed file)
+  W: Failed to fetch bzip2:/var/lib/apt/lists/partial/cn.archive.ubuntu.com_ubuntu_dists_trusty-updates_main_binary-amd64_Packages  Hash Sum mismatch
+  W: Failed to fetch bzip2:/var/lib/apt/lists/partial/cn.archive.ubuntu.com_ubuntu_dists_trusty-updates_universe_binary-amd64_Packages  Hash Sum mismatch
+  W: Failed to fetch bzip2:/var/lib/apt/lists/partial/cn.archive.ubuntu.com_ubuntu_dists_trusty-updates_main_binary-i386_Packages  Hash Sum mismatch
+  W: Failed to fetch bzip2:/var/lib/apt/lists/partial/cn.archive.ubuntu.com_ubuntu_dists_trusty-updates_universe_binary-i386_Packages  Hash Sum mismatch
+  E: Some index files failed to download. They have been ignored, or old ones used instead.
+
+http://www.111cn.net/sys/linux/91283.htm [did not work]
+sudo sed -i '/natty\-backports/d' /etc/apt/sources.list{,.d/*}
+
+http://blog.csdn.net/xjwjava/article/details/8543768 [did not work]
+    sudo apt-get clean  
+    sudo apt-get update --fix-missing  
+
+below fixed the "Hash Sum mismatch" issue
+删掉/var/lib/apt/lists 这个目录下的东西，fromhere
+[python] view plain copy
+    # 删除  
+    sudo rm -fR /var/lib/apt/lists/*  
+    # 新建相应文件夹  
+    sudo mkdir /var/lib/apt/lists/partial  
+    # 重新update  
+    sudo apt-get update 
+
+W: Failed to fetch http://dl.google.com/linux/chrome/deb/dists/stable/Release  Unable to find expected entry 'main/binary-i386/Packages' in Release file (Wrong sources.list entry or malformed file)
+E: Some index files failed to download. They have been ignored, or old ones used instead.
+http://jingyan.baidu.com/article/11c17a2c02731ff446e39dfd.html
+    首先定位到：/etc/apt/sources.list.d
+    找到 google-chrome.list 以管理员身份打开
+    在旧的源列表前加上  # ,然后新建一行，添加内容如下：
+    linux更细错误
+    原因：因为官方的Google Chrome库不再提供32位包
+注意事项
+    前提是你能 蕃。蔷 ，不然谷歌那个源根本不能用
+    如果成功后，能把旧的源列表发在评论区吗（我的删除了）。
+[ahye] the above did not work, had to remove that line, and "sudo rm /var/lib/apt/lists/partial/cn.archive.ubuntu.com_ubuntu_dists_trusty-updates_main_source_Sources"
+
+
+-------- 2016-07-27 15:56:06
+PHPstorm 开发工具
+to activate the 30-days evaluation version:
+  http://www.th7.cn/Program/php/201604/843691.shtml
+  if not working, try this: http://idea.lanyus.com/ -> click the button to get registration code directly.
+
+  注册码为正版注册码，无需打补丁，有效期为2016年2月26日至2017年2月25日
+  lan yu
+
+  43B4A73YYJ-eyJsaWNlbnNlSWQiOiI0M0I0QTczWVlKIiwibGljZW5zZWVOYW1lIjoibGFuIHl1IiwiYXNzaWduZWVOYW1lIjoiIiwiYXNzaWduZWVFbWFpbCI6IiIsImxpY2Vuc2VSZXN0cmljdGlvbiI6IkZvciBlZHVjYXRpb25hbCB1c2Ugb25seSIsImNoZWNrQ29uY3VycmVudFVzZSI6ZmFsc2UsInByb2R1Y3RzIjpbeyJjb2RlIjoiSUkiLCJwYWlkVXBUbyI6IjIwMTctMDItMjUifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9LHsiY29kZSI6IlBTIiwicGFpZFVwVG8iOiIyMDE3LTAyLTI1In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwMTctMDItMjUifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9LHsiY29kZSI6IlJTMCIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDE3LTAyLTI1In0seyJjb2RlIjoiUEMiLCJwYWlkVXBUbyI6IjIwMTctMDItMjUifSx7ImNvZGUiOiJSTSIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9LHsiY29kZSI6IldTIiwicGFpZFVwVG8iOiIyMDE3LTAyLTI1In0seyJjb2RlIjoiREIiLCJwYWlkVXBUbyI6IjIwMTctMDItMjUifSx7ImNvZGUiOiJEQyIsInBhaWRVcFRvIjoiMjAxNy0wMi0yNSJ9XSwiaGFzaCI6IjMzOTgyOTkvMCIsImdyYWNlUGVyaW9kRGF5cyI6MCwiYXV0b1Byb2xvbmdhdGVkIjpmYWxzZSwiaXNBdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlfQ==-keaxIkRgXPKE4BR/ZTs7s7UkP92LBxRe57HvWamu1EHVXTcV1B4f/KNQIrpOpN6dgpjig5eMVMPmo7yMPl+bmwQ8pTZaCGFuLqCHD1ngo6ywHKIQy0nR249sAUVaCl2wGJwaO4JeOh1opUx8chzSBVRZBMz0/MGyygi7duYAff9JQqfH3p/BhDTNM8eKl6z5tnneZ8ZG5bG1XvqFTqWk4FhGsEWdK7B+He44hPjBxKQl2gmZAodb6g9YxfTHhVRKQY5hQ7KPXNvh3ikerHkoaL5apgsVBZJOTDE2KdYTnGLmqxghFx6L0ofqKI6hMr48ergMyflDk6wLNGWJvYHLWw==-MIIEPjCCAiagAwIBAgIBBTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE1MTEwMjA4MjE0OFoXDTE4MTEwMTA4MjE0OFowETEPMA0GA1UEAwwGcHJvZDN5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxcQkq+zdxlR2mmRYBPzGbUNdMN6OaXiXzxIWtMEkrJMO/5oUfQJbLLuMSMK0QHFmaI37WShyxZcfRCidwXjot4zmNBKnlyHodDij/78TmVqFl8nOeD5+07B8VEaIu7c3E1N+e1doC6wht4I4+IEmtsPAdoaj5WCQVQbrI8KeT8M9VcBIWX7fD0fhexfg3ZRt0xqwMcXGNp3DdJHiO0rCdU+Itv7EmtnSVq9jBG1usMSFvMowR25mju2JcPFp1+I4ZI+FqgR8gyG8oiNDyNEoAbsR3lOpI7grUYSvkB/xVy/VoklPCK2h0f0GJxFjnye8NT1PAywoyl7RmiAVRE/EKwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQC9WZuYgQedSuOc5TOUSrRigMw4/+wuC5EtZBfvdl4HT/8vzMW/oUlIP4YCvA0XKyBaCJ2iX+ZCDKoPfiYXiaSiH+HxAPV6J79vvouxKrWg2XV6ShFtPLP+0gPdGq3x9R3+kJbmAm8w+FOdlWqAfJrLvpzMGNeDU14YGXiZ9bVzmIQbwrBA+c/F4tlK/DV07dsNExihqFoibnqDiVNTGombaU2dDup2gwKdL81ua8EIcGNExHe82kjF4zwfadHk3bQVvbfdAwxcDy4xBjs3L4raPLU3yenSzr/OEur1+jfOxnQSmEcMXKXgrAQ9U55gwjcOFKrgOxEdek/Sk1VfOjvS+nuM4eyEruFMfaZHzoQiuw4IqgGc45ohFH0UUyjYcuFxxDSU9lMCv8qdHKm+wnPRb0l9l5vXsCBDuhAGYD6ss+Ga+aDY6f/qXZuUCEUOH3QUNbbCUlviSz6+GiRnt1kA9N2Qachl+2yBfaqUqr8h7Z2gsx5LcIf5kYNsqJ0GavXTVyWh7PYiKX4bs354ZQLUwwa/cG++2+wNWP+HtBhVxMRNTdVhSm38AknZlD+PTAsWGu9GyLmhti2EnVwGybSD2Dxmhxk3IPCkhKAK+pl0eWYGZWG3tJ9mZ7SowcXLWDFAk0lRJnKGFMTggrWjV8GYpw5bq23VmIqqDLgkNzuoog==
+
+  Linux Installation Instructions
+  ------------------------------------------------------------------------------
+  1. Unpack the PhpStorm distribution archive that you downloaded to
+     where you wish to install the program. We will refer to this destination
+     location as your {installation home} below.
+
+  2. Open a console and cd into "{installation home}/bin" and type:
+
+       ./phpstorm.sh
+
+     to start the application. As a side effect, this will initialize various
+     configuration files in the ~/.PhpStorm2016.2 directory.
+
+  3. [OPTIONAL] Add "{installation home}/bin" to your PATH environment
+     variable so that you may start PhpStorm from any directory.
+
+  4. [OPTIONAL] To adjust the value of the JVM heap size, create
+      ~/.PhpStorm2016.2/phpstorm.vmoptions (or phpstorm64.vmoptions
+      if using a 64-bit JDK), and set the -Xms and -Xms paramters. To see how
+      to do this, you can reference the vmoptions file under
+      "{installation home}/bin" as a model.
+
+  [OPTIONAL] Changing the location of "config" and "system" directories
+  ------------------------------------------------------------------------------
+  By default, PhpStorm stores all your settings under the ~/.PhpStorm2016.2/config
+  directory and uses ~/.PhpStorm2016.2/system as a data cache.
+  If you want to change these settings,
+
+  1. Open a console and cd into ~/.PhpStorm2016.2/
+
+  2. Create the file "idea.properties" and open it in an editor. Set the
+     idea.system.path and/or idea.config.path variables as desired, for
+     example:
+
+     idea.system.path=~/custom/system
+     idea.config.path=~/custom/config
+
+  3. Note that we recommend to store data cache ("system" directory) on a disk
+     with at least 1GB of free space.
+
+
+------------- 2016-07-27 17:28:31
+IDEA-78860 Keyboard input sometimes is blocked when IBus is active
+Is duplicated by: IDEA-23472 IDEA-70033 IDEA-72324 IDEA-77552 IDEA-81426 IDEA-78331 WI-8898 IDEA-79363 RUBY-10173 IDEA-80790 VIM-179 IDEA-83951 PY-7692 PY-7728 IDEA-115489 RUBY-14460 RUBY-14467 IDEA-115661 WI-21214 IDEA-117430 32 more…
+Relates to: IDEA-143515 IDEA-135441 IDEA-73951 IDEA-120300 IDEA-132944 CPP-4080
+Parent for: CPP-3991
+Similar to: IDEA-139653
+When IDEA is used on a system with IBus is installed and running keyboard input sometimes became blocked by IBus daemon. Event Dispatching Thread is active. All other events are delivered in order - i.e. it is possible to select text or call menu actions by a mouse.
+
+Solution:
+Either upgrade IBus to version 1.5.11 or add "export IBUS_ENABLE_SYNC_MODE=1" to your ~/.profile, then restart a session.
+
+Alternatively, you can turn off IBus at System Settings | Language Support | Keyboard input method.
+
+IDEA 15 will show a warning if an incompatible version of IBus is in use.
+
+
+-------------- 2016-07-27 19:47:45
+ubuntu 14.04 apache2
+首先安装apache：打开终端(ctrl+Alt+t)，
+输入命令：sudo apt-get install apache2即可安装，
+安装完后，打开浏览器，在地址栏输入：localhost或者http://127.0.0.1
+看到It works，表示安装成功!
+默认根目录：/var/www/
+
+$ file /etc/init.d/apache2 
+/etc/init.d/apache2: POSIX shell script, ASCII text executable
+sudo /etc/init.d/apache2 start/stop/restart
+/etc/apache2
+$ ls
+apache2.conf    conf-enabled  magic           mods-enabled  sites-available
+conf-available  envvars       mods-available  ports.conf    sites-enabled
+
+$ sudo systemctl restart apache2
+sudo: systemctl: command not found
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/sites-available
+$ which systemctl
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/sites-available
+$ service apache2 restart
+ * Restarting web server apache2                                         [fail] 
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/sites-available
+$ sudo /etc/init.d/apache2 start/stop/restart
+Usage: apache2 {start|stop|graceful-stop|restart|reload|force-reload|start-htcacheclean|stop-htcacheclean}
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/sites-available
+$ sudo /etc/init.d/apache2 restart
+ * Restarting web server apache2                                                AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+    
+
+
+http://www.laozuo.org/8303.html
+第二、LAMP环境安装和配置Apache
+1、安装Apache 2.4
+    apt-get install apache2 -y
+从系统库中直接安装Apache。
+2、修改apache2.conf配置
+    /etc/apache2/apache2.conf
+修改apache2.conf配置
+    KeepAlive Off
+修改参数KeepAlive为Off
+3、修改mpm_prefork.conf配置
+    /etc/apache2/mods-available/mpm_prefork.conf
+ubuntu-lamp-php7-2
+设置参数：
+    <IfModule mpm_prefork_module>
+    StartServers            2
+    MinSpareServers         6
+    MaxSpareServers         12
+    MaxRequestWorkers       39
+    MaxConnectionsPerChild  3000
+    </IfModule>
+4、禁用和启动模块
+    sudo a2dismod mpm_event
+    sudo a2enmod mpm_prefork
+5、重启Apache
+    sudo systemctl restart apache2
+
+第三、配置虚拟主机环境
+1、拷贝默认配置文件
+    sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/laozuo.org.conf
+2、修改配置文件
+    /etc/apache2/sites-available/laozuo.org.conf
+这里我们需要编译当前站点配置文件。
+    <Directory /var/www/html/laozuo.org/public_html>
+    Require all granted
+    </Directory>
+    <VirtualHost *:80>
+    ServerName laozuo.org
+    ServerAlias www.laozuo.org
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html/laozuo.org/public_html
+    ErrorLog /var/www/html/laozuo.org/logs/error.log
+    CustomLog /var/www/html/laozuo.org/logs/access.log combined
+    </VirtualHost>
+3、创建需要目录/文件
+    sudo mkdir -p /var/www/html/laozuo.org/{public_html,logs}
+4、启动站点
+    sudo a2ensite laozuo.org.conf
+5、禁止默认根目录配置
+    sudo a2dissite 000-default.conf
+6、重启Apache
+    sudo systemctl reload apache2
+
+http://localhost/hello.html
+/var/www/html/laozuo.org/public_html
+$ sudo subl hello.html
+
+$ apt-cache search libapache2 | grep php
+libapache2-mod-php5 - server-side, HTML-embedded scripting language (Apache 2 module)
+
+在基于Debian的Linux上，系统范围的Apache错误日志默认位置是/var/log/apache2/error.log。默认位置可以通过编辑Apache的配置文件进行修改。
+要找到自定义的错误日志位置，请用文本编辑器打开 /etc/apache2/apache2.conf，然后查找以 ErrorLog 开头的行，该行指定了自定义的 Apache 错误日志文件的位置。
+
+
+http://www.mobibrw.com/2016/3995
+php7 & apache2
+
+
+http://stackoverflow.com/questions/36057615/ubuntu-apache-module-php7-does-not-exist
+Finally, thanks to the comment of Ed de Almeida, I found the solution.
+I had to install an additional package:
+$ sudo apt-get install libapache2-mod-php7.0
+Now I could run sudo a2enmod php7.0.
+
+http://askubuntu.com/questions/705880/how-to-install-php-7
+sudo apt-get install python-software-properties
+sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
+sudo apt-get update
+Optionally purge PHP 5:
+sudo apt-get remove php5-common -y
+Or directly purge it including configuration files:
+sudo apt-get purge php5-common -y
+And finally install PHP 7:
+sudo apt-get install php7.0 php7.0-fpm php7.0-mysql -y
+Optionally clean up unneeded packages afterwards:
+sudo apt-get --purge autoremove -y
+Alternatively, you can install PHP 7.0 from sources using this script script or following instruction on this blog.
+
+W: Failed to fetch bzip2:/var/lib/apt/lists/partial/security.ubuntu.com_ubuntu_dists_trusty-security_multiverse_binary-amd64_Packages  Hash Sum mismatch
+W: Failed to fetch bzip2:/var/lib/apt/lists/partial/ppa.launchpad.net_ondrej_php_ubuntu_dists_trusty_main_binary-i386_Packages  Hash Sum mismatch
+W: Failed to fetch bzip2:/var/lib/apt/lists/partial/ppa.launchpad.net_ondrej_php_ubuntu_dists_trusty_main_i18n_Translation-en  Hash Sum mismatch
+E: Some index files failed to download. They have been ignored, or old ones used instead.
+
+vpn is needed, though still some error left.
+$ apt-cache search libapache2 | grep php
+libapache2-mod-php7.1 - server-side, HTML-embedded scripting language (Apache 2 module)
+php7.1-fpm - server-side, HTML-embedded scripting language (FPM-CGI binary)
+libapache2-mod-php7.0 - server-side, HTML-embedded scripting language (Apache 2 module)
+php7.0-fpm - server-side, HTML-embedded scripting language (FPM-CGI binary)
+libapache2-mod-php - server-side, HTML-embedded scripting language (Apache 2 module) (default)
+
+$ which php
+/usr/bin/php
+
+fyi:
+https://qa.debian.org/developer.php?login=ondrej%40debian.org
+
+
+$ php php.php 
+Hello World
+<?php echo "Hello World"; ?>
+but still not displayed from apache2, even the page is loaded. and there is no any error in the log.
+
+http://www.111cn.net/sys/Ubuntu/108810.htm
+  $ sudo apt-get install php-pear libapache2-mod-php7.0
+  sudo apt-get install php7.0-curl php7.0-json php7.0-cgi
+  /etc/php/7.0/apache2/php.ini
+
+mysql test:
+$ sudo netstat -tap | grep mysql
+[sudo] password for kidd: 
+tcp        0      0 localhost:mysql         *:*                     LISTEN      1477/mysqld 
+
+$ mysql -u root -p
+
+---------- 2016-07-28 12:07:27
+to modify /var/www/ code from phpstorm, change owner or mode.
+  drwxr-xr-x 4 root root  4096  7月 28 10:30 laozuo.org/
+  kidd@kidd-OptiPlex-9020:
+  /var/www/html
+  $ sudo chown -R kidd laozuo.org/
+
+--------- 2016-07-28 14:56:11
+yii test
+
+/var/www/html
+$ tree
+.
+├── index.html
+├── laozuo.org
+│   ├── logs
+│   │   ├── access.log
+│   │   └── error.log
+│   └── public_html
+│       ├── hello.html
+│       ├── php.php
+│       └── test.php
+└── yii
+    └── php.php
+
+4 directories, 7 files
+
+/home/kidd/workspace/bc_study/tools_study
+  DocumentRoot /var/www
+sudo ensite 000-default.conf
+then access the page at:
+  http://localhost/html/yii/php.php
+
+---------- 2016-07-28 16:32:51
+http://askubuntu.com/questions/764782/install-laravel-5-on-ubuntu-16-04
+Thank you all for your responses.. I'm finally able to solve this issue by doing:
+    Completely remove php first:
+    sudo apt-get -y purge php.*
+    Reinstall php and these important related packages:
+    sudo apt-get install curl php-curl php-mcrypt php-mbstring php-gettext
+    Enable mods (Thanks to lewis4u video):
+    sudo phpenmod mcrypt
+    sudo phpenmod mbstring
+
+http://tutorials.scrisoft.com/solve-this-error-yiiwebrequestcookievalidationkey-must-be-configured-with-a-secret-key/
+  yii\web\Request::cookieValidationKey must be configured with a secret key.
+    Do you get this error with Yii2:
+    Invalid Configuration – yii\base\InvalidConfigException
+    yii\web\Request::cookieValidationKey must be configured with a secret key.
+    In this tutorial I will explain to you how you can solve this error. Yii Framework 2.0 ask you to insert a secret key. This is required by cookie validation.
+    To solve this error, open your config/web.php file and you must insert a secret key on cookieValidationKey.
+    You can add any type of key you want:
+    'cookieValidationKey' => '',
+    For example I have insert a key like: xyctuyvibonp
+    'cookieValidationKey' => 'xyctuyvibonp',
+    In this way you can solve this error!
+    Now you can start to use Yii Framework 2.0.
+    - See more at: http://tutorials.scrisoft.com/solve-this-error-yiiwebrequestcookievalidationkey-must-be-configured-with-a-secret-key/#sthash.U7Ygw7gi.dpuf
+
+  /var/www/html/yii/basic/config/web.php
+  actually, I used "kidduyvibonp", it works well.
+  try access "http://localhost:8080/"
+
+1 more issue, not accessible from apache:
+/etc/php/7.0/apache2/php.ini
+  ;extension=mbstring.so
+  if not having permission:
+    /var/www/html/yii
+    $ chmod -R 777 basic/
+
+apache加载的php.ini可以通过网页访问echo phpinfo(); 得知加载的是哪个文件。
+  Loaded Configuration File   /etc/php/7.0/apache2/php.ini
+
+
