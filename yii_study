@@ -12,6 +12,9 @@ http://www.yiiframework.com/doc-2.0/yii-widgets-activeform.html
 ?? $config['bootstrap'][] = 'gii';
   /var/www/html/yii/basic/config/web.php
 
+$ tail -f /var/log/php/error.log
+  php error_log, refer to /etc/php/7.0/apache2/php.ini, 
+
 ------------- 2016-07-28 18:13:30
 http://www.yiichina.com/doc/guide/2.0/start-workflow
 

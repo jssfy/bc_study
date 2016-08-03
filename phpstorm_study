@@ -1,0 +1,18 @@
+
+
+--------------- 2016-08-03 10:49:18
+open a file:
+  ctrl+shift+N
+
+to show project side pane:
+  view->tool windows->project [alt+1]
+
+
+to show terminal and run server
+  alt+f12
+  php yii serve [ip]
+
+ctrl+shift+i      快速查看变量或方法定义源
+
+CTRL+SHIFT+ALT+N 查 找类中的方法或变量(JS)
+

@@ -1,0 +1,224 @@
+
+
+
+----------- 2016-08-03 21:13:04
+
+SQL limit offset
+经常用到在数据库中查询中间几条数据的需求
+比如下面的sql语句：
+① select * from testtable limit 2,1;
+② select * from testtable limit 2 offset 1;
+这两个都是能完成需要，但是他们之间是有区别的：
+①是从数据库中第三条开始查询，取一条数据，即第三条数据
+②是从数据库中的第二条数据开始查询两条数据，即第二条和第三条。
+
+mysql> select * from country order by population;
++------+----------------+------------+
+| code | name           | population |
++------+----------------+------------+
+| KI   | Kidd           |          1 |
+| B    | Boy            |          2 |
+| JP   | Japan          |    1111111 |
+| CA   | Canada         |    1147000 |
+| AU   | Australia      |   18886000 |
+| FR   | France         |   59225700 |
+| GB   | United Kingdom |   59623400 |
+| DE   | Germany        |   82164700 |
+| RU   | Russia         |  146934000 |
+| BR   | Brazil         |  170115000 |
+| US   | United States  |  278357000 |
+| IN   | India          | 1013662000 |
+| CN   | China          | 1277558000 |
++------+----------------+------------+
+13 rows in set (0.00 sec)
+
+mysql> select * from country order by population limit 2 offset 3;
++------+-----------+------------+
+| code | name      | population |
++------+-----------+------------+
+| CA   | Canada    |    1147000 |
+| AU   | Australia |   18886000 |
++------+-----------+------------+
+2 rows in set (0.00 sec)
+
+
+-------------- 2016-08-03 20:55:42
+yii pdo
+
+http://www.yiichina.com/doc/guide/2.0/start-databases
+创建活动记录
+创建一个继承自活动记录类的类 Country， 把它放在 models/Country.php 文件，去代表和读取 country 表的数据。
+<?php
+namespace app\models;
+use yii\db\ActiveRecord;
+class Country extends ActiveRecord
+{
+}
+这个 Country 类继承自 yii\db\ActiveRecord。你不用在里面写任何代码。 只需要像现在这样，Yii 就能根据类名去猜测对应的数据表名。
+    注意：如果类名和数据表名不能直接对应，可以覆写 yii\db\ActiveRecord::tableName() 方法去显式指定相关表名。
+使用 Country 类可以很容易地操作 country 表数据，就像这段代码：
+use app\models\Country;
+// 获取 country 表的所有行并以 name 排序
+$countries = Country::find()->orderBy('name')->all();
+// 获取主键为 “US” 的行
+$country = Country::findOne('US');
+// 输出 “United States”
+echo $country->name;
+// 修改 name 为 “U.S.A.” 并在数据库中保存更改
+$country->name = 'U.S.A.';
+$country->save();
+    补充：活动记录是面向对象、功能强大的访问和操作数据库数据的方式。你可以在活动记录章节了解更多信息。 除此之外你还可以使用另一种更原生的被称做数据访问对象的方法操作数据库数据。
+创建操作
+为了向最终用户显示国家数据，你需要创建一个操作。 相比之前小节掌握的在 site 控制器中创建操作， 在这里为所有和国家有关的数据新建一个控制器更加合理。 新控制器名为 CountryController，并在其中创建一个 index 操作，如下：
+<?php
+namespace app\controllers;
+use yii\web\Controller;
+use yii\data\Pagination;
+use app\models\Country;
+class CountryController extends Controller
+{
+    public function actionIndex()
+    {
+        $query = Country::find();
+        $pagination = new Pagination([
+            'defaultPageSize' => 5,
+            'totalCount' => $query->count(),
+        ]);
+        $countries = $query->orderBy('name')
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+        return $this->render('index', [
+            'countries' => $countries,
+            'pagination' => $pagination,
+        ]);
+    }
+}
+把上面的代码保存在 controllers/CountryController.php 文件中。
+index 操作调用了活动记录 Country::find() 方法，去生成查询语句并从 country 表中取回所有数据。 为了限定每个请求所返回的国家数量，查询在 yii\data\Pagination 对象的帮助下进行分页。 Pagination 对象的使命主要有两点：
+    为 SQL 查询语句设置 offset 和 limit 从句， 确保每个请求只需返回一页数据（本例中每页是 5 行）。
+    在视图中显示一个由页码列表组成的分页器， 这点将在后面的段落中解释。
+在代码末尾，index 操作渲染一个名为 index 的视图， 并传递国家数据和分页信息进去。
+创建视图
+在 views 目录下先创建一个名为 country 的子目录。这个目录存储所有由 country 控制器渲染的视图。 在 views/country 目录下创建一个名为 index.php 的视图文件， 内容如下：
+<?php
+use yii\helpers\Html;
+use yii\widgets\LinkPager;
+?>
+<h1>Countries</h1>
+<ul>
+<?php foreach ($countries as $country): ?>
+    <li>
+        <?= Html::encode("{$country->name} ({$country->code})") ?>:
+        <?= $country->population ?>
+    </li>
+<?php endforeach; ?>
+</ul>
+<?= LinkPager::widget(['pagination' => $pagination]) ?>
+这个视图包含两部分用以显示国家数据。第一部分遍历国家数据并以无序 HTML 列表渲染出来。 第二部分使用 yii\widgets\LinkPager 去渲染从操作中传来的分页信息。 小部件 LinkPager 显示一个分页按钮的列表。 点击任何一个按钮都会跳转到对应的分页。
+试运行
+浏览器访问下面的 URL 看看能否工作：
+http://localhost/index.php?r=country/index
+http://localhost/index.php?r=states/index
+
+below function is triggered on every call to http://localhost/index.php?r=states/index
+
+class StatesController extends Controller
+{
+    public function actionIndex()
+
+
+---------- 2016-08-03 20:03:20
+yii & mysql
+http://www.yiichina.com/doc/guide/2.0/start-databases
+
+.sql
+CREATE TABLE `country` (
+  `code` CHAR(2) NOT NULL PRIMARY KEY,
+  `name` CHAR(52) NOT NULL,
+  `population` INT(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `country` VALUES ('AU','Australia',18886000);
+INSERT INTO `country` VALUES ('BR','Brazil',170115000);
+INSERT INTO `country` VALUES ('CA','Canada',1147000);
+INSERT INTO `country` VALUES ('CN','China',1277558000);
+INSERT INTO `country` VALUES ('DE','Germany',82164700);
+INSERT INTO `country` VALUES ('FR','France',59225700);
+INSERT INTO `country` VALUES ('GB','United Kingdom',59623400);
+INSERT INTO `country` VALUES ('IN','India',1013662000);
+INSERT INTO `country` VALUES ('RU','Russia',146934000);
+INSERT INTO `country` VALUES ('US','United States',278357000);
+
+配置数据库连接
+开始之前，请确保你已经安装了 PHP PDO 扩展和你所使用的数据库的 PDO 驱动（例如 MySQL 的 pdo_mysql）。 对于使用关系型数据库来讲，这是基本要求。
+
+<?php
+namespace app\models;
+use yii\db\ActiveRecord;
+class Country extends ActiveRecord
+{
+}
+这个 Country 类继承自 yii\db\ActiveRecord。你不用在里面写任何代码。 只需要像现在这样，Yii 就能根据类名去猜测对应的数据表名。
+    注意：如果类名和数据表名不能直接对应，可以覆写 yii\db\ActiveRecord::tableName() 方法去显式指定相关表名。
+使用 Country 类可以很容易地操作 country 表数据，就像这段代码：
+use app\models\Country;
+// 获取 country 表的所有行并以 name 排序
+$countries = Country::find()->orderBy('name')->all();
+// 获取主键为 “US” 的行
+$country = Country::findOne('US');
+// 输出 “United States”
+echo $country->name;
+// 修改 name 为 “U.S.A.” 并在数据库中保存更改
+$country->name = 'U.S.A.';
+$country->save();
+    补充：活动记录是面向对象、功能强大的访问和操作数据库数据的方式。你可以在活动记录章节了解更多信息。 除此之外你还可以使用另一种更原生的被称做数据访问对象的方法操作数据库数据。[http://www.yiichina.com/doc/guide/2.0/db-dao]
+
+
+-------------- 2016-08-03 20:03:09
+$ mysql -u root -p
+mysql> create database yii2basic;
+source basic/database/country.sql;
+  another way: D:\mysql\bin\mysql –uroot –p123456 -Dtest<d:\test\ss.sql
+
+
+------------ 2016-08-03 20:35:54
+PDO扩展为PHP访问数据库定义了一个轻量级的、一致性的接口，它提供了一个数据访问抽象层，这样，无论使用什么数据库，都可以通过一致的函数执行查询和获取数据。
+在一些PHP管理系统需要开启PDO和PDO_MySQL扩展，方法很简单：
+1、找到php.ini文件
+2、打开后，搜索 extension=php_pdo.dll 和 extension=php_pdo_mysql.dll ，去掉前面“;”的注释。
+最终这两行配置内容如下：
+extension=php_pdo.dll
+extension=php_pdo_mysql.dll
+重新启动apache或者iis后，在phpinfo函数中查看，是否开启。 
+
+
+------------- 2016-08-03 20:45:43
+http://www.linuxdiyf.com/linux/15732.html
+ubuntu下安装好LAMP后默认情况没有安装mysql_pdo扩展，以下是安装 步聚，在终端输入以下命令：
+1、pecl search pdo
+2、sudo pecl install pdo
+当出现sh: phpize: command  not found这些提示时先运行sudo apt-get install php5-dev
+3、sudo pecl install pdo_mysql
+当出现configure: error: Cannot find MySQL header files under
+ERROR: `/tmp/pear/temp/PDO_MYSQL/configure' failed
+提示时先运行
+sudo apt-get install libmysqlclient15-dev
+4、sudo gedit /etc/php5/apache2/php.ini
+5、在最后面加入以下2行
+extension = pdo.so
+extension = pdo_mysql.so
+6、重启APACHE
+sudo /etc/init.d/apache2 restart
+我做以上操作是因为用zend framework框加时连接数据库出现以下提示
+Fatal error: Uncaught exception 'Zend_Db_Adapter_Exception' with message 'The mysql driver is not currently installed' in
+Ubuntu下安装PDO：http://www.linuxdiyf.com/linux/15311.html
+Ubuntu下的Mysql无法通过PDO连接：http://www.linuxdiyf.com/linux/14337.html
+
+/usr
+$ fn pdo.so
+./lib/php/20151012/pdo.so
+
+http://www.jb51.net/article/60256.htm
+PDO（PHP Data Object）扩展为PHP定义了一个访问数据库的轻量、持久的接口。实现PDO接口的每一种数据库驱动都能以正则扩展的形式把各自的特色表现出来。
+主要：PDO扩展只是一个抽象的接口层，利用PDO扩展本身并不能实现任何数据库操作，必须使用一个特定的数据库PDO驱动访问数据库

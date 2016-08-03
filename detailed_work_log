@@ -1,0 +1,65 @@
+
+form:
+  http://www.yiichina.com/doc/guide/2.0/start-forms
+
+https://mp.weixin.qq.com/wiki/18/167e7d94df85d8389df6c94a7a8f78ba.html
+scene_id  场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
+scene_str   场景值ID（字符串形式的ID），字符串类型，长度限制为1到64，仅永久二维码支持此字段 
+
+----------- 2016-08-03 16:55:48
+values = {"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": "asdb"}}}
+values = {"action_name": "QR_LIMIT_STR_SCENE", "action_info": {"scene": {"scene_str": "asdb"}}}
+
+the above 2 post data cases will recv different tickets.
+however, different string for scene_id will recv the same ticket. Probably wechat server takes it as some integer by default.
+
+
+-------------- 2016-08-03 16:03:52
+
+dropdownlist
+  http://www.yiichina.com/doc/guide/2.0/start-databases
+
+
+------------- 2016-08-03 15:06:50
+php文件里怎么显示图片
+<!-- 第一种 -->
+<img src="tpls/logo.png" />
+
+<!-- 第二种 -->
+<img src="或者这里直接写http外网路径" />
+e.g.,
+<img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=<?= Html::encode($model->ticket) ?>" />
+
+----------- 2016-08-03 14:49:36
+curl error detection:
+components/service/Wechat.php:
+  private static function get_contents($url) {
+        Logger::logFunctionCall();
+        $response =  Util::curl('GET', $url);
+        if(empty($response['res'])){
+            Logger::warning('get_contents failed');
+            return false;
+        }
+        Logger::info('Response: ' . $response['res']);
+
+        $response = json_decode($response['res'], true);
+        if(!empty($response['errcode'])) {
+            Logger::error(json_encode($response));
+            return false;
+        }
+        return $response;
+    }
+
+-------- 2016-08-03 14:37:52
+access token:
+components/wxmp/MpManager.php
+  public static function getAccessToken()
+
+the ticket will not change even the access token is updated.
+
+if passed a wrong access token, below is a sample response:
+  {"errcode":40001,"errmsg":"invalid credential, access_token is invalid or not latest hint: [sIZGjA0138vr19]"}
+
+------------- 2016-08-03 11:12:17
+yii2 default controller:
+  

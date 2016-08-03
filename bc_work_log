@@ -1,4 +1,13 @@
 
+setup:
+  add key to gerrit settings [$ cat ~/.ssh/id_rsa.pub]
+  put commit-msg inside ~/workspace/bc/MissionImpossible/.git/hooks/
+
+http://git.niub.la/#/q/project:BC/MissionImpossible
+anhye@niuba.la/K...
+
+local test: "can not create below folder"
+~/workspace/bc/MissionImpossible/runtime/logs
 
 ------------ 2016-08-01 19:44:05
 周工作目标：5天（8-1 ~ 8-5）

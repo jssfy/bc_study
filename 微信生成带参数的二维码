@@ -2,6 +2,8 @@
 calling post_ticket.py with the same scene id returns the same ticket, even using an updated access token.
 calling get_qrcode.py multiple times return the same .jpeg image.
 
+微信公众平台开发
+https://mp.weixin.qq.com/wiki/home/index.html
 
 309228933@qq.com
 暂不支持个人类型的公众帐号申请微信认证。
