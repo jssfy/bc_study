@@ -6,8 +6,82 @@ https://mp.weixin.qq.com/wiki/18/167e7d94df85d8389df6c94a7a8f78ba.html
 scene_id  场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
 scene_str   场景值ID（字符串形式的ID），字符串类型，长度限制为1到64，仅永久二维码支持此字段 
 
+config/params.php:9
+return [
+    'adminEmail' => 'admin@example.com',
+  'wechat.appid' => [
+    'prod' => 'wx578e5c618aa17da8', //挑战吧公众号
+    'test' => 'wx7a84fcbe9e98e97f', //挑战吧测试公众号
+    'dev' => 'wx7a84fcbe9e98e97f', //挑战吧测试公众号
+  ],
+    'wechat.appsecret' => [
+        'wx7a84fcbe9e98e97f' => '4bc274f2609078248cb3f23a76a9df83', //挑战吧测试公众号
+        'wx578e5c618aa17da8' => '118d0d2ee95a1d45ff226bc61a76bb03', //挑战吧公众号
+    ],
 
---------------
+    // YII_ENV_DEV and default
+//    return [
+//        'class' => 'yii\db\Connection',
+//        'dsn' => 'mysql:host=10.12.0.61;port=3306;dbname=tz8_dev',
+//        'username' => 'tz8_dev',
+//        'password' => 'P@55word',
+//        'charset' => 'utf8',
+//    ];
+
+$ mysql -h 10.12.0.61 -u tz8_dev -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 3847
+Server version: 5.5.50-0ubuntu0.14.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use tz8_dev
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++-------------------+
+| Tables_in_tz8_dev |
++-------------------+
+| access_token      |
+| account           |
+| account_token     |
+| challenge         |
+| checkin           |
+| checkin_vote      |
+| comments          |
+| invite            |
+| jobs              |
+| mission           |
+| mission_notify    |
+| mission_tmpl      |
+| mp_message        |
+| order             |
+| pending_checkin   |
+| reward            |
+| user              |
++-------------------+
+17 rows in set (0.00 sec)   
+
+-------------- 2016-08-08 10:33:31
+
+http://developer.qiniu.com/code/v6/api/kodo-api/rs/fetch.html
+
+save pic to qiniu.
+
+http://localhost:8080/mission/create
+  to create a mission: config the db to the test db instead of the local empty db, otherwise 404.
+
+https://portal.qiniu.com/signup?type=1
+  registration [sina micro-blog: http://weibo.com/u/1785529325, 309228933@qq.com/1...]
 
 ------------ 2016-08-05 10:49:54
 alter table `account` add column subscribed int(11) not null default -1 COMMENT '0: false, 1: true, -1: unknown';

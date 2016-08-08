@@ -13,6 +13,10 @@ local test: "can not create below folder"
 TBD:
   qr code scan handlers are called in multiple threads. db updating should be protected.
 
+
+ssh ahye@121.43.153.62
+
+
 ----------- 2016-08-04 20:58:28
 
 controllers/TestController.php:37
@@ -26,3 +30,4 @@ controllers/TestController.php:37
 服务器端基于yii。
 
 后期计划：自动回复以及自定义菜单服务器端替代方案，时间安排根据微信公众平台开发的熟悉度待定。
+

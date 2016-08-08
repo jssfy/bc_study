@@ -1,0 +1,20 @@
+
+
+----------- 2016-08-08 10:07:20
+ Yii2 选择布局的方式 [ 2.0 版本 ]
+trylife 2015-05-05 09:10:17 12609次浏览 4条评论 25 10 0
+
+方案1:控制器内成员变量
+
+public $layout = false; //不使用布局
+public $layout = "main"; //设置使用的布局文件
+
+方案2：控制器成员方法内
+
+$this->layout = false; //不使用布局
+$this->layout = "main"; //设置使用的布局文件
+
+方案3：视图中选择布局
+
+$this->context->layout = false; //不使用布局 [anhye] tested, set false in the view page
+$this->context->layout = 'main'; //设置使用的布局文件

@@ -1,0 +1,545 @@
+
+http://developer.qiniu.com/code/v7/sdk/php.html
+https://github.com/qiniu/php-sdk/tree/master/examples
+
+基本使用方法
+
+安装好 SDK 后，接下来介绍如何使用 SDK。在使用 SDK 之前，需要注册一个七牛帐号，并登录控制台获取一对有效的AccessKey和SecretKey，并且详细阅读安全机制以进一步了解如何正确使用和管理密钥。
+
+引入SDK
+
+无论你是通过哪种方式安装的 SDK，只需要一句简单的 require 语句将安装好的SDK包含到你的项目中。请参考如下表格，找到适合你的安装方式，将SDK引入到你的项目中。请用你项目中的实际路径替换 path_to_sdk。
+安装方式  引入SDK
+Composer 安装   require 'path_to_sdk/vendor/autoload.php';
+下载Composer安装包   require 'path_to_sdk/vendor/autoload.php';
+下载源码安装包   require 'path_to_sdk/autoload.php';
+
+SDK结构
+
+可以直接查看我们的SDK目录，即可大致了解我们SDK的结构。
+
+    最外层包含：配置文件， 鉴权和一些公共的函数。
+    HTTP 目录主要包含了一些对 http 进行封装的类，这块你可以不用关心。
+    Storage 目录主要包含两大块：Bucket 中文件的管理和文件的上传。
+    Processing 目录主要包含文件的处理，文件处理又包含两个方面：同步处理和异步处理。
+
+下面是七牛免费额度说明 https://portal.qiniu.com/financial/price
+未认证个人用户免费额度 1GB 1GB 1万次PUT/月10万次GET/月
+免费用量占比（08-01 ~ 08-08）
+存储空间 0.00/1 GB
+HTTP 国内下载流量 0.00/1 GB
+HTTP 海外下载流量 0.00/0 GB
+GET 请求 0.00/10 万次
+PUT 请求 0.00/1 万次
+
+FAQ
+https://segmentfault.com/qiniu
+http://developer.qiniu.com/article/faqs/sdk/index.html#php
+
+
+----------- 2016-08-08 20:55:20
+yii2 qiniu
+http://blog.csdn.net/caotianyin/article/details/45076609
+
+vendor/composer/autoload_psr4.php
+    'Qiniu\\' => array($vendorDir . '/qiniu/php-sdk/src/Qiniu'),
+
+vendor/composer/autoload_files.php
+    '841780ea2e1d6545ea3a253239d59c05' => $vendorDir . '/qiniu/php-sdk/src/Qiniu/functions.php',
+------------ 2016-08-08 19:58:24
+
+/home/kidd/workspace/php/php-sdk/php-sdk-7.0.8/src/Qiniu/Config.php
+    public function __construct(Zone $z = null)         // 构造函数，默认为zone0
+    {
+        if ($z === null) {
+            $z = Zone::zone1();
+        }
+        $this->upHost = $z->upHost;
+        $this->upHostBackup = $z->upHostBackup;
+    }
+
+test: 
+1. download the sourcecode
+  https://github.com/qiniu/php-sdk/releases
+2. clone the samples: git clone https://github.com/qiniu/php-sdk.git
+3. 
+安装方式  引入SDK
+Composer 安装   require 'path_to_sdk/vendor/autoload.php';
+下载Composer安装包   require 'path_to_sdk/vendor/autoload.php';
+下载源码安装包   require 'path_to_sdk/autoload.php';
+4. a sample to upload file
+  below domain is not provided. Not like the community version. [git clone https://github.com/hfcorriez/php-qiniu.git]
+
+ <?php
+    require '/home/kidd/workspace/php/php-sdk/php-sdk-7.0.8/autoload.php';
+
+    // 引入鉴权类
+    use Qiniu\Auth;
+
+    // 引入上传类
+    use Qiniu\Storage\UploadManager;
+
+    // 需要填写你的 Access Key 和 Secret Key
+    $accessKey = 'w0-7SP9RyMdstFTzXH9QNmCIJv61vmax7LGQZ6dL';
+    $secretKey = 'J1HikeYeRnRw5nKyE-SndKZi2GGu9P2h7SgaJYwk';
+
+    // 构建鉴权对象
+    $auth = new Auth($accessKey, $secretKey);
+
+    // 要上传的空间
+    $bucket = 'abc-test';
+
+    // 生成上传 Token
+    $token = $auth->uploadToken($bucket);
+
+    // 要上传文件的本地路径
+    $filePath = '/home/kidd/Pictures/what_xtion_scan_sees.png';
+
+    // 上传到七牛后保存的文件名
+    $key = 'xtion_02.png';
+
+    // 初始化 UploadManager 对象并进行文件的上传
+    $uploadMgr = new UploadManager();
+
+    // 调用 UploadManager 的 putFile 方法进行文件的上传
+    list($ret, $err) = $uploadMgr->putFile($token, $key, $filePath);
+    echo "\n====> putFile result: \n";
+    if ($err !== null) {
+        var_dump($err);
+    } else {
+        var_dump($ret);
+    }
+
+
+
+
+
+-------------- 2016-08-08 17:12:28
+http://blog.csdn.net/do168/article/details/51764563
+七牛选择华北简单上传抛出的异常 error:incorrect zone, please use up-z1.qiniu.com 
+七牛有不错的SDK，各种版本都有。官方 SDK有：iOS、Android、PHP、Python、Ruby、Java、Node.js、C#、C/C++、Go、JavaScript，基本全了。
+
+上网查，说明选择南方的主机就不会错了，可是我是北方人，我选的北方主机就不行了吗？四处找也没找到解决的方案。只能硬着头皮看源码了。 
+
+
+/home/kidd/workspace/php/php-qiniu/lib/Qiniu/Client.php
+
+class Client
+{
+    /**
+     * @var array Configs
+     */
+    protected $options = array(
+        'access_key' => null,
+        'secret_key' => null,
+        'bucket'     => null,
+        'domain'     => null,
+        'timeout'    => '3600',
+        // 'upload_url' => 'http://up.qiniu.com',
+        'upload_url' => 'http://up-z1.qiniu.com',
+
+
+----------- 2016-08-08 16:11:57
+
+https://mp.weixin.qq.com/wiki/10/78b15308b053286e2a66b33f0f0f5fb6.html
+ 下载多媒体文件
+
+公众号可调用本接口来获取多媒体文件。请注意，视频文件不支持下载，调用该接口需http协议。
+
+接口调用请求说明
+
+http请求方式: GET
+http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID
+请求示例（示例为通过curl命令获取多媒体文件）
+curl -I -G "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID"
+
+
+------------- 2016-08-08 15:17:53
+
+2016-08-08 15:17:19 [-][error][abc\app\controllers\TestController::actionUploadQiniu] image uploaded to: http://qiniu.muder.pw/images/2016_08_08_15_17_19_57a831ff6f704
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:25
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/TestController.php:78
+
+
+
+-------- 2016-08-08 14:27:36
+commands/tasks/MpCheckinTask.php:58
+
+private function processPendingCheckin($checkin) {
+    // update status
+    $checkin->status = PendingCheckinStatus::PROCESSING;
+    $ret = $checkin->save();
+    if (!$ret) {
+      $this->processError('更新状态失败');
+    }
+    // upload image
+    $ret = FileUploader::uploadByUrl($checkin->pic_url);
+    if (!$ret) {
+      $this->processError('上传图片失败');
+    }
+    Logger::info($ret);
+
+components/service/FileUploader.php:46
+public static function uploadByUrl($url) {
+  $qiniu = new Qiniu();
+  $key = 'images/' . uniqid(date("Y_m_d_H_i_s_"));
+  $result = $qiniu->fetch($url, $key);
+  if ($result) {
+    // TODO compress image
+    return $qiniu->getUrl($key);
+  } else {
+    return false;
+  }
+}
+
+
+---------- 2016-08-08 10:52:26
+http://developer.qiniu.com/article/kodo/kodo-first/quickstart.html
+
+control panel:
+  https://portal.qiniu.com/bucket/abc-test/resource
+
+为了顺利完成快速入门，您需要一个七牛云账号。如果您还没有七牛云账号，请通过以下步骤创建七牛云账号。
+  309...@qq
+  1..
+注册七牛云
+  打开 https://portal.qiniu.com/，选择 注册。
+  遵循在线使用说明。
+
+创建空间
+首先，您需要创建一个需要上传文件的空间。
+    登陆七牛开发者平台。
+    在 七牛官方资源 下，选择 立即添加 。 
+    在 创建空间 页面的 空间名称 栏输入空间名。 abc-test
+    在 访问控制 栏选择 公开空间。
+    选择 确定创建 。
+当您成功创建一个空间后，七牛开发者平台会在 我的资源 显示您刚才创建的空间。
+  https://portal.qiniu.com/bucket/abc-test
+
+  此类测试域名，限总流量，限单 IP 访问频率，限速，仅供测试使用。 相关文档
+obklhea5g.bkt.clouddn.com
+
+步骤2：上传文件
+
+既然已经创建了空间，您可以向空间中上传资源。资源可以是任意的文件：文档，照片，视频，音乐文件，或其它文件类型。
+
+    在七牛开发者平台，选择您要上传文件的空间，选择 内容管理 。 内容管理
+    然后选择 上传文件 。 上传文件
+    在文件选择对话框，找到您想上传的文件，选择它，选择 选择文件 ，然后选择 Open 。 
+    步骤3：下载文件
+
+既然已经添加了文件到空间，您可以通过浏览器打开和查看它。您也可以下载该文件到您的本地计算机。
+
+    在七牛开发者平台，选择您的空间，选择您想打开或下载的文件，选择 ... ，然后选择 下载文件 或 复制外链 。 下载文件
+
+    如果您下载文件，需要指定该文件保存的位置。
+
+保存文件的步骤依赖您使用的浏览器和操作系统。
+
+http://obklhea5g.bkt.clouddn.com/wall.png
+
+
+http://blog.csdn.net/bigsunnyside/article/details/45030675
+if (YII_ENV_PROD) {
+} else if (YII_ENV_TEST) {
+} else {
+    return [
+        'accessKey'=>'w0-7SP9RyMdstFTzXH9QNmCIJv61vmax7LGQZ6dL',
+        'secretKey'=>'J1HikeYeRnRw5nKyE-SndKZi2GGu9P2h7SgaJYwk',
+        'bucket'=>'abc-test',
+        'domain'=>'http://obklhea5g.bkt.clouddn.com'
+    ];
+}
+
+http://developer.qiniu.com/resource/community.html#sdk
+
+------------- 2016-08-08 14:08:06
+
+https://github.com/hfcorriez/php-qiniu#%E5%AE%89%E8%A3%85
+七牛云存储非官方SDK，采用PSR规范，支持Composer安装
+git clone https://github.com/hfcorriez/php-qiniu.git
+go to the root folder, and: composer install [vpn might be necessary]
+
+~/workspace/php/php-qiniu
+$ tree
+.
+├── composer.json
+├── composer.lock
+├── lib
+│   └── Qiniu
+│       ├── Client.php
+│       ├── Mac.php
+│       ├── Qiniu.php
+│       ├── Request.php
+│       ├── Response.php
+│       ├── Result.php
+│       └── Util.php
+├── phpunit.xml
+├── README.md
+├── test
+│   ├── MacTest.php
+│   ├── RequestTest.php
+│   └── UtilTest.php
+├── test.php
+└── vendor
+    ├── autoload.php
+    └── composer
+        ├── autoload_classmap.php
+        ├── autoload_namespaces.php
+        ├── autoload_psr4.php
+        ├── autoload_real.php
+        ├── autoload_static.php
+        ├── ClassLoader.php
+        ├── installed.json
+        └── LICENSE
+
+5 directories, 24 files
+
+
+test.php
+<?php
+
+echo __DIR__."\n";
+echo dirname(__DIR__)."\n";
+
+require __DIR__ . '/vendor/autoload.php';
+
+$client = \Qiniu\Qiniu::create(array(
+    'access_key' => 'w0-7SP9RyMdstFTzXH9QNmCIJv61vmax7LGQZ6dL',
+    'secret_key' => 'J1HikeYeRnRw5nKyE-SndKZi2GGu9P2h7SgaJYwk',
+    'bucket'     => 'abc-test',
+    'domain'=>'http://obklhea5g.bkt.clouddn.com'
+));
+
+// 查看文件状态
+$res = $client->stat('wall.png');
+
+print_r($res);
+
+?>
+
+~/workspace/php/php-qiniu
+$ php test.php
+/home/kidd/workspace/php/php-qiniu
+/home/kidd/workspace/php
+Qiniu\Result Object
+(
+    [error] => 
+    [data] => Array
+        (
+            [fsize] => 141153
+            [hash] => Fh17ZG5JYQLND4pyZCnEe36j7LMF
+            [mimeType] => image/png
+            [putTime] => 14706259933808347
+            [url] => http://obklhea5g.bkt.clouddn.com/wall.png
+        )
+
+    [response] => Qiniu\Response Object
+        (
+            [code] => 200
+            [protocol] => HTTP/1.1
+            [message] => OK
+            [body] => {"fsize":141153,"hash":"Fh17ZG5JYQLND4pyZCnEe36j7LMF","mimeType":"image/png","putTime":14706259933808347}
+            [error] => 
+            [headers] => Array
+                (
+                    [server] => nginx/1.4.4
+                    [date] => Mon, 08 Aug 2016 06
+                    [content-type] => application/json
+                    [content-length] => 105
+                    [connection] => keep-alive
+                    [vary] => Accept-Encoding
+                    [cache-control] => no-store
+                    [x-log] => rs5_7.sel;qtbl.get;RS;ZONEPROXY
+                    [x-reqid] => XxcAACk9zdz_v2gU
+                )
+
+            [data] => Array
+                (
+                    [fsize] => 141153
+                    [hash] => Fh17ZG5JYQLND4pyZCnEe36j7LMF
+                    [mimeType] => image/png
+                    [putTime] => 14706259933808347
+                )
+
+        )
+
+    [debug] => Array
+        (
+            [log] => rs5_7.sel;qtbl.get;RS;ZONEPROXY
+            [id] => XxcAACk9zdz_v2gU
+        )
+
+)
+
+if ($res->ok()) {
+    // 成功上传或者操作
+
+    // 获取返回的数据
+    $data = $res->data; // Or $res->toArray()
+
+    //做一些事情
+} else {
+    // 失败，获取失败信息
+    $res->error;
+
+    // 七牛的Debug头信息
+    $res->debug;
+}
+
+~/workspace/php/php-qiniu
+$ php test.php
+/home/kidd/workspace/php/php-qiniu
+/home/kidd/workspace/php
+Qiniu\Result Object
+(
+    [error] => 
+    [data] => Array
+        (
+            [hash] => FthRuOZq-ok7ieXE-si1nMLnHH1f
+            [key] => xtion.png
+            [url] => http://obklhea5g.bkt.clouddn.com/xtion.png
+        )
+
+    [response] => Qiniu\Response Object
+        (
+            [code] => 200
+            [protocol] => HTTP/1.1
+            [message] => OK
+            [body] => {"hash":"FthRuOZq-ok7ieXE-si1nMLnHH1f","key":"xtion.png"}
+            [error] => 
+            [headers] => Array
+                (
+                    [server] => nginx
+                    [date] => Mon, 08 Aug 2016 09
+                    [content-type] => application/json
+                    [content-length] => 57
+                    [connection] => keep-alive
+                    [access-control-allow-headers] => X-File-Name, X-File-Type, X-File-Size
+                    [access-control-allow-methods] => OPTIONS, HEAD, POST
+                    [access-control-allow-origin] => *
+                    [access-control-expose-headers] => X-Log, X-Reqid
+                    [access-control-max-age] => 2592000
+                    [cache-control] => no-store, no-cache, must-revalidate
+                    [pragma] => no-cache
+                    [x-content-type-options] => nosniff
+                    [x-log] => s.ph;s.put.tw;s.put.tr
+                    [x-reqid] => pTcAAN0dj_8XymgU
+                )
+
+            [data] => Array
+                (
+                    [hash] => FthRuOZq-ok7ieXE-si1nMLnHH1f
+                    [key] => xtion.png
+                )
+
+        )
+
+    [debug] => Array
+        (
+            [log] => s.ph;s.put.tw;s.put.tr
+            [id] => pTcAAN0dj_8XymgU
+        )
+
+)
+
+
+
+--------------- 2016-08-08 20:46:21
+components/service/Qiniu.php
+<?php
+/**
+ * Created by PhpStorm.
+ * User: dhu
+ * Date: 16/4/1
+ * Time: 13:47
+ */
+
+namespace app\components\service;
+
+use app\components\util\Logger;
+use Qiniu\Auth;
+use Qiniu\Storage\BucketManager;
+use Qiniu\Storage\UploadManager;
+use Yii;
+use yii\helpers\StringHelper;
+
+class Qiniu
+{
+    private $accessKey;
+    private $secretKey;
+    private $bucketName;
+    private $bucketDomain;
+
+    public function __construct() {
+        $this->accessKey = Yii::$app->params['qiniu.accessKey'];
+        $this->secretKey = Yii::$app->params["qiniu.secretKey"];
+        $this->bucketDomain = Yii::$app->params["qiniu.bucketDomain"];
+        $this->bucketName = Yii::$app->params["qiniu.bucketName"];
+        $this->auth = new Auth($this->accessKey, $this->secretKey);
+    }
+
+    public function uploadFile($fileName, $savedName, $mime = 'application/octet-stream') {
+
+        if (StringHelper::startsWith($savedName, '/')) {
+            $savedName = substr($savedName, 1);
+        }
+        // $auth = new Auth($this->accessKey, $this->secretKey);
+        // 生成上传 Token
+        $token = $this->auth->uploadToken($this->bucketName);
+
+        // 初始化 UploadManager 对象并进行文件的上传。
+        $uploadMgr = new UploadManager();
+        list($ret, $err) = $uploadMgr->putFile($token, $savedName, $fileName, null, $mime);
+
+        if ($err !== null ) {
+            return false;
+        } else {
+            return $savedName;
+        }
+    }
+
+  public function getUploadToken() {
+    $token = $this->auth->uploadToken($this->bucketName);
+    return $token;
+  }
+
+    /*上传二进制文件*/
+    public function uploadBinary($data, $savedName, $mime = 'application/octet-stream'){
+        $token = $this->auth->uploadToken($this->bucketName);
+
+        // 初始化 UploadManager 对象并进行文件的上传。
+        $uploadMgr = new UploadManager();
+        list($ret, $err) = $uploadMgr->put($token, $savedName, $data, null, $mime);
+
+        if($err !== null){
+            return false;
+        }
+        Logger::info('Image uploaded to ' . $savedName);
+        return $savedName;
+    }
+
+    public function deleteFile($name){
+        $del = new BucketManager($this->auth);
+        $ret = $del->delete($this->bucketName, $name); // 成功删除返回空
+        return $ret;
+    }
+
+    //获取下载的url
+    public function getUrl($fileName){
+        return "http://". $this->bucketDomain . '/' . $fileName;
+    }
+
+  public function fetch($url, $filename) {
+    $bucketMgr = new BucketManager($this->auth);
+    list($ret, $err) = $bucketMgr->fetch($url, $this->bucketName, $filename);
+    if ($err !== null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+}
+
+vendor/qiniu/php-sdk/src/Qiniu/Storage/BucketManager.php

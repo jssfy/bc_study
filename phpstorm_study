@@ -1,7 +1,7 @@
 
 
 --------------- 2016-08-03 10:49:18
-open a file:
+locate a file via name:
   ctrl+shift+N
 
 to show project side pane:
@@ -24,6 +24,9 @@ F5   复制文件/文件夹
 F6   移动
 
 Ctrl + F4 关闭当前tab
+
+CTRL+H        显 示类结构图
+怎么在PHPstorm中查找函数 alt+7
 
 查询快捷键
 CTRL+N   查找类
