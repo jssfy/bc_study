@@ -6,6 +6,93 @@ https://mp.weixin.qq.com/wiki/18/167e7d94df85d8389df6c94a7a8f78ba.html
 scene_id  场景值ID，临时二维码时为32位非0整型，永久二维码时最大值为100000（目前参数只支持1--100000）
 scene_str   场景值ID（字符串形式的ID），字符串类型，长度限制为1到64，仅永久二维码支持此字段 
 
+
+--------------
+
+------------ 2016-08-05 10:49:54
+alter table `account` add column subscribed int(11) not null default -1 COMMENT '0: false, 1: true, -1: unknown';
+
+subscribe/unsubscribe
+
+[Fri Aug 05 14:19:55.198322 2016] [:error] [pid 3775] [client 58.247.206.139:44554] \nPOST /index.php?signature=015555362de3b67553e23ee6ddf2c7d3c3193bc2&timestamp=1470377995&nonce=242525465&openid=oCDRlwueI87oqLoCGywJUZhMrSPg HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_1b232fd796df]]></ToUserName>\n<FromUserName><![CDATA[oCDRlwueI87oqLoCGywJUZhMrSPg]]></FromUserName>\n<CreateTime>1470377995</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[unsubscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>
+
+https://mp.weixin.qq.com/wiki/7/9f89d962eba4c5924ed95b513ba69d9b.html
+关注/取消关注事件
+用户在关注与取消关注公众号时，微信会把这个事件推送到开发者填写的URL。方便开发者给用户下发欢迎消息或者做帐号的解绑。
+微信服务器在五秒内收不到响应会断掉连接，并且重新发起请求，总共重试三次
+关于重试的消息排重，推荐使用FromUserName + CreateTime 排重。
+假如服务器无法保证在五秒内处理并回复，可以直接回复空串，微信服务器不会对此作任何处理，并且不会发起重试。
+推送XML数据包示例：
+
+<xml>
+<ToUserName><![CDATA[toUser]]></ToUserName>
+<FromUserName><![CDATA[FromUser]]></FromUserName>
+<CreateTime>123456789</CreateTime>
+<MsgType><![CDATA[event]]></MsgType>
+<Event><![CDATA[subscribe]]></Event>
+</xml>
+
+参数说明：
+参数  描述
+ToUserName  开发者微信号
+FromUserName  发送方帐号（一个OpenID）
+CreateTime  消息创建时间 （整型）
+MsgType   消息类型，event
+Event   事件类型，subscribe(订阅)、unsubscribe(取消订阅) 
+
+
+
+
+
+
+
+
+
+~~~~~~~~~~~~
+
+/home/kidd/workspace/bc/MissionImpossible/config/db.php
+    return [
+        'class' => 'yii\db\Connection',
+        'dsn' => 'mysql:host=localhost;port=3306;dbname=tz8_dev',
+        'username' => 'root',
+        'password' => 'kidd',
+        'charset' => 'utf8',
+    ];
+
+to push code to gerrit:
+/home/kidd/workspace/bc/MissionImpossible
+ 2045  git pull
+ 2046  git status
+ 2047  git add .
+ 2048  git status
+ 2049  git branch -a
+ 2050  git push origin HEAD:refs/for/master
+ 2051  git remote -v
+ 2052  git status
+ 2053  git log -2
+ 2054  git commit -m "[feature] parameterized qrcode and statistics"
+ 2055  git log -3
+ 2056  git reset dce1ed0edeeb3b9e5cf139320fbe904f4ffbbf0d
+ 2057  git status
+ 2058  git checkout config/db.php
+ 2059  git status
+ 2060  git add .
+ 2061  git commit -m "[feature] parameterized qrcode and statistics"
+ 2062  git log -3
+ 2063  git push origin HEAD:refs/for/master
+ 2064  git config --global user.name "anhye"
+ 2065  git config --global user.email anhye@niub.la
+ 2066  git log -2
+ 2067  git reset dce1ed0edeeb3b9e5cf139320fbe904f4ffbbf0d
+ 2068  git add .
+ 2069  git commit -m "[feature] parameterized qrcode and statistics"
+ 2070  git log -3
+ 2071  git push origin HEAD:refs/for/master
+ 2072  gitdir=$(git rev-parse --git-dir); scp -p -P 29419 anhye@git.niub.la:hooks/commit-msg ${gitdir}/hooks/
+ 2073  git commit --amend
+ 2074  git push origin HEAD:refs/for/master
+
+
 ----------- 2016-08-03 16:55:48
 values = {"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": "asdb"}}}
 values = {"action_name": "QR_LIMIT_STR_SCENE", "action_info": {"scene": {"scene_str": "asdb"}}}

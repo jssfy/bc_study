@@ -1,0 +1,27 @@
+
+
+--------------- 2016-08-05 15:45:37
+现在网上有很多的php开源后台管理系统，这些开源系统的出现，使得快速开发和定制属于自己的平台（网站）已不再是奢望，就我做网站使用过的开源系统有：织梦（dedecms）、PHPMYWIND、WORDPRESS、MAGENTO，综合来讲，这些系统可以分为使用标签调用数据的和使用php源码调用数据的这两种，当然开源的还有如DISCUZ论坛，PHPCMS等很多，就不多做解释了！
+其中我最为推荐的是PHPMYWIND，推荐理由是简单实用比较轻（可不是一般的轻量级的哦）
+
+------------- 2016-08-05 15:46:06
+yii db transaction
+db indexing
+activerecord related operations and internals.
+yii caching
+
+sql functions
+
+sql statements:
+  SELECT a.id,a.money,SUM(lt.money)  as cum
+  FROM cum_demo a JOIN cum_demo lt 
+  ON a.id >= lt.id
+  GROUP BY a.money
+  ORDER BY id
+
+
+
+
+
+
+

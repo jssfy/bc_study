@@ -1,0 +1,25 @@
+
+
+-------------- 2016-08-04 12:29:25
+http://www.myhack58.com/Article/48/66/2015/62899.htm
+1. 在文档所在目录运行命令
+     iconv -f gb2312 -t utf8 -c 1.txt > 2.txt
+ 选项-c的作用是忽略不能识别的字符，继续向后转换。否则iconv遇到不能识别的字符就终止转换。
+ iconv不能实现批量转换，你需要写一段小程序来达到此目的。
+$ iconv -t gb18030 -f utf-8 test.php > gb_test.php
+$ file gb_test.php 
+gb_test.php: ISO-8859 text
+
+5. 使用enca。
+enca可自动判别原文件的编码类型，并且支持通配符，就此能实现批量转换。
+enca -L 原文件语言类型 -x 目标编码 原文件名
+例如：enca -L zh_CN -x utf-8 file.txt
+但是enca会经常遇到转换失败的情况，当然对于不能转换的enca会给出错误报告。
+
+
+------------- 2016-08-04 12:31:51
+~/.vimrc 文件中添加以下内容：
+
+set encoding=utf-8 fileencodings=ucs-bom,utf-8,cp936
+
+这样，就可以让vim自动识别文件编码（可以自动识别UTF-8或者GBK编码的文件），其实就是依照 fileencodings提供的编码列表尝试，如果没有找到合适的编码，就用latin-1(ASCII)编码打开。

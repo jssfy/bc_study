@@ -2,8 +2,12 @@
 calling post_ticket.py with the same scene id returns the same ticket, even using an updated access token.
 calling get_qrcode.py multiple times return the same .jpeg image.
 
+
 微信公众平台开发
 https://mp.weixin.qq.com/wiki/home/index.html
+
+reponse data schema:
+  https://mp.weixin.qq.com/wiki/7/9f89d962eba4c5924ed95b513ba69d9b.html
 
 309228933@qq.com
 暂不支持个人类型的公众帐号申请微信认证。
@@ -82,6 +86,13 @@ HTTP GET请求（请使用https协议）
 https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
 提醒：TICKET记得进行UrlEncode
 
+mysql related:
+1. history scans: 
+  select scene_id, sum(count) from qrcode_general group by scene_id;
+  select scene_id, count(scene_id) from qrcode_general group by scene_id;
+
+2. duplicated subscription: 
+3. row update: count, time, etc.
 
 ----------- 2016-08-02 18:54:31
 http://mp.weixin.qq.com/wiki/18/167e7d94df85d8389df6c94a7a8f78ba.html
@@ -624,4 +635,93 @@ below are the logs from both "scan" and "subscribe" types, refer to the "Event" 
 [Tue Aug 02 19:02:56.226402 2016] [:error] [pid 3788] [client 58.247.206.144:20587] ----------------
 [Tue Aug 02 19:02:56.226414 2016] [:error] [pid 3788] [client 58.247.206.144:20587] \nPOST /index.php?signature=399d33f2082d56a7c3d3b5e2a0e7792c51f5f711&timestamp=1470135776&nonce=223004458&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470135776</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[subscribe]]></Event>\n<EventKey><![CDATA[qrscene_kidd]]></EventKey>\n<Ticket><![CDATA[gQFx7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xLzlVVGZObWZsWDVnbXJrc3ZiV3hXAAIEJXygVwMEAAAAAA==]]></Ticket>\n</xml>
 
+--------- 2016-08-04 11:37:27
+http://www.zhihu.com/question/23018377
+微信生成带参数的二维码有哪些应用场景?
 
+http://weixin.drip.im/features/qrcode
+个性化的内容营销渠道，强大的渠道统计工具，专为企业量身打造。
+参数二维码支持扫码关注后推送个性化内容，在提供服务的同时将客户转化为粉丝。
+针对企业多样化的渠道，使用分组轻松管理，并支持全局搜索。
+提供每一个二维码的扫描次数、新粉人数、老用户人数等详细数据，同时可一键导出报表，支持在移动端随时浏览每一个参数二维码的实时统计数据。
+用户扫描二维码的那一刻起，可以被打上标签，后期通过标签可以筛选用户，精准推送消息。
+
+----------- 2016-08-04 12:47:58
+http://blog.sina.com.cn/s/blog_63eb3eec0101hpfc.html
+
+
+there is an "unsubscribe" event if user unsubscribes:
+[Thu Aug 04 12:50:37.131028 2016] [:error] [pid 3778] [client 58.247.206.144:58077] \nPOST /index.php?signature=7cf9ba57d34d311637516aeec2890472ffc498fe&timestamp=1470286237&nonce=637293762&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470286237</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[unsubscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>
+
+for an unsubscribed user, if he/she scans without subscribing, there will not be any event pushed.
+for subscribe and scan event, scanning the same qrcode generate different event ids, e.g., <EventKey><![CDATA[qrscene_1111]]></EventKey> & <EventKey><![CDATA[1111]]></EventKey>
+
+http://www.cnblogs.com/txw1958/p/weixin-qrcode-with-parameters.html
+
+gh_d790e147d0b7 can be used in wechat to search for a public account: and the subscribe, what is weird, the eventkey is still the same as from qrcode scanning.
+[Thu Aug 04 13:09:22.437923 2016] [:error] [pid 3788] [client 58.247.206.139:35455] \nPOST /index.php?signature=828dba160d7850194a3d155c963a18c6dba87bad&timestamp=1470287362&nonce=275684576&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470287362</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[subscribe]]></Event>\n<EventKey><![CDATA[qrscene_1111]]></EventKey>\n<Ticket><![CDATA[gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2EwUzJvaWZsUDVoRzROR3lCR2hXAAIEa8KhVwMEAAAAAA==]]></Ticket>\n</xml>
+
+
+create time transform:
+http://tool.chinaz.com/Tools/unixtime.aspx
+
+FromUserName if openid, which is not able be used to search for a user. 
+ToUserName is the public account, which is able to be used to search for the corresponding public account.
+
+------------- 2016-08-04 22:03:56
+mysql> select event_key, sum(count) from qrcode_general group by event_key;
++--------------+------------+
+| event_key    | sum(count) |
++--------------+------------+
+| 1111         |         33 |
+| 2222         |         36 |
+| 3333         |         39 |
+| qrscene_1111 |          3 |
+| qrscene_2222 |          3 |
+| qrscene_3333 |          3 |
++--------------+------------+
+6 rows in set (0.00 sec)
+
+mysql> select event_key, count(event_key) from qrcode_general group by event_key;
++--------------+------------------+
+| event_key    | count(event_key) |
++--------------+------------------+
+| 1111         |                2 |
+| 2222         |                2 |
+| 3333         |                2 |
+| qrscene_1111 |                2 |
+| qrscene_2222 |                2 |
+| qrscene_3333 |                2 |
++--------------+------------------+
+6 rows in set (0.00 sec)
+
+------------ 2016-08-05 14:27:42
+if subcribe by searching for account id:
+[Fri Aug 05 14:27:01.630584 2016] [:error] [pid 7126] [client 58.247.206.139:33930] \nPOST /index.php?signature=3373a63f2ab5af1f49c2dc7b4a420dd115bf5a35&timestamp=1470378421&nonce=1223578633&openid=oCDRlwueI87oqLoCGywJUZhMrSPg HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_1b232fd796df]]></ToUserName>\n<FromUserName><![CDATA[oCDRlwueI87oqLoCGywJUZhMrSPg]]></FromUserName>\n<CreateTime>1470378421</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[subscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>
+
+and then unsubscribe:
+[Fri Aug 05 14:31:11.864676 2016] [:error] [pid 3779] [client 58.247.206.139:15641] \nPOST /index.php?signature=ce518e6bcfd5b5d75bbe4dc75534964d1027b89a&timestamp=1470378671&nonce=584293488&openid=oCDRlwueI87oqLoCGywJUZhMrSPg HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_1b232fd796df]]></ToUserName>\n<FromUserName><![CDATA[oCDRlwueI87oqLoCGywJUZhMrSPg]]></FromUserName>\n<CreateTime>1470378671</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[unsubscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>
+
+
+if subscribe by scanning parameterized qrcode: [subscribing is with event key, while unsubscribing is without event key.]
+  [Fri Aug 05 14:51:19.513990 2016] [:error] [pid 3788] [client 58.247.206.143:54071] error log test again!
+  [Fri Aug 05 14:51:19.514120 2016] [:error] [pid 3788] [client 58.247.206.143:54071] ----------------
+  [Fri Aug 05 14:51:19.514131 2016] [:error] [pid 3788] [client 58.247.206.143:54071] \nPOST /index.php?signature=b39b801b441db32fe8bfc3e3c1661aad1f456e04&timestamp=1470379879&nonce=582434047&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470379879</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[SCAN]]></Event>\n<EventKey><![CDATA[aaa]]></EventKey>\n<Ticket><![CDATA[gQFC8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2dVU2hTNm5sSkpoZGFUOVhFMnhXAAIEUzekVwMEAAAAAA==]]></Ticket>\n</xml>
+  [Fri Aug 05 14:52:29.311394 2016] [:error] [pid 3776] [client 58.247.206.141:10788] error log test again!
+  [Fri Aug 05 14:52:29.311514 2016] [:error] [pid 3776] [client 58.247.206.141:10788] ----------------
+  [Fri Aug 05 14:52:29.311524 2016] [:error] [pid 3776] [client 58.247.206.141:10788] \nPOST /index.php?signature=ed9613ab219b0471fef6f22a3ef592b53c1ba48f&timestamp=1470379949&nonce=933883347&openid=okpkfv0u2gC1rJauNZ_Qm6lJ8Aew HTTP/1.1\nUSER-AGENT: Mozilla/4.0\nACCEPT: */*\nHOST: 123.57.227.173\nPRAGMA: no-cache\n\n<xml><ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n<FromUserName><![CDATA[okpkfv0u2gC1rJauNZ_Qm6lJ8Aew]]></FromUserName>\n<CreateTime>1470379949</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[unsubscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>
+
+https://open.weixin.qq.com/connect/qrconnect?appid=wx39c379788eb1286a&scope=snsapi_login&redirect_uri=http%3A%2F%2Fmp.weixin.qq.com%2Fdebug%2Fcgi-bin%2Fsandbox%3Ft%3Dsandbox%2Flogin
+http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+
+测试号信息 [my own test account] gh_d790e147d0b7
+appID
+wxc0f1b124629429c4
+appsecret
+da83a792f6df9fb0ee695e4a3335e542
+接口配置信息修改
+请填写接口配置信息，此信息需要你有自己的服务器资源，填写的URL需要正确响应微信发送的Token验证，请阅读消息接口使用指南。
+URL
+http://123.57.227.173/index.php
+Token
+jssfy

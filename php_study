@@ -1,6 +1,299 @@
 
 
 
+--------- 2016-08-05 13:48:39
+php中引用&的真正理解-变量引用、函数引用、对象引用
+PHP 的引用允许你用两个变量来指向同一个内容 $b =&$a;
+函数的传址调用 function test(&$a){} 要注意的是，在这里test(１);的话就会出错，原因是：PHP规定传递的引用不能为常量（可以看错误提示）。
+函数的引用返回 function &test(){} 通过这种方式$a=test();得到的其实不是函数的引用返回，这跟普通的函数调用没有区别　至于原因：　这是ＰＨＰ的规定 ＰＨＰ规定通过$a=&test(); 方式得到的才是函数的引用返回
+  $a=test()方式调用函数，只是将函数的值赋给$a而已，　而$a做任何改变，都不会影响到函数中的$b，而通过$a=&test()方式调用函数呢, 他的作用是　将return $b中的　$b变量的内存地址与$a变量的内存地址　指向了同一个地方 即产生了相当于这样的效果($a=&b;) 函数的引用返回多用在对象中
+对象的引用 $b=new a; $c=$b; 在PHP5中 对象的复制是通过引用来实现的。上列中$b=new a; $c=$b; 其实等效于$b=new a; $c=&$b; PHP5中默认就是通过引用来调用对象， 但有时你可能想建立一个对象的副本，并希望原来的对象的改变不影响到副本 . 为了这样的目的，PHP定义了一个特殊的方法，称为__clone.
+引用的作用
+       如果程序比较大,引用同一个对象的变量比较多,并且希望用完该对象后手工清除它,个人建议用 "&" 方式,然后用$var=null的方式清除. 其它时候还是用php5的默认方式吧. 另外, php5中对于大数组的传递,建议用 "&" 方式, 毕竟节省内存空间使用。
+取消引用 当你 unset 一个引用，只是断开了变量名和变量内容之间的绑定。这并不意味着变量内容被销毁了。<?php $a = 1; $b =& $a; unset ($a); ?>
+  unset -> Undefined variable
+  global 引用 当用 global $var 声明一个变量时实际上建立了一个到全局变量的引用。也就是说和这样做是相同的：  
+  <?php $var =& $GLOBALS["var"]; ?>
+
+php中对于地址的指向（类似指针）功能不是由用户自己来实现的，是由Zend核心实现的，php中引用采用的是“写时拷贝”的原理，就是除非发生写操作，指向同一个地址的变量或者对象是不会被拷贝的。
+通俗的讲 1:如果有下面的代码 [php] $a="ABC"; $b=$a; [/php] 其实此时　$a与$b都是指向同一内存地址　而并不是$a与$b占用不同的内存
+２:如果在上面的代码基础上再加上如下代码 [php] $a="EFG"; [/php] 由于$a与$b所指向的内存的数据要重新写一次了，此时Zend核心会自动判断　自动为$b生产一个$a的数据拷贝，重新申请一块内存进行存储
+
+  $a = 4;
+  $b = &$a;
+  echo $b."\n";
+  $a = 5;
+  echo $b."\n";
+  unset($a);
+  echo $a."\n";
+  $a = 6;
+  echo $b."\n";
+output:
+4
+5
+PHP Notice:  Undefined variable: a in /home/kidd/workspace/php/test.php on line 9
+5
+
+
+  $base = new Base;
+  $base->user_count = 10;
+  $ref = $base;
+  $base->user_count = 11;
+  echo $ref->user_count."\n";
+  unset($base);
+  echo $ref->user_count."\n";
+  echo $base->user_count."\n";
+output:
+11
+PHP Notice:  Undefined variable: base in /home/kidd/workspace/php/test.php on line 27
+PHP Notice:  Trying to get property of non-object in /home/kidd/workspace/php/test.php on line 27
+
+---------- 2016-08-05 12:39:10
+var scope: PHP 中的每个变量都有一个针对它的作用域
+
+<?php
+  function function_name() {
+    global $var; // without this line, below access will fail due to undefined var.
+    echo "inside var: ".$var;
+    $var = 23;;
+  }
+  $var=20;
+  function_name(); // Function call.
+  echo "outside var: ".$var;
+?>
+inside var: 20
+outside var: 23
+
+对于初学者来说，变量的作用域是它们所驻留的页面。因此，如果你定义了 $var，页面余下部分就可以访问 $var，但是，其它页面一般不能访问它（除非使用特殊的变量）。
+因为包含文件像它们是原始（包含）脚本的一部分那样工作，所以在 include() 那一行之前定义的变量可供包含文件使用。此外，包含文件内定义的变量可供 include() 那一行之后的父（包含）脚本使用。
+
+当使用你自己定义的函数时，所有这些都将变得不那么明显。这些函数具有它们自己的作用域，这意味着在一个函数内使用的变量不能在其外部使用，在一个函数外部定义的变量不能在其内部使用。由于这个原因，函数内部的变量可以具有与其外部的变量相同的名称，但是它们仍然是完全不同的变量，并且具有不同的值。对于大多数初级程序员来说，这是一个使人糊涂的概念。要改变一个函数内的变量的作用域，可以使用 global 语句。
+
+避开变量作用域的另一个方法是利用超全局变量：$_GET、$_POST、$_REQUEST 等。这些变量在你的函数内是自动可访问的（因此，它们是超全局变量）。也可以添加元素到 $GLOBALS 数组中，使得可以在函数内使用它们。
+
+PHP的常量是不是前面加const呢？让我们看一看。
+不是的。在PHP必须用下面的方式定义。
+bool define ( string name, mixed value [, bool case_insensitive] )
+name 为常量名，value为常量的值。case_insensitive]为大小写敏感。默认为敏感。
+常量一旦被声明将可以在全局可见，也就是说，它们可以函数内外使用，但是这仅仅限于一个页面之中（包含我们通过include和include_once）包含进来的PHP脚本，但是在其他的页面中就不能使用了。 
+ 常量和变量不同：
+    常量前面没有美元符号（$）；
+    常量只能用 define() 函数定义，而不能通过赋值语句；
+    常量可以不用理会变量范围的规则而在任何地方定义和访问；
+    常量一旦定义就不能被重新定义或者取消定义；
+    常量的值只能是标量。
+
+  function function_name() {
+    define("CONSTANT", "Hello world.");
+  }
+  echo "\n".CONSTANT;
+
+•在一个脚本中声明的全局变量在整个脚本中是可见的，但不是在函数内部，在函数内部的变量如果与全局变量名称相同，以函数内部的变量为准。
+•函数内部使用的变量声明为全局变量时，其名称要与全局变量的名称一致，在这样的情况下，我们就可以在函数中使用函数外部的全局变量了，这样就可以避免上一种因为函数内部的变量与外部的全局变量名称相同而覆盖了外部变量这样的情况。
+•在函数内部创建并声明为静态的变量无法在函数外部可见，但是可以在函数的多次执行过程中保持该值，最常见的情况就是在函数的递归执行的过程之中。
+•在函数内部创建的变量对函数来说是本地的，而当函数终止时，该变量也就不存在了。
+超级全局变量的完整列表如下：
+•.$GOBALS 所有全局变量数组
+•.$_SERVER 服务器环境变量数组
+•.$_POST 通过POST方法传递给该脚本的变量数组
+•.$_GET 通过GET方法传递给该脚本的变量数组
+•.$_COOKIE cookie变量数组
+•.$_FILES 与文件上传相关的变量数组
+•.$_ENV 环境变量数组
+•.$_REQUEST 所有用户输入的变量数组包括$_GET $_POST $_COOKIE 所包含的输入内容
+•.$_SESSION 会话变量数组 
+
+变量的范围即它定义的上下文背景（译者:说白了，也就是它的生效范围）。大部分的 PHP 变量只有一个单独的范围。这个单独的范围跨度同样包含了 include 和 require 引入的文件。
+在全局范围内访问变量的第二个办法，是用特殊的 PHP 自定义 $GLOBALS 数组。 $GLOBALS["b"], the global var "b" is accessed.
+
+static $int = 0; // correct
+static $int = 1+2; // wrong (as it is an expression)
+static $int = sqrt(121); // wrong (as it is an expression too)
+静态变量可以按照上面的例子声明。如果在声明中用表达式的结果对其赋值会导致解析错误。
+
+null(空值)：PHP中一种特殊的数据类型，表示空值，即表示没有为该变量设置任何值null(空值)不区分大小写，null和NULL是一样的。
+被赋空值可能有三种情况：没有赋什么值、被赋空值null、被unset()函数处理过的变量（出处：《PHP从入门到精通》P47。
+  $test = 3;
+  unset($test);
+  echo $test==null;
+note: an unsetted var can not be printed [even the above comparison]
+  PHP Notice:  Undefined variable: test in /home/kidd/workspace/php/test.php on line 31
+
+------------ 2016-08-05 12:34:11
+PHP empty、isset、isnull的区别
+  empty
+  如果 变量 是非空或非零的值，则 empty() 返回 FALSE。换句话说，”"、0、”0″、NULL、FALSE、array()、var $var、未定义;以及没有任何属性的对象都将被认为是空的，如果 var 为空，则返回 TRUE。
+  isset
+  如果 变量 存在(非NULL)则返回 TRUE，否则返回 FALSE(包括未定义）。变量值设置为：null，返回也是false;unset一个变量后，变量被取消了。注意，isset对于NULL值变量，特殊处理。
+  is_null
+  检测传入值【值，变量，表达式】是否是null,只有一个变量定义了，且它的值是null，它才返回TRUE . 其它都返回 FALSE 【未定义变量传入后会出错！】
+
+--------- 2016-08-04 11:49:26
+php json json_encode();给json数据编码， json_decode();是json数据变回以前的编码形式
+可以利用PHP的数组，包括索引数组，包括关联数组，还有对象，来生成json数据
+$usrInfo = array('usrname'=>'zhaogou','age'=>29,'sex'=>'male','tel'=>'028');
+$jsdata=json_encode($usrInfo);
+//如果是一个对象，则js数据中不会包含对象中的方法，如果属性是私有的也不能访问到.
+$jstest = new jstest;
+$jsclass=json_encode($jstest);
+
+使用json的好处：
+①节省服务器资源开销
+②节省带宽
+③按照需求来获得服务器的信息
+④请求速度加快
+
+function acceppt(){
+  var xhr = creatXMLHttpRequest();
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState==4 && xhr.status==200){
+                  var linkMessage=xhr.responseText;
+      eval("var jsondata ="+linkMessage);
+      document.getElementById('content').innerHTML=jsondata.name+'<br/>'+jsondata.sex;
+    }
+  }
+  xhr.open('get',"json.php");
+  xhr.send(null);
+}
+由于返回的responseText数据是一大窜的字符串，ajax程序无法处理，因此需要将字符串转化为表达式
+
+
+json_decode
+(PHP 5 >= 5.2.0, PECL json >= 1.2.0)
+json_decode — 对 JSON 格式的字符串进行编码
+mixed json_decode ( string $json [, bool $assoc ] )
+接受一个 JSON 格式的字符串并且把它转换为 PHP 变量  Returns an object or if the optional assoc parameter is TRUE, an associative array is instead returned. 
+
+note: http://www.php100.com/cover/php/1093.html
+Consider that JSON can differ between int and string. Numbers that cannot be handled by integer seems to become float casted.
+
+json_decode: utf8
+
+string json_encode ( mixed $value )
+返回 value 值的 JSON 形式 
+input: 待编码的 value ，除了resource 类型之外，可以为任何数据类型  该函数只能接受 UTF-8 编码的数据（译注：指字符/字符串类型的数据）
+
+<?php
+  $string = 'hello 到期 kidd';
+  $encode = mb_detect_encoding($string, array("ASCII", "UTF-8","GB2312","GBK",'BIG5'));
+  echo $encode;
+?>
+UTF-8
+
+<?php
+  $string = 'hello kidd';
+  $encode = mb_detect_encoding($string, array("ASCII", "UTF-8","GB2312","GBK",'BIG5'));
+  echo $encode;
+?>
+ASCII
+
+http://www.php100.com/cover/php/1093.html
+
+test: [the files was converted from utf-8 to ISO-8859], as seen from the output, json_encode does not generate any valid output.
+ <?php
+  $string = 'hello µ½ÆÚ kidd';
+  $encode = mb_detect_encoding($string, array("ASCII", "UTF-8","GB2312","GBK",'BIG5'));
+  echo $encode."\n";
+
+  $arr = array ('a'=>$string,'b'=>2,'c'=>3,'d'=>4,'e'=>5);
+
+  $json_string = json_encode($arr);
+  if(!$json_string) {
+    echo 'json_encode returns false'.PHP_EOL;
+  }
+  $arr = array ('a'=>1,'b'=>2,'c'=>3,'d'=>4,'e'=>5);
+
+  echo json_encode($arr);
+?>
+$ php gb_test.php 
+
+EUC-CN
+json_encode returns false
+{"a":1,"b":2,"c":3,"d":4,"e":5}
+
+$ file gb_test.php 
+gb_test.php: ISO-8859 text
+
+---------- 2016-08-04 11:33:29
+XML CDATA的作用
+操作XML文件时，如果允许用户输入内容，例如∶"< "、">"、"/"、""等，当生成XML时，会破坏了XML结构，使数据中断。
+这就要用XML CDATA
+在XML文档中的所有文本都会被解析器解析。
+只有在CDATA部件之内的文本会被解析器忽略。 
+不合法的XML字符必须被替换为相应的实体。 实体必须以符号"&"开头，以符号";"结尾。 注意: 只有"< " 字符和"&"字符对于XML来说是严格禁止使用的。剩下的都是合法的，为了减少出错，使用实体是一个好习惯。
+
+在CDATA内部的所有内容都会被解析器忽略。
+CDATA注意事项:
+CDATA部件之间不能再包含CDATA部件（不能嵌套）。如果CDATA部件包含了字符"]]>" 或者"< ![CDATA[" ，将很有可能出错哦。
+同样要注意在字符串"]]>"之间没有空格或者换行符
+
+
+------------- 2016-08-04 10:02:11
+"" works for \n, while '' not.
+echo "\n";
+
+http://www.jb51.net/article/53973.htm
+使用总结：在字符串里面不需要加入 变量 或者 单引号(')和反斜杠(＼) 时，尽量用单引号引字符串，因为省去了双引号检查处理转义和解析变量上面的时间。能用单引号尽量用单引号。
+
+①转义的字符不同
+单引号和双引号中都可以使用转义字符(＼)，但只能转义在单引号中引起来的单引号和转义转义符本身。如果用双引号(“”)括起字符串，PHP懂得更多特殊字符串的转义序列。
+②对变量的解析不同
+单引号字符串中出现的变量不会被变量值替代。即PHP不会解析单引号中的变量，而是将变量名原样输出。双引号字符串最重要的一点是其中的变量名会被变量值替代，即可以解析双引号中包含的变量。
+③解析速度不同
+单引号不需要考虑变量的解析,速度比双引号快.推荐用单引号.有的时候双引号也比较好用,比如在拼凑sql 语句
+附：echo '<br/>'; html中的标签在单引号和双引号中都有效。
+------------- 2016-08-04 09:56:12
+PHP 4 引入了 foreach 结构，和 Perl 以及其他语言很像。这只是一种遍历数组简便方法。foreach 仅能用于数组，当试图将其用于其它数据类型或者一个未初始化的变量时会产生错误。
+
+foreach (array_expression as $value)
+    statement
+foreach (array_expression as $key => $value)
+    statement
+自PHP 5 起，还可能遍历对象。
+注意：当 foreach 开始执行时，数组内部的指针会自动指向第一个单元。这意味着不需要在 foreach 循环之前调用 reset()。
+注意：除非数组是被引用，foreach 所操作的是指定数组的一个拷贝，而不是该数组本身。foreach对数组指针有些副作用。除非对其重置，在 foreach 循环中或循环后都不要依赖数组指针的值。
+自 PHP 5 起，可以很容易地通过在 $value 之前加上 & 来修改数组的元素。此方法将以引用赋值而不是拷贝一个值。 foreach ($arr as &$value)
+
+如果两次循环一个数组，一定不能这样写
+foreach($arr as &$value){}
+foreach($arr as $value){}
+    这会导致第二次的循环的结果不正确(可能是php的bug吧)。可以用以下几种来代替：
+//solution 1
+foreach($arr as &$value){}
+unset($value);
+foreach($arr as $value){}
+//solution 2
+foreach($arr as &$value){}
+foreach($arr as &$value){}
+//solution 3
+foreach($arr as &$value){}
+$arr2 = $arr;
+foreach($arr2 as $value){}
+// solution 4
+use another value name $value2 for the 2nd foreach
+
+------------ 2016-08-04 09:51:55
+array
+在 PHP 中，有三种数组类型：
+    索引数组 - 带有数字索引的数组 索引是自动分配的（索引从 0 开始）
+    关联数组 - 带有指定键的数组
+    多维数组 - 包含一个或多个数组的数组
+
+<?php
+  $cars=array("Volvo","BMW","SAAB");
+  // echo "I like " . $cars[0] . ", " . $cars[1] . " and " . $cars[2] . ".";
+  // print_r($cars);
+  echo $cars['0'];
+?>
+count($cars); 获得数组的长度 - count() 函数
+
+for($x=0;$x<$arrlength;$x++) 遍历索引数组
+foreach($age as $x=>$x_value) 遍历关联数组
+
+PHP 关联数组
+$age=array("Peter"=>"35","Ben"=>"37","Joe"=>"43");
+$age['Peter']="35";
+
 
 ---------- 2016-08-03 18:58:10
 components/service/Wechat.php

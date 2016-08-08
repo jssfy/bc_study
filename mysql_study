@@ -1,5 +1,417 @@
 
 
+---------- 2016-08-05 18:33:24
+alter table `test_test` add column subscribed int(11) not null default 1 COMMENT '0: false, 1: true';
+
+-------- 2016-08-05 17:22:06
+num字段上创建索引 最普通的情况，是为出现在where子句的字段建一个索引。
+ALTER TABLE `test_test` ADD INDEX `num_index` (`num`) ;
+
+http://blog.sina.com.cn/s/blog_52d20fbf0100ofd5.html
+存储过程是数据库存储的一个重要的功能，但是MySQL在5.0以前并不支持存储过程，这使得MySQL在应用上大打折扣。好在MySQL 5.0终于开始已经支持存储过程，这样即可以大大提高数据库的处理速度，同时也可以提高数据库编程的灵活性。
+
+CREATE TABLE `test_test` (
+  `id` int(11) NOT NULL auto_increment,
+  `num` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+ ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+DELIMITER //
+create procedure p_test_02(pa int(11)) 
+begin
+  declare max_num int(11) default 1000000;
+  declare i int default 0;
+  declare rand_num int;
+   
+  select count(id) into max_num from test_test; 
+   
+  while i < pa do 
+    if max_num < 1000000 then 
+      select cast(rand()*100 as unsigned) into rand_num; 
+      insert into test_test(num) values(rand_num); 
+    end if; 
+    set i = i +1; 
+  end while; 
+end
+//
+DELIMITER ;
+
+call p_test(1000000);
+
+select distinct num from test_test;
+select num from test_test group by num;
+
+mysql> show profiles;
++----------+------------+----------------------------------------+
+| Query_ID | Duration   | Query                                  |
++----------+------------+----------------------------------------+
+|        1 | 0.02175600 | select distinct(num) from test_test    |
+|        2 | 0.02197225 | select num from test_test group by num |
++----------+------------+----------------------------------------+
+2 rows in set, 1 warning (0.00 sec)
+
+mysql> explain select num from test_test group by num;
++----+-------------+-----------+------+---------------+------+---------+------+---------+---------------------------------+
+| id | select_type | table     | type | possible_keys | key  | key_len | ref  | rows    | Extra                           |
++----+-------------+-----------+------+---------------+------+---------+------+---------+---------------------------------+
+|  1 | SIMPLE      | test_test | ALL  | NULL          | NULL | NULL    | NULL | 1100000 | Using temporary; Using filesort |
+
+http://www.cnblogs.com/cy163/archive/2008/10/27/1320798.html
+after creating an index, the speed grows a lot faster:
+|  2000014 | 0.23482675 | select distinct num from test_test                |
+|  2000015 | 0.24779200 | select num from test_test group by num            |
+|  2000016 | 0.00190925 | explain select num from test_test group by num    |
+|  2000017 | 1.62457875 | create index test_test_num on test_test(num)      |
+|  2000018 | 0.00492250 | select num from test_test group by num 
+
++----+-------------+-----------+------+---------------+------+---------+------+---------+---------------------------------+
+mysql> explain select num from test_test group by num;
++----+-------------+-----------+-------+---------------+---------------+---------+------+------+--------------------------+
+| id | select_type | table     | type  | possible_keys | key           | key_len | ref  | rows | Extra                    |
++----+-------------+-----------+-------+---------------+---------------+---------+------+------+--------------------------+
+|  1 | SIMPLE      | test_test | range | test_test_num | test_test_num | 4       | NULL |  102 | Using index for group-by |
++----+-------------+-----------+-------+---------------+---------------+---------+------+------+--------------------------+
+
+如果你的数据库非常巨大，并且每日的页面请求达上百万算，我想你会获益良多的。不过，如果你要做更为复杂的查询呢，例如将多张表结合起来查询，特别是where限制字句中的字段是来自不止一个表格时，应该怎样处理呢？我通常都尽量避免这种做法，因为这样数据库要将各个表中的东西都结合起来，然后再排除那些不合适的行，搞不好开销会很大。
+
+  如果不能避免，你应该查看每张要结合起来的表，并且使用以上的策略来建立索引，然后再用EXPLAIN命令验证一下是否使用了你料想中的索引。如果是的话，就OK。不是的话，你可能要建立临时的表来将他们结合在一起，并且使用适当的索引。
+
+  要注意的是，建立太多的索引将会影响更新和插入的速度，因为它需要同样更新每个索引文件。对于一个经常需要更新和插入的表格，就没有必要为一个很少使用的where字句单独建立索引了，对于比较小的表，排序的开销不会很大，也没有必要建立另外的索引。
+
+----------- 2016-08-05 15:29:48
+mysql更改表结构：添加、删除、修改字段、调整字段顺序 
+  alter table `user_movement_log` Add column GatewayId int not null default 0 AFTER `Regionid`
+
+------------- 2016-08-05 12:18:51
+yii pdo with mysql
+
+    public function actionStats()
+    {
+        $scenes = QrMessage::findBySql('select event_key, sum(count) as scan_count, count(event_key) as user_count from qrcode_general group by event_key')->all();
+        return $this->render('stats', ['scenes' => $scenes]);
+    }
+
+class QrMessage extends \yii\db\ActiveRecord
+{
+    public $user_count;
+    public $scan_count;
+    public static function tableName()
+    {
+        return 'qrcode_general';
+    }
+
+    public function rules()
+    {
+        return [];
+    }
+}
+
+http://www.yiichina.com/doc/guide/2.0/start-databases
+public function actionIndex()
+    {
+        $query = Country::find();
+
+        $pagination = new Pagination([
+            'defaultPageSize' => 5,
+            'totalCount' => $query->count(),
+        ]);
+
+        $countries = $query->orderBy('name')
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return $this->render('index', [
+            'countries' => $countries,
+            'pagination' => $pagination,
+        ]);
+    }
+------------- 2016-08-04 15:37:36
+
+select max(id) from t5;
+mysql> select * from qrcode_general where scene_id like '%1111';
+  OR可以和AND一起使用。当两者一起使用时，AND要比OR先运算。
+SELECT * FROM employee WHERE num IN(1,3,4) AND age=25 OR sex='女';
+  AND和OR关键字可以连接条件表达式。这些条件表达式中可以使用“=”、“>”等操作符，也可以使用IN、BETWEEN AND和LIKE等关键字，而且，LIKE关键字匹配字符串时可以使用“%”和“_”等通配符。
+
+mysql> select * from states order by population limit 4 offset 1;
+select name,sum(score) ,avg(score) from result group by name;
+1. select scene_id, sum(count) from qrcode_general group by scene_id;
+2. duplicated subscription
+
+select count(distinct name) from result; 
+  get the number of different names in the table.
+select distinct name from result;
+  return all different name, no duplication.
+select name, score from result group by name;
+  return no duplicated name with one of his/her scores.
+
+http://www.cnblogs.com/zox2011/archive/2012/09/12/2681797.html
+用distinct的时候，如果它有索引，mysql会把它转成group by的方式执行。
+加了索引之后 distinct 比没加索引的 distinct 快了 107倍。
+加了索引之后 group by 比没加索引的 group by 快了 43倍。
+再来对比 ：distinct  和 group by
+不管是加不加索引 group by 都比 distinct 快。因此使用的时候建议选 group by 
+
+SELECT INTO FROM语句
+语句形式为：SELECT vale1, value2 into Table2 from Table1
+要求目标表Table2不存在，因为在插入时会自动创建表Table2，并将Table1中指定字段数据复制到Table2中 。
+
+------------- 2016-08-04 17:17:46
+数据库中的数据都是存储在表中的，而视图只是一个或多个表依照某个条件组合而成的结果集，一般来说你可以用update，insert，delete等sql语句修改表中的数据，而对视图只能进行select操作。但是也存在可更新的视图，对于这类视图的update，insert和delete等操作最终会作用于与其相关的表中数据。因此，表是数据库中数据存储的基础，而视图只是为了满足某种查询要求而建立的一个对象。
+
+------------- 2016-08-04 17:04:39
+http://www.blogjava.net/Johnny-Ajun/archive/2011/08/28/357445.html
+having字句可以让我们筛选成组后的各种数据，where字句在聚合前先筛选记录，也就是说作用在group by和having字句前。而 having子句在聚合后对组记录进行筛选。
+where和having子句都可以实现过滤记录的功能,但他们的用法还是有一些区别的,看一例子:
+用group by和having子句联合来查出不重复的记录,sql如下:
+select uid,email,count(*) as ct from `edm_user081217` GROUP BY email
+然后看这个，就容易理解了
+select uid,email,count(*) as ct from `edm_user081217` GROUP BY email HAVING ct > 1
+先用group by 对email进行分组,在用having来过滤大于1的,这样查找出来的就是重复的记录了.
+WHERE 子句作用于表和视图，HAVING 子句作用于组。
+WHERE 在分组和聚集计算之前选取输入行（因此，它控制哪些行进入聚集计算）， 而 HAVING 在分组和聚集之后选取分组的行。因此，WHERE 子句不能包含聚集函数； 因为试图用聚集函数判断那些行输入给聚集运算是没有意义的。 相反，HAVING 子句总是包含聚集函数。（严格说来，你可以写不使用聚集的 HAVING 子句， 但这样做只是白费劲。同样的条件可以更有效地用于 WHERE 阶段。）
+在前面的例子里，我们可以在 WHERE 里应用城市名称限制，因为它不需要聚集。 这样比在 HAVING 里增加限制更加高效，因为我们避免了为那些未通过 WHERE 检查的行进行分组和聚集计算
+综上所述：
+having一般跟在group by之后，执行记录组选择的一部分来工作的。
+where则是执行所有数据来工作的。
+再者having可以用聚合函数，如having sum(qty)>1000
+原链接：http://hi.baidu.com/ww999/blog/item/f330c8d3073107d0a8ec9a72.html
+
+------------- 2016-08-04 17:02:35
+
+DROP TABLE IF EXISTS `result`;
+CREATE TABLE `result` (
+`name` varchar(20) default NULL,
+`subject` varchar(20) default NULL,
+`score` tinyint(4) default NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+insert into result values
+  ('张三','数学',90),
+  ('张三','语文',50),
+  ('张三','地理',40),
+  ('李四','语文',55),
+  ('李四','政治',45),
+  ('王五','政治',30),
+  ('赵六','语文',100),
+  ('赵六','数学',99),
+  ('赵六','品德',98);
+
+mysql> select name,sum(score < 60) ,avg(score) from result group by name having sum(score<60) >=2; 
++--------+-----------------+------------+
+| name   | sum(score < 60) | avg(score) |
++--------+-----------------+------------+
+| 张三   |               2 |    60.0000 |
+| 李四   |               2 |    50.0000 |
++--------+-----------------+------------+
+2 rows in set (0.01 sec)
+
+mysql> select name,sum(score) ,avg(score) from result group by name having sum(score<60) >=2;
++--------+------------+------------+
+| name   | sum(score) | avg(score) |
++--------+------------+------------+
+| 张三   |        180 |    60.0000 |
+| 李四   |        100 |    50.0000 |
++--------+------------+------------+
+2 rows in set (0.00 sec)
+
+
+
+
+---------- 2016-08-04 14:19:09
+sample .sql
+
+
+DROP TABLE IF EXISTS `account`;
+CREATE TABLE `account` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `open_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `union_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `avatar` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nickname` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gender` int(11) DEFAULT '0' COMMENT '1: 男, 2: 女',
+  `province` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `birthday` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `privilege` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `interest` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `phone` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone_index` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+datetime:
+INSERT INTO `qrcode_general` VALUES (1, 'okpkfv0u2gC1rJauNZ_Qm6lJ8Aew','gh_d790e147d0b7',1,'qrscene_1111','2009-9-9 23:22:11',1);
+
+想insert一条数据，如何使用这个id字段让它自动增加呢: null
+INSERT INTO `qrcode_general` VALUES (null, 'okpkfv0u2gC1rJauNZ_Qm6lJ8Aew','gh_d790e147d0b7',1,'qrscene_1111','2009-9-9 23:22:11',1);
+
+AUTO_INCREMENT seems to be actually start from at least 1 instead of 0: 没有最大值上限?
+tryingn to "insert into t5 values(0);", but the new item was with an incrementing id instead of 0.
+$ mysql -V
+mysql  Ver 14.14 Distrib 5.6.31, for Linux (x86_64) using  EditLine wrapper
+
+http://blog.csdn.net/HW_LiBo/article/details/40097125 对于innodb表，update auto_increment字段，如果列值与已有的值重复，则会出错；如果大于已有的最大值，可能会引入一个坑，会造成编号重复错误，插入数据失败的情况，可见在update自增列值是要注意。
+  InnoDB表update自增列时，由大值改为小值，除了可能会出现重复数据修改失败外，没有其他风险。
+  InnoDB表update自增列，由小改大 
+  MyISAM表的update自增列不会存在风险。
+
+some workaround: alter table t5 AUTO_INCREMENT=20;
+
+test.sql
+  CREATE TABLE `t5` (  
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,  
+    PRIMARY KEY (`id`)  
+  ) ENGINE=InnoDB;
+
+  insert into t5 values(null);
+  insert into t5 values(5),(9);
+  insert into t5 values(null);
+
+mysql> select * from t5;
++----+
+| id |
++----+
+|  1 |
+|  5 |
+|  9 |
+| 10 |
++----+
+4 rows in set (0.00 sec)
+
+mysql> update t5 set id=12 where id=5;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from t5;
++----+
+| id |
++----+
+|  1 |
+|  9 |
+| 10 |
+| 12 |
++----+
+4 rows in set (0.00 sec)
+
+mysql> insert into t5 values(null);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from t5;
++----+
+| id |
++----+
+|  1 |
+|  9 |
+| 10 |
+| 11 |
+| 12 |
++----+
+5 rows in set (0.01 sec)
+
+
+------------- 2016-08-04 15:27:26
+mysql> show create table qrcode_general;
++----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table          | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
++----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| qrcode_general | CREATE TABLE `qrcode_general` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `open_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `to_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `event` int(11) NOT NULL COMMENT '0: scan, 1: subscribe',
+  `scene_id` varchar(72) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `create_time` datetime NOT NULL,
+  `count` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci |
++----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> desc qrcode_general;
++-------------+---------------------+------+-----+---------+----------------+
+| Field       | Type                | Null | Key | Default | Extra          |
++-------------+---------------------+------+-----+---------+----------------+
+| id          | bigint(20) unsigned | NO   | PRI | NULL    | auto_increment |
+| open_id     | varchar(50)         | NO   |     | NULL    |                |
+| to_id       | varchar(50)         | NO   |     | NULL    |                |
+| event       | int(11)             | NO   |     | NULL    |                |
+| scene_id    | varchar(72)         | NO   |     | NULL    |                |
+| create_time | datetime            | NO   |     | NULL    |                |
+| count       | int(11)             | NO   |     | NULL    |                |
++-------------+---------------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> show full columns from qrcode_general;
++-------------+---------------------+--------------------+------+-----+---------+----------------+---------------------------------+-----------------------+
+| Field       | Type                | Collation          | Null | Key | Default | Extra          | Privileges                      | Comment               |
++-------------+---------------------+--------------------+------+-----+---------+----------------+---------------------------------+-----------------------+
+| id          | bigint(20) unsigned | NULL               | NO   | PRI | NULL    | auto_increment | select,insert,update,references |                       |
+| open_id     | varchar(50)         | utf8mb4_unicode_ci | NO   |     | NULL    |                | select,insert,update,references |                       |
+| to_id       | varchar(50)         | utf8mb4_unicode_ci | NO   |     | NULL    |                | select,insert,update,references |                       |
+| event       | int(11)             | NULL               | NO   |     | NULL    |                | select,insert,update,references | 0: scan, 1: subscribe |
+| scene_id    | varchar(72)         | utf8mb4_unicode_ci | NO   |     | NULL    |                | select,insert,update,references |                       |
+| create_time | datetime            | NULL               | NO   |     | NULL    |                | select,insert,update,references |                       |
+| count       | int(11)             | NULL               | NO   |     | NULL    |                | select,insert,update,references |                       |
++-------------+---------------------+--------------------+------+-----+---------+----------------+---------------------------------+-----------------------+
+7 rows in set (0.01 sec)
+
+
+------------ 2016-08-04 10:32:29
+mysql export
+
+below 2 cmds generate the same output 仅仅导出数据库的结构
+$ mysqldump -h localhost -u root -p -d --add-drop-table yii2basic > yii2basic_drop_table.sql
+$ mysqldump -h localhost -u root -p -d yii2basic > yii2basic_drop_table.sql
+
+below cmd will also insert data for tables: [in an over-writing manner]
+$ mysqldump -h localhost -u root -p yii2basic > yii2basic.sql
+
+仅仅导出表的结构
+mysqldump -h127.0.0.1 -uroot -p -d --add-drop-table emlog emlog_blog > emlog_blog_structure.sql
+
+导入的话,有很多种方法,最单的就是source命令,先用mysql命令连接上数据库.然后用source导入指定路径的文件就可以了.
+mysql> source /home/kidd/tmp/yii2basic_drop_table.sql
+Query OK, 0 rows affected (0.00 sec)
+..............
+mysql> show tables;
++---------------------+
+| Tables_in_yii2basic |
++---------------------+
+| country             |
+| states              |
++---------------------+
+2 rows in set (0.00 sec)
+mysql> select * from country;
+Empty set (0.00 sec)
+mysql> select  * from states;
+Empty set (0.00 sec)
+
+notice that the original data is all cleared.
+
+to import the backup data: source /home/kidd/tmp/yii2basic.sql
+
+------------ 2016-08-04 10:24:52
+
+$ mysqldump -h localhost -u root -p yii2basic states > states.sql
+Enter password: 
+$ ls
+states.sql
+
+mysqldump -h localhost -u root -p yii2basic > yii2basic.sql
+
+几个比较常用的参数有 -P或--port 要连接的服务器端口,如果MySQL的端口不是3306,就要用到这个参数 -d或--no-data 没有详细数据,仅仅导出数据的结构
+
+-P或--port          要连接的服务器端口,如果MySQL的端口不是3306,就要用到这个参数
+-d或--no-data       没有详细数据,仅仅导出数据的结构
+--add-drop-database 在创建数据库时,先drop掉已经存在的同名数据库[一般跟在-d参数后]
+--add-drop-table    在创建表时,先drop掉已经存在的同名表[一般跟在-d参数后]
+
 
 ----------- 2016-08-03 21:13:04
 
@@ -222,3 +634,36 @@ $ fn pdo.so
 http://www.jb51.net/article/60256.htm
 PDO（PHP Data Object）扩展为PHP定义了一个访问数据库的轻量、持久的接口。实现PDO接口的每一种数据库驱动都能以正则扩展的形式把各自的特色表现出来。
 主要：PDO扩展只是一个抽象的接口层，利用PDO扩展本身并不能实现任何数据库操作，必须使用一个特定的数据库PDO驱动访问数据库
+
+------------ 2016-08-05 15:47:31
+sample .sql
+
+DROP TABLE IF EXISTS `qrcode_general`;
+CREATE TABLE `qrcode_general` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `from_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `to_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `event` varchar(11) NOT NULL,
+  `event_key` varchar(72) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `create_time` datetime NOT NULL,
+  `count` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `qrcode_ticket`;
+CREATE TABLE `qrcode_ticket` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ticket` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `client_event_key` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` int(11) NOT NULL COMMENT '0: string, 1: integer',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `qrcode_general` VALUES (null, 'okpkfv0u2gC1rJauNZ_Qm6lJ8Aew','gh_d790e147d0b7',"subscribe",'qrscene_1111','2009-9-9 23:22:11',1);
+INSERT INTO `qrcode_general` VALUES (null, 'okpkfv0u2gC1rJauNZ_Qm6lJ8Aew','gh_d790e147d0b7',"SCAN",'1111','2009-9-9 23:22:11',2);
+INSERT INTO `qrcode_general` VALUES (null, 'okpkfv0u2gB1rJauNZ_Qm6lJ8Aew','gh_d790e147d0b7',"SCAN",'1111','2009-9-9 23:22:11',3);
+
+INSERT INTO `qrcode_ticket` VALUES (null, 'gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2EwUzJvaWZsUDVoRzROR3lCR2hXAAIEa8KhVwMEAAAAAA==', '1111', 1);
+
+
+---------------- 

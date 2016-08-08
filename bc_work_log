@@ -9,6 +9,14 @@ anhye@niuba.la/K...
 local test: "can not create below folder"
 ~/workspace/bc/MissionImpossible/runtime/logs
 
+
+TBD:
+  qr code scan handlers are called in multiple threads. db updating should be protected.
+
+----------- 2016-08-04 20:58:28
+
+controllers/TestController.php:37
+
 ------------ 2016-08-01 19:44:05
 周工作目标：5天（8-1 ~ 8-5）
 １、通过网页操作方式生成带参数的二维码图片（长期有效）
