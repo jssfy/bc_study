@@ -1,0 +1,419 @@
+
+
+
+
+--------------------- 
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/LoginController.php
+public function actionLogin()
+  $account = AccountManager::getTestAccount();
+
+api:
+
+打卡一票否决
+https://wiki.niub.la/tzb:api_design
+    Path: /ajax/veto
+    Method: POST
+    Need Authorization: true
+    Get Parameters: 无
+    Post Parameters:
+        cid: 要否决的打卡的id
+    Response
+        success: bool值，表示操作是否成功。
+        message：错误消息。若操作成功，message为空，否则为相关错误消息。
+        data：在本API中没有用到，忽略。
+    Example
+
+审核期间可以踩赞否决
+
+
+'reviewed' => bool值，true表示审核阶段已经结束
+'veto' => bool值，true表示已经被一票否决
+'valid' => bool值，true表示当前checkin是否有效（根据踩赞判定），该值仅在reviewed为true时有参考意义
+
+------------ 2016-08-10 17:54:34
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+    public function actionIndex($cid=null)
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+    public function actionIndex($mid = 0)
+
+
+3 fields: veto, unlike, reviewed
+
+/home/kidd/workspace/bc/MissionImpossible/models/Mission.php
+    public function getCheckinList()
+    {
+        $checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', 'veto_admin_id'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+
+        return $checkinList;
+    }
+
+2016-08-10 18:14:43 [-][info][abc\app\controllers\TestController::actionVeto] [{"username":"qwang","head_img":"http:\/\/wx.qlogo.cn\/mmopen\/ajNVdqHZLLCvhV2xwZKYsRovWLVULw0JB44Kf8niaF507xyhWLTh9eh3P8nM2WOc1wJ0uA3ibmJ6gh0a41JJDCEg\/0","id":"107","checkin_time":"2016-08-10 17:48:08","photo":null,"like_count":"0","unlike_count":"0","veto_admin_id":"-1"}]
+
+$checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', 'veto_admin_id as veto'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+2016-08-10 18:15:51 [-][info][abc\app\controllers\TestController::actionVeto] [{"username":"qwang","head_img":"http:\/\/wx.qlogo.cn\/mmopen\/ajNVdqHZLLCvhV2xwZKYsRovWLVULw0JB44Kf8niaF507xyhWLTh9eh3P8nM2WOc1wJ0uA3ibmJ6gh0a41JJDCEg\/0","id":"107","checkin_time":"2016-08-10 17:48:08","photo":null,"like_count":"0","unlike_count":"0","veto":"-1"}]
+
+
+mysql> select id, id+challenge_id from checkin;
+select id, veto_admin_id=-1 as veto from checkin;
+
+http://www.yiiframework.com/doc-2.0/guide-db-dao.html#quoting-table-and-column-names
+    public function getCheckinList()
+    {
+        $checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', '[[checkin.unlike_count]] > [[checkin.like_count]] as unlike', '[[veto_admin_id]] > -1 as veto'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+
+        return $checkinList;
+    }
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+        return $this->render('checkin-detail-test.html', [
+            'checkin' => $checkin,
+            'challenge' => $challenge,
+            'mission' => $mission,
+            'user' => $user,
+            'cyAppId' => Changyan::getAppId(),
+            'cyConf' => Changyan::getConf(),
+            'veto' => $checkin->veto_admin_id == -1,
+            'unlike' => ($checkin->unlike_count-$checkin->like_count),
+            'reviewed' => $mission->isAfterReview(),
+        ]);
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+ elseif ($mission->isStarted()) {
+                $checked = $mission->isUserChecked($uid);
+                $unCheckUsers = $mission->getUnCheckUsers();
+                $checkUsers = $mission->getCheckinList();
+                return $this->render('checkin.html', [
+                    'mission' => $mission,
+                    'challenge' => $challenge,
+                    'now_time' => date('Y-m-d H:i:s'),
+                    'checked' => $checked,
+                    'unCheckUsers' => $unCheckUsers,
+                    'unCheckCount' => count($unCheckUsers),
+                    'checkUsers' => $checkUsers,
+                    'checkCount' => count($checkUsers),
+                    'returnUrl' => Yii::$app->request->hostInfo . '/mission/index?mid=' . $mid,
+                    'showQrcode' => !$subscribed,
+                    'production' => $isProduction,
+                    'wxConfig' => json_encode(Wechat::getJsConfig()),
+                    'reviewed' => $mission->isAfterReview(),
+                ]);
+
+
+--------------- 2016-08-10 16:51:45
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+    public function actionIndex($cid=null)
+
+        return $this->render('checkin-detail-test.html', [
+            'checkin' => $checkin,
+            'challenge' => $challenge,
+            'mission' => $mission,
+            'user' => $user,
+            'cyAppId' => Changyan::getAppId(),
+            'cyConf' => Changyan::getConf(),
+        ]);
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+    public function actionIndex($mid = 0)
+            elseif ($mission->isStarted()) {
+                $checked = $mission->isUserChecked($uid);
+                $unCheckUsers = $mission->getUnCheckUsers();
+                $checkUsers = $mission->getCheckinList();
+                return $this->render('checkin.html', [
+                    'mission' => $mission,
+                    'challenge' => $challenge,
+                    'now_time' => date('Y-m-d H:i:s'),
+                    'checked' => $checked,
+                    'unCheckUsers' => $unCheckUsers,
+                    'unCheckCount' => count($unCheckUsers),
+                    'checkUsers' => $checkUsers,
+                    'checkCount' => count($checkUsers),
+                    'returnUrl' => Yii::$app->request->hostInfo . '/mission/index?mid=' . $mid,
+                    'showQrcode' => !$subscribed,
+                    'production' => $isProduction,
+                    'wxConfig' => json_encode(Wechat::getJsConfig()),
+                ]);
+                //挑战结束
+----------- 2016-08-10 10:49:06
+post test: /ajax/veto/veto
+via wechat: http://10.12.0.1:8080/checkin/index?cid=80
+        <div style="float:right; height: 40px; padding: 10px; background-color: #ccc; line-height: 40px; vertical-align: center; margin-right: 10px;">
+            一票否决
+            <form name="form1" method="post" action="/ajax/veto/veto">
+                <input type="text" name="cid">
+                <input type="submit" name="button" id="button" value="一票否决">
+
+            </form>
+        </div>
+
+---------- 2016-08-09 20:41:32
+  controllers/ajax/VetoController.php
+  database/2016-08-09-02.patch.sql
+
+---------- 2016-08-09 19:55:04
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ]
+        ];
+    }
+
+
+----------- 2016-08-09 18:18:39
+操作参数
+
+内联操作的操作方法和独立操作的 run() 方法可以带参数，称为操作参数。 参数值从请求中获取，对于yii\web\Application网页应用， 每个操作参数的值从$_GET中获得，参数名作为键； 对于yii\console\Application控制台应用, 操作参数对应命令行参数。
+
+----------- 2016-08-09 17:27:11
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+actionVeto
+  checkin_id, admin_id
+
+
+    public function actionIndex($cid=null)
+    {
+        if (is_null($cid)) {
+            throw new AppException('参数错误');
+        }
+        $checkin = Checkin::findOne(['id' => $cid]);
+        if (empty($checkin)) {
+            throw new AppException('找不到打卡');
+        }
+        $challenge = Challenge::findOne(['id' => $checkin->challenge_id]);
+        if (empty($challenge)) {
+            throw new AppException('找不到挑战');
+        }
+        $mission = Mission::findOne(['id' => $challenge->mission_id]);
+        if (empty($mission)) {
+            throw new AppException('找不到任务');
+        }
+        $user = AccountManager::getCurrentUser();
+        return $this->render('checkin-detail-test.html', [
+            'checkin' => $checkin,
+            'challenge' => $challenge,
+            'mission' => $mission,
+            'user' => $user,
+            'cyAppId' => Changyan::getAppId(),
+            'cyConf' => Changyan::getConf(),
+        ]);
+    }
+
+---------------- 2016-08-09 16:40:20
+currently, a user can never re-upload another photo.
+
+
+---------  2016-08-09 14:43:00
+access via wechat instead of pc:
+  local test: http://10.2.0.1:8080/mission/create, http://10.2.0.1:8080/login/login
+
+$ php yii serve 10.12.0.1
+Server started on http://10.12.0.1:8080/
+
+login/login is not triggered in case of qrcode scan. 
+qrcode scan is not the same as login. login means allowing some info access. 
+after qrcode scan, and in the public account page, click the challenge button and enter the create mission page, the account/user info will be created accordingly.
+
+-------------------- 2016-08-09 14:42:54
+
+account is the user info from wechat, the similar info is stored in user, and user is used most of the time. 
+
+------------- 2016-08-09 13:49:16
+
+mysql> desc mission;
++------------------------+----------------+------+-----+---------+----------------+
+| Field                  | Type           | Null | Key | Default | Extra          |
++------------------------+----------------+------+-----+---------+----------------+
+| id                     | bigint(20)     | NO   | PRI | NULL    | auto_increment |
+| tmpl_id                | bigint(20)     | YES  |     | 0       |                |
+| name                   | varchar(64)    | YES  |     | NULL    |                |
+| announce               | varchar(64)    | YES  |     | NULL    |                |
+| declare                | varchar(128)   | YES  |     | NULL    |                |
+| description            | varchar(128)   | YES  |     | NULL    |                |
+| creator_id             | bigint(20)     | YES  |     | NULL    |                |
+| create_time            | datetime       | YES  |     | NULL    |                |
+| start_time             | datetime       | YES  |     | NULL    |                |
+| stop_time              | datetime       | YES  |     | NULL    |                |
+| end_time               | datetime       | YES  |     | NULL    |                |
+| ticket                 | float          | YES  |     | 1       |                |
+| ticket_unit            | varchar(45)    | YES  |     | NULL    |                |
+| joined_count           | int(11)        | YES  |     | 0       |                |
+| max_user               | int(11)        | YES  |     | 100     |                |
+| min_user               | int(11)        | YES  |     | 1       |                |
+| status                 | int(11)        | YES  |     | 0       |                |
+| checkin_type           | int(11)        | YES  |     | 0       |                |
+| checkin_min_count      | int(11)        | YES  |     | 1       |                |
+| reward_total           | float          | YES  |     | 0       |                |
+| reward_send            | float          | YES  |     | 0       |                |
+| checkin_photo          | varchar(10240) | YES  |     | NULL    |                |
+| checkin_mode           | int(11)        | YES  |     | 0       |                |
+| checkin_unlike_invalid | int(11)        | YES  |     | 50      |                |
+| checkin_like_valid     | int(11)        | YES  |     | 0       |                |
++------------------------+----------------+------+-----+---------+----------------+
+25 rows in set (0.01 sec)
+
+
+mysql> desc challenge;
++-----------------+------------+------+-----+---------+----------------+
+| Field           | Type       | Null | Key | Default | Extra          |
++-----------------+------------+------+-----+---------+----------------+
+| id              | bigint(20) | NO   | PRI | NULL    | auto_increment |
+| mission_id      | bigint(20) | NO   |     | NULL    |                |
+| user_id         | bigint(20) | NO   |     | NULL    |                |
+| regist_time     | datetime   | YES  |     | NULL    |                |
+| status          | int(11)    | YES  |     | 0       |                |
+| checkin_valid   | int(11)    | YES  |     | NULL    |                |
+| checkin_invalid | int(11)    | YES  |     | NULL    |                |
+| checkin_count   | int(11)    | YES  |     | NULL    |                |
++-----------------+------------+------+-----+---------+----------------+
+8 rows in set (0.01 sec)
+
+
+mysql> desc checkin;
++---------------+----------------+------+-----+---------+----------------+
+| Field         | Type           | Null | Key | Default | Extra          |
++---------------+----------------+------+-----+---------+----------------+
+| id            | bigint(20)     | NO   | PRI | NULL    | auto_increment |
+| challenge_id  | bigint(20)     | NO   |     | NULL    |                |
+| photo         | varchar(10240) | YES  |     | NULL    |                |
+| like_count    | int(11)        | YES  |     | 0       |                |
+| unlike_count  | int(11)        | YES  |     | 0       |                |
+| comment_count | int(11)        | NO   |     | 0       |                |
+| checkin_time  | datetime       | NO   |     | NULL    |                |
++---------------+----------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> desc checkin_vote;
++------------+------------+------+-----+-------------------+----------------+
+| Field      | Type       | Null | Key | Default           | Extra          |
++------------+------------+------+-----+-------------------+----------------+
+| id         | bigint(20) | NO   | PRI | NULL              | auto_increment |
+| checkin_id | bigint(20) | NO   |     | 0                 |                |
+| opt        | int(11)    | NO   |     | 0                 |                |
+| create_at  | timestamp  | YES  |     | CURRENT_TIMESTAMP |                |
+| user_id    | bigint(20) | NO   |     | NULL              |                |
++------------+------------+------+-----+-------------------+----------------+
+5 rows in set (0.01 sec)
+
+mysql> desc account;
++------------+---------------------+------+-----+-------------------+-----------------------------+
+| Field      | Type                | Null | Key | Default           | Extra                       |
++------------+---------------------+------+-----+-------------------+-----------------------------+
+| id         | bigint(20) unsigned | NO   | PRI | NULL              | auto_increment              |
+| open_id    | varchar(50)         | NO   |     | NULL              |                             |
+| union_id   | varchar(50)         | NO   |     | NULL              |                             |
+| avatar     | varchar(1024)       | YES  |     | NULL              |                             |
+| nickname   | varchar(200)        | YES  |     | NULL              |                             |
+| username   | varchar(50)         | NO   |     | NULL              |                             |
+| gender     | int(11)             | YES  |     | 0                 |                             |
+| province   | varchar(50)         | YES  |     | NULL              |                             |
+| city       | varchar(50)         | YES  |     | NULL              |                             |
+| country    | varchar(50)         | YES  |     | NULL              |                             |
+| birthday   | varchar(10)         | YES  |     |                   |                             |
+| privilege  | varchar(10)         | YES  |     |                   |                             |
+| interest   | varchar(10)         | YES  |     |                   |                             |
+| phone      | varchar(10)         | YES  | UNI |                   |                             |
+| created_at | timestamp           | YES  |     | NULL              |                             |
+| updated_at | timestamp           | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+| subscribed | int(11)             | NO   |     | -1                |                             |
++------------+---------------------+------+-----+-------------------+-----------------------------+
+17 rows in set (0.01 sec)
+
+mysql> desc user;
++--------------+---------------+------+-----+-------------------+-----------------------------+
+| Field        | Type          | Null | Key | Default           | Extra                       |
++--------------+---------------+------+-----+-------------------+-----------------------------+
+| id           | bigint(20)    | NO   | PRI | NULL              | auto_increment              |
+| account_type | varchar(10)   | YES  |     | NULL              |                             |
+| account_id   | bigint(20)    | YES  |     | -1                |                             |
+| nickname     | varchar(45)   | YES  |     | NULL              |                             |
+| username     | varchar(45)   | NO   |     | NULL              |                             |
+| passwd       | varchar(45)   | YES  |     | NULL              |                             |
+| head_img     | varchar(1024) | YES  |     | NULL              |                             |
+| gender       | int(11)       | NO   |     | 0                 |                             |
+| birthday     | datetime      | YES  |     | NULL              |                             |
+| phone        | varchar(45)   | YES  |     | NULL              |                             |
+| regist_time  | datetime      | YES  |     | NULL              |                             |
+| announce     | varchar(45)   | YES  |     | NULL              |                             |
+| province     | varchar(50)   | YES  |     | NULL              |                             |
+| city         | varchar(50)   | YES  |     | NULL              |                             |
+| country      | varchar(50)   | YES  |     | NULL              |                             |
+| updated_at   | timestamp     | YES  |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
++--------------+---------------+------+-----+-------------------+-----------------------------+
+16 rows in set (0.01 sec)
+
+
+--------- 2016-08-09 17:18:54
+test page
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta content="telephone=no" name="format-detection"/> 
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>挑战吧-打卡详情</title>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+    <div style="color: #333; font-size: 1.2em; font-weight: bold; paddding-top: 5px; padding-bottom: 10px;">{{ mission.name }}</div>
+    <a href="/mission/index?mid={{mission.id}}" style="font-size: 0.9em; color: #333; text-decoration: none">去看看大家的打卡情况--></a>
+    <div style="background-color: #ccc; height: 2px; margin-top: 10px;"></div>
+
+    <div class="checkin-info" style="margin-top: 10px;">
+        <img src="{{ user.head_img }}" style="width: 60px; height: 60px; float: left" />
+        <div style="padding: 5px; margin-left: 10px; float: left">
+            <div>{{user.nickname}}</div>
+            <div style="margin-top: 15px;">{{checkin.checkin_time}}</div>
+        </div>
+        <div style="float:right; height: 40px; padding: 10px; background-color: #ccc; line-height: 40px; vertical-align: center; margin-right: 10px;">
+            一票否决
+        </div>
+        <div style="clear: both"></div>
+        {% if checkin.photo %}
+        <div style="background-color: #f5f5f5; margin-top: 10px;">
+            <img src="{{checkin.photo }}" style="max-width: 170px; max-height: 275px; margin-top: 10px; margin-bottom: 10px;"></img>
+        </div>
+        {% endif %}
+    </div>
+    <div style="background-color: #ccc; height: 2px; margin-top: 10px; margin-bottom: 10px;"></div>
+    <!--WAP版-->
+    <!-- TODO use different account for test and online environment -->
+    <div id="SOHUCS" sid="{{checkin.id}}" ></div>
+    <script id="changyan_mobile_js" charset="utf-8" type="text/javascript" 
+src="http://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id={{cyAppId}}&conf={{cyConf}}">
+    </script>
+</body>
+</html>

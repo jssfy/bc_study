@@ -15,7 +15,11 @@ TBD:
 
 
 ssh ahye@121.43.153.62
+$ ping -c 2 tz8.muder.pw
+PING tz8.muder.pw (121.43.153.62) 56(84) bytes of data.
+64 bytes from 121.43.153.62: icmp_seq=1 ttl=49 time=29.0 ms
 
+tz8-dev.muder.pw
 
 ----------- 2016-08-04 20:58:28
 

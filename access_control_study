@@ -1,0 +1,21 @@
+
+
+----------- 2016-08-09 20:39:47
+
+class CheckinController extends WebController
+{
+    public function behaviors()
+    {
+        return [
+//            'access' => [
+//                'class' => AccessControl::className(),
+//                'rules' => [
+//                    [
+//                        'actions' => ['index'],
+//                        'allow' => true,
+//                        'roles' => ['@'],
+//                    ],
+//                ],
+//            ]
+        ];
+    }

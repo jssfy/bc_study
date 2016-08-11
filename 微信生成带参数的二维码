@@ -29,8 +29,14 @@ wx256025636fad78ae
 AppSecret(应用密钥)
 2a8eb69d48f04deffe3f10efb25613fc
 
-2. test account
+2. personal test account
 http://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
+微信号： gh_d790e147d0b7
+测试号信息
+appID
+wxc0f1b124629429c4
+appsecret
+da83a792f6df9fb0ee695e4a3335e542
 
 http://www.cnblogs.com/txw1958/p/weixin-qrcode-with-parameters.html
 http://www.cnblogs.com/mchina/archive/2013/06/07/3120592.html
@@ -249,12 +255,7 @@ but the personal service account does not have the priviledge to create a ticket
 
 微信公众平台接口测试账号是为满足公众号开发者了解平台接口能力以及新功能开发上线前进行测试，其地址为http://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login，本次更新让测试帐号获得了与认证服务号相同的能力，包括JS-SDK相关能力。查看详情
 
-微信号： gh_d790e147d0b7
-测试号信息
-appID
-wxc0f1b124629429c4
-appsecret
-da83a792f6df9fb0ee695e4a3335e542
+
 
 
 推广支持: 创建二维码ticket接口 /qrcode/create

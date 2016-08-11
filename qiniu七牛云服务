@@ -37,6 +37,27 @@ https://segmentfault.com/qiniu
 http://developer.qiniu.com/article/faqs/sdk/index.html#php
 
 
+-------------- 2016-08-10 15:33:29
+{"errcode":40001,"errmsg":"invalid credential, access_token is invalid or not latest hint: [SsBeUa0760ure1]"}
+
+------------ 2016-08-10 14:32:35
+| 11 | weixin       |        194 | 叶安华     | 叶安华     | NULL   | http://wx.qlogo.cn/mmopen/PiajxSqBRaEJkp2ibNelHjpXwSUzqSaUIVRJ8Lxd9HtLDxMic2ziasKXY52oW5RLNLEH203qBoXUiavuZsp0aDnGGtQ/0            |      1 | NULL     | NULL  | 2016-08-09 14:34:05 | NULL     | NULL     | NULL | NULL    | 2016-08-09 14:34:05 |
+
+
+
+----------- 2016-08-10 11:23:53
+when uploading image to wechat, tz8.muder.pw is used, which will be resolved to the online server. If testing with local server, we have to bind tz8.muder.pw to the local server in order for the front-end code to work.
+
+----------- 2016-08-09 11:53:42
+wechat
+
+qiniu popup can not be dismissed. 
+
+~/workspace/bc/MissionImpossible
+$ grep -nr "文件验证失败"
+web/vender/qiniu/qiniu.js:934:                            errTip = '文件验证失败。请稍后重试。';
+
+
 ----------- 2016-08-08 20:55:20
 yii2 qiniu
 http://blog.csdn.net/caotianyin/article/details/45076609

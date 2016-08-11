@@ -1,0 +1,61 @@
+
+
+
+
+----------- 2016-08-09 13:16:46
+/home/kidd/workspace/bc/MissionImpossible/components/wxmp/MpManager.php
+  public static function processMessage($body) 
+  {
+    $xml = simplexml_load_string($body);
+    $msg_type = MessageType::UNKNOW;
+    $msg_obj = self::parseMessage($xml, $msg_type);
+    self::saveMessage($msg_type, $xml->asXML());
+    if (!$msg_obj) {
+      return "";
+    } else {
+      return $msg_obj->getResponse();
+    }
+  }
+
+/home/kidd/software/PhpStorm-162.1121.38/plugins/php/lib/php.jar!/com/jetbrains/php/lang/psi/stubs/data/SimpleXML.php
+Interprets a string of XML into an object
+  function simplexml_load_string ($data, $class_name = "SimpleXMLElement", $options = 0, $ns = "", $is_prefix = false) {}
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/WechatmpController.php
+    public function actionIndex() {
+    if (\Yii::$app->request->isPost) {
+      $response = MpManager::processMessage(\Yii::$app->request->rawBody);
+      if ($response instanceof Response) {
+        return $response;
+      } else {
+        echo $response;
+      }
+      exit;
+    } else {
+      $echoStr = $_GET["echostr"];
+
+      if ($this->checkSignature()) {
+        echo $echoStr;
+      } else {
+        echo "";
+      }
+    }
+  }
+
+    private function checkSignature() {
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];
+
+        $token = self::TOKEN;
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
+
+        if( $tmpStr == $signature ){
+            return true;
+        }else{
+            return false;
+        }
+    }

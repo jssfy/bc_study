@@ -1,0 +1,45 @@
+
+
+------------ 2016-08-10 10:24:50
+support of post only, for action veto
+
+class VetoController extends AuthorizedAjaxController
+{
+    protected function verbs() {
+        return [
+            'veto' => ['post'],
+        ];
+    }
+
+    public function actionVeto()
+    {
+        $cid = SessionTool::getParaByKeyFromPostRequest('cid');
+
+-------------- 2016-08-10 10:29:26
+how to load post data:
+
+1. 
+操作参数
+
+内联操作的操作方法和独立操作的 run() 方法可以带参数，称为操作参数。 参数值从请求中获取，对于yii\web\Application网页应用， 每个操作参数的值从$_GET中获得，参数名作为键； 对于yii\console\Application控制台应用, 操作参数对应命令行参数。
+
+如下例，操作view (内联操作) 申明了两个参数 $id 和 $version。
+
+namespace app\controllers;
+
+use yii\web\Controller;
+
+class PostController extends Controller
+{
+    public function actionView($id, $version = null)
+    {
+        // ...
+    }
+}
+
+2.
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+$data = Yii::$app->request->post();
+        if ($mission->load($data) ) {
+
+

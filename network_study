@@ -1,0 +1,91 @@
+
+
+----------- 2016-08-10 11:30:48
+http://www.cnblogs.com/misoag/archive/2013/02/04/2891636.html
+$ sudo apt-get install squid3 squid3-common
+
+$ apt-cache search squid
+squid-deb-proxy - Squid proxy configuration to optimize package downloads
+squid-langpack - Localized error pages for Squid
+squid3 - Full featured Web Proxy cache (HTTP proxy)
+squid3-common - Full featured Web Proxy cache (HTTP proxy) - common files
+squid3-dbg - Full featured Web Proxy cache (HTTP proxy) - Debug symbols
+
+
+proxy    13803     1  0 11:30 ?        00:00:00 /usr/sbin/squid3 -N -YC -f /etc/squid3/squid.conf
+proxy    13809 13803  0 11:30 ?        00:00:00 (logfile-daemon) /var/log/squid3/access.log
+
+sudo service squid3 restart
+
+$ tail /etc/squid3/squid.conf 
+acl internal_network src 10.12.0.0/24
+http_access allow internal_network
+
+$ cat  /etc/squid3/squid.conf  | grep 312
+# acl aclname localport 3128 ...        # TCP port the client connected to [fast]
+# acl aclname myportname 3128 ...       # http(s)_port name [fast]
+# Squid normally listens to port 3128
+http_port 3128
+
+
+~/workspace/bc/MissionImpossible
+$ cat  /etc/squid3/squid.conf  | grep localhost
+# ACLs all, manager, localhost, and to_localhost are predefined.
+#   acl localhost src 127.0.0.1
+#   follow_x_forwarded_for allow localhost
+# Only allow cachemgr access from localhost
+http_access allow localhost manager
+# one who can access services on "localhost" is a local user
+#http_access deny to_localhost
+http_access allow localhost
+
+~/workspace/bc/MissionImpossible
+$ cat  /etc/squid3/squid.conf  | grep localhost
+# ACLs all, manager, localhost, and to_localhost are predefined.
+#   acl localhost src 127.0.0.1
+#   follow_x_forwarded_for allow localhost
+# Only allow cachemgr access from localhost
+http_access allow localhost manager
+# one who can access services on "localhost" is a local user
+#http_access deny to_localhost
+http_access allow localhost
+
+$ cat /etc/hosts
+127.0.0.1 localhost
+127.0.1.1 kidd-OptiPlex-9020
+#10.12.0.1  tz8.muder.pw
+10.12.0.1 tz8-dev.muder.pw
+
+
+------------ 2016-08-10 12:20:32
+ubuntu dns server
+
+sudo apt-get install bind9 dnsutils
+
+这时在/etc/bind下会出现（这里跟其他的UNIX/LINUX不同，一般其他的UNIX/LINUX默认是把配置文件放
+
+在/etc/named下，数据文件放在/var/named或/var/bind下的，而UBUNTU都一起放在这个目录下了）
+
+$ ls
+bind.keys  db.0  db.127  db.255  db.empty  db.local  db.root  named.conf  named.conf.default-zones  named.conf.local  named.conf.options  rndc.key  zones.rfc1918
+
+
+
+这里需要稍微讲一下区数据文件里的几个资源记录的含义：
+
+SOA记录：指示该区的权威
+NS记录：列出该区的一个名字服务器
+A记录：名字到地址的映射 （也就是正向解析）
+PTR记录：地址到名字的映射 （也就是反向解析）
+CNAME：规范名字 （别名记录）
+
+下面开始服务配置
+缓存域名服务器设置 （Cache-only server）
+缓存域名服务器顾名思义其自身是没有域名记录的，仅仅从别的DNS上获取记录并做高速缓存。
+安装好DNS服务后，不需要任何配置，只需要把服务起起来就是缓存域名服务器了。
+
+代码:
+sudo /etc/init.d/bind start
+
+
+$ sudo php yii serve 10.12.0.1 --port=80

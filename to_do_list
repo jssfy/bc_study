@@ -19,7 +19,9 @@ sql statements:
   GROUP BY a.money
   ORDER BY id
 
-
+http://www.digpage.com/web_request.html
+  \yii\web\request
+    rawbody, php://input, etc.
 
 
 

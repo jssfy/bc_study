@@ -1,8 +1,32 @@
 
 
+
+---------- 2016-08-09 12:07:02
+phpstorm编辑器乱码问题解决
+FILE->Setting->File Encoding->将UTF-8改成GBK, and then restart [IDE encoding] after setting it back to utf-8, still works.
+  if set "project encoding" to gbk, entering chinese into an ascii file will lead to file switching to ISO-8859 format. Not correct.
+  ~/workspace/bc/MissionImpossible
+$ file /home/kidd/workspace/bc/MissionImpossible/controllers/QrcodeController.php
+/home/kidd/workspace/bc/MissionImpossible/controllers/QrcodeController.php: PHP script, ISO-8859 text
+  use file -> file encoding to convert to utf-8
+
+
 --------------- 2016-08-03 10:49:18
+go back/forward: ctrl + alt + left/right
+  not working properly.
+
+CTRL+N   查找类
 locate a file via name:
   ctrl+shift+N
+
+ctrl+f12 file structure
+
+CTRL+ALT ←/→  返回上次编辑的位置
+ALT+ ←/→  切换代码视图，标签切换
+ALT+ ↑/↓  在方法间快速移动定位
+alt + '7': 显示当前的类/函数结构。类似于eclipse中的outline的效果。试验了一下，要比aptana的给力一些，但还是不能完全显示prototype下面的方法名
+
+CTRL+ []   光标移动到 {}[]开头或结尾位置
 
 to show project side pane:
   view->tool windows->project [alt+1]

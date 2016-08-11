@@ -1,0 +1,56 @@
+
+
+
+----------- 2016-08-10 16:42:25
+
+    public function getCheckinList()
+    {
+        $checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+
+        return $checkinList;
+    }
+
+----------- 2016-08-10 15:15:37
+active record counters:
+
+        if ($checkin->save()) {
+            $challenge->updateCounters([
+                'checkin_count' => 1,
+            ]);
+            return true;
+        }
+
+
+---------- 2016-08-10 10:25:50
+http://www.yiiframework.com/doc-2.0/yii-db-baseactiverecord.html#save%28%29-detail
+
+save() public method
+
+Saves the current record.
+
+This method will call insert() when $isNewRecord is true, or update() when $isNewRecord is false.
+
+For example, to save a customer record:
+
+$customer = new Customer; // or $customer = Customer::findOne($id);
+$customer->name = $name;
+$customer->email = $email;
+$customer->save();
+
+public boolean save ( $runValidation = true, $attributeNames = null )
+$runValidation  boolean   
+
+Whether to perform validation (calling validate()) before saving the record. Defaults to true. If the validation fails, the record will not be saved to the database and this method will return false.
+$attributeNames   array   
+
+List of attribute names that need to be saved. Defaults to null, meaning all attributes that are loaded from DB will be saved.
+return  boolean   
+
+Whether the saving succeeded (i.e. no validation errors occurred).

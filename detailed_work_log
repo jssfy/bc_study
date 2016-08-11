@@ -71,6 +71,17 @@ mysql> show tables;
 +-------------------+
 17 rows in set (0.00 sec)   
 
+
+
+
+------------ 2016-08-09 15:27:58
+not only mission/create, but also mission/index [the checkin branch] will upload the image.
+  for the latter case, the media_id is in the checkin_content attr instead of "checkin_photo".
+
+/home/kidd/workspace/bc/MissionImpossible/views/mission/checkin.html
+              $('#ckimg-upload').append('<input id="ck_' + file.id + '" type="checkbox" class="hidden" name="checkin_content" value="' + sourceLink +'" checked>');
+
+
 -------------- 2016-08-08 10:33:31
 
 http://developer.qiniu.com/code/v6/api/kodo-api/rs/fetch.html
