@@ -1,5 +1,29 @@
 
 
+----------- 2016-08-07 20:57:56
+http://blog.csdn.net/th362cn/article/details/8575344
+PHP数组添加一个元素的方式： push(), arr[], 
+    而且有实验证明，第二种方法的效率比第一种方法高出将近一倍！
+    
+<?php
+
+ $t = microtime(true);
+$array = array();
+for($i = 0; $i < 10000; $i++) {
+$array[] = $i;
+}
+print microtime(true) - $t;
+print '<br>';
+$t = microtime(true);
+$array = array();
+for($i = 0; $i < 10000; $i++) {
+array_push($array, $i);
+}
+print microtime(true) - $t;
+
+
+?>
+
 
 --------- 2016-08-05 13:48:39
 php中引用&的真正理解-变量引用、函数引用、对象引用

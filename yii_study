@@ -1,7 +1,7 @@
 
 调试工具 ??
 
-?? previously, all view files are located under the project root, but the gii-generated view files are all under the web sub-folder. 
+?? previously, all view files are located under the project root, but the gii-generated view files are all under the web sub-folder. Route
 
 the auto generated model has attributes: population, code, name, what for? Actually they are extracted from db.
 

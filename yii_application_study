@@ -1,0 +1,90 @@
+
+
+---------- 2016-08-07 19:54:12
+http://www.yiichina.com/doc/guide/2.0/structure-applications#application-configurations
+
+??
+yii\base\Application::bootstrap
+
+这个属性很实用，它允许你用数组指定启动阶段 yii\base\Application::bootstrap()需要运行的组件。 比如，如果你希望一个 模块 自定义 URL 规则， 你可以将模块ID加入到bootstrap数组中。
+
+属性中的每个组件需要指定以下一项:
+
+    应用 组件 ID.
+    模块 ID.
+    类名.
+    配置数组.
+    创建并返回一个组件的无名称函数.
+
+
+??
+在启动阶段，每个组件都会实例化。 如果组件类实现接口 yii\base\BootstrapInterface, 也会调用 yii\base\BootstrapInterface::bootstrap() 方法。
+
+举一个实际的例子， Basic Application Template 应用主体配置中， 开发环境下会在启动阶段运行 debug 和 gii 模块。
+
+if (YII_ENV_DEV) {
+    // configuration adjustments for 'dev' environment
+    $config['bootstrap'][] = 'debug';
+    $config['modules']['debug'] = 'yii\debug\Module';
+
+    $config['bootstrap'][] = 'gii';
+    $config['modules']['gii'] = 'yii\gii\Module';
+}
+
+    注: 启动太多的组件会降低系统性能， 因为每次请求都需要重新运行启动组件，因此谨慎配置启动组件。
+
+
+------------ 2016-08-07 20:35:17
+
+<?php
+
+$config = [
+    'id' => 'basic',
+    'basePath' => dirname(__DIR__),
+    'bootstrap' => ['log'], ];
+
+    
+// configuration adjustments for 'dev' environment
+$config['bootstrap'][] = 'debug';
+$config['modules']['debug'] = [
+    'class' => 'yii\debug\Module',
+];
+
+$config['bootstrap'][] = 'gii';
+$config['modules']['gii'] = [
+    'class' => 'yii\gii\Module',
+];
+
+print_r($config);
+
+
+?>
+
+kidd@kidd-T430:~/workspace/php$ php test.php 
+
+Array
+(
+    [id] => basic
+    [basePath] => /home/kidd/workspace
+    [bootstrap] => Array
+        (
+            [0] => log
+            [1] => debug
+            [2] => gii
+        )
+
+    [modules] => Array
+        (
+            [debug] => Array
+                (
+                    [class] => yii\debug\Module
+                )
+
+            [gii] => Array
+                (
+                    [class] => yii\gii\Module
+                )
+
+        )
+
+)

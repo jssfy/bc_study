@@ -1,0 +1,56 @@
+
+
+
+---------------- 2016-08-06 09:44:56 
+encoding
+
+chinese.cpp:6:56: warning: overflow in implicit constant conversion [-Woverflow]
+  char str[]={ '叶',' ','a','m',' ','h','a','p','p','y'};
+
+utf-8 chinese character, 3 bytes.
+常用中文字符用utf-8编码占用3个字节（大约2万多字），但超大字符集中的更大多数汉字要占4个字节（在unicode编码体系中，U+20000开始有5万多汉字）
+GBK、GB2312收编的汉字占2个字节，严格地用iso8859-1无法表示汉字，只能转为问号。
+
+
+ISO-8859-1编码是单字节编码，向下兼容ASCII，其编码范围是0x00-0xFF，0x00-0x7F之间完全和ASCII一致，0x80-0x9F之间是控制字符，0xA0-0xFF之间是文字符号。
+此字符集支持部分于欧洲使用的语言，包括阿尔巴尼亚语、巴斯克语、布列塔尼语、加泰罗尼亚语、丹麦语、荷兰语、法罗语、弗里西语、加利西亚语、德语、格陵兰语、冰岛语、爱尔兰盖尔语、意大利语、拉丁语、卢森堡语、挪威语、葡萄牙语、里托罗曼斯语、苏格兰盖尔语、西班牙语及瑞典语。
+英语虽然没有重音字母，但仍会标明为ISO/IEC 8859-1编码。除此之外，欧洲以外的部分语言，如南非荷兰语、斯瓦希里语、印尼语及马来语、菲律宾他加洛语等也可使用ISO/IEC 8859-1编码。
+法语及芬兰语本来也使用ISO/IEC 8859-1来表示。但因它没有法语使用的 œ、Œ、Ÿ 三个字母及芬兰语使用的 Š、š、Ž、ž ，故于1998年被ISO/IEC 8859-15所取代。（ISO 8859-15同时加入了欧元符号）
+
+字符(Character)是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等。字符集(Character set)是多个字符的集合，字符集种类较多，每个字符集包含的字符个数不同，常见字符集名称：ASCII字符集、GB2312字符集、BIG5字符集、 GB18030字符集、Unicode字符集等。计算机要准确的处理各种字符集文字，需要进行字符编码，以便计算机能够识别和存储各种文字。中文文字数目大，而且还分为简体中文和繁体中文两种不同书写规则的文字，而计算机最初是按英语单字节字符设计的，因此，对中文字符进行编码，是中文信息交流的技术基础。
+
+光是英语字符ASCII编码字符集是够了，但是如果算上世界上其他的语言的字符，ASCII码显然不够了，于是Unicode编码字符集应运而生。
+
+   Unicode用数字0-0x10FFFF来映射这些字符，最多可以容纳1114112个字符，或者说有1114112个码位。码位就是可以分配给字符的数字。UTF-8、UTF-16、UTF-32都是将所有Unicode用到的数字转换为程序数据的编码方案。全世界的字符加起来也用不了所有的码位，Unicode 5.0版本中，才用了238605个码位。
+
+Unicode编码字符集只是统一定义了所有字符和它对应Unicode编码值，而我们的程序中怎么去存储和读取这个Unicode编码值呢？显然，你可以直接统一规定所有Unicode编码值用四个字节来存储。但是这样的话，对于Unicode编码字符集中的与ASCII码表对应的那部分字符(只需要一个字节来表示的Unicode编码值)就有点浪费了。这样，utf-8也就粉墨登场了。
+
+http://wenku.baidu.com/link?url=CMbF_y9khPh7F-w2rqtW4-Tud4MOSL8z14mo0IwUSDAZrHFkr0f0a23MLcO50gPcFelOAi8uytMUQTGUDe6L8NCpiNXGu-uiv44ZZ6LZYEe
+  汉字显示数据结构和原理
+http://blog.sina.com.cn/s/blog_626e69ae0100p11t.html
+  点阵汉字显示方法源程序(C语言)
+
+gedit save as gbk, but file cmd still indicates utf-8. however, printf shows messy output after compilation and exec.
+kidd@kidd-T430:~/workspace/cpp$ gedit chinese.cpp 
+kidd@kidd-T430:~/workspace/cpp$ file gbk.cpp 
+gbk.cpp: C source, UTF-8 Unicode text
+
+after "iconv -f utf-8 -t gbk chinese.cpp > gbk_iconv.cpp", gbk_iconv.cpp is still in utf-8 format as "file" shows, and open it via gedit and "save as" also indicates utf-8. But the chinese characters are already messy.
+
+在Linux中查看文件编码可以通过以下几种方式：
+1.在Vim中可以直接查看文件编码
+:set fileencoding
+即可显示文件编码格式。
+
+http://blog.csdn.net/jnbbwyth/article/details/6991425/
+~/.vimrc 文件中添加以下内容：
+set encoding=utf-8 fileencodings=gbk,utf-8
+  after adding this line, the gedit "saved as" gbk file can be correctly shown in vim, and encoding is "cp936". note, gbk has to be there, otherwise messy code.
+no matter the file is saved by gedit as gbk-18030 or gbk-2312, vim "set fileencoding" always indicates cp936.
+
+again as of gbk.cpp, executing the printf outputs the messy output in a terminal with default utf-8 charset, however, it is good after setting the default charset to gbk in "terminal->character encoding".
+
+-------------- 2016-08-06 09:30:15
+for c array, 
+  if a char array is initialized from an array such as "char str[10]={ 'I',' ','a','m',' ','h','a','p','p','y'}; ", then the size is the same.
+  however, if initialized as "char str[ ]="I am happy";", then the size will be 1 longer, as a trailing '\0' is appended to the array automatically.

@@ -1,4 +1,6 @@
 
+http://www.jb51.net/article/30864.htm
+深入Mysql字符集设置[精华结合]
 
 
 ----------- 2016-08-10 16:42:25
@@ -54,3 +56,336 @@ List of attribute names that need to be saved. Defaults to null, meaning all att
 return  boolean   
 
 Whether the saving succeeded (i.e. no validation errors occurred).
+
+
+-------- 2016-08-07 18:17:21
+steps for pdo, myssql
+
+http://www.yiichina.com/doc/guide/2.0/start-databases
+1. create db, via .sql or cp over the cmds directly.
+2. ?? 请确保你已经安装了 PHP PDO 扩展和你所使用的数据库的 PDO 驱动（例如 MySQL 的 pdo_mysql）。 对于使用关系型数据库来讲，这是基本要求。
+3. config/db.php [上面配置的数据库连接可以在应用中通过 Yii::$app->db 表达式访问。补充：config/db.php 将被包含在应用配置文件 config/web.php 中， 后者指定了整个应用如何初始化。 ]
+4. 创建一个继承自活动记录类的类 Country， 把它放在 models/Country.php 文件，去代表和读取 country 表的数据。这个 Country 类继承自 yii\db\ActiveRecord。你不用在里面写任何代码。 只需要像现在这样，Yii 就能根据类名去猜测对应的数据表名。注意：如果类名和数据表名不能直接对应，可以覆写 yii\db\ActiveRecord::tableName() 方法去显式指定相关表名。
+5. 为了向最终用户显示国家数据，你需要创建一个操作。 相比之前小节掌握的在 site 控制器中创建操作， 在这里为所有和国家有关的数据新建一个控制器更加合理。 新控制器名为 CountryController，并在其中创建一个 index 操作
+6. 创建视图 在 views 目录下先创建一个名为 country 的子目录。这个目录存储所有由 country 控制器渲染的视图。 在 views/country 目录下创建一个名为 index.php 的视图文件
+7. try to access: http://hostname/index.php?r=country/index
+
+------------- 2016-08-07 14:07:59
+character_set_client [setting character_set_client does not need restarting to take effect]
+  /tmp/gbk.sql is "saved as" by gedit in gbk format.
+
+to select by chinese strings: 
+1) if the client is utf8:
+  set default character_set_client to utf8, and then create table and search for the lines;
+2) if the client is gbk: create a gbk file including the select statement[select * from country where name='澳大利亚';]
+ mysql> source /tmp/search.sql;
++------+--------------+------------+
+| code | name         | population |
++------+--------------+------------+
+| AU   | 澳大利亚     |   18886000 |
++------+--------------+------------+
+1 row in set (0.00 sec)
+  I tried to set terminaml's default encoding to gbk in order to input the select statement, however, failed, as trying to input failed, messy characters.
+
+  
+mysql> source /tmp/gbk.sql
+mysql> select * from country;
++------+----------------+------------+
+| code | name           | population |
++------+----------------+------------+
+| AU   | ??????         |   18886000 |
+| BR   | Brazil         |  170115000 |
+| CA   | Canada         |    1147000 |
+| CN   | China          | 1277558000 |
+| DE   | Germany        |   82164700 |
+| FR   | France         |   59225700 |
+| GB   | United Kingdom |   59623400 |
+| IN   | India          | 1013662000 |
+| RU   | Russia         |  146934000 |
+| US   | United States  |  278357000 |
++------+----------------+------------+
+10 rows in set (0.00 sec)
+
+mysql> show variables like '%character%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+mysql> set character_set_client=gbk; [note: thie cmd does not affect the created tables or dbs]
+mysql> drop table country;
+mysql> source /tmp/gbk.sql
+mysql> select * from country;
++------+----------------+------------+
+| code | name           | population |
++------+----------------+------------+
+| AU   | 澳大利亚       |   18886000 |
+| BR   | Brazil         |  170115000 |
+| CA   | Canada         |    1147000 |
+| CN   | China          | 1277558000 |
+| DE   | Germany        |   82164700 |
+| FR   | France         |   59225700 |
+| GB   | United Kingdom |   59623400 |
+| IN   | India          | 1013662000 |
+| RU   | Russia         |  146934000 |
+| US   | United States  |  278357000 |
++------+----------------+------------+
+10 rows in set (0.00 sec)
+
+
+
+----------------- 2016-08-07 13:50:28
+mysql> show create database test;
++----------+-----------------------------------------------------------------+
+| Database | Create Database                                                 |
++----------+-----------------------------------------------------------------+
+| test     | CREATE DATABASE `test` /*!40100 DEFAULT CHARACTER SET latin1 */ |
++----------+-----------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+http://www.jb51.net/article/30864.htm
+基本概念
+• 字符(Character)是指人类语言中最小的表义符号。例如'A'、'B'等；
+• 给定一系列字符，对每个字符赋予一个数值，用数值来代表对应的字符，这一数值就是字符的编码(Encoding)。例如，我们给字符'A'赋予数值0，给字符'B'赋予数值1，则0就是字符'A'的编码；
+• 给定一系列字符并赋予对应的编码后，所有这些字符和编码对组成的集合就是字符集(Character Set)。例如，给定字符列表为{'A','B'}时，{'A'=>0, 'B'=>1}就是一个字符集；
+• 字符序(Collation)是指在同一字符集内字符之间的比较规则；
+• 确定字符序后，才能在一个字符集上定义什么是等价的字符，以及字符之间的大小关系；
+• 每个字符序唯一对应一种字符集，但一个字符集可以对应多种字符序，其中有一个是默认字符序(Default Collation)；
+• MySQL中的字符序名称遵从命名惯例：以字符序对应的字符集名称开头；以_ci(表示大小写不敏感)、_cs(表示大小写敏感)或_bin(表示按编码值比较)结尾。例如：在字符序``utf8_general_ci''下，字符``a''和``A''是等价的； 
+
+
+----------- 2016-08-07 11:49:55
+kidd@kidd-T430:~/workspace/bc_study$ sudo ls /var/lib/mysql
+[sudo] password for kidd: 
+debian-5.5.flag  ib_logfile0  mysql     performance_schema  sampledb
+ibdata1    ib_logfile1  mysql_upgrade_info  phpmyadmin
+
+
+when mysqld is killed, it is restarted automatically.
+kidd@kidd-T430:~$ ps -ef | grep mysql
+mysql     3872     1  0 11:50 ?        00:00:00 /usr/sbin/mysqld
+kidd      4685  2883  0 11:52 pts/2    00:00:00 grep --color=auto mysql
+kidd@kidd-T430:~$ kill -9 3872
+bash: kill: (3872) - Operation not permitted
+kidd@kidd-T430:~$ sudo kill -9 3872
+[sudo] password for kidd: 
+kidd@kidd-T430:~$ ps -ef | grep mysql
+mysql     4705     1  3 11:52 ?        00:00:00 /usr/sbin/mysqld
+kidd      4858  2883  0 11:52 pts/2    00:00:00 grep --color=auto mysql
+
+http://blog.itpub.net/22664653/viewspace-709813/
+关闭数据库服务，并重新启动！
+[root@rac3 ~]# mysqladmin shutdown
+[root@rac3 ~]# mysqld_safe &
+[root@rac3 ~]# Starting mysqld daemon with databases from /var/lib/mysql
+
+----------- 2016-08-07 10:57:03
+COLLATE是一个算法语句，主要用于对字符进行排序，经常出现在表的创建语句中。
+
+字符集：
+可以设置 服务器默认字符集
+数据库默认字符集
+表默认字符集
+甚至到列默认字符集
+某个级别没有指定，那么继承上级。
+mysql4.1及其之后的版本，对字符集的支持分为四个层次:
+服务器(server)，数据库(database)，数据表(table)和连接(connection)：
+character_set_server：这是设置服务器使用的字符集
+character_set_client ：这是设置客户端发送查询使用的字符集
+character_set_connection ：这是设置服务器需要将收到的查询串转换成的字符集
+character_set_results ：这是设置服务器要将结果数据转换到的字符集，转换后才发送给客户端
+整个过程：
+- client(如php程序)发送一个查询；
+- 服务器收到查询，将查询串从character_set_client 转换到character_set_connection，然后执行转换后的查询；
+- 服务器将结果数据转换到character_set_results字符集后发送回客户
+
+如果三者都是字符集N
+ 那么 可以简写为 set names N;
+
+set character_set_client=utf-8
+
+如果connection和 服务器的字符集，比 client小时，容易丢失数据。
+
+create table 时的 charset 是 服务器的字符编码
+校对集：
+可以理解为，排序规则等。一个字符集可能有多种校对集合；
+
+MySQL中的字符集转换过程
+1. MySQL Server收到请求时将请求数据从character_set_client转换为character_set_connection；
+2. 进行内部操作前将请求数据从character_set_connection转换为内部操作字符集，其确定方法如下：
+• 使用每个数据字段的CHARACTER SET设定值；
+• 若上述值不存在，则使用对应数据表的DEFAULT CHARACTER SET设定值(MySQL扩展，非SQL标准)；
+• 若上述值不存在，则使用对应数据库的DEFAULT CHARACTER SET设定值；
+• 若上述值不存在，则使用character_set_server设定值。
+3. 将操作结果从内部操作字符集转换为character_set_results。 
+
+------ 官方文档---------
+1、数据库字符集和校对
+CREATE DATABASE db_name
+    [[DEFAULT] CHARACTER SET charset_name]
+    [[DEFAULT] COLLATE collation_name]
+例如：
+CREATE DATABASE db_name
+    DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+MySQL这样选择数据库字符集和数据库校对规则：
+·         如果指定了CHARACTER SET X和COLLATE Y，那么采用字符集X和校对规则Y。
+·         如果指定了CHARACTER SET X而没有指定COLLATE Y，那么采用CHARACTER SET X和CHARACTER SET X的默认校对规则。
+·         否则，采用服务器字符集和服务器校对规则。
+
+mysql> show variables like '%character%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+set character_set_client=gbk;
+
+mysql> show variables like "%server%";
++----------------------+-------------------+
+| Variable_name        | Value             |
++----------------------+-------------------+
+| character_set_server | latin1            |
+| collation_server     | latin1_swedish_ci |
+| server_id            | 0                 |
++----------------------+-------------------+
+3 rows in set (0.00 sec)
+
+2、表字符集和校对
+每一个表有一个表字符集和一个校对规则，它不能为空。为指定表字符集和校对规则，CREATE TABLE 和ALTER TABLE语句有一个可选的子句：
+CREATE TABLE tbl_name (column_list)
+    [DEFAULT CHARACTER SET charset_name [COLLATE collation_name]]
+ 
+ALTER TABLE tbl_name
+    [DEFAULT CHARACTER SET charset_name] [COLLATE collation_name]
+MySQL按照下面的方式选择表字符集和 校对规则：
+·         如果指定了CHARACTER SET X和COLLATE Y，那么采用CHARACTER SET X和COLLATE Y。
+·         如果指定了CHARACTER SET X而没有指定COLLATE Y，那么采用CHARACTER SET X和CHARACTER SET X的默认校对规则。
+·         否则，采用服务器字符集和服务器校对规则。
+如果在列定义中没有指定列字符集和校对规则，则默认使用表字符集和校对规则。表字符集和校对规则是MySQL的扩展;在标准SQL中没有。
+
+3、列字符集和校对
+每一个“字符”列（即，CHAR、VARCHAR或TEXT类型的列）有一个列字符集和一个列 校对规则，它不能为空。列定义语法有一个可选子句来指定列字符集和校对规则：
+col_name {CHAR | VARCHAR | TEXT} (col_length)
+    [CHARACTER SET charset_name [COLLATE collation_name]]
+例如：
+CREATE TABLE Table1
+(
+    column1 VARCHAR(5) CHARACTER SET latin1 COLLATE latin1_german1_ci
+);
+MySQL按照下面的方式选择列字符集和校对规则：
+·         如果指定了CHARACTER SET X和COLLATE Y，那么采用CHARACTER SET X和COLLATE Y。
+·         如果指定了CHARACTER SET X而没有指定COLLATE Y，那么采用CHARACTER SET X和CHARACTER SET X的默认校对规则。
+·         否则，采用表字符集和服务器校对规则。
+CHARACTER SET和COLLATE子句是标准的SQL。
+
+http://blog.sina.com.cn/s/blog_9707fac301016wxm.html
+在SQL语句中使用COLLATE
+ 示例1：表和列定义
+CREATE TABLE t1
+(
+    c1 CHAR(10) CHARACTER SET latin1 COLLATE latin1_german1_ci
+) DEFAULT CHARACTER SET latin2 COLLATE latin2_bin;
+在这里我们有一个列使用latin1字符集和latin1_german1_ci校对规则。是显式的定义，因此简单明了。需要注意的是，在一个latin2表中存储一个latin1列不会存在问题。
+示例2：表和列定义
+CREATE TABLE t1
+(
+    c1 CHAR(10) CHARACTER SET latin1
+) DEFAULT CHARACTER SET latin1 COLLATE latin1_danish_ci;
+这次我们有一个列使用latin1字符集和一个默认校对规则。尽管它显得自然，默认校对规则却不是表级。相反，因为latin1的默认校对规则总是latin1_swedish_ci，列c1有一个校对规则latin1_swedish_ci（而不是latin1_danish_ci）。
+示例3：表和列定义
+CREATE TABLE t1
+(
+    c1 CHAR(10)
+) DEFAULT CHARACTER SET latin1 COLLATE latin1_danish_ci;
+我们有一个列使用一个默认字符集和一个默认校对规则。在这种情况下，MySQL查找表级别来确定列字符集和 校对规则。因此，列c1的字符集是latin1，它的 校对规则是latin1_danish_ci。
+示例4：数据库、表和列定义
+CREATE DATABASE d1
+    DEFAULT CHARACTER SET latin2 COLLATE latin2_czech_ci;
+USE d1;
+CREATE TABLE t1
+(
+    c1 CHAR(10)
+);
+我们创建了一个没有指定字符集和校对规则的列。我们也没有指定表级字符集和校对规则。在这种情况下，MySQL查找数据库级的相关设置。（数据库的设置变为表的设置，其后变为列的设置。）因此，列c1的字符集为是latin2，它的 校对规则是latin2_czech_ci。
+在SQL语句中使用COLLATE
+    使用COLLATE子句，能够为一个比较覆盖任何默认校对规则。COLLATE可以用于多种SQL语句中。下面是一些例子：
+·         使用ORDER BY：
+·                SELECT k
+·                FROM t1
+·                ORDER BY k COLLATE latin1_german2_ci;
+·         使用AS：
+·                SELECT k COLLATE latin1_german2_ci AS k1
+·                FROM t1
+·                ORDER BY k1;
+·         使用GROUP BY：
+·                SELECT k
+·                FROM t1
+·                GROUP BY k COLLATE latin1_german2_ci;
+·         使用聚合函数：
+·                SELECT MAX(k COLLATE latin1_german2_ci)
+·                FROM t1;
+·         使用DISTINCT：
+·                SELECT DISTINCT k COLLATE latin1_german2_ci
+·                FROM t1;
+·         使用WHERE：
+·                     SELECT *
+·                     FROM t1
+·                     WHERE _latin1 'Müller' COLLATE latin1_german2_ci = k;
+·                     SELECT *
+·                     FROM t1
+·                     WHERE k LIKE _latin1 'Müller' COLLATE latin1_german2_ci;
+·         使用HAVING：
+·                SELECT k
+·                FROM t1
+·                GROUP BY k
+·                HAVING k = _latin1 'Müller' COLLATE latin1_german2_ci;
+ COLLATE子句优先
+COLLATE子句有较高的优先级（高于||），因此下面两个表达式是等价的：
+x || y COLLATE z
+x || (y COLLATE z)
+
+----------- 2016-08-07 11:43:33
+collation
+http://baike.baidu.com/link?url=PJIQcXf2uLiBbEZa4_j3Yw2mb5fm1zDUFI-KupQJ-rXfnBTFPdmbLXV2vy34UrFtF18H26jERxWUVM0iNm2Zoa
+
+Chinese_PRC_CI_AS_WS
+前半部份：指UNICODE字符集，Chinese_PRC_指针对大陆简体字UNICODE的排序规则。
+排序规则的后半部份即后缀 含义：
+_BIN： binary sort 二进制排序
+　　_BIN2：binary code point comparison sort
+　　_AS、_WS等选项的字母代表的意义如下：
+　　C：case，大小写
+　　A：accent，重音
+　　K：kanatype，假名
+　　W：width，宽度
+　　I：insensitive， 不敏感，不区分
+　　S：sensitive，敏感，区分
+　　如 CI 就是case-insensitive，不区分大小写。
+更详细说明：
+_CI(CS) ：是否区分大小写，CI不区分，CS区分。
+_AI(AS) ：是否区分重音，AI不区分，AS区分。
+_KI(KS) ：是否区分假名类型,KI不区分，KS区分。
+_WI(WS) ：是否区分宽度 WI不区分，WS区分。
+提示说明：
+区分大小写：如果想让比较将大写字母和小写字母视为不等，请选择该选项。
+区分重音：如果想让比较将重音和非重音字母视为不等，请选择该选项。如果选择该选项。比较还将重音不同的字母视为不等。
+区分假名：如果想让比较将片假名和平假名日语音节视为不等，请选择该选项。
+区分宽度：如果想让比较将半角字符和全角字符视为不等，请选择该选项。[1]  
