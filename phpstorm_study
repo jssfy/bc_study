@@ -1,6 +1,64 @@
 
 
 
+
+----------- 2016-08-12 10:04:42
+xdebug
+http://blog.csdn.net/dm_vincent/article/details/44678347
+1. php -i > outputphp.txt, go to "https://xdebug.org/wizard.php" and 这个页面提供的一个textarea中. 然后点击下方的Analyze按钮, 它会自动帮你解析你本地的PHP环境信息从而得到你需要下载的xdebug版本和相关配置指令. 
+  https://xdebug.org/wizard.php
+    Summary
+    Xdebug installed: no
+    Server API: Command Line Interface
+    Windows: no
+    Zend Server: no
+    PHP Version: 7.0.9-1
+    Zend API nr: 320151012
+    PHP API nr: 20151012
+    Debug Build: no
+    Thread Safe Build: no
+    Configuration File Path: /etc/php/7.0/cli
+    Configuration File: /etc/php/7.0/cli/php.ini
+    Extensions directory: /usr/lib/php/20151012
+    Instructions
+
+        Download xdebug-2.4.1.tgz
+        Unpack the downloaded file with tar -xvzf xdebug-2.4.1.tgz
+        Run: cd xdebug-2.4.1
+
+        Run: phpize (See the FAQ if you don't have phpize.
+          https://xdebug.org/docs/faq#phpize
+          [apt-cache search php | grep dev  =>  php7.0-dev - Files for PHP7.0 module development]
+          sudo apt-get install php7.0-dev
+          output of - $ phpize
+            Configuring for:
+            PHP Api Version:         20151012
+            Zend Module Api No:      20151012
+            Zend Extension Api No:   320151012
+
+        If it does not show sth like the above, you are using the wrong phpize. Please follow this FAQ entry and skip the next step.
+        Run: ./configure
+        Run: make
+        Run: cp modules/xdebug.so /usr/lib/php/20151012
+        Edit /etc/php/7.0/cli/php.ini and add the line
+        zend_extension = /usr/lib/php/20151012/xdebug.so
+
+$ php -v
+PHP 7.0.9-1+deb.sury.org~trusty+1 (cli) ( NTS )
+Copyright (c) 1997-2016 The PHP Group
+Zend Engine v3.0.0, Copyright (c) 1998-2016 Zend Technologies
+    with Xdebug v2.4.1, Copyright (c) 2002-2016, by Derick Rethans
+    with Zend OPcache v7.0.9-1+deb.sury.org~trusty+1, Copyright (c) 1999-2016, by Zend Technologies
+
+2. 安装 Xdebug extension helper
+以Chrome为例, 在这里找到插件的安装地址: 
+https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc?hl=en 
+Xdebug helper的插件ID是: eadndfjplgieldjbigjakmdgkmoaaaoc
+安装完毕之后, 打开该插件的options, 设置IDEKey为PhpStorm.
+  settings->extentions->xdebug options -> IDE key
+
+firefox: the easiest xdebug 2.1.1
+
 ---------- 2016-08-09 12:07:02
 phpstorm编辑器乱码问题解决
 FILE->Setting->File Encoding->将UTF-8改成GBK, and then restart [IDE encoding] after setting it back to utf-8, still works.
@@ -21,6 +79,7 @@ locate a file via name:
 
 ctrl+f12 file structure
 
+ctrl+alt left/right go to last/next place (need to remove system shortcut collision before use)
 CTRL+ALT ←/→  返回上次编辑的位置
 ALT+ ←/→  切换代码视图，标签切换
 ALT+ ↑/↓  在方法间快速移动定位

@@ -73,6 +73,402 @@ mysql> show tables;
 
 
 
+------------ 2016-08-22 14:18:49
+
+  "waitreward": false,    // 当在本轮挑战中，用户在最后一天已打卡时，处于此状态
+  "canreward": false,    // 此状态用户可以领奖
+  "cantreward": true,    // 由于用户未打卡等原因，处于不可领奖状态。页面显示：本轮未打卡
+  "alreadyreward": false    // 用户已领奖
+
+2016-08-22 15:23:23
+update period_mission set start_time='2016-08-16 00:00:00' where id=1750;
+  to test waitreward user status
+
+
+------------ 2016-08-22 10:40:17
+week:
+checkin.html
+  unchecked_users ? 
+
+insert into checkin(challenge_id, checkin_time) values(10515, NOW());
+  to test checkin count:
+
+   "checkin_desc": [
+        {
+            "text": "第1周 (08.22~08.28)",
+            "cup_clickable": true,
+            "details": [
+                {
+                    "title": "一",
+                    "checkin": true
+                },
+                {
+                    "title": "二",
+                    "checkin": false
+                },
+                {
+                    "title": "三",
+                    "checkin": false
+                },
+                {
+                    "title": "四",
+                    "checkin": false
+                },
+                {
+                    "title": "五",
+                    "checkin": false
+                },
+                {
+                    "title": "六",
+                    "checkin": false
+                },
+                {
+                    "title": "日",
+                    "checkin": false
+                }
+            ]
+        }
+    ],
+
+---------- 2016-08-19 20:40:39
+
+"user_status": {
+    "cantjoin": false,    // 未加入，不可以加入：由于人数满、已过加入时间等原因，不再可以加入挑战，此时可以自行发起挑战
+    "canjoin": true,    // 此状态下用户可以加入挑战
+    "waitcheckin": true,    // 用户已经加入，但是此时尚不可以打卡（比如挑战尚未开始等原因），等待中
+    "cancheckin": false,    // 用户当天未打卡，此状态下用户可以进行打卡操作
+    "alreadycheckin": false,    // 表示本次已打卡，尚未到下一次打卡或者结束时间，此时页面显示用户已打卡
+    "waitreward": false,    // 当在本轮挑战中，用户在最后一天已打卡时，处于此状态
+    "canreward": false,    // 此状态用户可以领奖
+    "cantreward": true,    // 由于用户未打卡等原因，处于不可领奖状态。页面显示：本轮未打卡
+    "alreadyreward": false    // 用户已领奖
+}
+
+-----------  2016-08-18 20:46:32
+[
+    {
+        "wxConfig": "{\"wcappid\":\"wx7a84fcbe9e98e97f\",\"timestamp\":1471525042,\"nonceStr\":\"fCPLB3gDUsgwiubsqvVET2SO3fEYqCMH\",\"signature\":\"d78b66266bfbb148727fd0fa3750b2a8535d2f0d\"}",
+        "production": false,
+        "subscribed": true,
+        "id": "1351",
+        "name": "reward mission",
+        "start_time": "2016-08-18 19:03:12",
+        "total_time_text": "2周",
+        "total_amount": 1200,
+        "cur_round": 0,
+        "users": [
+            {
+                "id": "6",
+                "nickname": "????",
+                "head_img": "http://wx.qlogo.cn/mmopen/XcOVxIRiaE5gYSWQ4zdLoMHvYhZvGf1Wic1w48ibEk3r4u4E8IHfTPzeia30icEDV5pcdUFL6GTZPtJ7jqjPks1W7bAj5jFYLMSFX/0"
+            },
+            {
+                "id": "5",
+                "nickname": "Lucky star",
+                "head_img": "http://wx.qlogo.cn/mmopen/lcnroBkAEOS4VVM4ialTHxV64FNqx3FAibY7Vl2KAf1vpVsxaKVPT33xHFPxlARENTiaDicmZN2cQ1bmlWq13F8NbIRD65n28IPZ/0"
+            },
+            {
+                "id": "4",
+                "nickname": "qwang",
+                "head_img": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLCvhV2xwZKYsRovWLVULw0JB44Kf8niaF507xyhWLTh9eh3P8nM2WOc1wJ0uA3ibmJ6gh0a41JJDCEg/0"
+            }
+        ],
+        "checkin_count_text": 5,
+        "checkin_time_text": "23:50",
+        "checkin_type": 0,
+        "description": "",
+        "valid_rule_text": "打卡是否通过判定规则的描述",
+        "status": 2,
+        "checkin_photo": null,
+        "short_name": "reward mission",
+        "user": [
+            {
+                "id": 4,
+                "nickname": "qwang",
+                "head_img": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLCvhV2xwZKYsRovWLVULw0JB44Kf8niaF507xyhWLTh9eh3P8nM2WOc1wJ0uA3ibmJ6gh0a41JJDCEg/0"
+            }
+        ],
+        "user_status": {
+            "0": false,
+            "1": true,
+            "2": false,
+            "3": false,
+            "4": true,
+            "5": false,
+            "7": true
+        },
+        "count_down": null,
+        "checkin_desc": {
+            "text": "第0 (08.11~08.17)",
+            "days": [
+                "4",
+                "5",
+                "6",
+                "7",
+                "1",
+                "2",
+                "3"
+            ],
+            "checked": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ]
+        }
+    }
+]
+
+
+--------- 2016-08-17 15:48:50
+merged mission join from the latest and tested again and committed the code.
+
+mission index:
+        $challenge = $mission->getChallenge($uid);
+        if ($challenge) {
+            if ($mission->isUnStart()) {
+            } elseif ($mission->isStarted() or $mission->isReview()) {
+            } else {
+                if ($mission->load(Yii::$app->request->post())) {
+                  // user clicked the post button the collect the reward
+                } else {
+                  // others
+                }
+            }
+        } elseif ($mission->canJoin()) {
+          // join.html, the post request is redirected to ajax handler
+        } else {
+          // unjoined.html
+        }
+
+----------- 2016-08-16 18:49:59
+single mission:
+{"success":true,"message":"","data":{"returnUrl":"http://10.12.0.1:8080/mission/orderdone?oid=285&res=1&type=0"}}
+
+
+
+--------- 2016-08-16 14:28:01
+
+DROP TABLE IF EXISTS `period_mission`;
+CREATE TABLE `period_mission` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `announce` varchar(200) NULL DEFAULT "",
+  `description` varchar(200) NULL DEFAULT "",
+  `checkin_type` int NULL DEFAULT 0,
+  `repeat` int NOT NULL,
+  `period` int NOT NULL,
+  `min_unit` int NOT NULL,
+  `checkin_time` varchar(50) NULL DEFAULT "",
+  `checkin_count` int NULL DEFAULT 0,
+  `start_time` datetime NOT NULL,
+  `join_after_start` boolean NULL DEFAULT true,
+  `join_strategy` int NULL DEFAULT 0,
+  `ticket` float NOT NULL,
+  `min_user` int NULL DEFAULT 1,
+  `max_user` int NULL DEFAULT 50,
+  `template_id` int NOT NULL,
+  `checkin_unlike_invalid` int NULL DEFAULT 50,
+  `checkin_like_valid` int NULL DEFAULT 0,
+  `creator_id` int NOT NULL,
+  `create_time` datetime NOT NULL,
+  `joined_count` int NULL DEFAULT 0,
+  `reward_total` float NULL DEFAULT 0,
+  `reward_send` float NULL DEFAULT 0,
+  `checkin_photo` varchar(10240) NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `period_template`;
+CREATE TABLE `period_template` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `period` int NOT NULL,
+  `min_unit` int NOT NULL,
+  `checkin_time` varchar(50) NULL DEFAULT "",
+  `checkin_count` int NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ALTER TABLE `challenge` ADD COLUMN `mission_type` INT NOT NULL DEFAULT 0;
+
+INSERT INTO `period_template`(`name`,`period`,`min_unit`,`checkin_time`,`checkin_count`) VALUES("每周挑战",7,1,"",1);
+
+
+checkin_desc [https://wiki.niub.la/tzb:develop_process:v0.0.8]
+  getCheckinDesc($mid, $round=null, $uid=null) [/home/kidd/workspace/bc/MissionImpossible/components/MissionManager.php]
+
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+Action设计
+mission/create
+
+创建任务的action，渲染创建任务页面。
+
+请求参数：
+
+    type: 任务类型，默认为0，即为单次挑战任务
+
+渲染参数：（根据type不同渲染不同的页面）
+
+    wxConfig
+    type：当前任务类型
+    tabs：任务类型列表
+        type：任务类型
+        name：任务类型名称
+
+任务类型定义
+
+定义：components\model\MissionStatus.php
+
+    0: 普通任务
+    1: 周期性任务
+
+period_template
+
+新增加的表，周期性打卡的模板，指定周期时间、打卡时间等。本周需时间的周期性任务如下：
+
+    name：模板名称
+    period: 7，表示一周；
+    min_unit: day，每天只能打卡一次；
+    checkin_time: 空，不限制打卡时间；
+    checkin_count: 用户指定打卡次数；
+
+mission_template will be discarded, meanwhile its defaults are no longer necessary.
+
+public function actionCreate()
+
+
+old:
+announce               | varchar(64)    | YES  |     | NULL    |                |
+checkin_like_valid     | int(11)        | YES  |     | 0       |   
+checkin_min_count      | int(11)        | YES  |     | 1       |                |
+checkin_mode           | int(11)        | YES  |     | 0       |                |
+checkin_photo          | varchar(10240) | YES  |     | NULL    |                |
+checkin_type           | int(11)        | YES  |     | 0       |                |
+checkin_unlike_invalid | int(11)        | YES  |     | 50      |                |
+create_time            | datetime       | YES  |     | NULL    |                |
+creator_id             | bigint(20)     | YES  |     | NULL    |                |
+declare                | varchar(128)   | YES  |     | NULL    |                |
+description            | varchar(128)   | YES  |     | NULL    |                |
+end_time               | datetime       | YES  |     | NULL    |                |
+id                     | bigint(20)     | NO   | PRI | NULL    | auto_increment |
+joined_count           | int(11)        | YES  |     | 0       |                |
+max_user               | int(11)        | YES  |     | 50      |                |
+min_user               | int(11)        | YES  |     | 1       |                |
+name                   | varchar(64)    | YES  |     | NULL    |                |
+reward_send            | float          | YES  |     | 0       |                |
+reward_total           | float          | YES  |     | 0       |                |
+start_time             | datetime       | YES  |     | NULL    |                |
+status                 | int(11)        | YES  |     | 0       |                |
+stop_time              | datetime       | YES  |     | NULL    |                |
+ticket                 | float          | YES  |     | 1       |                |
+ticket_unit            | varchar(45)    | YES  |     | NULL    |                |
+tmpl_id                | bigint(20)     | YES  |     | 0       |                |
+
+
+new:
+announce: 挑战宣言
+checkin_count: 指定打卡次数。打卡次数和打卡时间只能指定一个。
+checkin_like_valid：判定打卡是否有效的规则，赞达到此数量打卡有效。
+checkin_photo：打卡示例图片
+checkin_time：打卡时间，如果规定打卡时间，则必须在指定时间打卡。比如，可以设置周期为周（7天），指定必须周一至周五打卡。
+checkin_type: 打卡类型，图片打卡或文字打卡
+checkin_unlike_invalid：判定打卡是否有效的规则，踩达到此数量打卡无效。
+create_time：创建时间
+creator_id：创建者id
+description: 详细描述
+id
+join_after_start: 是否允许在开始后加入；
+joined_count：已加入人数
+join_strategy: 中途加入的策略：1. 如果剩余时间不够打卡，必须下轮加入；2. 如果剩余时间不够打卡，折算后本轮加入；
+max_user: 默认50
+min_unit: 打卡的最小时间单位，可取值为day（以天为最小单位，每天只能打卡一次），hour（以小时为单位，每小时只能打卡一次），week（以周为最小单位，每周只能打卡一次）。
+min_user: 默认1
+name: 名字
+period: 一轮任务的周期时间，以天为单位
+repeat: 重复次数，也就是总共进行几轮
+reward_send：已发出的奖励
+reward_total：总奖励
+start_time: 开始时间，指定任务的开始时间
+template_id：模板id
+ticket：单次保障金；
+
+------------ 2016-08-15 18:42:19
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php
+
+public function actionJoin()
+public function actionCreate()
+
+---------- 2016-08-15 15:35:33
+
+<form name="form1" method="post" action="/ajax/vote/veto">
+    <input type="text" name="cid">
+    <input type="submit" name="button" id="button" value="一票否决">
+</form>
+
+to get post data:
+        $announce = SessionTool::getParaByKeyFromPostRequest('announce');
+      or
+        $mission->load($data) [refer to the model rules]
+
+YII_ENV_PROD
+{"success":true,"message":"","data":{"model":{"tmpl_id":0,"name":"开会不迟到","creator_id":4,"announce":"开会不迟到","create_time":"2016-08-15 17:23:26","start_time":"2016-08-15 17:23:26","stop_time":"2016-08-22 17:23:26","checkin_unlike_invalid":50,"checkin_like_valid":0,"end_time":"2016-08-23 17:23:26","reward_total":0,"joined_count":0,"id":265},"returnUrl":"http://10.12.0.1:8080/mission/orderdone?oid=277","jsApiParameters":"test"}}
+
+! YII_ENV_PROD
+{"success":true,"message":"","data":{"model":{"tmpl_id":0,"name":"开会不迟到","creator_id":4,"announce":"开会不迟到","create_time":"2016-08-15 17:13:41","start_time":"2016-08-15 17:13:41","stop_time":"2016-08-22 17:13:41","checkin_unlike_invalid":50,"checkin_like_valid":0,"end_time":"2016-08-23 17:13:41","reward_total":0,"joined_count":0,"id":264},"oid":276,"res":true}}
+
+------------ 2016-08-15 10:47:06
+vote for self:
+/home/kidd/workspace/bc/MissionImpossible/components/MissionManager.php
+  public static function voteCheckin($cid, $opt)
+      if ($user->id == $challenge->user_id) {
+          throw new AppException('不能给自己的打卡投票');
+      }
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php
+  public function actionIndex($cid=null)
+        $user = AccountManager::getCurrentUser();
+        if ($mission->joined_count > 0) {
+            $unlike_percent = $checkin->unlike_count * 100 / $mission->joined_count;
+            $like_percent = $checkin->like_count * 100 / $mission->joined_count;
+        } else {
+            $unlike_percent = 0;
+            $like_percent = 0;
+        }
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+public function actionOrderdone($oid, $res=0)
+$mission->updateCounters([
+                            'joined_count' => 1,
+                            'reward_total' => $mission->ticket,
+                        ]);
+
+if paying failed, joined_count remains.
+
+mysql> select id, name, joined_count from mission;
++-----+------------------------------------+--------------+
+| id  | name                               | joined_count |
++-----+------------------------------------+--------------+
+|  48 | x                                  |            2 |
+
+
+-------- 2016-08-12 12:08:22
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+public function actionCreate()
+        $mission = new Mission();
+        $mission->tmpl_id = 0;
+        $mission->name = $tmpl->name;
+        $mission->creator_id = $user->id;
+        $mission->announce = $tmpl->announce;
+        $mission->create_time = date('Y-m-d H:i:s', time()+86400); //new Expression('NOW()');
+        Logger::info("missioncontroller create time: ".$mission->create_time);
+        $mission->start_time = Date('Y-m-d H:i:s', time() + 86400);
+        $mission->stop_time = Date('Y-m-d H:i:s', time() + 86400 * 7);
+
 
 ------------ 2016-08-09 15:27:58
 not only mission/create, but also mission/index [the checkin branch] will upload the image.

@@ -1,0 +1,326 @@
+
+
+
+
+------------- 2016-08-23 15:44:18
+
+2016-08-23 15:41:40 [187][error][abc\app\controllers\ajax\MissionController::actionCreate] save mission failed: eewer
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:25
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php:106
+
+post on failure:
+{
+    "mt": "1",
+    "PeriodMission": {
+        "announce": "eewer",
+        "checkin_count": "1",
+        "ticket": "100",
+        "start_time": "2016/08/23",
+        "repeat": "1",
+        "checkin_type": "1",
+        "checkin_unlike_invalid": "50",
+        "checkin_like_valid": "0",
+        "description": ""
+    }
+}
+
+post data on success:
+{
+    "mt": "1",
+    "PeriodMission": {
+        "announce": "eewer",
+        "checkin_count": "1",
+        "ticket": "100",
+        "start_time": "2016/08/23",
+        "repeat": "1",
+        "checkin_type": "1",
+        "checkin_unlike_invalid": "50",
+        "checkin_like_valid": "0",
+        "join_after_start": "1",
+        "description": ""
+    }
+}
+
+if join_after_start of an active record is set to false, the corresponding value would be 'false', and save will fail, either pass in 0 or '0'.
+
+| join_after_start       | tinyint(1)     | YES  |     | 1       |                |
+
+{"mt":"1","PeriodMission":{"announce":"adsf","checkin_count":"1","ticket":"100","start_time":"2016/08/23","repeat":"1","checkin_type":"1","checkin_unlike_invalid":"50","checkin_like_valid":"0","description":""}}
+
+{"join_after_start":false,"template_id":1,"announce":"adsf","name":"adsf","period":7,"min_unit":1,"checkin_time":"","checkin_count":"1","checkin_unlike_invalid":"50","checkin_like_valid":"0","repeat":"1","creator_id":4,"create_time":{"expression":"NOW()","params":[]},"start_time":"2016/08/23","ticket":"100","checkin_type":"1","description":"","reward_total":0,"joined_count":0}
+
+Logger::error(Json::encode($mission->getErrors()));
+2016-08-23 16:24:24 [187][error][abc\app\controllers\ajax\MissionController::actionCreate] {"join_after_start":["Join After Start必须是整数。"]}
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:25
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php:106
+
+    
+------------ 2016-08-23 10:44:12
+potential mission create and join failure:
+
+canJoin() failure: [because the web server time might be earlier than the db server time]
+                $mission->create_time = date('Y-m-d H:i:s', time()); // new Expression('NOW()');
+
+update the system time:
+$ which ntpdate
+/usr/sbin/ntpdate
+kidd@kidd-OptiPlex-9020:
+~/workspace/php
+$ ntpdate cn.pool.ntp.org
+23 Aug 10:51:17 ntpdate[462]: bind() fails: Permission denied
+kidd@kidd-OptiPlex-9020:
+~/workspace/php
+$ sudo ntpdate cn.pool.ntp.org
+[sudo] password for kidd: 
+23 Aug 10:51:45 ntpdate[791]: step time server 202.118.1.81 offset 16.206781 sec
+3.  将系统时间写入硬件时间# hwclock --systohc
+-------------- 2016-08-23 10:26:29
+/home/kidd/workspace/bc/MissionImpossible/config/web.php
+  'log' => require(__DIR__ . '/log.php'),
+              'logFile' => '@runtime/logs/framework.log', [/home/kidd/workspace/bc/MissionImpossible/config/log.php]
+
+
+
+below error is seen from browser debug's http response, but there is no any output from server side.
+
+{"success":true,"message":"","data":{"name":"Exception","message":"Call to undefined method app\\components\\util\\Logger::inof()","code":0,"type":"Error","file":"/home/kidd/workspace/bc/MissionImpossible/models/PeriodMission.php","line":142,"stack-trace":["#0 /home/kidd/workspace/bc/MissionImpossible/components/MissionManager.php(61): app\\models\\PeriodMission->canJoin()","#1 /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php(77): app\\components\\MissionManager::joinMission(1782, '1')","#2 [internal function]: app\\controllers\\ajax\\MissionController->actionCreate()","#3 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)","#4 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php(154): yii\\base\\InlineAction->runWithParams(Array)","#5 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Module.php(454): yii\\base\\Controller->runAction('create', Array)","#6 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(87): yii\\base\\Module->runAction('ajax/mission/cr...', Array)","#7 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(375): yii\\web\\Application->handleRequest(Object(yii\\web\\Request))","#8 /home/kidd/workspace/bc/MissionImpossible/web/index.php(17): yii\\base\\Application->run()","#9 {main}"]}}
+
+
+!!!!!!!! refer to /home/kidd/workspace/bc/MissionImpossible/runtime/logs/framework.log
+sample log:
+2016-08-23 10:29:06 [187][error][Error] Error: Call to undefined method app\components\util\Logger::inof() in /home/kidd/workspace/bc/MissionImpossible/models/PeriodMission.php:142
+Stack trace:
+#0 /home/kidd/workspace/bc/MissionImpossible/components/MissionManager.php(61): app\models\PeriodMission->canJoin()
+#1 /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php(77): app\components\MissionManager::joinMission(1783, '1')
+#2 [internal function]: app\controllers\ajax\MissionController->actionCreate()
+#3 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)
+#4 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php(154): yii\base\InlineAction->runWithParams(Array)
+#5 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('create', Array)
+#6 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('ajax/mission/cr...', Array)
+#7 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#8 /home/kidd/workspace/bc/MissionImpossible/web/index.php(17): yii\base\Application->run()
+#9 {main}
+2016-08-23 10:29:06 [187][info][application] $_POST = [
+    'mt' => '1'
+    'PeriodMission' => [
+        'announce' => 'sdf'
+        'checkin_count' => '1'
+        'ticket' => '100'
+        'start_time' => '2016/08/23'
+        'repeat' => '1'
+        'checkin_type' => '1'
+        'checkin_unlike_invalid' => '50'
+        'checkin_like_valid' => '0'
+        'join_after_start' => '1'
+        'description' => ''
+    ]
+]
+
+$_COOKIE = [
+    'PHPSESSID' => '4h6nd9jugag9p49qncsiercqv3'
+    'userId' => '187'
+    '_identity' => '[\"187\",\"i-rgIhN9yrgLPQygIppTr0Q3BWnjc2x2\",2592000]'
+]
+
+$_SESSION = [
+    '__flash' => []
+    '__page_session' => []
+    '__returnUrl' => '/mission/create?mt=1'
+    '__id' => '187'
+]
+
+$_SERVER = [
+    'DOCUMENT_ROOT' => '/home/kidd/workspace/bc/MissionImpossible/web'
+    'REMOTE_ADDR' => '10.12.0.1'
+    'REMOTE_PORT' => '45731'
+    'SERVER_SOFTWARE' => 'PHP 7.0.9-1+deb.sury.org~trusty+1 Development Server'
+    'SERVER_PROTOCOL' => 'HTTP/1.1'
+    'SERVER_NAME' => '10.12.0.1'
+    'SERVER_PORT' => '8080'
+    'REQUEST_URI' => '/ajax/mission/create'
+    'REQUEST_METHOD' => 'POST'
+    'SCRIPT_NAME' => '/index.php'
+    'SCRIPT_FILENAME' => '/home/kidd/workspace/bc/MissionImpossible/web/index.php'
+    'PATH_INFO' => '/ajax/mission/create'
+    'PHP_SELF' => '/index.php/ajax/mission/create'
+    'HTTP_HOST' => '10.12.0.1:8080'
+    'HTTP_CONNECTION' => 'keep-alive'
+    'CONTENT_LENGTH' => '363'
+    'HTTP_CONTENT_LENGTH' => '363'
+    'HTTP_ACCEPT' => '*/*'
+    'HTTP_ORIGIN' => 'http://10.12.0.1:8080'
+    'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
+    'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36'
+    'CONTENT_TYPE' => 'application/x-www-form-urlencoded; charset=UTF-8'
+    'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded; charset=UTF-8'
+    'HTTP_REFERER' => 'http://10.12.0.1:8080/mission/create?mt=1'
+    'HTTP_ACCEPT_ENCODING' => 'gzip, deflate'
+    'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4'
+    'HTTP_COOKIE' => 'PHPSESSID=4h6nd9jugag9p49qncsiercqv3; userId=187; _identity=%5B%22187%22%2C%22i-rgIhN9yrgLPQygIppTr0Q3BWnjc2x2%22%2C2592000%5D'
+    'REQUEST_TIME_FLOAT' => 1471919346.1335
+    'REQUEST_TIME' => 1471919346
+]
+
+----------- 2016-08-19 20:56:03
+
+how to define a yii class member: const array
+
+
+------------ 2016-08-19 18:21:28
+/home/kidd/workspace/bc/MissionImpossible/models/Mission.php
+    /*
+     * 挑战成功用户
+     * */
+    public function getSuccessors()
+    {
+        $challenges = $this->challenges;
+
+        $users = array();
+        foreach ($challenges as $challenge) {
+            if ($challenge->isSucceed()) {
+                $users[] = $challenge->user;
+            }
+        }
+
+        return $users;
+    }
+
+/home/kidd/workspace/bc/MissionImpossible/views/mission/single/my-redpacket.html 
+  <!-- 好友红包列表 -->
+  <div class="panel checked-wrapper">
+    <div class="hd title app-default-bgcolor">
+      <span class="page_title">已领取 {{reward_send_count}}/{{reward_total_count}} 个，共{{mission.reward_send  / 100.0}}/{{mission.reward_total  / 100.0}} 元</h1>
+    </div>
+    <div class="bd">
+      <div class="weui_panel weui_panel_access">
+        <div class="weui_panel_bd">
+            <ul class="mem-list text-left">
+                {% for redpack in redPackList %}
+                <li class="weui_media_box weui_media_appmsg">
+                <div class="weui_media_hd">
+                    <img class="weui_media_appmsg_thumb" src="{{redpack.head_img}}" alt="">
+                </div>
+                <div class="weui_media_bd">
+                    <h4 class="weui_media_title">{{redpack.username}}</h4>
+                    <p class="weui_media_desc">{{redpack.send_time | date('H:i')}}</p>
+                </div>
+                <span class="time text-right">{{redpack.money/100.0}} 元</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+
+------------ 2016-08-19 14:49:49
+public static function getCheckinDesc($mid, $round=null, $uid=null)
+  get round failed, you need to pass $round if mission not ongoing right now
+
+
+
+---------- 2016-08-18 20:42:46
+Database Exception – yii\db\Exception
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '== TO_DAYS(NOW())' at line 1
+The SQL being executed was: SELECT COUNT(*) FROM `checkin` WHERE checkin.challenge_id = 8629 and TO_DAYS(checkin_time) == TO_DAYS(NOW())
+
+Error Info: Array
+(
+    [0] => 42000
+    [1] => 1064
+    [2] => You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '== TO_DAYS(NOW())' at line 1
+)
+
+↵
+Caused by: PDOException
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '== TO_DAYS(NOW())' at line 1
+
+in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Command.php at line 900
+
+    public function getCheckinCountInUnit()
+    {
+        // 单次打卡任务
+        if ($this->mission_type == MissionType::SINGLE){
+            return ($this->checkinCount);
+        } elseif ( $this->mission_type == MissionType::PERIOD ) {
+        // 周期打卡任务
+            if ($this->mission->min_unit == CheckinUnit::HOUR) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and TO_DAYS(checkin_time) == TO_DAYS(NOW()) and HOUR(checkin_time) ==  HOUR(NOW())")
+                    ->count();
+            } elseif ($this->mission->min_unit == CheckinUnit::DAY) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and TO_DAYS(checkin_time) == TO_DAYS(NOW())")
+                    ->count();
+            } elseif ($this->mission->min_unit == CheckinUnit::WEEK) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and WEEKOFYEAR(checkin_time) == WEEKOFYEAR(NOW())")
+                    ->count();
+            }
+        }
+
+        return 0;
+    }
+----------- 2016-08-18 20:24:08
+why account id null [triggered by calling directly from test actions], but the same code works well in controller. 
+
+    public static function getPeriodMissionCommonParam($mid) {
+        $user = AccountManager::getCurrentUser();
+        $period_mission = MissionManager::getMission($mid, MissionType::PERIOD); // exception is thrown if not existing
+//        $account = Account::findIdentity(Yii::$app->user->id);
+
+
+-------- 2016-08-17 13:56:48
+$ du -sh * --exclude=sdb*
+4.0K  android
+50M AndroidStudioProjects
+26M Arduino
+344M  baina
+592K  Desktop
+4.0K  Documents
+650M  Downloads
+12K examples.desktop
+4.0K  kidd
+13M logs
+4.0K  Music
+20M Pictures
+4.0K  Public
+1.1M  ros_work
+3.9G  share
+23G software
+4.0K  Templates
+4.0K  tmp
+4.0K  Videos
+15G workspace
+kidd@kidd-OptiPlex-9020:
+~
+$ df -lh
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       110G  103G  1.8G  99% /
+
+
+--------- 2016-08-17 11:55:15
+/home/kidd/workspace/bc/MissionImpossible/models/PeriodMission.php
+   public function getChallenges()
+    {
+        return $this->hasMany(Challenge::className(), ['mission_id' => 'id', 'mission_type' => MissionType::PERIOD]);
+    }
+
+public function getChallenges()
+    {
+        return $this->hasMany(Challenge::className(), ['mission_id' => 'id']);
+//        return $this->hasMany(Challenge::className(), ['mission_id' => 'id', 'mission_type' => MissionType::PERIOD]);
+    }
+
+
+  public function getChallenges()
+    {
+        return Challenge::findAll(['mission_id' => $this->id, 'mission_type' => MissionType::SINGLE]);
+//        return $this->hasMany(Challenge::className(), ['mission_id' => 'id']);
+    }
+----------- 2016-08-17 11:44:52
+
+Getting unknown property: app\models\PeriodMission::checkin_min_count
+
+ in /home/kidd/workspace/bc/MissionImpossible/models/Challenge.php at line 142 – app\models\Challenge::isSucceed()

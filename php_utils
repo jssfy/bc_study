@@ -1,0 +1,68 @@
+
+
+
+
+
+-------------- 2016-08-23 11:44:50 
+Logger
+
+<?php
+namespace app\components\util;
+
+class Logger {
+    const DEFAULT_CATEGORY_PREFIX = 'abc\\';
+
+    // rewrite log api
+    public static function info($message){
+        $category = static::getCallingMethodName();
+        \Yii::info($message, $category);
+    }
+    public static function trace($message){
+        $category = static::getCallingMethodName();
+        \Yii::trace($message, $category);
+    }
+    public static function error($message){
+        $category = static::getCallingMethodName();
+        \Yii::error($message, $category);
+    }
+    public static function warning($message){
+        $category = static::getCallingMethodName();
+        \Yii::warning($message, $category);
+    }
+
+    // rewrite profile api
+    public static function beginProfile($code_mark) {
+        $category = static::getCallingMethodName();
+        \Yii::beginProfile($code_mark, $category);
+    }
+    public static function endProfile($code_mark) {
+        $category = static::getCallingMethodName();
+        \Yii::endProfile($code_mark, $category);
+    }
+
+    public static function logFunctionCall() {
+        $category = static::getCallingMethodName();
+        $arg_list = self::getCallingArgs();
+        \Yii::info('Call function with args: ' . json_encode($arg_list), $category);
+    }
+
+    // get calling method name
+    private static function getCallingMethodName() {
+        $debug_trace = debug_backtrace();
+        if ($debug_trace && count($debug_trace) > 2) {
+            $class = isset($debug_trace[2]['class']) ? $debug_trace[2]['class'] : "GlobalFunction";
+            return self::DEFAULT_CATEGORY_PREFIX . $class . '::' . $debug_trace[2]['function'];
+        } else {
+            return self::DEFAULT_CATEGORY_PREFIX . 'shit happens';
+        }
+    }
+
+    private static function getCallingArgs() {
+        $debug_trace = debug_backtrace();
+        if ($debug_trace && count($debug_trace) > 2) {
+            return $debug_trace[2]['args'];
+        } else {
+            return [];
+        }
+    }
+}

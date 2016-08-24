@@ -89,3 +89,73 @@ sudo /etc/init.d/bind start
 
 
 $ sudo php yii serve 10.12.0.1 --port=80
+
+------------ 2016-08-12 13:25:05
+https://www.charlesproxy.com/documentation/installation/apt-repository/
+https://www.charlesproxy.com/latest-release/download.do
+
+$ sudo apt-get install charles-proxy
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
+The following information may help to resolve the situation:
+
+The following packages have unmet dependencies:
+ charles-proxy : Depends: java8-runtime but it is not installable
+E: Unable to correct problems, you have held broken packages.
+
+----------- 2016-08-12 14:55:56
+ 用Fiddler查看 Android/iOS 网络请求
+
+1.下载fiddler，尽量到官方网站找最新的版本
+
+我这里也放了一个：http://files.cnblogs.com/xiaokang088/fiddler4setup.zip 
+
+2. 打开Fiddler后 Tools > Fiddler Options > Connections.勾选 Allow remote computers to connect 
+同时把上面显示的端口号【8888】记下来。
+
+3.打开Android手机，长摁 wifi的名字，显示如下界面，设置代理。
+
+主机名是PC的IP，端口是刚才上面的端口。
+4.iOS 上同样，点击wifi名字，填写代理。
+手机上打开浏览器访问PC，地址为： http://192.168.123.12:8888/
+
+not sure why, fiddler for windows does not work as proxy immediately, after restarting and then some other time, the proxy becomes working. 
+the proxy only captures the requests from the client if only the client used the proxy.
+
+------- 2016-08-12 15:53:23
+windows: 本地 绑定域名及host使用说明 
+http://blog.csdn.net/flymachine/article/details/7103719/
+
+域名解析有两种方法：DNS 和 主机表。主机表作为一个文本文件存放在 Windows9x 的 \windows 文件夹下或 WindowsNT 的 \Winnt\system32\drivers\etc 文件夹下。Hosts 文件的格式非常简单，即一条一条的 IP 地址对应域名的记录，一个实例如下：
+127.0.0.1 localhost # 本地主机
+192.168.0.1 proxyserver # 代理服务器
+192.168.0.100 www.mydom.net # 内部网 WWW 服务器
+10.12.0.1 tz8-dev.muder.pw
+
+  after modification, do not need to restart the os.
+
+after setting this binding for the proxy, a client using the proxy accessing tz8-dev.muder.pw will visit "10.12.0.1" instead.
+
+------- 2016-08-12 15:19:19
+sudo tcpdump -i eth1 src 10.12.0.35 -A
+
+15:17:19.982104 IP localhost.51737 > localhost.3128: Flags [P.], seq 0:565, ack 1, win 4117, options [nop,nop,TS val 848342323 ecr 3709581], length 565
+@.@.iF
+..#
+......8
+.y.V..............
+2..3.8..GET http://10.12.0.1:8080/mission/list HTTP/1.1
+Host: 10.12.0.1:8080
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Proxy-Connection: keep-alive
+Cookie: PHPSESSID=9hj9g5l1fdob586e2sqijtc9a3; _identity=%5B%22194%22%2C%22Xre5y1KqZiejzHu1uvMGWwu042APSYLz%22%2C2592000%5D; userId=194
+User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34 MicroMessenger/6.3.19 NetType/WIFI Language/zh_CN
+Accept-Language: zh-cn
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+

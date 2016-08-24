@@ -1,0 +1,273 @@
+
+
+
+
+--------- 2016-08-23 18:32:15
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+    public function getIsGuest()
+
+    getIsGuest is triggered twice after refreshing http://localhost/country/index
+
+    /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     * @return boolean whether the current user is a guest.
+     * @see getIdentity()
+     */
+    public function getIsGuest()
+    {
+        if(is_null($this->getIdentity()))
+            error_log("getIsGuest is triggered, identity null");
+        else {
+            error_log("getIsGuest is triggered, identity: ".json_encode($this->getIdentity()));
+        }
+        return $this->getIdentity() === null;
+    }
+[23-Aug-2016 10:35:09 UTC] getIsGuest is triggered, identity: {"id":"100","username":"admin","password":"admin","authKey":"test100key","accessToken":"100-token"}
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+    protected function getIdentityAndDurationFromCookie()
+    {
+        error_log("start--------");
+        $value = Yii::$app->getRequest()->getCookies()->getValue($this->identityCookie['name']);
+
+---------- 2016-08-23 18:09:08
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+  getIdentityAndDurationFromCookie
+    $class = $this->identityClass;
+    [23-Aug-2016 10:17:55 UTC] identity class name: app\models\User
+
+/var/www/html/yii/basic/config/web.php
+        'user' => [
+            'identityClass' => 'app\models\User',
+            'enableAutoLogin' => true,
+        ],
+
+    /**
+     * Determines if an identity cookie has a valid format and contains a valid auth key.
+     * This method is used when [[enableAutoLogin]] is true.
+     * This method attempts to authenticate a user using the information in the identity cookie.
+     * @return array|null Returns an array of 'identity' and 'duration' if valid, otherwise null.
+     * @see loginByCookie()
+     * @since 2.0.9
+     */
+    protected function getIdentityAndDurationFromCookie()
+    {
+        error_log("start--------");
+        $value = Yii::$app->getRequest()->getCookies()->getValue($this->identityCookie['name']);
+        if ($value === null) {
+            return null;
+        }
+        $data = json_decode($value, true);
+        error_log("----------".$value);
+        // error_log("~~~~~~~~".json_ecode(debug_backtrace()));
+        if (count($data) == 3) {
+            list ($id, $authKey, $duration) = $data;
+            /* @var $class IdentityInterface */
+            $class = $this->identityClass;
+            error_log("identity class name: ".$class);
+            error_log("-----------");
+            $identity = $class::findIdentity($id);
+            if ($identity !== null) {
+                if (!$identity instanceof IdentityInterface) {
+                    throw new InvalidValueException("$class::findIdentity() must return an object implementing IdentityInterface.");
+                } elseif (!$identity->validateAuthKey($authKey)) {
+                    Yii::warning("Invalid auth key attempted for user '$id': $authKey", __METHOD__);
+                } else {
+                    return ['identity' => $identity, 'duration' => $duration];
+                }
+            }
+        }
+        $this->removeIdentityCookie();
+        return null;
+    }
+
+1. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 571 getIdentityAndDurationFromCookie
+2. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 295 – yii\web\User::getIdentityAndDurationFromCookie()
+3. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 686 – yii\web\User::loginByCookie()
+4. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 188 – yii\web\User::renewAuthStatus()
+5. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 341 – yii\web\User::getIdentity()
+6. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Component.php at line 130 – yii\web\User::getIsGuest()
+7. in /var/www/html/yii/basic/views/layouts/main.php at line 42 – yii\base\Component::__get('isGuest')
+36373839404142434445464748    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav navbar-right'],
+        'items' => [
+            ['label' => 'Home', 'url' => ['/site/index']],
+            ['label' => 'About', 'url' => ['/site/about']],
+            ['label' => 'Contact', 'url' => ['/site/contact']],
+            Yii::$app->user->isGuest ? (
+                ['label' => 'Login', 'url' => ['/site/login']]
+            ) : (
+                '<li>'
+                . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+                . Html::submitButton(
+                    'Logout (' . Yii::$app->user->identity->username . ')',
+8. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 325 – require('/var/www/html/yii/basic/views/la...')
+9. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 247 – yii\base\View::renderPhpFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="country-index"> ...'])
+10. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 393 – yii\base\View::renderFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="country-index"> ...'], app\controllers\CountryController)
+11. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 379 – yii\base\Controller::renderContent('<div class="country-index"> ...')
+12. in /var/www/html/yii/basic/controllers/CountryController.php at line 43 – yii\base\Controller::render('index', ['searchModel' => app\models\CountrySearch, 'dataProvider' => yii\data\ActiveDataProvider])
+37383940414243444546474849    {
+        $searchModel = new CountrySearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+ 
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+ 
+    /**
+     * Displays a single Country model.
+     * @param string $id
+13. app\controllers\CountryController::actionIndex()
+14. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – call_user_func_array([app\controllers\CountryController, 'actionIndex'], [])
+15. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 154 – yii\base\InlineAction::runWithParams([])
+16. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction('index', [])
+17. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction('country/index', [])
+18. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest(yii\web\Request)
+19. in /var/www/html/yii/basic/web/index.php at line 12 – yii\base\Application::run()
+6789101112 
+require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
+ 
+$config = require(__DIR__ . '/../config/web.php');
+ 
+(new yii\web\Application($config))->run();
+ $_COOKIE = [
+    '_identity' => '5aee6a581fe1bd4eec2f993c9c18614c5e91f27d0945b9f0c7dbee89b419d567a:2:{i:0;s:9:"_identity";i:1;s:28:"["100","test100key",2592000]";}',
+];
+
+--------- 2016-08-23 17:51:45
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+protected function getIdentityAndDurationFromCookie()
+[23-Aug-2016 09:50:16 UTC] ----------["100","test100key",2592000]
+
+
+    protected function getIdentityAndDurationFromCookie()
+    {
+        error_log("start--------");
+        $value = Yii::$app->getRequest()->getCookies()->getValue($this->identityCookie['name']);
+        if ($value === null) {
+            return null;
+        }
+        $data = json_decode($value, true);
+        error_log("----------".$value);
+        error_log("~~~~~~~~".json_decode(debug_backtrace()));
+
+----------- 2016-08-23 15:19:06
+
+2016-08-23 15:18:03 [][info][abc\app\models\Account::validateAuthKey] validateAuthKey triggered
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/models/Account.php:128
+2016-08-23 15:18:03 [][info][abc\app\components\AccountManager::login] generateAccountToken 187
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/components/AccountManager.php:194
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/LoginController.php:44
+2016-08-23 15:18:03 [187][info][abc\app\controllers\LoginController::actionLogin] use test account in non-wechat environment
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/LoginController.php:45
+
+
+---------- 2016-08-23 15:03:31
+
+Exception
+Database Exception – yii\db\Exception
+
+SQLSTATE[HY000] [2002] No route to host
+↵
+Caused by: PDOException
+
+SQLSTATE[HY000] [2002] No route to host
+
+in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Connection.php at line 603
+1. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Connection.php at line 550
+541542543544545546547548549550551552553554555556557558559        $token = 'Opening DB connection: ' . $this->dsn;
+        try {
+            Yii::info($token, __METHOD__);
+            Yii::beginProfile($token, __METHOD__);
+            $this->pdo = $this->createPdoInstance();
+            $this->initConnection();
+            Yii::endProfile($token, __METHOD__);
+        } catch (\PDOException $e) {
+            Yii::endProfile($token, __METHOD__);
+            throw new Exception($e->getMessage(), $e->errorInfo, (int) $e->getCode(), $e);
+        }
+    }
+ 
+    /**
+     * Closes the currently active DB connection.
+     * It does nothing if the connection is already closed.
+     */
+    public function close()
+    {
+2. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Connection.php at line 864 – yii\db\Connection::open()
+3. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Connection.php at line 851 – yii\db\Connection::getMasterPdo()
+4. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Command.php at line 219 – yii\db\Connection::getSlavePdo()
+5. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Command.php at line 894 – yii\db\Command::prepare(true)
+6. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Command.php at line 362 – yii\db\Command::queryInternal('fetchAll', null)
+7. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/mysql/Schema.php at line 198 – yii\db\Command::queryAll()
+8. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/mysql/Schema.php at line 97 – yii\db\mysql\Schema::findColumns(yii\db\TableSchema)
+9. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Schema.php at line 149 – yii\db\mysql\Schema::loadTableSchema('account')
+10. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/ActiveRecord.php at line 296 – yii\db\Schema::getTableSchema('account')
+11. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/ActiveRecord.php at line 320 – yii\db\ActiveRecord::getTableSchema()
+12. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/ActiveRecord.php at line 176 – yii\db\ActiveRecord::primaryKey()
+13. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/BaseActiveRecord.php at line 107 – yii\db\ActiveRecord::findByCondition('187')
+14. in /home/kidd/workspace/bc/MissionImpossible/models/Account.php at line 88 – yii\db\BaseActiveRecord::findOne('187')
+82838485868788899091929394 
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+ 
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+15. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/User.php at line 665 – app\models\Account::findIdentity('187')
+16. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/User.php at line 188 – yii\web\User::renewAuthStatus()
+17. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/User.php at line 340 – yii\web\User::getIdentity()
+18. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/filters/AccessRule.php at line 148 – yii\web\User::getIsGuest()
+19. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/filters/AccessRule.php at line 103 – yii\filters\AccessRule::matchRole(yii\web\User)
+20. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/filters/AccessControl.php at line 118 – yii\filters\AccessRule::allows(yii\base\InlineAction, yii\web\User, yii\web\Request)
+21. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/ActionFilter.php at line 73 – yii\filters\AccessControl::beforeAction(yii\base\InlineAction)
+22. yii\base\ActionFilter::beforeFilter(yii\base\ActionEvent)
+23. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Component.php at line 541 – call_user_func([yii\filters\AccessControl, 'beforeFilter'], yii\base\ActionEvent)
+24. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php at line 269 – yii\base\Component::trigger('beforeAction', yii\base\ActionEvent)
+25. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Controller.php at line 108 – yii\base\Controller::beforeAction(yii\base\InlineAction)
+26. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php at line 152 – yii\web\Controller::beforeAction(yii\base\InlineAction)
+27. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction('index', ['mid' => '1796', 'mt' => '1'])
+28. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction('mission/index', ['mid' => '1796', 'mt' => '1'])
+29. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest(yii\web\Request)
+30. in /home/kidd/workspace/bc/MissionImpossible/web/index.php at line 17 – yii\base\Application::run()
+11121314151617require(__DIR__ . "/../components/util/AgentUtil.php");
+ 
+$config = require(__DIR__ . '/../config/web.php');
+ 
+date_default_timezone_set('Asia/Shanghai');
+ 
+(new yii\web\Application($config))->run();
+ $_GET = [
+    'mid' => '1796',
+    'mt' => '1',
+];
+
+$_COOKIE = [
+    'PHPSESSID' => 's9i0vph2gd03q6bbv8mh687sl2',
+    'userId' => '187',
+    '_identity' => '["187","gNjy3gv8vmEw4nPuoS0CVBqUEBsF1gWc",2592000]',
+];
+
+$_SESSION = [
+    '__flash' => [],
+    '__page_session' => [],
+    '__returnUrl' => '/mission/list',
+    '__id' => '187',
+];
+Yii Framework
+2016-08-23, 14:57:37
+
+PHP 7.0.9-1+deb.sury.org~trusty+1 Development Server
+Yii Framework/2.0.9

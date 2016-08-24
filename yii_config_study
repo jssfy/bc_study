@@ -1,5 +1,51 @@
 
 
+
+
+
+
+
+------------ 2016-08-23 12:05:19 pretty url
+http://localhost/index.php/country/index
+http://zccst.iteye.com/blog/2079699
+http://www.yiiframework.com/doc/guide/1.1/zh_cn/topics.url
+http://www.yiichina.com/topic/5592
+
+1. 修改Apache的配置httpd.conf
+      （1）开启apache的mod_rewrite模块去掉LoadModule rewrite_module modules/mod_rewrite.so前的“#”符号
+      （2）确保<Directory "..."></Directory>中有“AllowOverride All” 
+
+$ grep -nr rewrite_module
+mods-available/rewrite.load:1:LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+sudo a2enmod rewrite
+
+/etc/apache2/apache2.conf
+<Directory /var/www/>
+  Options Indexes FollowSymLinks
+  AllowOverride All
+  Require all granted
+</Directory>
+
+sudo /etc/init.d/apache2 restart
+
+/var/www/html/yii/basic/config/web.php
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'rules' => [
+            ],
+        ],
+
+/var/www/html/yii/basic/web/.htaccess
+RewriteEngine on
+# If a directory or a file exists, use it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Otherwise forward it to index.php
+RewriteRule . index.php
+
+AllowOverride 的参数设置为ALL，表示整台服务器上都支持URL规则重写。Apache 服务器要读每个网站下目录下的 .htaccess 文件。如果没有这个文件，或者这个文档没有定义任何关于URL重写的规则就不会有任何效果。
+
 ----------- 2016-08-08 10:07:20
  Yii2 选择布局的方式 [ 2.0 版本 ]
 trylife 2015-05-05 09:10:17 12609次浏览 4条评论 25 10 0

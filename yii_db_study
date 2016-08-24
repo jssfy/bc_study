@@ -2,6 +2,642 @@
 http://www.jb51.net/article/30864.htm
 深入Mysql字符集设置[精华结合]
 
+ways to query:
+1) 
+$checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', '[[veto_admin_id]] > -1 as veto'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+
+2) 
+class Checkin extends \yii\db\ActiveRecord
+$checkin = Checkin::findOne($member['id']);
+
+3) 
+Executing SQL Queries
+Once you have a database connection instance, you can execute a SQL query by taking the following steps:
+    Create a yii\db\Command with a plain SQL query;
+    Bind parameters (optional);
+    Call one of the SQL execution methods in yii\db\Command.
+$posts = Yii::$app->db->createCommand('SELECT * FROM post')->queryAll();
+$post = Yii::$app->db->createCommand('SELECT * FROM post WHERE id=1')->queryOne();
+$titles = Yii::$app->db->createCommand('SELECT title FROM post')->queryColumn();
+$count = Yii::$app->db->createCommand('SELECT COUNT(*) FROM post')->queryScalar();
+    Note: To preserve precision, the data fetched from databases are all represented as strings, even if the corresponding database column types are numerical.
+
+
+
+----------- 2016-08-19 18:28:12
+ BC/MissionImpossible / models/ChallengeReward.php
+    public function getUser() {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    public function getHead_img() {
+        return $this->user->head_img;
+    }
+
+    public function getUsername() {
+        return $this->user->username;
+    }
+
+    public function getMoney() {
+        return $this->reward;
+    }
+
+    
+---------- 2016-08-19 14:09:46
+get users:
+
+//        return (new \yii\db\Query())
+//            ->select('user.id, user.nickname, user.head_img')
+//            ->from('user')
+//            ->innerJoin('challenge', 'challenge.user_id = user.id')
+//            ->where(['challenge.mission_id' => $this->id, 'challenge.mission_type' => MissionType::PERIOD])
+//            ->all();
+
+    public function getUsers($offset=null, $limit=null)
+    {
+        return User::find()
+            ->leftJoin('challenge', 'user.id = challenge.user_id')
+            ->where(['challenge.mission_id' => $this->id, 'challenge.mission_type' => MissionType::PERIOD])
+            ->orderBy(['challenge.regist_time' => SORT_DESC])
+            ->offset($offset)
+            ->limit($limit)
+            ->all();
+    }
+
+    public function isUserCheckedToday($uid)
+    {
+        $challenge = Challenge::findOne([
+            'mission_id' => $this->id,
+            'mission_type' => MissionType::PERIOD,
+            'user_id' => $uid,
+        ]);
+
+        $today = date('Y-m-d');
+        $checked = Checkin::find(['challenge_id'=>$challenge->id])
+            ->where("unix_timestamp(checkin_time) > unix_timestamp($today)")
+            ->one();
+
+        if ($checked != null) {
+            return true;
+        }
+
+        $pending_count = PendingCheckin::find()->where(['user_id' => $uid])
+            ->andWhere(['challenge_id' => $challenge->id])
+            ->where("unix_timestamp(create_time) > unix_timestamp($today)")
+            ->andWhere('status >= 1')
+            ->andWhere('status <= 2')
+            ->count();
+
+        return $pending_count > 0 ? true : false;
+    }
+
+
+------------ 2016-08-19 13:43:59
+if the rules are there, missing start_time will lead to below error. 
+without below rules, it seems start_time will not be loaded.
+    public function rules()
+    {
+        return [
+            [['start_time', 'ticket'], 'required'],
+//            [['name', 'announce'], 'string', 'max' => 64],
+//            [['checkin_photo'], 'string', 'max' => 1024],
+//            [['description', 'declare'], 'string', 'max' => 1024],
+//            [['creator_id', 'max_user', 'min_user', 'checkin_like_valid', 'checkin_unlike_invalid'], 'integer'],
+//            [['create_time', 'start_time'], 'safe'],
+        ];
+    }
+
+2016-08-19 13:43:02 [187][info][abc\app\controllers\ajax\MissionController::actionCreate] {"PeriodMission":{"announce":"11","ticket":"11"},"mt":"1","button":"PeriodMission"}
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php:60
+2016-08-19 13:43:02 [187][info][abc\app\controllers\ajax\MissionController::actionCreate] start time: , and ticket 11
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php:62
+2016-08-19 13:43:02 [187][error][abc\app\controllers\ajax\MissionController::actionCreate] save mission failed: 每周挑战
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:25
+    in /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/MissionController.php:101
+
+moreover, if "[['name', 'announce'], 'string', 'max' => 64]," is not there, "announce" will not be read.
+
+---------- 2016-08-12 12:20:03
+time difference:
+  $command = Yii::$app->db->createCommand('SELECT NOW() as time');
+  $post1 = $command->queryOne();
+  error_log("db time: ".json_encode($post1)."\n");
+  error_log("system time: ".date("Y-m-d H:i:s"));
+
+
+2016-08-12 12:22:28 [194][info][abc\app\models\Mission::isAlive] db time: {"time":"2016-08-12 12:22:33"}
+
+    in /home/kidd/workspace/bc/MissionImpossible/components/util/Logger.php:17
+    in /home/kidd/workspace/bc/MissionImpossible/models/Mission.php:182
+    in /home/kidd/workspace/bc/MissionImpossible/models/Mission.php:207
+2016-08-12 12:22:28 [194][info][abc\app\models\Mission::isAlive] system time: 2016-08-12 12:22:28
+
+public function isAlive()
+/home/kidd/workspace/bc/MissionImpossible/models/Mission.php
+
+------------ 2016-08-11 14:15:35
+http://www.yiichina.com/doc/guide/2.0/db-dao
+***** Binding Parameters
+When creating a DB command from a SQL with parameters, you should almost always use the approach of binding parameters to prevent SQL injection attacks. For example,
+
+$post = Yii::$app->db->createCommand('SELECT * FROM post WHERE id=:id AND status=:status')
+           ->bindValue(':id', $_GET['id'])
+           ->bindValue(':status', 1)
+           ->queryOne();
+
+In the SQL statement, you can embed one or multiple parameter placeholders (e.g. :id in the above example). A parameter placeholder should be a string starting with a colon. You may then call one of the following parameter binding methods to bind the parameter values:
+
+    yii\db\Command::bindValue(): bind a single parameter value
+    yii\db\Command::bindValues(): bind multiple parameter values in one call
+    yii\db\Command::bindParam(): similar to yii\db\Command::bindValue() but also support binding parameter references.
+Parameter binding is implemented via prepared statements. Besides preventing SQL injection attacks, it may also improve performance by preparing a SQL statement once and executing it multiple times with different parameters.
+
+    Prepared Statements [http://php.net/manual/en/mysqli.quickstart.prepared-statements.php]
+        The MySQL database supports prepared statements. A prepared statement or a parameterized statement is used to execute the same statement repeatedly with high efficiency.
+        Basic workflow
+        The prepared statement execution consists of two stages: prepare and execute. At the prepare stage a statement template is sent to the database server. The server performs a syntax check and initializes server internal resources for later use.
+        The MySQL server supports using anonymous, positional placeholder with ?. 
+Because yii\db\Command::bindParam() supports binding parameters by references, code can also be written like the following:
+$command = Yii::$app->db->createCommand('SELECT * FROM post WHERE id=:id')->bindParam(':id', $id);
+$id = 1;
+$post1 = $command->queryOne();
+$id = 2;
+$post2 = $command->queryOne();
+Notice that you bind the placeholder to the $id variable before the execution, and then change the value of that variable before each subsequent execution (this is often done with loops). Executing queries in this manner can be vastly more efficient than running a new query for every different parameter value. 
+
+***** Executing Non-SELECT Queries
+The queryXyz() methods introduced in the previous sections all deal with SELECT queries which fetch data from databases. For queries that do not bring back data, you should call the yii\db\Command::execute() method instead.
+
+----------- 2016-08-11 13:26:39
+http://www.yiichina.com/doc/guide/2.0/db-dao
+Yii 包含了一个建立在 PHP PDO 之上的数据访问层 (DAO)。DAO为不同的数据库提供了一套统一的API。 其中`ActiveRecord` 提供了数据库与模型(MVC 中的 M,Model) 的交互，`QueryBuilder` 用于创建动态的查询语句。 DAO提供了简单高效的SQL查询，可以用在与数据库交互的各个地方.
+Creating DB Connections
+
+To access a database, you first need to connect to it by creating an instance of yii\db\Connection:
+
+$db = new yii\db\Connection([
+    'dsn' => 'mysql:host=localhost;dbname=example',
+    'username' => 'root',
+    'password' => '',
+    'charset' => 'utf8',
+]);
+
+Because a DB connection often needs to be accessed in different places, a common practice is to configure it in terms of an application component like the following:
+
+return [
+    // ...
+    'components' => [
+        // ...
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=localhost;dbname=example',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'utf8',
+        ],
+    ],
+    // ...
+];
+
+You can then access the DB connection via the expression Yii::$app->db.
+
+    Tip: You can configure multiple DB application components if your application needs to access multiple databases.
+
+Info: When you create a DB connection instance, the actual connection to the database is not established until you execute the first SQL or you call the yii\db\Connection::open() method explicitly.
+
+    Tip: Sometimes you may want to execute some queries right after the database connection is established to initialize some environment variables (e.g., to set the timezone or character set). You can do so by registering an event handler for the yii\db\Connection::EVENT_AFTER_OPEN event of the database connection. You may register the handler directly in the application configuration like so:
+
+    'db' => [
+        // ...
+        'on afterOpen' => function($event) {
+            // $event->sender refers to the DB connection
+            $event->sender->createCommand("SET time_zone = 'UTC'")->execute();
+        }
+    ],
+
+use Yii;
+        // INSERT (table name, column values)
+        $cmd = Yii::$app->db->createCommand();
+        $cmd->insert('states', [
+            'name' => 'yeanhua',
+            'code' => 'YA',
+        ])->execute();
+        $cmd->insert('states', [
+            'name' => 'anhuaye',
+            'code' => 'AH',
+        ])->execute();
+
+You may also call yii\db\Command::batchInsert() to insert multiple rows in one shot, which is much more efficient than inserting one row at a time:
+Yii::$app->db->createCommand()->batchInsert('user', ['name', 'age'], [
+    ['Tom', 30],
+    ['Jane', 20],
+    ['Linda', 25],
+])->execute();
+Note that the aforementioned methods only create the query and you always have to call yii\db\Command::execute() to actually run them.
+
+When writing database-agnostic code, properly quoting table and column names is often a headache because different databases have different name quoting rules. To overcome this problem, you may use the following quoting syntax introduced by Yii:
+    [[column name]]: enclose a column name to be quoted in double square brackets;
+    {{table name}}: enclose a table name to be quoted in double curly brackets.
+Yii DAO will automatically convert such constructs into the corresponding quoted column or table names using the DBMS specific syntax.
+For example, // executes this SQL for MySQL: SELECT COUNT(`code`) FROM `states`
+    $count = Yii::$app->db->createCommand("SELECT COUNT([[code]]) FROM {{states}}")->queryScalar();
+    $rawsql = Yii::$app->db->createCommand("SELECT COUNT([[code]]) FROM {{states}}")->getRawSql();
+    error_log("states count: ".$count." with sql: ".$rawsql);
+        tail -f /var/log/php/error.log
+            [11-Aug-2016 06:44:23 UTC] states count: 12 with sql: SELECT COUNT(`code`) FROM `states`
+
+******** Using Table Prefix
+If most of your DB tables names share a common prefix, you may use the table prefix feature provided by Yii DAO.
+    First, specify the table prefix via the yii\db\Connection::tablePrefix property in the application config.
+    Then in your code, whenever you need to refer to a table whose name contains such a prefix, use the syntax {{%table_name}}. The percentage character will be automatically replaced with the table prefix that you have specified when configuring the DB connection.
+
+********* Performing Transactions
+When running multiple related queries in a sequence, you may need to wrap them in a transaction to ensure the integrity and consistency of your database. If any of the queries fails, the database will be rolled back to the state as if none of these queries were executed.
+Yii::$app->db->transaction(function($db) {
+    $db->createCommand($sql2)->execute();
+    // ... executing other SQL statements ...
+});
+equivalent to the following
+    $db = Yii::$app->db;
+    $transaction = $db->beginTransaction();
+    try {
+        $db->createCommand($sql2)->execute();
+        // ... executing other SQL statements ...
+        $transaction->commit();
+    } catch(\Exception $e) {
+        $transaction->rollBack();
+        throw $e;
+    }
+******** Specifying Isolation Levels
+Yii also supports setting isolation levels for your transactions. By default, when starting a new transaction, it will use the default isolation level set by your database system. You can override the default isolation level as follows,
+$isolationLevel = \yii\db\Transaction::REPEATABLE_READ;
+Yii::$app->db->transaction(function ($db) {
+    ....
+}, $isolationLevel);
+ 
+// or alternatively
+$transaction = Yii::$app->db->beginTransaction($isolationLevel);
+Yii provides four constants for the most common isolation levels:
+    \yii\db\Transaction::READ_UNCOMMITTED - the weakest level, Dirty reads, non-repeatable reads and phantoms may occur.
+    \yii\db\Transaction::READ_COMMITTED - avoid dirty reads.
+    \yii\db\Transaction::REPEATABLE_READ - avoid dirty reads and non-repeatable reads.
+    \yii\db\Transaction::SERIALIZABLE - the strongest level, avoids all of the above named problems.
+Besides using the above constants to specify isolation levels, you may also use strings with a valid syntax supported by the DBMS that you are using.
+    
+****** Nesting Transactions
+If your DBMS supports Savepoint, you may nest multiple transactions like the following:
+
+******* Replication and Read-Write Splitting
+Many DBMS support database replication to get better database availability and faster server response time. With database replication, data are replicated from the so-called master servers to slave servers. All writes and updates must take place on the master servers, while reads may also take place on the slave servers.
+To take advantage of database replication and achieve read-write splitting, you can configure a yii\db\Connection component like the following:
+[
+    'class' => 'yii\db\Connection',
+    // configuration for the master
+    'dsn' => 'dsn for master server',
+    'username' => 'master',
+    'password' => '',
+    // common configuration for slaves
+    'slaveConfig' => [
+        'username' => 'slave',
+        'password' => '',
+        'attributes' => [
+            // use a smaller connection timeout
+            PDO::ATTR_TIMEOUT => 10,
+        ],
+    ],
+    // list of slave configurations
+    'slaves' => [
+        ['dsn' => 'dsn for slave server 1'],
+        ['dsn' => 'dsn for slave server 2'],
+        ['dsn' => 'dsn for slave server 3'],
+        ['dsn' => 'dsn for slave server 4'],
+    ],
+]
+
+The above configuration specifies a setup with a single master and multiple slaves. One of the slaves will be connected and used to perform read queries, while the master will be used to perform write queries. Such read-write splitting is accomplished automatically with this configuration. For example,
+// create a Connection instance using the above configuration
+Yii::$app->db = Yii::createObject($config);
+// query against one of the slaves
+$rows = Yii::$app->db->createCommand('SELECT * FROM user LIMIT 10')->queryAll();
+// query against the master
+Yii::$app->db->createCommand("UPDATE user SET username='demo' WHERE id=1")->execute();
+    Info: Queries performed by calling yii\db\Command::execute() are considered as write queries, while all other queries done through one of the "query" methods of yii\db\Command are read queries. You can get the currently active slave connection via Yii::$app->db->slave.
+The Connection component supports load balancing and failover between slaves. When performing a read query for the first time, the Connection component will randomly pick a slave and try connecting to it. If the slave is found "dead", it will try another one. If none of the slaves is available, it will connect to the master. By configuring a yii\db\Connection::serverStatusCache, a "dead" server can be remembered so that it will not be tried again during a yii\db\Connection::serverRetryInterval.
+    Info: In the above configuration, a connection timeout of 10 seconds is specified for every slave. This means if a slave cannot be reached in 10 seconds, it is considered as "dead". You can adjust this parameter based on your actual environment.
+
+You can also configure multiple masters with multiple slaves.
+The Connection component also supports load balancing and failover between masters just as it does between slaves. A difference is that when none of the masters are available an exception will be thrown.
+    Note: When you use the yii\db\Connection::masters property to configure one or multiple masters, all other properties for specifying a database connection (e.g. dsn, username, password) with the Connection object itself will be ignored.
+By default, transactions use the master connection. And within a transaction, all DB operations will use the master connection. 
+
+If you want to start a transaction with the slave connection, you should explicitly do so, like the following:
+$transaction = Yii::$app->db->slave->beginTransaction();
+
+http://www.yiiframework.com/doc-2.0/yii-db-connection.html
+    $slave  yii\db\Connection   The currently active slave connection.
+If you want to start a transaction with the slave connection, you should explicitly do so, like the following:
+    $transaction = Yii::$app->db->slave->beginTransaction();
+Sometimes, you may want to force using the master connection to perform a read query. This can be achieved with the useMaster() method:
+    $rows = Yii::$app->db->useMaster(function ($db) {
+        return $db->createCommand('SELECT * FROM user LIMIT 10')->queryAll();
+    });
+You may also directly set Yii::$app->db->enableSlaves to be false to direct all queries to the master connection.
+
+******* Working with Database Schema
+Yii DAO provides a whole set of methods to let you manipulate the database schema, such as creating new tables, dropping a column from a table, etc. These methods are listed as follows:
+    yii\db\Command::createTable(): creating a table
+    yii\db\Command::renameTable(): renaming a table
+    yii\db\Command::dropTable(): removing a table
+    yii\db\Command::truncateTable(): removing all rows in a table
+    yii\db\Command::addColumn(): adding a column
+    yii\db\Command::renameColumn(): renaming a column
+    yii\db\Command::dropColumn(): removing a column
+    yii\db\Command::alterColumn(): altering a column
+    yii\db\Command::addPrimaryKey(): adding a primary key
+    yii\db\Command::dropPrimaryKey(): removing a primary key
+    yii\db\Command::addForeignKey(): adding a foreign key
+    yii\db\Command::dropForeignKey(): removing a foreign key
+    yii\db\Command::createIndex(): creating an index
+    yii\db\Command::dropIndex(): removing an index
+Please refer to the API documentation of the yii\db\Command::createTable()-method for more information. [http://www.yiiframework.com/doc-2.0/yii-db-command.html]
+Besides changing the database schema, you can also retrieve the definition information about a table through the yii\db\Connection::getTableSchema() method of a DB connection. For example,
+$table = Yii::$app->db->getTableSchema('post');
+The method returns a yii\db\TableSchema object which contains the information about the table's columns, primary keys, foreign keys, etc. All these information are mainly utilized by query builder and active record to help you write database-agnostic code. 
+
+
+
+------------- 2016-08-11 15:31:53
+http://www.yiichina.com/doc/guide/2.0/db-query-builder
+查询构建器
+查询构建器建立在 Database Access Objects 基础之上，可让你创建 程序化的、DBMS无关的SQL语句。相比于原生的SQL语句，查询构建器可以帮你 写出可读性更强的SQL相关的代码，并生成安全性更强的SQL语句。
+使用查询构建器通常包含以下两个步骤：
+    创建一个 yii\db\Query 对象来代表一条 SELECT SQL 语句的不同子句（例如 SELECT, FROM）。
+    执行 yii\db\Query 的一个查询方法（例如：all()）从数据库当中检索数据。
+
+创建查询
+为了创建一个 yii\db\Query 对象，你需要调用不同的查询构建方法来代表SQL语句的不同子句。 这些方法的名称集成了在SQL语句相应子句中使用的关键字。例如，为了指定 SQL 语句当中的 FROM 子句，你应该调用 from() 方法。所有的查询构建器方法返回的是查询对象本身， 也就是说，你可以把多个方法的调用串联起来。
+yii\db\Query::select() 方法用来指定 SQL 语句当中的 SELECT 子句。 就像写原生 SQL 语句一样，被选取的字段可以包含表前缀，以及/或者字段别名。 
+    $query->select(['user.id AS user_id', 'email']);
+    // 等同于：
+    $query->select('user.id AS user_id, email');
+如果使用数组格式来指定字段，你可以使用数组的键值来表示字段的别名。$query->select(['user_id' => 'user.id', 'email']);
+如果你在组建查询时没有调用 yii\db\Query::select() 方法，那么选择的将是 '*' ， 也即选取的是所有的字段。
+除了字段名称以外，你还可以选择数据库的表达式。当你使用到包含逗号的数据库表达式的时候， 你必须使用数组的格式，以避免自动的错误的引号添加。
+    $query->select(["CONCAT(first_name, ' ', last_name) AS full_name", 'email']);
+
+As with all places where raw SQL is involved, you may use the DBMS agnostic quoting syntax for table and column names when writing DB expressions in select.
+从 2.0.1 的版本开始你就可以使用子查询了。在定义每一个子查询的时候， 你应该使用 yii\db\Query 对象。
+你应该调用 yii\db\Query::distinct() 方法来去除重复行
+你可以调用 yii\db\Query::addSelect() 方法来选取附加字段
+yii\db\Query::from() 方法指定了 SQL 语句当中的 FROM 子句。
+    // SELECT * FROM `user`
+    $query->from('user');
+
+你可以通过字符串或者数组的形式来定义被查询的表名称。就像你写原生的 SQL 语句一样， 表名称里面可包含数据库前缀，以及/或者表别名。例如：
+$query->from(['public.user u', 'public.post p']);
+// 等同于：
+$query->from('public.user u, public.post p');
+如果你使用的是数组的格式，那么你同样可以用数组的键值来定义表别名，如下所示：
+$query->from(['u' => 'public.user', 'p' => 'public.post']);
+除了表名以外，你还可以从子查询中再次查询，这里的子查询是由 yii\db\Query 创建的对象。 例如：
+$subQuery = (new Query())->select('id')->from('user')->where('status=1');
+// SELECT * FROM (SELECT `id` FROM `user` WHERE status=1) u 
+$query->from(['u' => $subQuery]);
+
+yii\db\Query::where()
+yii\db\Query::where() 方法定义了 SQL 语句当中的 WHERE 子句。 你可以使用如下三种格式来定义 WHERE 条件：
+    字符串格式，例如：'status=1'
+    哈希格式，例如： ['status' => 1, 'type' => 2]
+    操作符格式，例如：['like', 'name', 'test']
+字符串格式
+在定义非常简单的查询条件的时候，字符串格式是最合适的。 它看起来和原生 SQL 语句差不多。例如：
+$query->where('status=1');
+// or use parameter binding to bind dynamic parameter values
+$query->where('status=:status', [':status' => $status]);
+// raw SQL using MySQL YEAR() function on a date field
+$query->where('YEAR(somedate) = 2015');
+千万不要像如下的例子一样直接在条件语句当中嵌入变量，特别是当这些变量来源于终端用户输入的时候， 因为这样我们的软件将很容易受到 SQL 注入的攻击。
+// 危险！千万别这样干，除非你非常的确定 $status 是一个整型数值。
+$query->where("status=$status");
+当使用参数绑定的时候，你可以调用 yii\db\Query::params() 或者 yii\db\Query::addParams() 方法 来分别绑定不同的参数。
+$query->where('status=:status')->addParams([':status' => $status]);
+哈希格式最适合用来指定多个 AND 串联起来的简单的"等于断言"子条件。 它是以数组的形式来书写的，数组的键表示字段的名称，而数组的值则表示 这个字段需要匹配的值。
+// ...WHERE (`status` = 10) AND (`type` IS NULL) AND (`id` IN (4, 8, 15))
+$query->where([
+    'status' => 10,
+    'type' => null,
+    'id' => [4, 8, 15],
+]);
+就像你所看到的一样，查询构建器非常的智能，能恰当地处理数值当中的空值和数组。
+$userQuery = (new Query())->select('id')->from('user');
+
+// ...WHERE `id` IN (SELECT `id` FROM `user`)
+$query->where(['id' => $userQuery]);
+
+操作符格式
+操作符格式允许你指定类程序风格的任意条件语句，如下所示：
+[操作符, 操作数1, 操作数2, ...]
+其中每个操作数可以是字符串格式、哈希格式或者嵌套的操作符格式， 而操作符可以是如下列表中的一个：
+    and: 操作数会被 AND 关键字串联起来。例如，['and', 'id=1', 'id=2'] 将会生成 id=1 AND id=2。如果操作数是一个数组，它也会按上述规则转换成 字符串。例如，['and', 'type=1', ['or', 'id=1', 'id=2']] 将会生成 type=1 AND (id=1 OR id=2)。 这个方法不会自动加引号或者转义。
+    or: 用法和 and 操作符类似，这里就不再赘述。
+    between: 第一个操作数为字段名称，第二个和第三个操作数代表的是这个字段 的取值范围。例如，['between', 'id', 1, 10] 将会生成 id BETWEEN 1 AND 10。
+    not between: similar to between except the BETWEEN is replaced with NOT BETWEEN in the generated condition.
+    in: 第一个操作数应为字段名称或者 DB 表达式。第二个操作符既可以是一个数组， 也可以是一个 Query 对象。它会转换成IN 条件语句。如果第二个操作数是一个 数组，那么它代表的是字段或 DB 表达式的取值范围。如果第二个操作数是 Query 对象，那么这个子查询的结果集将会作为第一个操作符的字段或者 DB 表达式的取值范围。 例如， ['in', 'id', [1, 2, 3]] 将生成 id IN (1, 2, 3)。 该方法将正确地为字段名加引号以及为取值范围转义。in 操作符还支持组合字段，此时， 操作数1应该是一个字段名数组，而操作数2应该是一个数组或者 Query 对象， 代表这些字段的取值范围。
+    not in: 用法和 in 操作符类似，这里就不再赘述。
+    like: 第一个操作数应为一个字段名称或 DB 表达式， 第二个操作数可以使字符串或数组， 代表第一个操作数需要模糊查询的值。比如，['like', 'name', 'tester'] 会生成 name LIKE '%tester%'。 如果范围值是一个数组，那么将会生成用 AND 串联起来的 多个 like 语句。例如，['like', 'name', ['test', 'sample']] 将会生成 name LIKE '%test%' AND name LIKE '%sample%'。 你也可以提供第三个可选的操作数来指定应该如何转义数值当中的特殊字符。 该操作数是一个从需要被转义的特殊字符到转义副本的数组映射。 如果没有提供这个操作数，将会使用默认的转义映射。如果需要禁用转义的功能， 只需要将参数设置为 false 或者传入一个空数组即可。需要注意的是， 当使用转义映射（又或者没有提供第三个操作数的时候），第二个操作数的值的前后 将会被加上百分号。
+    or like: 用法和 like 操作符类似，区别在于当第二个操作数为数组时， 会使用 OR 来串联多个 LIKE 条件语句。
+    not like: 用法和 like 操作符类似，区别在于会使用 NOT LIKE 来生成条件语句。
+    or not like: 用法和 not like 操作符类似，区别在于会使用 OR 来串联多个 NOT LIKE 条件语句。
+    exists: 需要一个操作数，该操作数必须是代表子查询 yii\db\Query 的一个实例， 它将会构建一个 EXISTS (sub-query) 表达式。
+    not exists: 用法和 exists 操作符类似，它将创建一个 NOT EXISTS (sub-query) 表达式。
+    >, <=, 或者其他包含两个操作数的合法 DB 操作符: 第一个操作数必须为字段的名称， 而第二个操作数则应为一个值。例如，['>', 'age', 10] 将会生成 age>10。
+
+附加条件
+你可以使用 yii\db\Query::andWhere() 或者 yii\db\Query::orWhere() 在原有条件的基础上 附加额外的条件。你可以多次调用这些方法来分别追加不同的条件。
+
+过滤条件
+当 WHERE 条件来自于用户的输入时，你通常需要忽略用户输入的空值。 例如，在一个可以通过用户名或者邮箱搜索的表单当中，用户名或者邮箱 输入框没有输入任何东西，这种情况下你想要忽略掉对应的搜索条件， 那么你就可以使用 yii\db\Query::filterWhere() 方法来实现这个目的：
+// $username 和 $email 来自于用户的输入
+$query->filterWhere([
+    'username' => $username,
+    'email' => $email,      
+]);
+yii\db\Query::filterWhere() 和 yii\db\Query::where() 唯一的不同就在于，前者 将忽略在条件当中的hash format的空值。所以如果 $email 为空而 $username 不为空，那么上面的代码最终将生产如下 SQL ...WHERE username=:username。
+    提示：当一个值为 null、空数组、空字符串或者一个只包含空白字符时，那么它将被判定为空值。
+类似于 [yii\db\Query::andWhere()|andWhere()]] 和 yii\db\Query::orWhere(), 你可以使用 yii\db\Query::andFilterWhere() 和 yii\db\Query::orFilterWhere() 方法 来追加额外的过滤条件。
+
+yii\db\Query::orderBy() 方法是用来指定 SQL 语句当中的 ORDER BY 子句的。
+// ... ORDER BY `id` ASC, `name` DESC
+$query->orderBy([
+    'id' => SORT_ASC,
+    'name' => SORT_DESC,
+]);
+如果 ORDER BY 仅仅包含简单的字段名称，你可以使用字符串来声明它， 就像写原生的 SQL 语句一样。 $query->orderBy('id ASC, name DESC');
+注意：当 ORDER BY 语句包含一些 DB 表达式的时候，你应该使用数组的格式。
+你可以调用 [yii\db\Query::addOrderBy()|addOrderBy()]] 来为 ORDER BY 片断添加额外的子句。 
+
+yii\db\Query::groupBy() 方法是用来指定 SQL 语句当中的 GROUP BY 片断的。
+
+yii\db\Query::having() 方法是用来指定 SQL 语句当中的 HAVING 子句。它带有一个条件， 和 where() 中指定条件的方法一样。
+你可以调用 yii\db\Query::andHaving() 或者 yii\db\Query::orHaving() 方法来为 HAVING 子句追加额外的条件，
+// ... HAVING (`status` = 1) AND (`age` > 30)
+$query->having(['status' => 1])
+    ->andHaving(['>', 'age', 30]);
+
+yii\db\Query::limit() 和 yii\db\Query::offset() 是用来指定 SQL 语句当中 的 LIMIT 和 OFFSET 子句的。
+
+[yii\db\Query::join()|join()]] 是用来指定 SQL 语句当中的 JOIN 子句的。
+// ... LEFT JOIN `post` ON `post`.`user_id` = `user`.`id`
+$query->join('LEFT JOIN', 'post', 'post.user_id = user.id');
+ii\db\Query::join() 带有四个参数：
+    $type: 连接类型，例如：'INNER JOIN', 'LEFT JOIN'。
+    $table: 将要连接的表名称。
+    $on: optional, the join condition, i.e., the ON fragment. Please refer to where() for details about specifying a condition. Note, that the array syntax does not work for specifying a column based condition, e.g. ['user.id' => 'comment.userId'] will result in a condition where the user id must be equal to the string 'comment.userId'. You should use the string syntax instead and specify the condition as 'user.id = comment.userId'.
+    $params: 可选参数，与连接条件绑定的参数。
+你可以分别调用如下的快捷方法来指定 INNER JOIN, LEFT JOIN 和 RIGHT JOIN。
+    yii\db\Query::innerJoin()
+    yii\db\Query::leftJoin()
+    yii\db\Query::rightJoin()
+除了连接表以外，你还可以连接子查询。方法如下，将需要被连接的子查询指定 为一个 yii\db\Query 对象，例如，
+$subQuery = (new \yii\db\Query())->from('post');
+$query->leftJoin(['u' => $subQuery], 'u.id = author_id');
+在这个例子当中，你应该将子查询放到一个数组当中，而数组当中的键，则为这个子查询的别名。
+
+yii\db\Query::union() 方法是用来指定 SQL 语句当中的 UNION 子句的。
+
+查询方法
+yii\db\Query 提供了一整套的用于不同查询目的的方法。
+    yii\db\Query::all(): 将返回一个由行组成的数组，每一行是一个由名称和值构成的关联数组（译者注：省略键的数组称为索引数组）。
+    yii\db\Query::one(): 返回结果集的第一行。
+    yii\db\Query::column(): 返回结果集的第一列。
+    yii\db\Query::scalar(): 返回结果集的第一行第一列的标量值。
+    yii\db\Query::exists(): 返回一个表示该查询是否包结果集的值。
+    yii\db\Query::count(): 返回 COUNT 查询的结果。
+    其它集合查询方法: 包括 yii\db\Query::sum(), yii\db\Query::average(), yii\db\Query::max(), yii\db\Query::min() 等. $q 是一个必选参数， 既可以是一个字段名称，又可以是一个 DB 表达式。
+
+注意：yii\db\Query::one() 方法只返回查询结果当中的第一条数据， 条件语句中不会加上 LIMIT 1 条件。如果你清楚的知道查询将会只返回一行或几行数据 （例如， 如果你是通过某些主键来查询的），这很好也提倡这样做。但是，如果查询结果 有机会返回大量的数据时，那么你应该显示调用 limit(1) 方法，以改善性能。 例如， (new \yii\db\Query())->from('user')->limit(1)->one()。
+
+所有的这些查询方法都有一个可选的参数 $db, 该参数指代的是 yii\db\Connection， 执行一个 DB 查询时会用到。如果你省略了这个参数，那么 db application component 将会被用作 默认的 DB 连接。 
+
+当你调用 yii\db\Query 当中的一个查询方法的时候，实际上内在的运作机制如下：
+    在当前 yii\db\Query 的构造基础之上，调用 yii\db\QueryBuilder 来生成一条 SQL 语句；
+    利用生成的 SQL 语句创建一个 yii\db\Command 对象；
+    调用 yii\db\Command 的查询方法（例如，queryAll()）来执行这条 SQL 语句，并检索数据。
+/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/db/Query.php -> public function createCommand($db = null)
+
+有时候，你也许想要测试或者使用一个由 yii\db\Query 对象创建的 SQL 语句。 
+        $command = (new \yii\db\Query())
+            ->select(['id', 'email'])
+            ->from('user')
+            ->where(['last_name' => 'Smith'])
+            ->limit(10)
+            ->createCommand();
+        // 打印 SQL 语句
+        error_log($command->sql) ;
+        // 打印被绑定的参数
+        error_log(json_encode($command->params));
+
+[11-Aug-2016 09:11:21 UTC] SELECT `id`, `email` FROM `user` WHERE `last_name`=:qp0 LIMIT 10
+[11-Aug-2016 09:11:21 UTC] {":qp0":"Smith"}
+
+当你在调用 yii\db\Query::all() 方法时，它将返回一个以连续的整型数值为索引的数组。 而有时候你可能希望使用一个特定的字段或者表达式的值来作为索引结果集数组。那么你可以在调用 yii\db\Query::all() 之前使用 yii\db\Query::indexBy() 方法来达到这个目的。
+
+如需使用表达式的值做为索引，那么只需要传递一个匿名函数给 yii\db\Query::indexBy() 方法即可：
+$query = (new \yii\db\Query())
+    ->from('user')
+    ->indexBy(function ($row) {
+        return $row['id'] . $row['username'];
+    })->all();
+该匿名函数将带有一个包含了当前行的数据的 $row 参数，并且返回用作当前行索引的 标量值（译者注：就是简单的数值或者字符串，而不是其他复杂结构，例如数组）。
+
+批处理查询
+当需要处理大数据的时候，像 yii\db\Query::all() 这样的方法就不太合适了， 因为它们会把所有数据都读取到内存上。为了保持较低的内存需求， Yii 提供了一个 所谓的批处理查询的支持。批处理查询会利用数据游标 将数据以批为单位取出来。
+yii\db\Query::batch() 和 yii\db\Query::each() 方法将会返回一个实现了Iterator 接口 yii\db\BatchQueryResult 的对象，可以用在 foreach 结构当中使用。在第一次迭代取数据的时候， 数据库会执行一次 SQL 查询，然后在剩下的迭代中，将直接从结果集中批量获取数据。默认情况下， 一批的大小为 100，也就意味着一批获取的数据是 100 行。你可以通过给 batch() 或者 each() 方法的第一个参数传值来改变每批行数的大小。
+相对于 yii\db\Query::all() 方法，批处理查询每次只读取 100 行的数据到内存。 如果你在处理完这些数据后及时丢弃这些数据，那么批处理查询可以很好的帮助降低内存的占用率。
+如果你通过 yii\db\Query::indexBy() 方法为查询结果指定了索引字段， 那么批处理查询将仍然保持相对应的索引方案
+
+
+ISSUES:
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'population > 1000' in 'field list'
+The SQL being executed was: SELECT CONCAT (code, ' ', name) AS full_name, `code`, `population > 1000` AS `huge` FROM `states`
+
+        $query = (new \yii\db\Query())
+            -> select(["CONCAT (code, ' ', name) AS full_name", 'code', "population > 1000 as huge"])
+            ->from('states')
+            ->all();
+fix: population -> [[population]]
+
+the params for CONCAT can be a var, and can also be a string.
+$query = (new \yii\db\Query())
+    -> select(["CONCAT ('test', ' ', $var) AS full_name", 'code', "[[population]] > 1000 as huge"])
+    ->from('states')
+    ->all();
+
+http://blog.chinaunix.net/uid-20837107-id-2413233.html
+$var = 'name';
+$expr = "IF([[population]] > 1000,'huge','small') as huge";
+$query = (new \yii\db\Query())
+    -> select(["CONCAT ('test', ' ', $var) AS full_name", 'code', $expr])
+    ->from('states')
+    ->all();
+[11-Aug-2016 10:09:22 UTC] [{"full_name":"test anhuaye","code":"AH","huge":"small"},{"full_name":"test Brazil","code":"BR","huge":"huge"},{"full_name":"test California","code":"CA","huge":"huge"},{"full_name":"test Florida","code":"FL","huge":"huge"},{"full_name":"test Indiana","code":"IN","huge":"huge"},{"full_name":"test Massatrusit","code":"MA","huge":"huge"},{"full_name":"test NewYork","code":"NY","huge":"huge"},{"full_name":"test Orland","code":"OL","huge":"huge"},{"full_name":"test Philadelphia","code":"PH","huge":"huge"},{"full_name":"test Texus","code":"TX","huge":"huge"},{"full_name":"test Utar","code":"UT","huge":"huge"},{"full_name":"test yeanhua","code":"YA","huge":"small"}]
+IF(expr1,expr2,expr3) 如果 expr1 是TRUE (expr1 <> 0 and expr1 <> NULL)，则 IF()的返回值为expr2; 否则返回值则为 expr3。IF() 的返回值为数字值或字符串值，具体情况视其所在语境而定。
+
+select *,if(sva=1,"男","女") as ssva from taname where sva != ""
+mysql> select *, if(population>100000000, "small", "huge") from states;
++------+--------------+------------+-------------------------------------------+
+| code | name         | population | if(population>100000000, "small", "huge") |
++------+--------------+------------+-------------------------------------------+
+| AH   | anhuaye      |          0 | huge                                      |
+| BR   | Brazil       |   17015000 | huge                                      |
+| CA   | California   |     114000 | huge                                      |
+| FL   | Florida      |    5922700 | huge                                      |
+| IN   | Indiana      |  101366000 | small                                     |
+| MA   | Massatrusit  |    5963400 | huge                                      |
+| NY   | NewYork      |    1886000 | huge                                      |
+| OL   | Orland       |  127758000 | small                                     |
+| PH   | Philadelphia |   14694000 | huge                                      |
+| TX   | Texus        |    8216700 | huge                                      |
+| UT   | Utar         |   27357000 | huge                                      |
+| YA   | yeanhua      |          0 | huge                                      |
++------+--------------+------------+-------------------------------------------+
+12 rows in set (0.00 sec)
+
+select CASE sva WHEN 1 THEN '男' ELSE '女' END as ssva from taname where sva != ''
+
+
+
+---------- 2016-08-11 11:27:39
+4.查一下MSDN就清楚了整个SQL的执行顺序.
+http://msdn.microsoft.com/en-us/library/ms189499(v=SQL.100).aspx
+Processing Order of the SELECT statement
+The following steps show the processing order for a SELECT statement.
+1.FROM
+2.ON
+3.JOIN
+4.WHERE
+5.GROUP BY
+6.WITH CUBE or WITH ROLLUP
+7.HAVING
+8.SELECT
+9.DISTINCT
+10.ORDER BY
+11.TOP
+
+http://www.codeweblog.com/mysql-notes-select-statement-execution-order/
+SELECT statement clause of the SELECT statement with the implementation of the order of the input clause of the order is not the same, therefore it was not started from the SELECT clause, but executed in the order in accordance with the following: 
+    Start -> FROM clause -> WHERE clause -> GROUP BY clause -> HAVING clause -> ORDER BY clause -> SELECT clause -> LIMIT clause -> final result
+
+http://stackoverflow.com/questions/228424/in-what-order-are-mysql-joins-evaluated
 
 ----------- 2016-08-10 16:42:25
 

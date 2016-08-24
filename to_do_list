@@ -1,5 +1,76 @@
 
 
+
+
+
+---------- 2016-08-19 18:29:46
+yii 
+twig
+
+
+----------- 2016-08-19 18:29:35
+yii 
+db
+hasone
+hasmany
+
+
+
+---------- 2016-08-15 20:12:22
+payment risk:
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/OrderController.php
+
+
+
+
+--------- 2016-08-11 15:03:14
+some db ops have to be transactionized:
+  http://www.yiichina.com/doc/guide/2.0/db-dao
+
+----------- 2016-08-11 11:36:43
+/home/kidd/workspace/bc/MissionImpossible/components/wxmp/Wechat.php
+access token might be expired, can we use some light way to detect this and then pass the access_token as part of url. 
+  Or do you fetch the image first and then upload it to qiniu.
+
+    public static function getImageUrl($mediaId){
+        $access_token = static::getMpAccessToken(true);
+        if(!empty($access_token))
+        {
+            $response = 'http://file.api.weixin.qq.com/cgi-bin/media/get?access_token='.$access_token.'&media_id='.$mediaId;
+            return $response;
+        }
+        else return false;
+    }
+
+--------- 2016-08-11 11:35:46
+/home/kidd/workspace/bc/MissionImpossible/models/Mission.php
+the foreach db access is a good comsumption of time.
+
+    public function getCheckinList()
+    {
+        // unlike [bool]: unlike_count > like_count
+        // veto [bool]: the checkin is vetoed by some admin
+        $checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', '[[veto_admin_id]] > -1 as veto'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+        foreach ($checkinList as &$member) {
+            $checkin = Checkin::findOne($member['id']);
+            if(!empty($checkin)) {
+                $member['valid'] = $checkin->isValid();
+            }
+            else {
+                $member['valid'] = false;
+            }
+        }
+        return $checkinList;
+    }
+
 --------------- 2016-08-05 15:45:37
 现在网上有很多的php开源后台管理系统，这些开源系统的出现，使得快速开发和定制属于自己的平台（网站）已不再是奢望，就我做网站使用过的开源系统有：织梦（dedecms）、PHPMYWIND、WORDPRESS、MAGENTO，综合来讲，这些系统可以分为使用标签调用数据的和使用php源码调用数据的这两种，当然开源的还有如DISCUZ论坛，PHPCMS等很多，就不多做解释了！
 其中我最为推荐的是PHPMYWIND，推荐理由是简单实用比较轻（可不是一般的轻量级的哦）

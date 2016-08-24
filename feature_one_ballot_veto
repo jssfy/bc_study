@@ -26,10 +26,17 @@ https://wiki.niub.la/tzb:api_design
 
 审核期间可以踩赞否决
 
+打卡一票否决功能相关的页面参数添加２处：
 
-'reviewed' => bool值，true表示审核阶段已经结束
-'veto' => bool值，true表示已经被一票否决
-'valid' => bool值，true表示当前checkin是否有效（根据踩赞判定），该值仅在reviewed为true时有参考意义
+/checkin/index所render出的checkin-detail.html页面新增以下三个全局参数：
+    'reviewed' => bool值，true表示审核阶段已经结束
+    'veto' => bool值，true表示已经被一票否决
+    'valid' => bool值，true表示当前checkin是否有效（根据踩赞判定），该值仅在reviewed为true时有参考意义
+
+/mission/index所render出的checkin.html页面新增：
+    全局：　'reviewed' => bool值，true表示审核阶段已经结束
+    局部：　checkUsers成员均添加'veto' => bool值，true表示已经被一票否决
+    局部：　checkUsers成员均添加'valid' => bool值，true表示当前checkin是否有效（根据踩赞判定），该值仅在reviewed为true时有参考意义
 
 ------------ 2016-08-10 17:54:34
 /home/kidd/workspace/bc/MissionImpossible/controllers/CheckinController.php

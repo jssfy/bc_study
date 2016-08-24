@@ -21,6 +21,27 @@ PING tz8.muder.pw (121.43.153.62) 56(84) bytes of data.
 
 tz8-dev.muder.pw
 
+--------- 2016-08-23 17:04:59
+
+【周期挑战】发起、加入、打卡目前主要问题如下：
+发起挑战：1.取消允许他人加入，发起挑战不能成功 fixed 
+                 2.无法加入的情况，自行发起挑战，挑战参数没有预设为相同参数 ignore as of now
+
+加入挑战：1.微信分享没有 liang
+                 2.邀请加入页，查看参与人详情，发起人不对， fixed
+                 3.当前周不足打卡次数，加入挑战有问题，提示已截止加入 ignore as of now
+    
+打卡： 1.上传图片，没有成功提示，没有显示上传的图片。
+           2.打卡动态中，打卡信息只有打卡成功的文案提示。
+ 踩赞：踩/赞有问题
+         1.1个人可同时做踩、赞操作
+         2.可赞多次
+         3.踩有多种状态：1、2、“踩”、-1
+
+------------ 2016-08-19 10:44:05
+to do:
+MissionManager::getCheckinDesc, to merge arrays (frontend is using for .. in only, who does not want to traverse arrays again and again. Poor frontend template. OMG.)
+
 ----------- 2016-08-04 20:58:28
 
 controllers/TestController.php:37

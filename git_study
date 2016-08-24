@@ -1,0 +1,26 @@
+
+
+-------------- 2016-08-19 16:04:20
+
+git difftool
+
+[user]
+  email = anhye@niub.la
+  name = anhye
+[color]
+  ui = auto
+[core]
+editor = vim
+[merge]
+tool = meld
+[difftool]
+prompt = false
+[alias]
+d = difftool
+[diff]
+tool = meld
+  external = meld
+[push]
+  default = matching
+[receive]
+  denyCurrentBranch = ignore

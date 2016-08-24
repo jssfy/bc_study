@@ -15,6 +15,31 @@ http://www.yiiframework.com/doc-2.0/yii-widgets-activeform.html
 $ tail -f /var/log/php/error.log
   php error_log, refer to /etc/php/7.0/apache2/php.ini, 
 
+
+----------- 2016-08-23 14:46:26
+
+http://www.yiichina.com/tutorial/332
+
+findIdentity是根据传递的id返回对应的用户信息，getId返回用户id，getAuthKey和validateAuthKey是作用于登陆中的--记住我。这个authKey是唯一的，当再次登陆时，从cookie中获取authKey传递给validateAuthKey，验证通过，就登陆成功。
+
+/home/kidd/workspace/bc/MissionImpossible/models/Account.php
+    public function validateAuthKey($authKey)
+    {
+        Logger::info("validateAuthKey triggered");
+        return $this->authKey === $authKey;
+    }
+2016-08-23 14:50:40 [][info][abc\app\models\Account::validateAuthKey] validateAuthKey triggered
+
+
+------------- 2016-08-15 14:10:02
+echo json_encode("hello");
+"hello"
+----------- 2016-08-15 13:57:51
+    public function actionCreate()
+    {
+        echo "hi kidd<br>";
+        return false; // true will be displayed in the web page as 1, but false nothing.
+
 ------------- 2016-07-28 18:13:30
 http://www.yiichina.com/doc/guide/2.0/start-workflow
 

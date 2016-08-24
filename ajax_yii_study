@@ -23,6 +23,8 @@ class VetoController extends AuthorizedAjaxController
         ];
     }
 
+http://www.yiichina.com/doc/guide/2.0/helper-url
+
 ---------- 2016-08-09 20:30:20
 /home/kidd/workspace/bc/MissionImpossible/controllers/ajax/VetoController.php
 <?php

@@ -1,3 +1,129 @@
+mysql manual:
+  http://dev.mysql.com/doc/refman/5.7/en/using-explain.html
+
+
+
+
+
+
+
+
+
+----------- 2016-08-19 11:06:03
+mysql> SELECT COUNT(*) FROM `checkin` WHERE checkin.challenge_id = 8620 and TO_DAYS(checkin_time) = TO_DAYS(NOW());
+
+
+
+----------- 2016-08-18 17:23:47
+//    public function isUserCheckedToday($uid)
+//    {
+//        $challenge = Challenge::findOne([
+//            'mission_id' => $this->id,
+//            'mission_type' => MissionType::PERIOD,
+//            'user_id' => $uid,
+//        ]);
+//
+//        $today = date('Y-m-d');
+//        $checked = Checkin::find(['challenge_id'=>$challenge->id])
+//            ->where("unix_timestamp(checkin_time) > unix_timestamp($today)")
+//            ->one();
+//
+//        if ($checked != null) {
+//            return true;
+//        }
+//
+//        $pending_count = PendingCheckin::find()->where(['user_id' => $uid])
+//            ->andWhere(['challenge_id' => $challenge->id])
+//            ->where("unix_timestamp(create_time) > unix_timestamp($today)")
+//            ->andWhere('status >= 1')
+//            ->andWhere('status <= 2')
+//            ->count();
+//
+//        return $pending_count > 0 ? true : false;
+//    }
+
+  /**
+     * 当前单位时间打卡
+     *
+     * @return boolean
+     * */
+    public function getCheckinCountInUnit()
+    {
+        // 单次打卡任务
+        if ($this->challenge->mission_type == MissionType::SINGLE){
+            return ($this->checkinCount);
+        } elseif ( $this->challenge->mission_type == MissionType::PERIOD ) {
+        // 周期打卡任务
+            if ($this->mission->min_unit == CheckinUnit::HOUR) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and TO_DAYS(checkin_time) == TO_DAYS(NOW()) and HOUR(checkin_time) ==  HOUR(NOW())")
+                    ->count();
+            } elseif ($this->mission->min_unit == CheckinUnit::DAY) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and TO_DAYS(checkin_time) == TO_DAYS(NOW())")
+                    ->count();
+            } elseif ($this->mission->min_unit == CheckinUnit::WEEK) {
+                return  (new \yii\db\Query())
+                    ->from('checkin')
+                    ->where("checkin.challenge_id = {$this->id} and WEEKOFYEAR(checkin_time) == WEEKOFYEAR(NOW())")
+                    ->count();
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * 是否可打卡
+     *
+     * @return boolean
+     * */
+    public function canCheckin()
+    {
+        //任务已经开始 且 单位时间内 未打卡
+        if ( $this->mission->isStarted() and  ($this->checkinCountInUnit == 0) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+------- 2016-08-18 14:15:05
+datetime:
+
+return date('Y-m-d H:i:s', strtotime($this->stop_time) + 60*10);
+
+select * from checkin where unix_timestamp(checkin_time) > unix_timestamp('2016-08-14 17:39:05');
+
+
+---------- 2016-08-17 18:16:35
+mysql> select id, repeat, period from period_mission;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' period from period_mission' at line 1
+
+mysql> select id, `repeat`, period from period_mission;
+
+---------- 2016-08-17 15:36:45
+datetime modification:
+http://www.php100.com/html/webkaifa/database/Mysql/2009/0111/1160.html
+
+mysql> update mission set start_time=NOW() where id=286;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from mission where id=286;
+
+-------------- 2016-08-16 20:11:37
+
+MySQL重置 Auto_increment字段起始值
+有2种方法：
+1.alter table tbname auto_increment = x  ; // if x < the current largest id, the auto id will grow on.
+设置表tbname的唯一auto_increment字段起始值从x开始，如果此表数据量很多的话，这样执行起来会很慢。
+
+2.truncate tbname ;
+直接清空所有数据，下次插入数据时auto_increment字段会自动从0开始。 和delete from tbname不同的是delete只删除数据而不重置auto_incremnet.
 
 
 ---------- 2016-08-05 18:33:24

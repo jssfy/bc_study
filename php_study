@@ -1,4 +1,9 @@
 
+$ git clone https://github.com/php/php-src.git
+Cloning into 'php-src'...
+remote: Counting objects: 672048, done.
+remote: Compressing objects: 100% (15/15), done.
+Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 ----------- 2016-08-07 20:57:56
 http://blog.csdn.net/th362cn/article/details/8575344
@@ -24,6 +29,663 @@ print microtime(true) - $t;
 
 ?>
 
+
+
+----------- 2016-08-24 16:50:18
+
+$body = "<xml><ToUserName><![CDATA[toUser]]></ToUserName>
+  <FromUserName><![CDATA[FromUser]]></FromUserName>
+  <CreateTime>123456789</CreateTime>
+  <MsgType><![CDATA[event]]></MsgType>
+  <Event><![CDATA[subscribe]]></Event>
+  <EventKey><![CDATA[]]></EventKey>
+  <Ticket><![CDATA[TICKET]]></Ticket>
+  </xml>";
+$xml = simplexml_load_string($body);
+
+$temp = $xml->EventKey;
+echo "EventKey is of type: ".get_class($temp)."\n";
+
+$ php test.php
+EventKey is of type: SimpleXMLElement
+
+------- 2016-08-24 16:15:18
+if(empty($test)) {
+  echo "empty";
+}
+else {
+  echo "not empty";
+}
+
+empty is true if $test is one of below: "", 0, null, false
+劝告各位，千万注意使用empty()函数。
+判断字符串是否为空，可以这么判断： if ($value=="") ...
+* 格式：bool empty ( mixed var )
+* 功能：检查一个变量是否为空
+* 返回值：
+* 若变量不存在则返回 TRUE
+* 若变量存在且其值为""、0、"0"、NULL、、FALSE、 array()、var $var; 以及没有任何属性的对象，则返回 TURE
+* 若变量存在且值不为""、0、"0"、NULL、、FALSE、 array()、var $var; 以及没有任何属性的对象，则返回 FALSE
+* 版本：PHP 3, PHP 4, PHP 5
+
+class Foo {
+    protected $_date = '2014-07-21';
+
+    public function __get($name) {
+        $name = '_'.$name;
+        return $this->$name;
+    }
+}
+function is_empty($val) { return empty($val); }
+$foo = new Foo();
+echo $foo->date;  // 这里确实输出了日期值
+if (empty($foo->date))
+    echo "date is empty";
+else
+    echo "date is not empty";
+
+if ( is_empty($foo->date))
+    echo "date is empty";
+else
+    echo "date is not empty";
+
+output:
+2014-07-21date is emptydate is not empty
+
+因为empty不是函数
+使用is_empty的时候触发的是__get魔术方法，而empty触发的是__isset
+http://php.net/manual/zh/language.oop5.overloading.php#object.isset 
+
+empty是语言结构
+使用is_empty的时候触发的是__get魔术方法，而empty触发的是__isset
+
+    public function __isset($name) {
+        $name = '_'.$name;
+        return !empty($name);
+    }
+
+/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Object.php
+    /**
+     * Checks if a property is set, i.e. defined and not null.
+     *
+     * Do not call this method directly as it is a PHP magic method that
+     * will be implicitly called when executing `isset($object->property)`.
+     *
+     * Note that if the property is not defined, false will be returned.
+     * @param string $name the property name or the event name
+     * @return boolean whether the named property is set (not null).
+     * @see http://php.net/manual/en/function.isset.php
+     */
+    public function __isset($name)
+    {
+        $getter = 'get' . $name;
+        if (method_exists($this, $getter)) {
+            return $this->$getter() !== null;
+        } else {
+            return false;
+        }
+    }
+
+http://php.net/manual/en/function.empty.php
+When using empty() on inaccessible object properties, the __isset() overloading method will be called, if declared. 
+
+------------ 2016-08-24 15:12:44
+without __isset, an attribute will be treated as empty by default. But a public member is not empty if it is set.
+
+当对一个不可见的对象属性使用 empty() 时， __isset() 方法如果存在的话，它将会被调用。  
+
+class Zend_Session_Namespace
+{
+  public $public_attr;
+  private $parent_obj;
+  private $session_key;
+  public function __construct($params='')
+  {
+      $this->parent_obj=isset($_SESSION[$params])?(object)$_SESSION[$params]:new stdClass();
+      $this->session_key=$params;
+  }
+  public function __get($name)
+  {
+      // TODO: Implement __get() method.
+      if(isset($this->parent_obj->$name))
+      {
+          return($this->parent_obj->$name);
+      }
+      else
+      {
+          return(NULL);
+      }
+  }
+  public function __set($name, $value)
+  {
+      // TODO: Implement __set() method.
+      $this->parent_obj->$name = $value;
+      $_SESSION[$this->session_key][$name]=$value;
+  }
+  //这个是后来加上的，加上这个，结果才对
+  // public function __isset($name)
+  // {
+  //     return isset($this->parent_obj->$name);
+  // }
+}
+
+echo "---------------";
+$z = new Zend_Session_Namespace();
+
+$z->public_attr = 'yeshello';
+if(!empty($z->public_attr))
+  echo "\n".strlen($z->public_attr);
+else {
+  echo "\n"."empty";
+}
+
+
+$z->parent_obj = 'yeshello';
+if(!empty($z->parent_obj))
+  echo "\n".strlen($z->parent_obj);
+else {
+  echo "\n"."empty";
+}
+
+
+
+
+------- 2016-08-24 11:32:26
+
+PHP 5.3 ereg() 无法正常使用，提示“Function ereg() is deprecated Error”。
+问题根源是php中有两种正则表示方法，一个是posix，一个是perl，php6打算废除posix的正则表示方法所以后来就加了个preg_match。此问题解决办法很简单，在ereg前加个过滤提示信息符号即可：把ereg()变成@ereg()。这样屏蔽了提示信息，但根本问题还是没有解决，php在5.2版本以前ereg都使用正常，在5.3以后，就要用preg_match来代替ereg。所以就需要变成这样。
+
+原来：ereg("^[0-9]*$",$page)变成：preg_match("/^[0-9]*$/",$page)
+
+特别提醒：posix与perl的很明显的表达区别就是是否加斜杠，所以与ereg相比，后者在正则的前后分别增加了两个"/"符号，不能缺少。
+
+e.g., 
+
+function valid_email($address) {
+  // check an email address is possibly valid
+
+  if (ereg('^[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-\.]+$', $address))
+  =>
+  if (preg_match('/^[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-\.]+$/', $address))
+
+---------- 2016-08-23 17:51:13
+error_log:  
+
+/var/log/php
+$ subl error.log 
+
+
+--------- 2016-08-23 14:22:09
+http://www.cnblogs.com/wlgaojin/p/4684627.html
+使用 self:: 或者 __CLASS__ 对当前类的静态引用，取决于定义当前方法所在的类：
+使用 static:: 不再被解析为定义当前方法所在的类，而是在实际运行时计算的。也可以称之为“静态绑定”，因为它可以用于（但不限于）静态方法的调用。
+静态绑定是PHP 5.3.0，增加的一个功能 用于在继承范围内引用静态调用的类
+self refers to the same class whose method the new operation takes place in.
+static in PHP 5.3's late static bindings refers to whatever class in the hierarchy which you call the method on.
+
+class Person
+{
+    public static function name()
+    {
+        echo "xiaosan";
+    }
+    public static function callself()
+    {
+        self::name();
+    }
+
+    public static function callstatic()
+    {
+        static::name();
+    }
+}
+
+class Man extends Person
+{
+    public static function name()
+    {
+        echo "gaojin";
+    }
+}
+Man::name();  // output： gaojin
+Man::callself();  // output： xiaosan
+Man::callstatic();  // output：xiaosan(子类调用 你懂的）
+
+output:
+  gaojinxiaosangaojin
+---------- 2016-08-23 14:07:13
+http://11463531.blog.hexun.com/81211052_d.html
+this是指向当前对象的指针（可以看成C里面的指针），self是指向当前类的指针，parent是指向父类的指针。
+parent是指向父类的指针，一般我们使用parent来调用父类的构造函数。
+  parent::__construct( "PBPHome");    //使用parent调用了父类的构造函数 语句①
+一般self使用来指向类中的静态变量。假如我们使用类里面静态（一般用关键字static）的成员，我们也必须使用self来调用。还要注意使用self来调用静态变量必须使用:: (域运算符号) self::$firstCount
+
+
+------------ 2016-08-23 11:41:34
+class A {
+  public $age = 9;
+  public static $array = array('localhost', '127.0.0.1', 'user', 'pwd');  
+  const arr = array('localhost', '127.0.0.1', 'user', 'pwd');
+
+  // get calling method name
+  private static function getCallingMethodName() {
+      $debug_trace = debug_backtrace();
+      if ($debug_trace && count($debug_trace) > 2) {
+          $class = isset($debug_trace[2]['class']) ? $debug_trace[2]['class'] : "GlobalFunction";
+          return self::DEFAULT_CATEGORY_PREFIX . $class . '::' . $debug_trace[2]['function'];
+      } else {
+          return self::DEFAULT_CATEGORY_PREFIX . 'shit happens';
+      }
+  }
+
+  public function test() {
+    $debug_trace = debug_backtrace();
+    echo json_encode($debug_trace);
+  }
+
+  public function inner() {
+    $this->test();
+  }
+
+  public function outer() {
+    $this->inner();
+  }
+}
+
+[
+    {
+        "file": "/home/kidd/workspace/php/test.php",
+        "line": 25,
+        "function": "test",
+        "class": "A",
+        "object": {
+            "age": 9
+        },
+        "type": "->",
+        "args": []
+    },
+    {
+        "file": "/home/kidd/workspace/php/test.php",
+        "line": 29,
+        "function": "inner",
+        "class": "A",
+        "object": {
+            "age": 9
+        },
+        "type": "->",
+        "args": []
+    },
+    {
+        "file": "/home/kidd/workspace/php/test.php",
+        "line": 41,
+        "function": "outer",
+        "class": "A",
+        "object": {
+            "age": 9
+        },
+        "type": "->",
+        "args": []
+    }
+]
+
+--------- 2016-08-23 11:21:24
+$array=array('nihao','key'=>'chile');
+
+echo "{$array['key']}"; // 花括号中的当作变量在使用进行解析处理
+
+echo $array['key'];
+
+$a='key';
+echo "$array[$a]";
+
+花括号并不是用来表示变量的，只是用来防止歧义
+
+1.简单句法规则（用花括号界定变量名，适用于PHP所有版本）：
+不管{是出现在$前面还是后面，只有两者紧挨着时花括号才会被当成是界定符号。不要在之间加空格，要不然就会被当作普通的花括号处理
+echo "She received some { $a}s";
+// 输出的结果为：She received some { flower}s
+2.复杂句法规则（用花括号界定表达式等，使用与PHP4+）：
+echo "有效的写法： {$arr[4][3]}";
+// 有效；界定多维数组
+echo "有效的写法： {$arr['foo'][3]}";
+// 有效；当在字符串中使用多维数组时，一定要用括号将它括起来
+echo "有效的写法： {$this->width}00";
+// 有效；如果不界定的话，就会变成 $this->width00
+echo "有效的写法： {$this->value[3]->name}";
+// 有效；该例演示了界定链式调用
+echo "有效的写法： $name: {${$name}}";
+// 有效；该例演示的效果实际上是一个可变变量
+echo "有效的写法: {${getName()}}";
+// 有效；该例演示了将函数的返回值作为变量名
+echo "有效的下发： {${$this->getName()}}";
+// 有效；该例演示了将函数的返回值作为变量名
+注意1：echo "这样写有效吗： {getName()}";输出结果为：'这样写有效吗：
+{getName()}'。因为里面不含$，所以花括号不会被当作界定符
+注意2：echo "这样写有效吗：{$arr[foo][3]}"; 在回答这个问题前我们先来进行一个实验：
+error_reporting(E_ALL);
+$arr = array('a', 'b', 'c', 'd'=>'e');
+echo "This is $arr[d]";
+// 我们发现这样写是没有问题的，那么我们像下面这样写呢？
+echo $arr[d];
+产生了这样的错误：
+Notice: Use of undefined constant d - assumed 'd'
+注意：采用了未定义的常量d，可能应该为'd'
+那么如果我们像下面这样修改一下代码的话
+error_reporting(E_ALL);
+$arr = array('a', 'b', 'c', 'd'=>'e');
+define('f', 'd');
+echo $arr[f];
+我们发现这次没有问题了。可以看出在字符串中数组的索引不加单引号是没有问题的，但是如果这种写法不是出现在字符串当中就会报错，而对于字符串中{$arr[foo][3]}的解析就是按照非字符串的方式解析的。所以说在字符串当中对数组只加花括号界定而不对索引加单引号的写法是错误的。因为程序会把不加单引号的索引当作是常量来进行解析，这就产生了错误。正确的写法应该是：
+echo "有效的写法： {$arr['foo'][3]}";
+特别提醒一点：echo "This is $arr[d]";这种写法虽然能够被程序解析，但这也仅限于数组是一维数组的情况。严谨的写法应该是：echo "This is {$arr['d']}";我的学生曾经在这一点上和我争论过，他说：既然前面一种写法能出结果，为什么一定要用后面一种写法呢？那么，我们再继续修改一下前面的代码
+error_reporting(E_ALL);
+$arr = array('a', 'b', 'c',
+'d'=>array('e'=>'f')
+);
+echo "This is $arr[d][e]";
+这样还能够被正确解析吗？我只想告诉你，加花括号是严谨的必要的。
+
+注意3：
+error_reporting(E_ALL);
+$arr = array('a', 'b', 'c', 'd');
+echo "This is {$arr[2]} 
+";
+echo "This is {$arr['2']} 
+";
+执行上面的代码。结果是一样的，为什么会这样呢？我只能告诉你PHP是弱类型语言，至于什么叫弱类型语言我就不在这里多说了。自己去Google一下吧。说了这么多，那么最能体现这些句法规则优势的具体应用在什么地方呢？----SQL语句
+// 示例一：
+$SQL1 = "select * from table where id={$_GET['id']}";
+// 示例二：
+$SQL2 = "select * from table where id={$this->id}";
+
+----------- 2016-08-23 11:11:22
+如果将一个字符串强制转换成一个数字.PHP会去搜索这个字符串的开头.如果开头是数字就转换.
+逗号分隔开的就相当于是N个参数.也就是说把echo当个函数用.
+
+http://php.net/manual/en/function.echo.php
+// Strings can either be passed individually as multiple arguments or
+// concatenated together and passed as a single argument
+echo 'This ', 'string ', 'was ', 'made ', 'with multiple parameters.', chr(10);
+echo 'This ' . 'string ' . 'was ' . 'made ' . 'with concatenation.' . "\n";
+
+A benefit to passing in multiple arguments over using concatenation in echo regards the precedence of the period operator in PHP.
+
+ With concatenation, the period operator has a higher precedence than both the addition and ternary operators, and so parentheses must be used for the correct behaviour:
+<?php
+echo 'Sum: ' . (1 + 2);
+echo 'Hello ' . (isset($name) ? $name : 'John Doe') . '!';
+
+----------- 2016-08-23 11:00:44
+如下4种方式，都能得到同样的结果，但是，只有第4种方式是最好的。
+$foo = 'John SMITH';
+echo "Hello $foo, welcome on my website.";
+echo "Hello " . $foo . " welcome on my website.";
+echo 'Hello ' . $foo . ' welcome on my website.';
+echo 'Hello ', $foo , ' welcome on my website.';
+
+---------- 2016-08-22 11:59:20
+json_encode (activerecord)
+  is not as normal array. be careful.
+
+e.g., if there is 1 ele, the output might be [{}]
+
+use yii\helpers\Json;
+Logger::info("uncheckedusers: ".Json::encode($period_mission->uncheckusers));
+2016-08-22 12:07:38 [194][info][abc\app\components\MissionManager::getPeriodMissionCommonParam] uncheckedusers: [{"id":11,"account_type":"weixin","account_id":194,"nickname":"叶安华","username":"叶安华","passwd":null,"head_img":"http://wx.qlogo.cn/mmopen/PiajxSqBRaEJkp2ibNelHjpXwSUzqSaUIVRJ8Lxd9HtLDxMic2ziasKXY52oW5RLNLEH203qBoXUiavuZsp0aDnGGtQ/0","gender":1,"birthday":null,"phone":null,"regist_time":"2016-08-09 14:34:05","announce":null,"province":null,"city":null,"country":null,"updated_at":"2016-08-09 14:34:05","balance":0}]
+
+----------- 2016-08-19 19:19:15
+
+class A {
+  public $age = 9;
+}
+
+
+
+$a = new A();
+// var_dump(get_object_vars($a));
+echo json_encode(get_object_vars($a));
+
+------------ 2016-08-19 11:12:26
+array:
+  never use this: array([XXXXX]); this is not a simple array.
+
+        $user_status = array(
+            UserStatus::CANT_JOIN => false,
+            UserStatus::CAN_JOIN => false,
+            UserStatus::WAIT_CHECKIN => false,
+            UserStatus::CAN_CHECKIN => false,
+            UserStatus::ALREADY_CHECKIN => false,
+            UserStatus::WAIT_REWARD => false,
+            UserStatus::CAN_REWARD => false,
+            UserStatus::CANT_REWARD => false,
+            UserStatus::ALREADY_REWARD => false,
+        );
+
+
+---------- 2016-08-18 17:40:48
+
+$now = time();
+$count_down['next_time'] = date('Y-m-d 00:00:00', $now + 86400);
+
+echo $count_down['next_time']."\n";
+
+output:
+  2016-08-19 00:00:00
+
+
+-------- 2016-08-17 14:26:59
+php property:
+
+/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Object.php
+    /**
+     * Returns the value of an object property.
+     *
+     * Do not call this method directly as it is a PHP magic method that
+     * will be implicitly called when executing `$value = $object->property;`.
+     * @param string $name the property name
+     * @return mixed the property value
+     * @throws UnknownPropertyException if the property is not defined
+     * @throws InvalidCallException if the property is write-only
+     * @see __set()
+     */
+    public function __get($name)
+    {
+        $getter = 'get' . $name;
+        if (method_exists($this, $getter)) {
+            return $this->$getter();
+        } elseif (method_exists($this, 'set' . $name)) {
+            throw new InvalidCallException('Getting write-only property: ' . get_class($this) . '::' . $name);
+        } else {
+            throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
+        }
+    }
+
+
+class Component extends Object
+class Model extends Component implements IteratorAggregate, ArrayAccess, Arrayable
+abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
+class ActiveRecord extends BaseActiveRecord
+class Mission extends \yii\db\ActiveRecord
+
+
+/home/kidd/workspace/bc/MissionImpossible/models/PeriodMission.php
+    public function getStop_time()
+    {
+        return date('Y-m-d H:i:s', strtotime($this->start_time) + $this->repeat * $this->period * 86400);
+    }
+
+------------ 2016-08-17 14:06:45
+php event
+
+/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Component.php
+    /**
+     * Triggers an event.
+     * This method represents the happening of an event. It invokes
+     * all attached handlers for the event including class-level handlers.
+     * @param string $name the event name
+     * @param Event $event the event parameter. If not set, a default [[Event]] object will be created.
+     */
+    public function trigger($name, Event $event = null)
+    {
+        $this->ensureBehaviors();
+        if (!empty($this->_events[$name])) {
+            if ($event === null) {
+                $event = new Event;
+            }
+            if ($event->sender === null) {
+                $event->sender = $this;
+            }
+            $event->handled = false;
+            $event->name = $name;
+            foreach ($this->_events[$name] as $handler) {
+                $event->data = $handler[1];
+                call_user_func($handler[0], $event);
+                // stop further handling if the event is handled
+                if ($event->handled) {
+                    return;
+                }
+            }
+        }
+        // invoke class-level attached handlers
+        Event::trigger($this, $name, $event);
+    }
+
+--------- 2016-08-17 14:05:11 __get
+  class test{
+    public function getName() {
+      return "kidd";
+    }
+
+    public function __get($property_name)
+    {
+      if(isset($this->$property_name))
+      {
+        return($this->$property_name);
+      }else
+      {
+        return(NULL);
+      }
+    }
+
+    private $name = 'kidd2';
+
+  }
+  $t = new test;
+  echo $t->name."\n";
+
+-------- 2016-08-17 11:08:56
+why "echo json_encode($arr);" can be called directly without any "use" or "require" or "include"??
+
+
+---------- 2016-08-16 14:24:33
+<?php
+  $arr = [1 => 'normal',
+          4 => 'periodical'];
+
+  print_r($arr);
+
+  foreach($arr as $key => $value) {
+    echo $key."\n";
+  }
+
+  echo json_encode($arr)."\n";
+?>
+$ php test.php
+
+Array
+(
+    [1] => normal
+    [4] => periodical
+)
+1
+4
+{"1":"normal","4":"periodical"}
+
+---------- 2016-08-15 10:18:30
+__get, without __get, accessing the private member will throw error:
+PHP Fatal error:  Uncaught Error: Cannot access private property base::$age in /home/kidd/workspace/php/test.php:20
+
+<?php
+  class base {
+    public function print($age=34) {
+      echo "parent\n";
+    }
+
+    // public function __get($name) {
+    //   return $this->$name;
+    // }
+    private $age;
+  }
+  $p = new base();
+  $p->age = 2;
+  echo $p->age;
+?>
+
+--------- 2016-08-12 10:00:20 
+php 7 throws warnings if son function does not have the same args as the parent function.
+<?php
+  class base {
+    public function print($age=34) {
+      echo "parent\n";
+    }
+  }
+
+  class son extends base {
+    public function print() {
+      echo "son\n";
+    }
+  }
+  $p = new son();
+  $p->print(67);
+?>
+
+$ php test.php
+PHP Warning:  Declaration of son::print() should be compatible with base::print($age = 34) in /home/kidd/workspace/php/test.php on line 13
+
+son
+
+$ php -v
+PHP 7.0.9-1+deb.sury.org~trusty+1 (cli) ( NTS )
+Copyright (c) 1997-2016 The PHP Group
+Zend Engine v3.0.0, Copyright (c) 1998-2016 Zend Technologies
+    with Zend OPcache v7.0.9-1+deb.sury.org~trusty+1, Copyright (c) 1999-2016, by Zend Technologies
+
+------------ 2016-08-11 15:01:17
+empty() 可以用来判定所有的数据类型是否为空或假，而 is_null 与 isset 基本一样，只能用来判断是否为NULL和未定义。
+
+
+------- 2016-08-11 10:07:45
+php 数组添加元素(可用关联数组)总结
+http://www.111cn.net/phper/php/62892.htm
+
+-------------- 2016-08-11 10:02:31
+php reference
+PHP foreach循环时是否复制一份出来循环?
+  是的，如果想在循环时改变原数组的值，只需加个引用
+
+    public function getCheckinList()
+    {
+        // unlike [bool]: unlike_count > like_count
+        // veto [bool]: the checkin is vetoed by some admin
+        $checkinList = (new \yii\db\Query())
+            ->select(['user.username', 'user.head_img', 'checkin.id', 'checkin.checkin_time', 'checkin.photo', 'checkin.like_count', 'checkin.unlike_count', '[[veto_admin_id]] > -1 as veto'])
+            ->from('checkin')
+            ->innerJoin('challenge', 'checkin.challenge_id = challenge.id')
+            ->leftJoin('user', 'challenge.user_id=user.id')
+            ->where(['challenge.mission_id' => $this->id])
+            ->orderBy(['checkin.checkin_time' => SORT_DESC])
+            ->all();
+        foreach ($checkinList as &$member) {
+            $checkin = Checkin::findOne($member['id']);
+            if(!empty($checkin)) {
+                $member['valid'] = $checkin->isValid();
+            }
+            else {
+                $member['valid'] = false;
+            }
+        }
+        return $checkinList;
+    }
 
 --------- 2016-08-05 13:48:39
 php中引用&的真正理解-变量引用、函数引用、对象引用

@@ -1,5 +1,109 @@
 
 
+
+
+------------ 
+
+--------- 2016-08-18 12:14:23
+
+if $mt is '0', "$mt === MissionType::SINGLE" will fail
+
+    public static function getMissionViewUrlPrifix($mt = 0) {
+        $prifix =  ($mt == MissionType::SINGLE) ? 'single/' : 'week/';
+        Logger::info("mt: ".$mt.", prifix: ".$prifix);
+
+        return $prifix;
+    }
+
+----------- 2016-08-18 10:20:56
+
+<form name="form3" method="post" action="/ajax/mission/create">
+    announce: <input type="text" name="PeriodMission[announce]">
+    type: <input type="text" name="mt">
+    ticket: <input type="text" name="PeriodMission[ticket]">
+    <input type="submit" name="button" id="btn3" value="PeriodMission">
+</form>
+
+PeriodMission[]
+------ 2016-08-12 17:37:18
+return $this->redirect(array(
+                    'orderdone',
+                    'oid' => $order->id,
+                    'res' => true,
+                ));
+/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Controller.php
+public function redirect($url, $statusCode = 302)                
+     * @param string|array $url the URL to be redirected to. This can be in one of the following formats:
+     *
+     * - a string representing a URL (e.g. "http://example.com")
+     * - a string representing a URL alias (e.g. "@example.com")
+     * - an array in the format of `[$route, ...name-value pairs...]` (e.g. `['site/index', 'ref' => 1]`)
+     *   [[Url::to()]] will be used to convert the array into a URL.
+     *
+
+--------- 2016-08-12 16:38:29
+access control:
+
+/home/kidd/workspace/bc/MissionImpossible/config/web.php
+<?php
+
+$params = require(__DIR__ . '/params.php');
+
+$config = [
+    'id' => 'basic',
+    'basePath' => dirname(__DIR__),
+    'language' => 'zh-CN',
+  'timeZone' => 'Asia/Shanghai',
+    'bootstrap' => [
+        'log'
+    ],
+    'components' => [
+        'request' => [
+            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
+            'cookieValidationKey' => 'PsY08QqXQhQDRQbTmNWuqawEeAGzBcZI',
+            'enableCookieValidation' => false,
+            'enableCsrfValidation' => false,
+        ],
+        'cache' => [
+            'class' => 'yii\caching\FileCache',
+        ],
+        'user' => [
+            'identityClass' => 'app\models\Account',
+            'enableAutoLogin' => true,
+            'loginUrl' => '/login/login',
+        ],
+
+/home/kidd/workspace/bc/MissionImpossible/controllers/MissionController.php
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'create', 'list', 'join', 'reward', 'order', 'orderdone', 'memberlist'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ]
+        ];
+    }
+
+comment out the behaviors to enable access without login: 
+  [as seen from fiddler proxy, accessing /mission/list or /mission/create, etc., will be redirected to /login/login]
+
+
+and non-object access:
+    public function actionIndex($mid = 0, $iid = null)
+    {
+        $user = AccountManager::getCurrentUser();
+        $uid = $user->id;
+        $mission = Mission::findOne(['id' => $mid]);
+        $account = Account::findIdentity(194); //Yii::$app->user->id); for test reason, set it to 194
+        Logger::error("account id: ".Yii::$app->user->id."\n");
+        $subscribed = $account->subscribed === 1;
+
 ------------ 2016-08-10 10:24:50
 support of post only, for action veto
 

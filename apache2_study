@@ -1,5 +1,13 @@
 
 
+enable and disable port 80
+  1. $ sudo a2ensite 000-default.conf 
+    which uses port 80
+  2. $ sudo vim ports.conf 
+  uncomment the line "Listen 80"
+  3. sudo /etc/init.d/apache2 restart
+
+vice versa
 
 --------------- 2016-08-03 01:20:43
 if DocumentRoot is not set neither in apache2.conf or any other .conf files, it seems /var/www will be adopted as the default one.

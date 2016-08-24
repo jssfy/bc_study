@@ -1,0 +1,65 @@
+
+
+
+---------- 2016-08-16 17:56:06
+
+
+Error
+PHP Notice – yii\base\ErrorException
+Use of undefined constant SINGLE - assumed 'SINGLE'
+
+    1. in /home/kidd/workspace/bc/MissionImpossible/components/model/MissionType.php at line 14
+    56789101112131415161718
+
+    class MissionType
+    {
+        // 单次挑战
+        const SINGLE = 0;
+        // 周期性挑战
+        const PERIOD = 1;
+     
+        static function getInfoList() {
+            return [
+                ['type' => SINGLE, 'name' => '单次挑战'],
+                ['type' => PERIOD, 'name' => '周期性挑战'],
+            ];
+        }
+    }
+
+    2. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – app\controllers\MissionController::actionCreate()
+    3. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – call_user_func_array:{/home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php:55}()
+    4. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php at line 154 – yii\base\InlineAction::runWithParams()
+    5. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction()
+    6. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction()
+    7. in /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest()
+    8. in /home/kidd/workspace/bc/MissionImpossible/web/index.php at line 17 – yii\base\Application::run()
+    11121314151617
+
+    require(__DIR__ . "/../components/util/AgentUtil.php");
+     
+    $config = require(__DIR__ . '/../config/web.php');
+     
+    date_default_timezone_set('Asia/Shanghai');
+     
+    (new yii\web\Application($config))->run();
+
+$_COOKIE = [
+    'userId' => '187',
+    'PHPSESSID' => 'ldnuel8aopq3v7heklgkvht4e2',
+    '_identity' => '["187","kzcCTqvAstLFjMyGvIkL4oCEfJbx1rtX",2592000]',
+];
+
+$_SESSION = [
+    '__flash' => [],
+    '__page_session' => [],
+    '__returnUrl' => '/mission',
+    '__id' => '187',
+];
+
+Yii Framework
+
+2016-08-16, 17:54:21
+
+PHP 7.0.9-1+deb.sury.org~trusty+1 Development Server
+
+Yii Framework/2.0.9
