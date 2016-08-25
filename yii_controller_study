@@ -1,8 +1,8 @@
 
 
 
-
------------- 
+yii\base\Module::controllerMap of the current module
+Check if the ID refers to a module listed in the yii\base\Module::modules property of the current module 
 
 --------- 2016-08-18 12:14:23
 
@@ -103,6 +103,147 @@ and non-object access:
         $account = Account::findIdentity(194); //Yii::$app->user->id); for test reason, set it to 194
         Logger::error("account id: ".Yii::$app->user->id."\n");
         $subscribed = $account->subscribed === 1;
+
+
+
+
+------- 2016-08-14 21:11:58
+
+Besides the to() method, the yii\helpers\Url helper class also provides several other convenient URL creation methods.
+
+
+/home/kidd/workspace/yii/basic/config/web.php
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'enableStrictParsing' => true,
+            'rules' => [
+                'c' => 'country/index', 
+            ],
+        ],
+    as seen from the above, "http://localhost:8081/c" works fine, but "http://localhost:8081/country/" gets 404.
+    if "enableStrictParsing" is true, it seems rules has to be added, otherwise all requests will get 404.
+
+------- 2016-08-14 20:56:02
+应用配置中调整 
+缺省路由
+    'defaultRoute' => 'main/index',
+catchAll 路由（全拦截路由） 
+    'catchAll' => ['site/offline'], 
+    Info: Debug panel on development environment will not work when this property is enabled
+
+
+------------- 2016-08-14 20:44:04
+Routing involves two steps. In the first step, the incoming request is parsed into a route and the associated query parameters. In the second step, a controller action corresponding to the parsed route is created to handle the request.
+
+When using the pretty URL format, the yii\web\UrlManager will examine the registered yii\web\UrlManager::rules to find matching one that can resolve the request into a route. If such a rule cannot be found, a yii\web\NotFoundHttpException exception will be thrown.
+
+Once the request is parsed into a route, it is time to create the controller action identified by the route. The route is broken down into multiple parts by the slashes in it. For example, site/index will be broken into site and index. Each part is an ID which may refer to a module, a controller or an action. Starting from the first part in the route, the application takes the following steps to create modules (if any), controller and action:
+
+    Set the application as the current module.
+    Check if the yii\base\Module::controllerMap of the current module contains the current ID. If so, a controller object will be created according to the controller configuration found in the map, and Step 5 will be taken to handle the rest part of the route.
+    Check if the ID refers to a module listed in the yii\base\Module::modules property of the current module. If so, a module is created according to the configuration found in the module list, and Step 2 will be taken to handle the next part of the route under the context of the newly created module.
+    Treat the ID as a controller ID and create a controller object. Do the next step with the rest part of the route.
+    The controller looks for the current ID in its yii\base\Controller::actions(). If found, it creates an action according to the configuration found in the map. Otherwise, the controller will attempt to create an inline action which is defined by an action method corresponding to the current action ID.
+
+Among the above steps, if any error occurs, a yii\web\NotFoundHttpException will be thrown, indicating the failure of the routing process.
+
+------------- 2016-08-14 17:25:43
+Using Pretty URLs 
+http://www.yiichina.com/doc/guide/2.0/runtime-routing
+
+/home/kidd/workspace/yii/basic/config/web.php
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'rules' => [
+            ],
+        ],
+http://localhost:8081/index.php/country/
+    with this setting, http://localhost:8081/index.php?r=country/ does not work anymore.
+
+Note: In order to hide the entry script name in the created URLs, besides setting yii\web\UrlManager::showScriptName to be false, you may also need to configure your Web server so that it can correctly identify which PHP script should be executed when a requested URL does not explicitly specify one. If you are using Apache Web server, you may refer to the recommended configuration as described in the Installation section.
+!!! the above is not enough: [http://www.yiichina.com/doc/guide/2.0/start-installation#recommended-apache-configuration]
+推荐使用的 Apache 配置
+
+在 Apache 的 httpd.conf 文件或在一个虚拟主机配置文件中使用如下配置。 注意，你应该将 path/to/basic/web 替换为实际的 basic/web 目录。
+
+# 设置文档根目录为 “basic/web”
+DocumentRoot "path/to/basic/web"
+
+<Directory "path/to/basic/web">
+    # 开启 mod_rewrite 用于美化 URL 功能的支持（译注：对应 pretty URL 选项）
+    RewriteEngine on
+    # 如果请求的是真实存在的文件或目录，直接访问
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # 如果请求的不是真实文件或目录，分发请求至 index.php
+    RewriteRule . index.php
+
+    # ...其它设置...
+</Directory>
+
+
+kidd@kidd-T430:/etc/apache2/sites-available$ sudo /etc/init.d/apache2 restart
+ * Restarting web server apache2                                         [fail] 
+ * The apache2 configtest failed.
+Output of config test was:
+AH00526: Syntax error on line 16 of /etc/apache2/sites-enabled/8081-default.conf:
+Invalid command 'RewriteEngine', perhaps misspelled or defined by a module not included in the server configuration
+Action 'configtest' failed.
+
+解决1：
+1. 打开 httpd.conf
+2.找到 mod_rewrite.so 行,将前面的注释打开(即删掉前面的'#'符号)。
+3.关闭httpd.conf,重启apache服务器即可。 
+解决2：
+httpd.conf 中找到你网站目录对应的Directory 行,将其中的 RewriteEngine 项设置为 'ALL'。
+
+did not find the line in apache2.conf, hence searched for it. Found but not enabled by default. Hence a2enmoded it.
+kidd@kidd-T430:/etc/apache2$ grep -nr mod_rewrite.so
+mods-available/rewrite.load:1:LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+kidd@kidd-T430:/etc/apache2$ sudo a2enmod rewrite
+Enabling module rewrite.
+To activate the new configuration, you need to run:
+  service apache2 restart
+kidd@kidd-T430:/etc/apache2$ ls mods-enabled/rewrite.load 
+mods-enabled/rewrite.load
+kidd@kidd-T430:/etc/apache2$ ls -l mods-enabled/rewrite.load 
+lrwxrwxrwx 1 root root 30  8月 14 17:53 mods-enabled/rewrite.load -> ../mods-available/rewrite.load
+
+finally, "http://localhost:8081/country" works for previous "http://localhost:8081/index.php?r=country"
+
+sample config form apache2: [/etc/apache2/apache2.conf]
+<Directory /home/kidd/workspace/yii/basic/web>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+  # 开启 mod_rewrite 用于美化 URL 功能的支持（译注：对应 pretty URL 选项）
+  RewriteEngine on
+  # 如果请求的是真实存在的文件或目录，直接访问
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # 如果请求的不是真实文件或目录，分发请求至 index.php
+  RewriteRule . index.php
+</Directory>
+
+note: if the 2 "RewriteCond" lines are commented out, the page will lose styles. 
+
+------------ 2016-08-14 17:25:25
+?? access control:
+
+
+---------- 2016-08-14 18:46:56
+use yii\helpers\Url;
+    $url = Url::to(['post/view', 'id' => 100]);
+    error_log($url."\n");
+
+[Sun Aug 14 18:46:36.746304 2016] [:error] [pid 10868] [client 127.0.0.1:44398] /post/view?id=100
+
+Depending on the urlManager configuration, the created URL may look like one of the following (or other format). And if the created URL is requested later, it will still be parsed back into the original route and query parameter value.
+/index.php?r=post%2Fview&id=100
+/index.php/post/100
+/posts/100
 
 ------------ 2016-08-10 10:24:50
 support of post only, for action veto

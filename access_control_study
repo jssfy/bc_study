@@ -1,6 +1,79 @@
 
 
+
+
+--------- 2016-08-14 23:37:06
+http://www.yiichina.com/tutorial/332
+
+
+--------- 2016-08-14 23:21:46
+test filter [note the namespace: ]
+  http://localhost:8081/test/filter
+  在调用action前显示
+  当前action显示
+  在调用action后显示
+
+FYI: https://www.douban.com/note/522397960/ 
+
+/home/kidd/workspace/yii/basic/controllers/TestController.php
+<?php
+namespace app\controllers;
+use yii\web\Controller;
+
+class TestController extends Controller {
+    public function behaviors() {
+        return [
+            'test' => [
+                'class' => 'app\frontend\libs\TestFilter'
+            ]
+        ];
+    }
+    public function actionFilter() {
+        return '当前action显示<br/>';//返回的内容会递交给过滤器，由afterAction进行处理
+    }
+} 
+
+/home/kidd/workspace/yii/basic/frontend/libs/TestFilter.php
+<?php
+namespace app\frontend\libs;
+use Yii;
+use yii\base\Action;
+use yii\base\ActionFilter;
+
+class TestFilter extends ActionFilter
+{
+    //在action之前运行，可用来过滤输入
+    public function beforeAction($action) {
+        echo '在调用action前显示<br/>';
+        return TRUE;//如果返回值为false,则action不会运行
+    }
+    //在action之后运行，可用来过滤输出
+    public function afterAction($action, $result) {
+        return $result.'在调用action后显示<br/>';//可以对action输出的$result进行过滤，retun的内容会直接显示
+    }
+}
+
+
 ----------- 2016-08-09 20:39:47
+http://www.cnblogs.com/lccjob/p/5057369.html
+（1）控制器 behaviors 过滤数据需要引入如下文件
+1
+2
+  
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+
+首先：什么是过滤器？过滤器就是对不同用户角色的控制；
+
+        如（游客->最普通的平民，用户->已经注册的用户，管理员->拥有一切权限）
+
+        然而 Yii2自带的权限控制默认只支持两个角色：
+
+    guest（游客，没有登录的，用 ? 表示）
+
+    authenticated （登录了的，用 @ 表示）
+
+
 
 class CheckinController extends WebController
 {
@@ -19,3 +92,31 @@ class CheckinController extends WebController
 //            ]
         ];
     }
+
+without 'get', the GET method http://localhost:8081/country will be rejected: 
+  Method Not Allowed. This url can only handle the following request methods: POST.
+
+use yii\filters\VerbFilter;
+
+class CountryController extends Controller
+{
+    public function behaviors(){
+        return [
+            'verbs' => [
+                'class' => VerbFilter:: className(),
+                'actions' => [
+                     'index'  => [ 'post', 'get'],
+                 ],
+            ],
+        ];
+    }
+
+加上access这一段之后，再次点击Status，Yii2就会将未登录的我重定向到登录页面。　
+
+ 重定向的方法如下：
+'components' => [
+        'user' => [
+            'identityClass' => 'backend\system\core\UserIdentity',
+            'enableAutoLogin' => true,
+            'loginUrl' => ['login/login']      <span style="color: #339966;">//此处设置默认登录页，如果未登录就会跳转到该页</span>
+        ],

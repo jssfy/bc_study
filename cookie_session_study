@@ -1,0 +1,159 @@
+?? 
+在发送 cookie 时，cookie 的值会自动进行 URL 编码，在取回时进行自动解码（为防止 URL 编码，请使用 setrawcookie() 取而代之）。
+
+
+
+
+----------- 2016-08-21 10:39:22
+
+
+via test from phpstorm: the 2nd line works finally.
+  setcookie("user", "", time()-3600);
+  setcookie("user", "kidd", time()+3600);
+
+http://www.jb51.net/article/24871.htm
+?? 二: 设置cookie时的注意事项 [NO]
+在同一个页面中设置cookie,实际上是按从后往前的顺序进行的.如果要先删除一个cookie,再写入一个cookie,则必须先写写入语句,再写删除语句.否则会出现错误. 
+
+四: cookie的一些特点
+cookie是面向路径的.缺省path属性时,WEB服务器页会自动传递当前路径给浏览器.指定路径会强制服务器使用设置的路径.
+在一个目录页面里设的cookie在另一个目录的页面里是看不到的. 
+
+七: 使用cookie的限制
+(1) 必须在HTML文件的内容输出之前设置;
+(2)不同的浏览器对cookie的处理不一致,使用时一定要考虑;
+(3)客户端的限制,比如用户设置禁止cookie,则cookie不能建立; 
+
+below way of cookie access is not supported by default:
+<?php
+//cookie.php
+if(!isset($flag))
+{
+    setcookie("mycookie","this my cookie!");
+    header("location:cookie.php?flag=1");
+    exit;
+}
+?>
+<html>
+<body>
+<?php
+echo "cookie中有:".$mycookie;
+?>
+</body>
+</html>
+
+
+-------- 2016-08-21 10:00:05
+
+注释：在发送 cookie 时，cookie 的值会自动进行 URL 编码，在取回时进行自动解码（为防止 URL 编码，请使用 setrawcookie() 取而代之）。
+tested from phpstorm, but setrawcookie does not support a cookie value with spaces.
+
+
+如何创建 cookie？
+setcookie() 函数用于设置 cookie。
+注释：setcookie() 函数必须位于 <html> 标签之前。
+
+如何取回 Cookie 的值？
+<?php
+// Print a cookie
+echo $_COOKIE["user"];
+
+// A way to view all cookies
+print_r($_COOKIE);
+?>
+
+删除的例子：
+<?php 
+// set the expiration date to one hour ago
+setcookie("user", "", time()-3600);
+?>
+
+如果浏览器不支持 cookie 该怎么办？
+如果您的应用程序涉及不支持 cookie 的浏览器，您就不得不采取其他方法在应用程序中从一张页面向另一张页面传递信息。一种方式是从表单传递数据
+
+
+----------- 2016-08-21 10:16:13
+
+http://jingyan.baidu.com/article/0320e2c1c299011b87507bf4.html
+在程序开发中常常会操作一些cookie，然后通过编写代码来查看这些cookie，其实在火狐浏览器中就可以直接查看这些cookie
+点击火狐浏览器右侧的下拉图标，如下图，然后点击“选项”。[preferences]
+点击“隐私”图标打开隐私设置窗口。
+点击历史记录下拉框，选择”使用自定义历史记录设置“。
+点击”显示Cookies“按钮。
+
+
+---------- 2016-08-21 09:46:52
+<?php
+/**
+ * Created by PhpStorm.
+ * User: kidd
+ * Date: 16-8-20
+ * Time: 下午12:57
+ */
+    setcookie("user", "Alex Porter", time()+3600);
+    setcookie("age", 20, time()+3600);
+    setcookie("gender", "female", time()+3600);
+?>
+
+<html>
+<body>
+
+</body>
+</html>
+
+
+adding a new line of "setcookie("gender", "female", time()+3600);"
+
+on the 1st request:
+request header: 
+Host: localhost:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie: user=Alex+Porter; age=20; pma_lang=en; pma_collation_connection=utf8_general_ci; _csrf=fd7fd4fc2f63fad8449011b85d8aef6f7a51c35920b047d8c87463d88a00838aa%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22ExHiObDuyl4CDIxQmNODnnLXrboB1DIt%22%3B%7D; PHPSESSID=5s22730ghpnvuf8eeeqp4e6u26; _identity=5cd5758317bf5f96941fe3e006d9b6cb57ef226069bf6518dfc9f761907b27aca%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A28%3A%22%5B%22101%22%2C%22test101key%22%2C2592000%5D%22%3B%7D
+Connection: keep-alive
+
+response header:
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+Connection: Keep-Alive
+Content-Encoding: gzip
+Content-Length: 4175
+Content-Type: text/html; charset=UTF-8
+Date: Sun, 21 Aug 2016 01:46:14 GMT
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Keep-Alive: timeout=5, max=100
+Pragma: no-cache
+Server: Apache/2.4.7 (Ubuntu)
+Set-Cookie: user=Alex+Porter; expires=Sun, 21-Aug-2016 02:46:14 GMT; Max-Age=3600
+age=20; expires=Sun, 21-Aug-2016 02:46:14 GMT; Max-Age=3600
+gender=female; expires=Sun, 21-Aug-2016 02:46:14 GMT; Max-Age=3600
+_identity=5cd5758317bf5f96941fe3e006d9b6cb57ef226069bf6518dfc9f761907b27aca%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A28%3A%22%5B%22101%22%2C%22test101key%22%2C2592000%5D%22%3B%7D; expires=Tue, 20-Sep-2016 01:46:14 GMT; Max-Age=2592000; path=/; httponly
+Vary: Accept-Encoding
+X-Powered-By: PHP/5.5.9-1ubuntu4.17
+
+on te 2nd request:
+Host: localhost:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie: user=Alex+Porter; age=20; gender=female; pma_lang=en; pma_collation_connection=utf8_general_ci; _csrf=fd7fd4fc2f63fad8449011b85d8aef6f7a51c35920b047d8c87463d88a00838aa%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22ExHiObDuyl4CDIxQmNODnnLXrboB1DIt%22%3B%7D; PHPSESSID=5s22730ghpnvuf8eeeqp4e6u26; _identity=5cd5758317bf5f96941fe3e006d9b6cb57ef226069bf6518dfc9f761907b27aca%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A28%3A%22%5B%22101%22%2C%22test101key%22%2C2592000%5D%22%3B%7D
+Connection: keep-alive
+
+
+after removing the lines: the un-expired cookies are still passed, while the expired ones are skipped. even though they might still be stored at the clients such as firefox.
+request: 
+Host: localhost:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie: user=AlexPorter; age=20; gender=female; pma_lang=en; pma_collation_connection=utf8_general_ci; _csrf=fd7fd4fc2f63fad8449011b85d8aef6f7a51c35920b047d8c87463d88a00838aa%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22ExHiObDuyl4CDIxQmNODnnLXrboB1DIt%22%3B%7D; PHPSESSID=5s22730ghpnvuf8eeeqp4e6u26; _identity=5cd5758317bf5f96941fe3e006d9b6cb57ef226069bf6518dfc9f761907b27aca%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A28%3A%22%5B%22101%22%2C%22test101key%22%2C2592000%5D%22%3B%7D
+Connection: keep-alive
+
+cookie is updated at the client side when setcookie is called. 
+the server should not update the cookies every time. 
+if(empty($_COOKIE["temp"])) // do not use is_null, there might be invalid array index.
+    setcookie("temp", "temp_value", time()+60);
+
