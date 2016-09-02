@@ -1,0 +1,221 @@
+
+
+---------- 2016-08-25 16:54:05
+/home/kidd/workspace/bc/advanced/MissionImpossible/composer.json
+"miloschuman/yii2-highcharts-widget": "*"
+
+~/workspace/bc/advanced/MissionImpossible
+$ composer update
+
+
+
+---------- 2016-08-25 20:06:41
+
+$ git commit -m "[feature] qrcode stats"
+[develop 721c303] [feature] qrcode stats
+ 3 files changed, 133 insertions(+)
+ create mode 100644 vendor/mdmsoft/yii2-admin/controllers/QrcodeController.php
+ create mode 100644 vendor/mdmsoft/yii2-admin/models/QrMessage.php
+ create mode 100644 vendor/mdmsoft/yii2-admin/views/qrcode/index.php
+
+git merge 7cfc98d []
+
+
+--------- 2016-08-25 19:56:52
+
+//    return [
+//        'components' => [
+//            'db' => [
+//                'class' => 'yii\db\Connection',
+//                'dsn' => 'mysql:host=localhost;port=3306;dbname=tz8_dev',
+//                'username' => 'root',
+//                'password' => 'kidd',
+//                'charset' => 'utf8',
+//                'tablePrefix' => 'admin_',
+//            ],
+//            'mailer' => [
+//                'class' => 'yii\swiftmailer\Mailer',
+//                'viewPath' => '@common/mail',
+//                // send all mails to a file by default. You have to set
+//                // 'useFileTransport' to false and configure a transport
+//                // for the mailer to send real emails.
+//                'useFileTransport' => true,
+//            ],
+//        ],
+//    ];
+
+------------ 2016-08-25 19:09:11
+
+    public function generateLineChartOptions($x_categories, $series) {
+// sample data
+//        $default = [
+//            'options'=>[
+//                'title' => ['text' => 'Scan Stats'],
+//                'xAxis' => [
+//                    'categories' => ['A', 'B']
+//                ],
+//                'yAxis' => [
+//                    'title' => ['text' => 'Count']
+//                ],
+//                'series' => [['name' => 'scan', 'data' => [0, 0]]],
+//            ]
+//        ];
+
+        $scan_stats = [
+            'options' => [
+                'title' => ['text' => 'Scan Stats'],
+                'xAxis' => [
+                    'categories' => $x_categories
+                ],
+                'yAxis' => [
+                    'title' => ['text' => 'Count']
+                ],
+                'series' => $series,
+            ]
+        ];
+        return $scan_stats;
+    }
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/mdmsoft/yii2-admin/views/qrcode/index.php
+use miloschuman\highcharts\Highcharts;
+
+//echo Highcharts::widget([
+//    'options'=>'{
+//      "title": { "text": "Fruit Consumption" },
+//      "xAxis": {
+//         "categories": ["Apples", "Bananas", "Oranges"]
+//      },
+//      "yAxis": {
+//         "title": { "text": "Fruit eaten" }
+//      },
+//      "series": [
+//         { "name": "Jane", "data": [1, 0, 4] },
+//         { "name": "John", "data": [5, 7,3] }
+//      ]
+//   }'
+//]);
+
+if(!empty($scan_stats["options"]["xAxis"]["categories"]))
+    echo Highcharts::widget($scan_stats);
+if(!empty($sub_scan_stats["options"]["xAxis"]["categories"]))
+    echo Highcharts::widget($sub_scan_stats);
+
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/backend/config/main.php
+    'modules' => [
+        'admin' => [
+            'class' => 'mdm\admin\Module',
+            'layout' => 'left-menu',
+            'controllerMap' => [
+                'assignment' => [
+                    'class' => 'mdm\admin\controllers\AssignmentController',
+                    'userClassName' => 'common\models\User',
+                    'idField' => 'user_id'
+                ]
+            ],
+            'menus' => [
+                'assignment' => [
+                    'label' => 'Grand Access'
+                ],
+                'qrcode' => [
+                    'label' => 'Qrcode Stats',
+                    'class' => 'mdm\admin\controllers\QrcodeController'
+                ],
+                'route' => null,
+            ],
+        ],
+    ],
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/mdmsoft/yii2-admin/controllers/QrcodeController.php
+<?php
+
+namespace mdm\admin\controllers;
+
+use yii\filters\VerbFilter;
+
+use backend\models\QrMessage;
+use yii\web\Controller;
+
+class QrcodeController extends Controller
+{
+    const SCENEID_START = 8;
+
+    /**
+     * Lists all User models.
+     * @return mixed
+     */
+    public function actionIndex()
+    {
+
+        $scenes = QrMessage::findBySql('select event_key, sum(count) as scan_count, count(event_key) as user_count from qrcode_general group by event_key')->all();
+
+        $x_categories = array();
+        $user_count = array();
+        $scan_count = array();
+        $sub_x_categories = array();
+        $sub_user_count = array();
+        $sub_scan_count = array();
+        foreach($scenes as $scene) {
+            if(empty($scene->event_key)) {
+                // subscribed via searching instead of scanning
+                // to do more
+            }
+            elseif($this->isSubscribe($scene->event_key)) {
+                $sub_x_categories[] = substr($scene->event_key, self::SCENEID_START);
+                $sub_user_count[] = (int)$scene->user_count;
+                $sub_scan_count[] = (int)$scene->scan_count;
+            }
+            else {
+                $x_categories[] = $scene->event_key;
+                $user_count[] = (int)$scene->user_count;
+                $scan_count[] = (int)$scene->scan_count;
+            }
+        }
+
+        for ($x=0; $x<=50; $x++) {
+            $x_categories[] = $x;
+            $user_count[] = $x;
+            $scan_count[] = $x + 2;
+        }
+        $series = array(
+            ["name" => "用户数", "data" => $user_count],
+            ["name" => "扫描数", "data" => $scan_count],
+        );
+
+        $sub_series = array(
+            ["name" => "用户数", "data" => $sub_user_count],
+            ["name" => "扫描数", "data" => $sub_scan_count],
+        );
+
+      $scan_stats = $this->generateColumnChartOptions($x_categories, $series, "扫描数");
+        $sub_scan_stats = $this->generateColumnChartOptions($sub_x_categories, $sub_series, "订阅数");
+
+        return $this->render('index', [
+            'scan_stats' => $scan_stats,
+            'sub_scan_stats' => $sub_scan_stats,
+        ]);
+    }
+
+    public function generateColumnChartOptions($x_categories, $series, $title, $y_title=null, $x_title="场景") {
+        $scan_stats = [
+         'options' => [
+                'title' => ['text' => $title],
+                'chart' => ['type' => 'column'],
+                'credits' => ['enabled' => false],
+                'xAxis' => [
+                    'categories' => $x_categories,
+                    'title' => ['text' => $x_title]
+                ],
+                'yAxis' => [
+                    'title' => ['text' => $y_title]
+                ],
+                'series' => $series,
+            ]
+        ];
+        return $scan_stats;
+    }
+
+    public function isSubscribe($str) {
+        return strpos($str, "qrscene_") === 0;
+    }
+}

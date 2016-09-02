@@ -1,6 +1,38 @@
 
 
 
+
+
+---------------- 2016-08-30 20:33:21
+class AppJsonResponseFormatter extends JsonResponseFormatter
+{
+    public static function formateResponseData($data) {
+        $data = is_object($data) ? (array)$data : $data;
+        if (isset($data['name']) && strpos($data['name'], 'AppException') !== FALSE) {
+            $new_data = [
+                'success' => false,
+                'message' => $data['message'],
+            ];
+        } else if (isset($data['type']) && strpos($data['type'], 'Exception') !== FALSE) {
+            //不处理系统的异常
+            return $data;
+        } else {
+            $new_data = [
+                'success' => true,
+                'message' => '',
+                'data' => $data,
+            ];
+        }
+        return $new_data;
+    }
+
+
+                        return [
+                            'returnUrl' => MissionManager::getOrderReturnUrl($order->id, $mtype),
+                            'jsApiParameters' => $res,
+                        ];
+
+                        
 --------- 2016-08-10 10:22:40
 /home/kidd/workspace/bc/MissionImpossible/vendor/yiisoft/yii2/rest/Controller.php
 class Controller extends \yii\web\Controller

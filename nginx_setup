@@ -1,0 +1,121 @@
+
+
+
+----------- 2016-08-25 10:50:58
+
+http://www.pcre.org/
+
+
+http://www.cnblogs.com/skynet/p/4146083.html
+l  gzip模块需要 zlib 库
+l  rewrite模块需要 pcre 库
+l  ssl 功能需要openssl库
+
+pcre2 - ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/
+
+
+1. 安装FastCGI
+sudo apt-get install spawn-fcgi
+/usr/bin/spawn-fcgi
+2. 在线安装
+$sudo apt-get install nginx
+所有的配置文件都在/etc/nginx下，并且每个虚拟主机已经安排在了/etc/nginx/sites-available下
+启动程序文件在/usr/sbin/nginx
+日志放在了/var/log/nginx中，分别是access.log和error.log
+并已经在/etc/init.d/下创建了启动脚本nginx
+默认的虚拟主机的目录设置在了/usr/share/nginx/www
+$ nginx -v
+nginx version: nginx/1.4.6 (Ubuntu)
+
+/etc/nginx/sites-enabled/default
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server ipv6only=on;
+
+  root /usr/share/nginx/html;
+  index index.html index.htm;
+
+3.2 启动Nginx
+   （1）在线安装的启动过程
+      $sudo /etc/init.d/nginx start
+   （2）源代码安装的启动过程
+      $cd /usr/local/nginx
+      $sbin/nginx
+
+$ sudo /etc/init.d/nginx stop
+kidd@kidd-OptiPlex-9020:
+~/Downloads/nginx/pcre2-10.20
+$ ps -ef | grep nginx
+kidd     18574  1387  0 11:00 pts/37   00:00:00 grep --color=auto nginx
+kidd@kidd-OptiPlex-9020:
+~/Downloads/nginx/pcre2-10.20
+$ sudo /etc/init.d/nginx start
+kidd@kidd-OptiPlex-9020:
+~/Downloads/nginx/pcre2-10.20
+$ ps -ef | grep nginx
+root     18714  3037  0 11:00 ?        00:00:00 nginx: master process /usr/sbin/nginx
+www-data 18715 18714  0 11:00 ?        00:00:00 nginx: worker process
+www-data 18716 18714  0 11:00 ?        00:00:00 nginx: worker process
+www-data 18717 18714  0 11:00 ?        00:00:00 nginx: worker process
+www-data 18718 18714  0 11:00 ?        00:00:00 nginx: worker process
+kidd     18814  1387  0 11:00 pts/37   00:00:00 grep --color=auto nginx
+
+
+
+------------- 2016-08-25 11:39:50
+console setup
+
+$ sudo vim /etc/hosts
+10.12.0.1 frontend.tz8
+10.12.0.1 backend.tz8
+
+
+$ sudo ln -s /etc/nginx/sites-available/default ../sites-enabled/default 
+kidd@kidd-OptiPlex-9020:
+/etc/nginx/sites-available
+$ ll ../sites-enabled/
+total 8
+drwxr-xr-x 2 root root 4096  8月 25 11:53 ./
+drwxr-xr-x 5 root root 4096  8月 25 10:58 ../
+lrwxrwxrwx 1 root root   34  8月 25 11:53 default -> /etc/nginx/sites-available/default
+
+sudo /etc/init.d/nginx start/stop
+  restart seems not working properly.
+sudo service nginx restart
+
+
+without clearing cache, chrome might still show the webpage even if the web server has been stopped.
+
+
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+
+Github configuration file seems wrong. set directive is used in server, location and if blocks. 
+
+
+after modifying /etc/nginx/sites-enabled/default, need to restart
+  sudo service nginx restart
+
+---------- 2016-08-25 12:57:02
+ 2014  ./yii migrate
+ 2015  ./yii migration
+ 2047  vim admin_register.sh 
+ 2048  ./yii 
+ 2049  ./yii admin/backend-register kidd kidd@niub.la 123456
+
+ yii help <command-name>
+
+
+-------------2016-08-25 13:42:51
+configurations:
+
+server 
+这个指令有两个作用：
+·将HTTP请求的主机头与在nginx配置文件中的server{...}字段中指定的参数进行匹配，并且找出第一个匹配结果。这就是如何定义虚拟主机的方法，域名遵循下述优先级规则：
+1、完整匹配的名称。
+2、名称开始于一个文件通配符：*.example.com。
+3、名称结束于一个文件通配符：www.example.*。
+4、使用正则表达式的名称。
+(略过没有匹配到的情况)

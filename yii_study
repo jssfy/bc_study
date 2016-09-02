@@ -16,6 +16,174 @@ $ tail -f /var/log/php/error.log
   php error_log, refer to /etc/php/7.0/apache2/php.ini, 
 
 
+advanced:
+php -S 10.12.0.1:8080 -t frontend/web
+    ? where is the log ? php [options] -S addr:port [-t docroot]
+
+--------- 2016-08-31 19:10:02
+/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/ToolsController.php
+
+to run an action:
+~/workspace/bc/advanced/MissionImpossible
+$ php yii tools/create-wechat-menu
+{"button":[{"type":"view","name":"我的挑战","url":"https:\/\/tz8-dev.muder.pw\/mission\/list"},{"type":"view","name":"发起挑战","url":"https:\/\/tz8-dev.muder.pw\/mission\/create"},{"name":"更多","sub_button":[{"type":"click","name":"我要打卡","key":"BUTTON_CHECKIN"},{"type":"click","name":"邀请二维码","key":"BUTTON_TEMP_QRCODE"}]}]}/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/ToolsController.php:63:
+array(2) {
+  'res' =>
+  string(27) "{"errcode":0,"errmsg":"ok"}"
+  'httpCode' =>
+  int(200)
+}
+
+
+class ToolsController extends Controller
+{
+
+    // Wechat custom menu
+    private static $custom_menu = [
+        "button" => [
+            [
+                "type" => "view",
+                "name" => "我的挑战",
+                "url" => "https://tz8-dev.muder.pw/mission/list"
+            ],
+            [
+                "type" => "view",
+                "name" => "发起挑战",
+                "url" => "https://tz8-dev.muder.pw/mission/create"
+            ],
+            [
+                "name" => "更多",
+                "sub_button" => [
+                    [
+                        "type" => "click",
+                        "name" => "我要打卡",
+                        "key" => "BUTTON_CHECKIN"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "邀请二维码",
+                        "key" => "BUTTON_TEMP_QRCODE"
+                    ],
+
+                ],
+            ],
+        ]
+    ];
+
+    public function actionCreateWechatMenu()
+    {
+        $token = Wechat::getMpAccessToken();
+        if (!$token) {
+            throw new AppException('获取access token失败');
+        }
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $token;
+        $menu_data = json_encode(self::$custom_menu, JSON_UNESCAPED_UNICODE);
+        echo $menu_data;
+        $res = Util::curl($method = 'POST', $url, $postData = $menu_data);
+        var_dump($res);
+    }
+
+---------- 2016-08-31 17:27:55
+
+class ConsoleController extends Controller
+{
+
+    public function actionIndex() {
+        $this->actionStartWorker();
+    }
+
+    public function actionStartWorker() {
+        Logger::info('ConsoleController::actionStartWorker, env: ' . YII_ENV);
+        TaskQueue::enqueue(new MpCheckinTask());
+        TaskQueue::enqueue(new MissionNotifyTask());
+        TaskQueue::enqueue(new MissionRewardCheckTask());
+        TaskQueue::enqueue(new RedPackCheckTask());
+        TaskQueue::start();
+    }
+}
+
+run below script to start the tasks:
+/home/kidd/workspace/bc/advanced/MissionImpossible/console_start_worker.sh
+#!/bin/bash
+
+php yii console/start-worker
+
+tasks will fail if permissions not allowed, such as opening a non-existing folder, writing a non-authorized file, accessing an array item by invalid key, etc.
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/console/tasks/QrcodeRequestCheckTask.php
+namespace console\tasks;
+
+use frontend\models\PendingQrcodeRequests;
+use frontend\components\wxmp\Wechat;
+use frontend\components\util\Logger;
+
+
+class QrcodeRequestCheckTask
+{
+    public function perform() {
+        $this->check();
+    }
+
+    private function scheduleNext($interval=1) {
+        $time = time() + $interval;
+        TaskQueue::enqueueAtTime(new QrcodeRequestCheckTask(), $time, true);
+    }
+
+    private function check() {
+        try {
+            // get pending requests
+            $requests = PendingQrcodeRequests::find()->all();
+            foreach ($requests as $request) {
+                $account_id = $request->account_id;
+                if(Wechat::generateAndSendTemporaryQrcode($account_id)) {
+                    $request->delete();
+                }
+            }
+        } catch (Exception $e) {
+            Logger::info('run qrcode request task failed: ' . $e);
+            $this->scheduleNext();
+            return;
+        }
+    }
+}
+
+stupid me, remember to start another round at the end of each loop: $this->scheduleNext();
+    private function check() {
+        try {
+            // get pending requests
+            $requests = PendingQrcodeRequests::find()->all();
+            foreach ($requests as $request) {
+                $account_id = $request->account_id;
+                if(Wechat::generateAndSendTemporaryQrcode($account_id)) {
+                    $request->delete();
+                }
+            }
+            $this->scheduleNext();
+        } catch (Exception $e) {
+            Logger::info('run qrcode request task failed: ' . $e);
+            $this->scheduleNext();
+            return;
+        }
+    }
+
+--------- 2016-08-31 17:20:26
+异步事件调用，是指一些事件没有前后顺序的要求，但是由一个行为触发的，如果使用异步调用，一个事件的执行就不必等待另一个事件的结束了。
+比如我记录页面发生错误，而必须在页面代码的中间位置记录，这种情况下，使用异步调用日志记录，页面代码的执行就不必等待日志记录成功的反馈信息了，可以提高页面的执行效率。
+不知道我描述清楚了吗？
+这在PHP似乎是无法实现的，因为每个PHP请求都是单线程执行的。 
+如果利用ajax异步调用呢？是不是能实现这种操作呢？ 
+ Posted 21 April 2009 - 10:20 PM
+ajax请求在服务器端还是同步操作。当然对于客户端而言是异步的了，但这和你的初衷不一样。 
+
+-------- 2016-08-29 11:02:21
+
+http://blog.csdn.net/u012979009/article/details/51543465
+public function rules()
+ //再次确认密码和密码对比  
+            ['password_compare', 'compare', 'compareAttribute' => 'password','message' => '两次密码不一致','on'=>'register'], 
+
+
+
 ----------- 2016-08-23 14:46:26
 
 http://www.yiichina.com/tutorial/332

@@ -1,7 +1,6 @@
 
 
 
-
 --------- 2016-08-14 23:37:06
 http://www.yiichina.com/tutorial/332
 
@@ -53,6 +52,424 @@ class TestFilter extends ActionFilter
     }
 }
 
+-=---------- 2016-09-01 18:39:18
+
+第一次授权会导致后台用户注册
+url邀请：未注册用户如发现有url邀请人，则添加邀请人；如果没有url邀请人，查看是否之前被qrcode邀请关注过，如果有，从备用表添加相应邀请人。其它情况不更新邀请人。
+qrcode扫描：未注册用户以最新的邀请人为准更新到备用表。已注册用户只有在当前没有邀请人的情况下将邀请人更新为当前qrcode的邀请人。
+
+$ git show 47c7e61b67a85b276650fc32dac355730fd70b42
+commit 47c7e61b67a85b276650fc32dac355730fd70b42
+Author: anhye <anhye@niub.la>
+Date:   Thu Sep 1 16:41:21 2016 +0800
+
+    [feature] inviter-related update on url sharing
+    
+    Change-Id: If3a88248262b960ab6fd719fe49dc306f4da92c5
+
+diff --git a/frontend/components/AccountManager.php b/frontend/components/Accoun
+index bc25330..40d25ff 100644
+--- a/frontend/components/AccountManager.php
++++ b/frontend/components/AccountManager.php
+@@ -15,6 +15,7 @@ use frontend\components\wxmp\Wechat;
+ use frontend\models\Account;
+ use frontend\models\AccountToken;
+ use frontend\models\BackupSubscription;
++use frontend\components\model\InviteMode;
+ use yii\db\Expression;
+ use yii\web\Cookie;
+ 
+@@ -152,9 +153,15 @@ class AccountManager
+                 $user->head_img = $account->avatar;
+                 $user->gender = $account->gender;
+                 $user->regist_time = new Expression('NOW()');
+-                if(!is_null($backup)) {
++                if(isset($_SESSION['iid'])) {
++                    $user->inviter_id = $_SESSION['iid'];
++                    $user->invite_time = date('Y-m-d H:i:s', time());
++                    $user->invite_mode = InviteMode::URL;
++                }
++                elseif(!is_null($backup)) {
+                     $user->inviter_id = $backup->inviter_id;
+                     $user->invite_time = $backup->invite_time;
++                    $user->invite_mode = InviteMode::TEMP_QRCODE;
+                 }
+ 
+                 $ret = $user->save();
+diff --git a/frontend/components/model/InviteMode.php b/frontend/components/mode
+new file mode 100644
+index 0000000..e60a77d
+--- /dev/null
++++ b/frontend/components/model/InviteMode.php
+@@ -0,0 +1,13 @@
++<?php
++
++namespace frontend\components\model;
++
++class InviteMode
++{
++    // 默认值
++    const DEFAULT = 0;
++    // 经临时二维码扫描加入
++    const TEMP_QRCODE = 1;
++    // 经分享链接授权
++    const URL = 2;
++}
+diff --git a/frontend/components/wxmp/MsgQrSubscribeHandler.php b/frontend/compo
+index 861ed1c..6167b81 100644
+--- a/frontend/components/wxmp/MsgQrSubscribeHandler.php
++++ b/frontend/components/wxmp/MsgQrSubscribeHandler.php
+@@ -11,6 +11,7 @@ use frontend\components\AppException;
+ use frontend\models\Account;
+ use frontend\models\User;
+ use frontend\models\BackupSubscription;
++use frontend\components\model\InviteMode;
+ use frontend\components\util\Logger;
+ 
+ class MsgQrSubscribeHandler extends MsgQrHandler
+@@ -38,6 +39,8 @@ class MsgQrSubscribeHandler extends MsgQrHandler
+             }
+ 
+             $account = Account::findOne(['open_id' => $xml->FromUserName]);
++            // if registered
++            // count this inviter only when the user has no inviter [$user->inv
+             if (!empty($account)) {
+                 if($account->subscribed != 1) {
+                     $account->subscribed = 1;
+@@ -45,18 +48,18 @@ class MsgQrSubscribeHandler extends MsgQrHandler
+                 }
+                 if($has_inviter) {
+                     $user = User::findOne(['account_id' => $account->id]);
+-                    if(!is_null($user)) {
++                    if(!is_null($user) && $user->inviter_id === 0) {
+                         $user->inviter_id = $inviter_user_id;
+                         $user->invite_time = date('Y-m-d H:i:s', time());
++                        $user->invite_mode = InviteMode::TEMP_QRCODE;
+                         if(!$user->save()) {
+-                            throw new AppException("user update failure");
++                            Logger::error("MsgQrSubscribeHandler: failed to upd
+                         }
+                     }
+-                    else {
+-                        throw new AppException("user not found while account is
+-                    }
+                 }
+             }
++            // if not registered
++            // update the inviter if it is a different inviter
+             elseif ($has_inviter) {
+                 // add item to backup table
+                 $backup = BackupSubscription::findOne(['open_id' => $xml->FromU
+@@ -66,11 +69,15 @@ class MsgQrSubscribeHandler extends MsgQrHandler
+                     $backup->invite_time = date('Y-m-d H:i:s', time());
+                     $backup->inviter_id = $inviter_user_id;
+                     if(!$backup->save()) {
+-                        throw new AppExcepn("订阅备份失败");
++                        Logger::error("MsgQrSubscribeHandler: failed to save a 
+                     }
+                 }
+-                else {
+-                    throw new AppExcepn("重复订阅");
++                else if($backup->inviter_id != $inviter_user_id) {
++                    $backup->invite_time = date('Y-m-d H:i:s', time());
++                    $backup->inviter_id = $inviter_user_id;
++                    if(!$backup->save()) {
++                        Logger::error("MsgQrSubscribeHandler: failed to update 
++                    }
+                 }
+             }
+ 
+diff --git a/frontend/controllers/CheckinController.php b/frontend/controllers/C
+index 7d431fe..00ddb27 100644
+--- a/frontend/controllers/CheckinController.php
++++ b/frontend/controllers/CheckinController.php
+@@ -14,6 +14,7 @@ use frontend\models\Mission;
+ use frontend\models\Checkin;
+ use frontend\models\Challenge;
+ use frontend\models\CheckinVote;
++use frontend\filters\InviterFilter;
+ 
+ class CheckinController extends WebController
+ {
+@@ -21,7 +22,7 @@ class CheckinController extends WebController
+     {
+         return [
+             'access' => [
+-                'class' => AccessControl::className(),
++                'class' => InviterFilter::className(),
+                 'rules' => [
+                     [
+                         'actions' => ['index'],
+diff --git a/frontend/controllers/MissionController.php b/frontend/controllers/M
+index c12d4de..4a8ed5f 100644
+--- a/frontend/controllers/MissionController.php
++++ b/frontend/controllers/MissionController.php
+@@ -25,10 +25,10 @@ use frontend\components\wxmp\Wechat;
+ use frontend\components\service\FileUploader;
+ use frontend\components\AppException;
+ use frontend\components\model\MissionType;
++use frontend\filters\InviterFilter;
+ 
+ use Yii;
+ use yii\db\Expression;
+-use yii\filters\AccessControl;
+ use yii\web\NotFoundHttpException;
+ 
+ class MissionController extends WebController
+@@ -40,7 +40,7 @@ class MissionController extends WebController
+     {
+         return [
+             'access' => [
+-                'class' => AccessControl::className(),
++                'class' => InviterFilter::className(),
+                 'rules' => [
+                     [
+                         'actions' => ['test', 'index', 'create', 'list', 'join'
+diff --git a/frontend/controllers/TestController.php b/frontend/controllers/Test
+index e74c249..5011971 100644
+--- a/frontend/controllers/TestController.php
++++ b/frontend/controllers/TestController.php
+@@ -244,30 +244,30 @@ class TestController extends \yii\web\Controller
+ 
+         if (!YII_ENV_PROD) {
+ 
+-            $id = 100;
+-            $requests = PendingQrcodeRequests::find()->all();
+-            foreach ($requests as $request) {
+-                Logger::info("to delete request: ");
+-                $account_id = $request->account_id;
+-                Wechat::generateAndSendTemporaryQrcode($account_id);
++//            $id = 100;
++//            $requests = PendingQrcodeRequests::find()->all();
++//            foreach ($requests as $request) {
++//                Logger::info("to delete request: ");
++//                $account_id = $request->account_id;
++//                Wechat::generateAndSendTemporaryQrcode($account_id);
+ //                $to_delete = PendingQrcodeRequests::findOne(["account_id" => 
+ //                $n = new PendingQrcodeRequests();
+ //                $n->account_id = $id++;
+ //                $n->save();
+ //                $to_delete->delete();
+-                $request->delete();
+-            }
++//                $request->delete();
++//            }
+ 
+             // to subscribe
+-//            $body = '<xml>
+-//                    <ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n
+-//                    <FromUserName><![CDATA[ook-7wOhzQibF-pcn23-PDXPZBxA]]></F
+-//                    <CreateTime>1470287362</CreateTime>\n
+-//                    <MsgType><![CDATA[event]]></MsgType>\n
+-//                    <Event><![CDATA[subscribe]]></Event>\n
+-//                    <EventKey><![CDATA[qrscene_100004]]></EventKey>\n
+-//                    <Ticket><![CDATA[gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFx
+-//                </xml>';
++            $body = '<xml>
++                    <ToUserName><![CDATA[gh_d790e147d0b7]]></ToUserName>\n
++                    <FromUserName><![CDATA[ook-7wBaVNWk44SSMY0cehygt2dA]]></Fro
++                    <CreateTime>1470287362</CreateTime>\n
++                    <MsgType><![CDATA[event]]></MsgType>\n
++                    <Event><![CDATA[subscribe]]></Event>\n
++                    <EventKey><![CDATA[qrscene_100008]]></EventKey>\n
++                    <Ticket><![CDATA[gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLm
++                </xml>';
+ 
+             // to unsubscribe
+ //            $body = '<xml>
+@@ -302,7 +302,7 @@ class TestController extends \yii\web\Controller
+ //                    <Ticket><![CDATA[gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFx
+ //                </xml>';
+ 
+-//            $resp = MpManager::processMessage($body);
++            $resp = MpManager::processMessage($body);
+ //            if ($resp instanceof Response) {
+ //                return $resp;
+ //            } else {
+diff --git a/frontend/filters/InviterFilter.php b/frontend/filters/InviterFilter
+new file mode 100644
+index 0000000..f7b8a4d
+--- /dev/null
++++ b/frontend/filters/InviterFilter.php
+@@ -0,0 +1,27 @@
++<?php
++
++namespace frontend\filters;
++
++use Yii;
++use yii\filters\AccessControl;
++use frontend\components\util\Logger;
++
++class InviterFilter extends AccessControl {
++
++    /**
++     * @inheritdoc
++     */
++    public function beforeAction($action) {
++        $request = Yii::$app->getRequest();
++        $iid = $request->get('iid');
++        if(!is_null($iid)) {
++            $session = Yii::$app->session;
++            if ($session->isActive) {
++                $_SESSION['iid'] = $iid;
++                Logger::info("an action triggered with inviter_id: ".$iid);
++            }
++        }
++
++        return parent::beforeAction($action);
++    }
++}
+\ No newline at end of file
+
+
+---------- 2016-09-01 14:22:40
+
+
+        $session = Yii::$app->session;
+        if ($session->isActive) {
+            if(isset($_SESSION['iid'])) {
+                error_log("list: existing session iid: ".$_SESSION['iid']);
+            }
+            else {
+                error_log("list: iid not set");
+            }
+        }
+
+
+--------- 2016-09-01 13:01:55
+
+~/workspace/bc/advanced/MissionImpossible
+$ tail ./log/frontend-error.log
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/filters/AccessControl.php
+---------- 2016-09-01 12:36:16
+
+$cookies->add(new \yii\web\Cookie ...
+  this will take effect from the next request.
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/filters/AccessControl.php
+    /**
+     * This method is invoked right before an action is to be executed (after all possible filters.)
+     * You may override this method to do last-minute preparation for the action.
+     * @param Action $action the action to be executed.
+     * @return boolean whether the action should continue to be executed.
+     */
+    public function beforeAction($action)
+    {
+        $user = $this->user;
+        $request = Yii::$app->getRequest();
+        error_log("------------------".json_encode($request));
+
+http://frontend.tz8/mission/list?name=kidd
+2016/09/01 13:05:19 [error] 7596#0: *409 FastCGI sent in stderr: "PHP message: ------------------{"enableCsrfValidation":false,"csrfParam":"_csrf-frontend","csrfCookie":{"httpOnly":true},"enableCsrfCookie":true,"enableCookieValidation":false,"cookieValidationKey":"1MLMwrw-4mgKVdXKKZWh8lw1oNur3yKk","methodParam":"_method","parsers":[]}" while reading response header from upstream, client: 10.12.0.1, server: frontend.tz8, request: "GET /mission/list?name=kidd HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php7.0-fpm.sock:", host: "frontend.tz8"
+
+Cookies
+
+Yii使用 yii\web\Cookie对象来代表每个cookie，yii\web\Request 和 yii\web\Response 通过名为'cookies'的属性维护一个cookie集合， 前者的cookie 集合代表请求提交的cookies， 后者的cookie集合表示发送给用户的cookies。
+
+The part of the application dealing with request and response directly is controller. Therefore, cookies should be read and sent in controller.
+读取 Cookies
+
+当前请求的cookie信息可通过如下代码获取：
+
+// 从 "request"组件中获取cookie集合(yii\web\CookieCollection)
+$cookies = Yii::$app->request->cookies;
+
+// 获取名为 "language" cookie 的值，如果不存在，返回默认值"en"
+$language = $cookies->getValue('language', 'en');
+
+// 另一种方式获取名为 "language" cookie 的值
+if (($cookie = $cookies->get('language')) !== null) {
+    $language = $cookie->value;
+}
+
+// 可将 $cookies当作数组使用
+if (isset($cookies['language'])) {
+    $language = $cookies['language']->value;
+}
+
+// 判断是否存在名为"language" 的 cookie
+if ($cookies->has('language')) ...
+if (isset($cookies['language'])) ...
+
+发送 Cookies
+
+可使用如下代码发送cookie到终端用户：
+
+// 从"response"组件中获取cookie 集合(yii\web\CookieCollection)
+$cookies = Yii::$app->response->cookies;
+
+// 在要发送的响应中添加一个新的cookie
+$cookies->add(new \yii\web\Cookie([
+    'name' => 'language',
+    'value' => 'zh-CN',
+]));
+
+// 删除一个cookie
+$cookies->remove('language');
+// 等同于以下删除代码
+unset($cookies['language']);
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Request.php
+    public function getCookies()
+    {
+        if ($this->_cookies === null) {
+            $this->_cookies = new CookieCollection($this->loadCookies(), [
+                'readOnly' => false,
+            ]);
+        }
+
+        return $this->_cookies;
+    }
+
+    change readOnly to false, then we are able to remove some field from $cookies.
+
+use yii\helpers\Json;
+  error_log("got cookies: ".Json::encode($cookies));
+PHP message: got cookies: {"advanced-frontend":{"name":"advanced-frontend","value":"l5sce46ukt4pj9gv13b7m5j2t5","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true},"userId":{"name":"userId","value":"187","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true},"iid":{"name":"iid","value":"6","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true},"_identity":{"name":"_identity","value":"[\"187\",\"DreDs0yeBFSOK4B40OJbJFhGdiYjQmiH\",2592000]","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true}}
+PHP message: got cookie iid: 6" while reading response header from upstream, client: 10.12.0.1, server: frontend.tz8, request: "GET /mission/list?name=kidd HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php7.0-fpm.sock:", host: "frontend.tz8"
+
+http://www.yiichina.com/doc/guide/2.0/runtime-sessions-cookies
+PHP message: ------------------{"__flash":[],"__page_session":[],"__returnUrl":"\/mission\/list","__id":"187","iid":8}" while reading response header from upstream, client: 10.12.0.1, server: frontend.tz8, request: "GET /mission/list?name=kidd HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php7.0-fpm.sock:", host: "frontend.tz8"
+  $session = Yii::$app->session;
+  if ($session->isActive) {
+      if(isset($_SESSION['iid'])) {
+          error_log("existing session iid: ".$_SESSION['iid']);
+      }
+      else {
+          error_log("setting iid to: 8");
+          $_SESSION['iid'] = 8;
+      }
+  }
+  error_log("------------------".json_encode($_SESSION));
+
+$session = Yii::$app->session;
+
+// 获取session中的变量值，以下用法是相同的：
+$language = $session->get('language');
+$language = $session['language'];
+$language = isset($_SESSION['language']) ? $_SESSION['language'] : null;
+
+// 设置一个session变量，以下用法是相同的：
+$session->set('language', 'en-US');
+$session['language'] = 'en-US';
+$_SESSION['language'] = 'en-US';
+
+// 删除一个session变量，以下用法是相同的：
+$session->remove('language');
+unset($session['language']);
+unset($_SESSION['language']);
+
+// 检查session变量是否已存在，以下用法是相同的：
+if ($session->has('language')) ...
+if (isset($session['language'])) ...
+if (isset($_SESSION['language'])) ...
+
+// 遍历所有session变量，以下用法是相同的：
+foreach ($session as $name => $value) ...
+foreach ($_SESSION as $name => $value) ...
+
+注意: 当使用session组件访问session数据时候， 如果session没有开启会自动开启， 这和通过$_SESSION不同，$_SESSION要求先执行session_start()。
 
 ----------- 2016-08-09 20:39:47
 http://www.cnblogs.com/lccjob/p/5057369.html

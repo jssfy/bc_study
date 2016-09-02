@@ -1,0 +1,767 @@
+
+
+
+
+
+---------- 2016-09-02 16:50:57
+session
+http://php.net/manual/en/intro.session.php
+
+below lines will cause PHPSESSID to be generated into cookie:
+session_start();
+/*session is started if you don't write this line can't use $_Session  global variable*/
+$_SESSION["newsession"]="hello";
+
+rjhc6nkkls8b073afk33sd53v4
+PHPSESSID is overwritten if accessing different websites on the same host.
+  however, PHPSESSID remains unchanged for each if accessing by different host names, such as "localhost" and "10.12.0.1".
+bkmpn2srb75gl4l6fp7bg135l0
+
+how is session bound to an incoming request with cookie: 
+
+http://www.cnblogs.com/xwdreamer/archive/2012/05/22/2513102.html
+request的生命周期是request请求域，一个请求结束，则request结束 session的生命周期是session会话域，打开一个浏览器请求一个网站的页面后，Session开始，当session超过时间限制（一般是20分种）后，session注销而失效 或是人为使用session.invalidate();使用session失效； 或是关闭浏览器后，session还存在，但是这里已经无法获取session了，过一会它还是失效。
+
+request和session的优点和缺点很明显 request占用资源比较少 安全性也比较高 可是相对来说 缺乏持续性 而session则相对来说 对资源的消耗会大点 安全性相对来说也会稍微低点 可是它能实现比如会话跟踪技术 个有优点和缺点 不过 个人觉得 如果可以使用request的情况下 尽量使用request 因为相对于服务器来说 资源的消耗这个问题还是比较重要的。
+
+http://www.cnblogs.com/binger/archive/2013/03/19/2970171.html
+Session的生命周期
+　　以前在学习的时候没怎么注意，今天又回过头来仔细研究研究了一下Session的生命周期。
+　　Session存储在服务器端，一般为了防止在服务器的内存中（为了高速存取），Sessinon在用户访问第一次访问服务器时创建，需要注意只有访问JSP、Servlet等程序时才会创建Session，只访问HTML、IMAGE等静态资源并不会创建Session，可调用request.getSession(true)强制生成Session。
+　　Session什么时候失效？
+　　1. 服务器会把长时间没有活动的Session从服务器内存中清除，此时Session便失效。Tomcat中Session的默认失效时间为20分钟。
+　　2. 调用Session的invalidate方法。
+　　Session对浏览器的要求：
+　　虽然Session保存在服务器，对客户端是透明的，它的正常运行仍然需要客户端浏览器的支持。这是因为Session需要使用Cookie作为识别标志。HTTP协议是无状态的，Session不能依据HTTP连接来判断是否为同一客户，因此服务器向客户端浏览器发送一个名为JSESSIONID的Cookie，它的值为该Session的id（也就是HttpSession.getId()的返回值）。Session依据该Cookie来识别是否为同一用户。
+ 
+　　该Cookie为服务器自动生成的，它的maxAge属性一般为-1，表示仅当前浏览器内有效，并且各浏览器窗口间不共享，关闭浏览器就会失效。因此同一机器的两个浏览器窗口访问服务器时，会生成两个不同的Session。但是由浏览器窗口内的链接、脚本等打开的新窗口（也就是说不是双击桌面浏览器图标等打开的窗口）除外。这类子窗口会共享父窗口的Cookie，因此会共享一个Session。
+ 
+　　注意：新开的浏览器窗口会生成新的Session，但子窗口除外。子窗口会共用父窗口的Session。例如，在链接上右击，在弹出的快捷菜单中选择"在新窗口中打开"时，子窗口便可以访问父窗口的Session。
+ 
+如果客户端浏览器将Cookie功能禁用，或者不支持Cookie怎么办？例如，绝大多数的手机浏览器都不支持Cookie。Java Web提供了另一种解决方案：URL地址重写。
+　　URL地址重写是对客户端不支持Cookie的解决方案。URL地址重写的原理是将该用户Session的id信息重写到URL地址中。服务器能够解析重写后的URL获取Session的id。这样即使客户端不支持Cookie，也可以使用Session来记录用户状态。HttpServletResponse类提供了encodeURL(String url)实现URL地址重写，该方法会自动判断客户端是否支持Cookie。如果客户端支持Cookie，会将URL原封不动地输出来。如果客户端不支持Cookie，则会将用户Session的id重写到URL中。
+　　注意：TOMCAT判断客户端浏览器是否支持Cookie的依据是请求中是否含有Cookie。尽管客户端可能会支持Cookie，但是由于第一次请求时不会携带任何Cookie（因为并无任何Cookie可以携带），URL地址重写后的地址中仍然会带有jsessionid。当第二次访问时服务器已经在浏览器中写入Cookie了，因此URL地址重写后的地址中就不会带有jsessionid了。
+
+http://www.cnblogs.com/acpp/archive/2011/06/10/2077592.html
+$ grep session.name /etc/php/7.0/apache2/php.ini
+; http://php.net/session.name
+session.name = PHPSESSID
+
+yii2: the cookie will be added to the response
+        $cookies = Yii::$app->getResponse()->getCookies(); // [getCookies()/cookies]
+        $cookies->add(new \yii\web\Cookie([
+            'name' => 'test1',
+            'value' => 'testvalue',
+        ]));
+
+to remove: [the response will indicate the filed is deleted, and on further user request, there will not be that field]
+        $cookies = Yii::$app->getResponse()->cookies;
+        $cookies->remove("test2");
+
+the cookie value sent back to user in the response is encrypted.
+  in comparison, we can see the cookie set by setcookie is not encrypted.
+
+for raw php: [http://php.net/manual/en/function.setcookie.php]
+(PHP 4, PHP 5, PHP 7)
+setcookie — Send a cookie
+setcookie() defines a cookie to be sent along with the rest of the HTTP headers. Like other headers, cookies must be sent before any output from your script (this is a protocol restriction). This requires that you place calls to this function prior to any output, including <html> and <head> tags as well as any whitespace. 
+Once the cookies have been set, they can be accessed on the next page load with the $_COOKIE array. Cookie values may also exist in $_REQUEST. 
+
+PHP transparently supports HTTP cookies. Cookies are a mechanism for storing data in the remote browser and thus tracking or identifying return users. You can set cookies using the setcookie() or setrawcookie() function. Cookies are part of the HTTP header, so setcookie() must be called before any output is sent to the browser. This is the same limitation that header() has. You can use the output buffering functions to delay the script output until you have decided whether or not to set any cookies or send any headers. 
+Any cookies sent to you from the client will automatically be included into a $_COOKIE auto-global array if variables_order contains "C". If you wish to assign multiple values to a single cookie, just add [] to the cookie name. 
+setcookie("color[]","[1, 2]");
+
+to delete a cookie: 
+  setcookie("PHPSESSID", 1, 1);
+
+------------ 2016-09-02 14:47:49
+autologin process:
+
+1. 
+    /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     * @return boolean whether the current user is a guest.
+     * @see getIdentity()
+     */
+    public function getIsGuest()
+
+2. 
+    /**
+     * Returns the identity object associated with the currently logged-in user.
+     * When [[enableSession]] is true, this method may attempt to read the user's authentication data
+     * stored in session and reconstruct the corresponding identity object, if it has not done so before.
+     * @param boolean $autoRenew whether to automatically renew authentication status if it has not been done so before.
+     * This is only useful when [[enableSession]] is true.
+     * @return IdentityInterface|null the identity object associated with the currently logged-in user.
+     * `null` is returned if the user is not logged in (not authenticated).
+     * @see login()
+     * @see logout()
+     */
+    public function getIdentity($autoRenew = true)
+      if ($this->_identity === false) {
+        if ($this->enableSession && $autoRenew) {
+            $this->_identity = null;
+            error_log("------ Web::User, identity null, trying to renew");
+            $this->renewAuthStatus();
+        }
+
+3. if User::_identity is false and session and autoRenew set:
+ /**
+     * Updates the authentication status using the information from session and cookie.
+     *
+     * This method will try to determine the user identity using the [[idParam]] session variable.
+     *
+     * If [[authTimeout]] is set, this method will refresh the timer.
+     *
+     * If the user identity cannot be determined by session, this method will try to [[loginByCookie()|login by cookie]]
+     * if [[enableAutoLogin]] is true.
+     */
+    protected function renewAuthStatus()
+    {
+        $session = Yii::$app->getSession();
+        $id = $session->getHasSessionId() || $session->getIsActive() ? $session->get($this->idParam) : null;
+        // this $id is set during switchIdentity [$session->set($this->idParam, $identity->getId());]
+
+        if ($id === null) {
+            $identity = null;
+        } else {
+            /* @var $class IdentityInterface */
+            $class = $this->identityClass;
+            $identity = $class::findIdentity($id); 
+            // !!!!!!!!! /var/www/html/yii/basic/config/web.php -> 'components'=>'user'=>'identityClass'
+        }
+
+        $this->setIdentity($identity);
+        if ($identity !== null && ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)) {
+            $expire = $this->authTimeout !== null ? $session->get($this->authTimeoutParam) : null;
+            $expireAbsolute = $this->absoluteAuthTimeout !== null ? $session->get($this->absoluteAuthTimeoutParam) : null;
+            if ($expire !== null && $expire < time() || $expireAbsolute !== null && $expireAbsolute < time()) {
+                $this->logout(false);
+            } elseif ($this->authTimeout !== null) {
+                $session->set($this->authTimeoutParam, time() + $this->authTimeout);
+            }
+        }
+        if ($this->enableAutoLogin) {
+            if ($this->getIsGuest()) {
+                $this->loginByCookie(); 
+                // on browser restart, this will be triggered, session is new [as from browser, the PHPSESSID is different]
+            } elseif ($this->autoRenewCookie) {
+                $this->renewIdentityCookie();
+            }
+        }
+    }
+
+below we can see how the cookie is used and added:
+/**
+     * Determines if an identity cookie has a valid format and contains a valid auth key.
+     * This method is used when [[enableAutoLogin]] is true.
+     * This method attempts to authenticate a user using the information in the identity cookie.
+     * @return array|null Returns an array of 'identity' and 'duration' if valid, otherwise null.
+     * @see loginByCookie()
+     * @since 2.0.9
+     */
+    protected function getIdentityAndDurationFromCookie()
+    {
+        error_log("start-------- with cookies: ".Json::encode(Yii::$app->getRequest()->getCookies()));
+        $value = Yii::$app->getRequest()->getCookies()->getValue($this->identityCookie['name']);
+        if ($value === null) {
+            return null;
+        }
+        $data = json_decode($value, true);
+        error_log("----------".$value);
+        // error_log("~~~~~~~~".json_ecode(debug_backtrace()));
+        if (count($data) == 3) {
+            list ($id, $authKey, $duration) = $data;
+            /* @var $class IdentityInterface */
+            $class = $this->identityClass;
+            error_log("identity class name: ".$class);
+            error_log("-----------");
+            $identity = $class::findIdentity($id);
+            if ($identity !== null) {
+                if (!$identity instanceof IdentityInterface) {
+                    throw new InvalidValueException("$class::findIdentity() must return an object implementing IdentityInterface.");
+                } elseif (!$identity->validateAuthKey($authKey)) {
+                    Yii::warning("Invalid auth key attempted for user '$id': $authKey", __METHOD__);
+                } else {
+                    return ['identity' => $identity, 'duration' => $duration];
+                }
+            }
+        }
+        $this->removeIdentityCookie();
+        return null;
+    }
+
+    /**
+     * Renews the identity cookie.
+     * This method will set the expiration time of the identity cookie to be the current time
+     * plus the originally specified cookie duration.
+     */
+    protected function renewIdentityCookie()
+    {
+        $name = $this->identityCookie['name'];
+        $value = Yii::$app->getRequest()->getCookies()->getValue($name);
+        if ($value !== null) {
+            $data = json_decode($value, true);
+            if (is_array($data) && isset($data[2])) {
+                $cookie = new Cookie($this->identityCookie);
+                $cookie->value = $value;
+                $cookie->expire = time() + (int) $data[2];
+                Yii::$app->getResponse()->getCookies()->add($cookie);
+                error_log("cookie after 1: ".Json::encode(Yii::$app->getResponse()->getCookies()));
+
+                Yii::$app->getResponse()->getCookies()->add(new \yii\web\Cookie([
+                    'name' => 'language',
+                    'value' => 'kidd',
+                ]));
+                error_log("cookie after 2: ".Json::encode(Yii::$app->getResponse()->getCookies()));
+            }
+        }
+    }
+
+      /**
+     * Sends an identity cookie.
+     * This method is used when [[enableAutoLogin]] is true.
+     * It saves [[id]], [[IdentityInterface::getAuthKey()|auth key]], and the duration of cookie-based login
+     * information in the cookie.
+     * @param IdentityInterface $identity
+     * @param integer $duration number of seconds that the user can remain in logged-in status.
+     * @see loginByCookie()
+     */
+    protected function sendIdentityCookie($identity, $duration)
+    {
+        $cookie = new Cookie($this->identityCookie);
+        $cookie->value = json_encode([
+            $identity->getId(),
+            $identity->getAuthKey(),
+            $duration,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $cookie->expire = time() + $duration;
+        Yii::$app->getResponse()->getCookies()->add($cookie);
+    }
+
+
+    /**
+     * Switches to a new identity for the current user.
+     *
+     * When [[enableSession]] is true, this method may use session and/or cookie to store the user identity information,
+     * according to the value of `$duration`. Please refer to [[login()]] for more details.
+     *
+     * This method is mainly called by [[login()]], [[logout()]] and [[loginByCookie()]]
+     * when the current user needs to be associated with the corresponding identity information.
+     *
+     * @param IdentityInterface|null $identity the identity information to be associated with the current user.
+     * If null, it means switching the current user to be a guest.
+     * @param integer $duration number of seconds that the user can remain in logged-in status.
+     * This parameter is used only when `$identity` is not null.
+     */
+    public function switchIdentity($identity, $duration = 0)
+    {
+        $this->setIdentity($identity);
+
+        if (!$this->enableSession) {
+            return;
+        }
+
+        /* Ensure any existing identity cookies are removed. */
+        if ($this->enableAutoLogin) {
+            $this->removeIdentityCookie();
+            if($identity != null) error_log("the new identity is: ".Json::encode($identity));
+        }
+
+        $session = Yii::$app->getSession();
+        if (!YII_ENV_TEST) {
+            $session->regenerateID(true);
+        }
+        $session->remove($this->idParam);
+        $session->remove($this->authTimeoutParam);
+
+        if ($identity) {
+            $session->set($this->idParam, $identity->getId());
+            if ($this->authTimeout !== null) {
+                $session->set($this->authTimeoutParam, time() + $this->authTimeout);
+            }
+            if ($this->absoluteAuthTimeout !== null) {
+                $session->set($this->absoluteAuthTimeoutParam, time() + $this->absoluteAuthTimeout);
+            }
+            if ($duration > 0 && $this->enableAutoLogin) {
+                $this->sendIdentityCookie($identity, $duration);
+            }
+        }
+    }
+
+~~~~~~ logout
+
+    /**
+     * Logs out the current user.
+     * This will remove authentication-related session data.
+     * If `$destroySession` is true, all session data will be removed.
+     * @param boolean $destroySession whether to destroy the whole session. Defaults to true.
+     * This parameter is ignored if [[enableSession]] is false.
+     * @return boolean whether the user is logged out
+     */
+    public function logout($destroySession = true)
+    {
+        $identity = $this->getIdentity();
+        if ($identity !== null && $this->beforeLogout($identity)) {
+            $this->switchIdentity(null); // 1. removeIdentityCookie; 2. $session->remove; 3. no more ops as null param is passed
+            $id = $identity->getId();
+            $ip = Yii::$app->getRequest()->getUserIP();
+            Yii::info("User '$id' logged out from $ip.", __METHOD__);
+            if ($destroySession && $this->enableSession) {
+                Yii::$app->getSession()->destroy();
+            }
+            $this->afterLogout($identity);
+        }
+
+        return $this->getIsGuest();
+    }
+
+~~~~~~~ login
+/var/www/html/yii/basic/models/LoginForm.php
+    /**
+     * Logs in a user using the provided username and password.
+     * @return boolean whether the user is logged in successfully
+     */
+    public function login()
+    {
+        if ($this->validate()) {
+            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+        }
+        return false;
+    }
+
+    /**
+     * Logs in a user.
+     *
+     * After logging in a user, you may obtain the user's identity information from the [[identity]] property.
+     * If [[enableSession]] is true, you may even get the identity information in the next requests without
+     * calling this method again.
+     *
+     * The login status is maintained according to the `$duration` parameter:
+     *
+     * - `$duration == 0`: the identity information will be stored in session and will be available
+     *   via [[identity]] as long as the session remains active.
+     * - `$duration > 0`: the identity information will be stored in session. If [[enableAutoLogin]] is true,
+     *   it will also be stored in a cookie which will expire in `$duration` seconds. As long as
+     *   the cookie remains valid or the session is active, you may obtain the user identity information
+     *   via [[identity]].
+     *
+     * Note that if [[enableSession]] is false, the `$duration` parameter will be ignored as it is meaningless
+     * in this case.
+     *
+     * @param IdentityInterface $identity the user identity (which should already be authenticated)
+     * @param integer $duration number of seconds that the user can remain in logged-in status.
+     * Defaults to 0, meaning login till the user closes the browser or the session is manually destroyed.
+     * If greater than 0 and [[enableAutoLogin]] is true, cookie-based login will be supported.
+     * Note that if [[enableSession]] is false, this parameter will be ignored.
+     * @return boolean whether the user is logged in
+     */
+    public function login(IdentityInterface $identity, $duration = 0)
+    {
+        error_log("User.php, user login!!");
+        if ($this->beforeLogin($identity, false, $duration)) {
+            $this->switchIdentity($identity, $duration); // the identity info is then indexed by session
+            $id = $identity->getId();
+            $ip = Yii::$app->getRequest()->getUserIP();
+            if ($this->enableSession) {
+                $log = "User '$id' logged in from $ip with duration $duration.";
+            } else {
+                $log = "User '$id' logged in from $ip. Session not enabled.";
+            }
+            Yii::info($log, __METHOD__);
+            $this->afterLogin($identity, false, $duration);
+        }
+
+        return !$this->getIsGuest();
+    }
+
+~~~~~~~~~ 
+autologin
+
+
+
+---------- 2016-09-02 09:53:40
+http://www.yiichina.com/doc/guide/2.0/security-authentication
+
+认证
+认证是鉴定用户身份的过程。它通常使用一个标识符 （如用户名或电子邮件地址）和一个加密令牌（比如密码或者存取令牌）来 鉴别用户身份。认证是登录功能的基础。
+Yii提供了一个认证框架，它连接了不同的组件以支持登录。欲使用这个框架， 你主要需要做以下工作：
+    设置用户组件 yii\web\User ;
+    创建一个类实现 yii\web\IdentityInterface 接口。
+配置 yii\web\User
+用户组件 yii\web\User 用来管理用户的认证状态。这需要你 指定一个含有实际认证逻辑的认证类 yii\web\User::identityClass。
+
+认证类 yii\web\User::identityClass 必须实现包含以下方法的 认证接口 yii\web\IdentityInterface：
+
+    yii\web\IdentityInterface::findIdentity()：根据指定的用户ID查找 认证模型类的实例，当你需要使用session来维持登录状态的时候会用到这个方法。
+    yii\web\IdentityInterface::findIdentityByAccessToken()：根据指定的存取令牌查找 认证模型类的实例，该方法用于 通过单个加密令牌认证用户的时候（比如无状态的RESTful应用）。
+    yii\web\IdentityInterface::getId()：获取该认证实例表示的用户的ID。
+    yii\web\IdentityInterface::getAuthKey()：获取基于 cookie 登录时使用的认证密钥。 认证密钥储存在 cookie 里并且将来会与服务端的版本进行比较以确保 cookie的有效性。
+    yii\web\IdentityInterface::validateAuthKey() ：是基于 cookie 登录密钥的 验证的逻辑的实现。
+
+用不到的方法可以空着，例如，你的项目只是一个 无状态的 RESTful 应用，只需实现 yii\web\IdentityInterface::findIdentityByAccessToken() 和 yii\web\IdentityInterface::getId() ，其他的方法的函数体留空即可。
+
+如果你的应用利用 cookie 登录， 你只需要实现 getAuthKey() 和 validateAuthKey() 方法。
+
+注意：不要混淆 user 认证类和用户组件 yii\web\User。前者是实现 认证逻辑的类，通常用关联了 持久性存储的用户信息的AR模型 Active Record 实现。后者是负责管理用户认证状态的 应用组件。
+
+使用用户组件 yii\web\User
+在 user 应用组件方面，你主要用到 yii\web\User 。
+你可以使用表达式 Yii::$app->user->identity 检测当前用户身份。它返回 一个表示当前登录用户的认证类 yii\web\User::identityClass 的实例， 未认证用户（游客）则返回 null。
+// 当前用户的身份实例。未认证用户则为 Null 。
+$identity = Yii::$app->user->identity;
+// 当前用户的ID。 未认证用户则为 Null 。
+$id = Yii::$app->user->id;
+// 判断当前用户是否是游客（未认证的）
+$isGuest = Yii::$app->user->isGuest;
+你可以使用下面的代码登录用户：
+// 使用指定用户名获取用户身份实例。
+// 请注意，如果需要的话您可能要检验密码
+$identity = User::findOne(['username' => $username]);
+// 登录用户
+Yii::$app->user->login($identity);
+yii\web\User::login() 方法将当前用户的身份登记到 yii\web\User。如果 session 设置为 yii\web\User::enableSession，则使用 session 记录用户身份，用户的 认证状态将在整个会话中得以维持。如果开启自动登录 yii\web\User::enableAutoLogin 则基于 cookie 登录（如：记住登录状态），它将使用 cookie 保存用户身份，这样 只要 cookie 有效就可以恢复登录状态。
+为了使用 cookie 登录，你需要在应用配置文件中将 yii\web\User::enableAutoLogin 设为 true。你还需要在 yii\web\User::login() 方法中 传递有效期（记住登录状态的时长）参数。
+注销用户：
+Yii::$app->user->logout();
+请注意，启用 session 时注销用户才有意义。该方法将从内存和 session 中 同时清理用户认证状态。默认情况下，它还会注销所有的 用户会话数据。如果你希望保留这些会话数据，可以换成 Yii::$app->user->logout(false) 。
+
+认证事件
+yii\web\User 类在登录和注销流程引发一些事件。
+    yii\web\User::EVENT_BEFORE_LOGIN：在登录 yii\web\User::login() 时引发。 如果事件句柄将事件对象的 yii\web\UserEvent::isValid 属性设为 false， 登录流程将会被取消。
+    yii\web\User::EVENT_AFTER_LOGIN：登录成功后引发。
+    yii\web\User::EVENT_BEFORE_LOGOUT：注销 yii\web\User::logout() 前引发。 如果事件句柄将事件对象的 yii\web\UserEvent::isValid 属性设为 false， 注销流程将会被取消。
+    yii\web\User::EVENT_AFTER_LOGOUT：成功注销后引发。
+你可以通过响应这些事件来实现一些类似登录统计、在线人数统计的功能。例如, 在登录后 yii\web\User::EVENT_AFTER_LOGIN 的处理程序，你可以将用户的登录时间和IP记录到 user 表中。
+
+
+------- 2016-09-02 11:44:11
+login process:
+
+http://localhost:8081/site/login
+/var/www/html/yii/basic/controllers/SiteController.php
+public function actionLogin()
+{
+    error_log("user class: ".get_class(Yii::$app->user));
+[02-Sep-2016 03:43:50 UTC] user class: yii\web\User
+
+    public function actionLogin()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return $this->goBack();
+        }
+        return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 341
+332333334335336337338339340341342343344345346347348349350    }
+
+    /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     * @return boolean whether the current user is a guest.
+     * @see getIdentity()
+     */
+    public function getIsGuest()
+    {
+        throw \yii\base\Exception("hello");
+        if(is_null($this->getIdentity()))
+            error_log("getIsGuest is triggered, identity null");
+        else {
+            error_log("getIsGuest is triggered, identity: ".json_encode($this->getIdentity()));
+        }
+        return $this->getIdentity() === null;
+    }
+ 
+    /**
+2. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Component.php at line 130 – yii\web\User::getIsGuest()
+3. in /var/www/html/yii/basic/views/layouts/main.php at line 42 – yii\base\Component::__get('isGuest')
+36373839404142434445464748    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav navbar-right'],
+        'items' => [
+            ['label' => 'Home', 'url' => ['/site/index']],
+            ['label' => 'About', 'url' => ['/site/about']],
+            ['label' => 'Contact', 'url' => ['/site/contact']],
+            Yii::$app->user->isGuest ? (
+                ['label' => 'Login', 'url' => ['/site/login']]
+            ) : (
+                '<li>'
+                . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+                . Html::submitButton(
+                    'Logout (' . Yii::$app->user->identity->username . ')',
+4. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 325 – require('/var/www/html/yii/basic/views/la...')
+5. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 247 – yii\base\View::renderPhpFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="site-index"> <d...'])
+6. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 393 – yii\base\View::renderFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="site-index"> <d...'], app\controllers\SiteController)
+7. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 379 – yii\base\Controller::renderContent('<div class="site-index"> <d...')
+8. in /var/www/html/yii/basic/controllers/SiteController.php at line 75 – yii\base\Controller::render('index')
+69707172737475767778798081        if ($session->isActive) error_log("----- session: ".Json::encode($session));
+ 
+        $cookies = Yii::$app->request->cookies;
+ 
+        error_log("----- cookie: ".Json::encode($cookies));
+        error_log("site index, user info: ".Json::encode(Yii::$app->user));
+        return $this->render('index');
+    }
+ 
+    /**
+     * Login action.
+     *
+     * @return string
+9. app\controllers\SiteController::actionIndex()
+10. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – call_user_func_array([app\controllers\SiteController, 'actionIndex'], [])
+11. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 154 – yii\base\InlineAction::runWithParams([])
+12. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction('', [])
+13. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction('', [])
+14. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest(yii\web\Request)
+15. in /var/www/html/yii/basic/web/index.php at line 12 – yii\base\Application::run()
+6789101112 
+require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
+ 
+$config = require(__DIR__ . '/../config/web.php');
+ 
+(new yii\web\Application($config))->run();
+ $_COOKIE = [
+    '_csrf' => '95658882f0cbf2c2b7a00f270e61ca7bd87f14339d1d5a1d2951655471681878a:2:{i:0;s:5:"_csrf";i:1;s:32:"ZWZHzk60sUwtyQf067CQ6VShsTmSmm3R";}',
+    'PHPSESSID' => 'sgqsngrjmj4gbbhaefuq7l0mg2',
+    '_identity' => '5aee6a581fe1bd4eec2f993c9c18614c5e91f27d0945b9f0c7dbee89b419d567a:2:{i:0;s:9:"_identity";i:1;s:28:"["100","test100key",2592000]";}',
+];
+
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+    /**
+     * Updates the authentication status using the information from session and cookie.
+     *
+     * This method will try to determine the user identity using the [[idParam]] session variable.
+     *
+     * If [[authTimeout]] is set, this method will refresh the timer.
+     *
+     * If the user identity cannot be determined by session, this method will try to [[loginByCookie()|login by cookie]]
+     * if [[enableAutoLogin]] is true.
+     */
+    protected function renewAuthStatus()
+    {
+        $session = Yii::$app->getSession();
+        $id = $session->getHasSessionId() || $session->getIsActive() ? $session->get($this->idParam) : null;
+
+        if ($id === null) {
+            $identity = null;
+        } else {
+            /* @var $class IdentityInterface */
+            $class = $this->identityClass;
+            $identity = $class::findIdentity($id);
+        }
+
+        $this->setIdentity($identity);
+
+        if ($identity !== null && ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)) {
+            $expire = $this->authTimeout !== null ? $session->get($this->authTimeoutParam) : null;
+            $expireAbsolute = $this->absoluteAuthTimeout !== null ? $session->get($this->absoluteAuthTimeoutParam) : null;
+            if ($expire !== null && $expire < time() || $expireAbsolute !== null && $expireAbsolute < time()) {
+                $this->logout(false);
+            } elseif ($this->authTimeout !== null) {
+                $session->set($this->authTimeoutParam, time() + $this->authTimeout);
+            }
+        }
+
+        if ($this->enableAutoLogin) {
+            if ($this->getIsGuest()) {
+                $this->loginByCookie();
+            } elseif ($this->autoRenewCookie) {
+                $this->renewIdentityCookie();
+            }
+        }
+    }
+
+1. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 676
+667668669670671672673674675676677678679680681682683684685     *
+     * If [[authTimeout]] is set, this method will refresh the timer.
+     *
+     * If the user identity cannot be determined by session, this method will try to [[loginByCookie()|login by cookie]]
+     * if [[enableAutoLogin]] is true.
+     */
+    protected function renewAuthStatus()
+    {
+        error_log("---------id param: ".$this->idParam);
+        throw e;
+        $session = Yii::$app->getSession();
+        $id = $session->getHasSessionId() || $session->getIsActive() ? $session->get($this->idParam) : null;
+ 
+        if ($id === null) {
+            error_log("---------id null: ");
+            $identity = null;
+        } else {
+            error_log("---------id not null: ");
+            throw e;
+2. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 676 – yii\base\ErrorHandler::handleError(8, 'Use of undefined constant e - as...', '/var/www/html/yii/basic/vendor/y...', 676, ...)
+3. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 191 – yii\web\User::renewAuthStatus()
+4. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php at line 348 – yii\web\User::getIdentity()
+5. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Component.php at line 130 – yii\web\User::getIsGuest()
+6. in /var/www/html/yii/basic/views/layouts/main.php at line 42 – yii\base\Component::__get('isGuest')
+36373839404142434445464748    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav navbar-right'],
+        'items' => [
+            ['label' => 'Home', 'url' => ['/site/index']],
+            ['label' => 'About', 'url' => ['/site/about']],
+            ['label' => 'Contact', 'url' => ['/site/contact']],
+            Yii::$app->user->isGuest ? (
+                ['label' => 'Login', 'url' => ['/site/login']]
+            ) : (
+                '<li>'
+                . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+                . Html::submitButton(
+                    'Logout (' . Yii::$app->user->identity->username . ')',
+7. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 325 – require('/var/www/html/yii/basic/views/la...')
+8. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/View.php at line 247 – yii\base\View::renderPhpFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="site-index"> <d...'])
+9. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 393 – yii\base\View::renderFile('/var/www/html/yii/basic/views/la...', ['content' => '<div class="site-index"> <d...'], app\controllers\SiteController)
+10. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 379 – yii\base\Controller::renderContent('<div class="site-index"> <d...')
+11. in /var/www/html/yii/basic/controllers/SiteController.php at line 75 – yii\base\Controller::render('index')
+69707172737475767778798081        if ($session->isActive) error_log("----- session: ".Json::encode($session));
+ 
+        $cookies = Yii::$app->request->cookies;
+ 
+        error_log("----- cookie: ".Json::encode($cookies));
+        error_log("site index, user info: ".Json::encode(Yii::$app->user));
+        return $this->render('index');
+    }
+ 
+    /**
+     * Login action.
+     *
+     * @return string
+12. app\controllers\SiteController::actionIndex()
+13. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – call_user_func_array([app\controllers\SiteController, 'actionIndex'], [])
+14. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 154 – yii\base\InlineAction::runWithParams([])
+15. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction('', [])
+16. in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction('', [])
+17. in /var/www/html/yii/basic/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest(yii\web\Request)
+18. in /var/www/html/yii/basic/web/index.php at line 12 – yii\base\Application::run()
+6789101112 
+require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
+ 
+$config = require(__DIR__ . '/../config/web.php');
+ 
+(new yii\web\Application($config))->run();
+ $_COOKIE = [
+    '_csrf' => '95658882f0cbf2c2b7a00f270e61ca7bd87f14339d1d5a1d2951655471681878a:2:{i:0;s:5:"_csrf";i:1;s:32:"ZWZHzk60sUwtyQf067CQ6VShsTmSmm3R";}',
+    'PHPSESSID' => 'j883bgg44qirk0gu2kqdgd03e7',
+    '_identity' => '5aee6a581fe1bd4eec2f993c9c18614c5e91f27d0945b9f0c7dbee89b419d567a:2:{i:0;s:9:"_identity";i:1;s:28:"["100","test100key",2592000]";}',
+];
+
+[02-Sep-2016 06:07:36 UTC] PHP Fatal error:  Uncaught Error: Can only throw objects in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php:199
+Stack trace:
+#0 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/Target.php(292): yii\web\User->getIdentity(false)
+#1 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/Target.php(264): yii\log\Target->getMessagePrefix(Array)
+#2 [internal function]: yii\log\Target->formatMessage(Array)
+#3 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/FileTarget.php(106): array_map(Array, Array)
+#4 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/Target.php(122): yii\log\FileTarget->export()
+#5 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/Dispatcher.php(188): yii\log\Target->collect(Array, true)
+#6 /var/www/html/yii/basic/vendor/yiisoft/yii2/log/Logger.php(173): yii\log\Dispatcher->dispatch(Array, true)
+#7 /var/www/html/yii/basic/vendor/yiisoft/yii2/base/ErrorHandler.php(111): yii\log\Logger->flush(true)
+#8 [internal function]: yii\base\ErrorHandler->handleException(Object(ParseError))
+#9 {main}
+  thrown in /var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php on line 199
+
+
+------------ 2016-09-02 12:14:27
+[02-Sep-2016 04:13:36 UTC] ----- cookie: {"_csrf":{"name":"_csrf","value":"ZWZHzk60sUwtyQf067CQ6VShsTmSmm3R","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true},"_identity":{"name":"_identity","value":"[\"100\",\"test100key\",2592000]","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true}}
+
+/var/www/html/yii/basic/controllers/SiteController.php
+    public function actionLogin()
+    {
+        if (!Yii::$app->user->isGuest) {
+            error_log("--------- not guest: ");
+            return $this->goHome();
+        }
+
+        error_log("--------- guest: ");
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return $this->goBack();
+        }
+        return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/User.php
+    /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     * @return boolean whether the current user is a guest.
+     * @see getIdentity()
+     */
+    public function getIsGuest()
+    {
+        if(is_null($this->getIdentity()))
+            error_log("getIsGuest is triggered, identity null");
+        else {
+            error_log("getIsGuest is triggered, identity: ".json_encode($this->getIdentity()));
+        }
+        return $this->getIdentity() === null;
+    }
+
+during login:
+[02-Sep-2016 12:27:42 Asia/Chongqing] ---------- yii base application created
+[02-Sep-2016 04:27:42 UTC] ----- trying to get but not set: user
+[02-Sep-2016 04:27:42 UTC] ----- definition set: user
+[02-Sep-2016 04:27:42 UTC] ----- to create obj: {"identityClass":"app\\models\\User","enableAutoLogin":true,"class":"yii\\web\\User"}
+[02-Sep-2016 04:27:42 UTC] ----- cookie: {"_csrf":{"name":"_csrf","value":"ZWZHzk60sUwtyQf067CQ6VShsTmSmm3R","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true},"_identity":{"name":"_identity","value":"[\"100\",\"test100key\",2592000]","domain":"","expire":null,"path":"/","secure":false,"httpOnly":true}}
+[02-Sep-2016 04:27:42 UTC] ----- trying to get: user
+[02-Sep-2016 04:27:42 UTC] getIsGuest is triggered, identity: {"id":"100","username":"admin","password":"admin","authKey":"test100key","accessToken":"100-token"}
+[02-Sep-2016 04:27:42 UTC] getIsGuest is triggered, identity: {"id":"100","username":"admin","password":"admin","authKey":"test100key","accessToken":"100-token"}
+[02-Sep-2016 04:27:42 UTC] ----- trying to get: user
+[02-Sep-2016 12:27:42 Asia/Chongqing] ---------- yii base application created
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/di/ServiceLocator.php
+    /**
+     * Returns the component instance with the specified ID.
+     *
+     * @param string $id component ID (e.g. `db`).
+     * @param boolean $throwException whether to throw an exception if `$id` is not registered with the locator before.
+     * @return object|null the component of the specified ID. If `$throwException` is false and `$id`
+     * is not registered before, null will be returned.
+     * @throws InvalidConfigException if `$id` refers to a nonexistent component ID
+     * @see has()
+     * @see set()
+     */
+    public function get($id, $throwException = true)
+    {
+        if (isset($this->_components[$id])) {
+            if($id == "user") error_log("----- trying to get: ".$id);
+            return $this->_components[$id];
+        }
+        else {
+            if($id == "user") error_log("----- trying to get but not set: ".$id);
+        }
+
+        if (isset($this->_definitions[$id])) {
+            if($id == "user") error_log("----- definition set: ".$id);
+            $definition = $this->_definitions[$id];
+            if (is_object($definition) && !$definition instanceof Closure) {
+                return $this->_components[$id] = $definition;
+            } else {
+
+                if($id == "user") error_log("----- to create obj: ".json_encode($definition));
+                return $this->_components[$id] = Yii::createObject($definition);
+            }
+        } elseif ($throwException) {
+            throw new InvalidConfigException("Unknown component ID: $id");
+        } else {
+            return null;
+        }
+    }
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/base/Module.php
+class Module extends ServiceLocator
+
+abstract class Application extends Module
+
+/var/www/html/yii/basic/vendor/yiisoft/yii2/web/Application.php
+class Application extends \yii\base\Application

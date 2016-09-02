@@ -6,8 +6,33 @@ mysql manual:
 
 
 
+---------- 2016-08-26 14:54:47
 
+$ mysql -h 10.12.0.1 -u root -p
+Enter password: 
+ERROR 2003 (HY000): Can't connect to MySQL server on '10.12.0.1' (111)
 
+but localhost works. 
+similar issue occurs while using PDO.
+  PHP PDO SQLSTATE[HY000] [2002] Connection refused
+
+http://blog.csdn.net/colourless/article/details/43273719
+  grant all privileges on *.* to 'root'@'%' identified by 'root';
+  flush privileges; // 听说实际实现方式是将user和privilige表里的东西扔进内存。
+
+sudo /etc/init.d/mysql restart
+
+use mysql;
+select Host, User, Password from user;
+update user set host='localhost' where Host = '%';
+
+/etc/mysql/my.cnf [commenting below line works, meanwhile, the % record should be there for some user and corresponding pwd, the pwd does not have to be the same as system user]
+# bind-address  = 127.0.0.1
+
+---------- 2016-08-25 19:14:51
+http://www.cnblogs.com/zcw-ios/articles/3319480.html
+mysqldump -h 10.12.0.61 -u tz8_dev tz8_dev qrcode_general > qrcode_general.sql -p
+mysqldump -h 10.168.76.32 -u tz8 tz8 qrcode_general > qrcode_general.sql -p
 
 ----------- 2016-08-19 11:06:03
 mysql> SELECT COUNT(*) FROM `checkin` WHERE checkin.challenge_id = 8620 and TO_DAYS(checkin_time) = TO_DAYS(NOW());

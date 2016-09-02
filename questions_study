@@ -2,6 +2,84 @@
 
 
 
+----------- 2016-09-01 18:21:01
+headache:
+  used "DEFAULT" as a var name, and php stopped without any warning. But phpstorm has some warning as seen from ide, which i did not notice.
+
+
+--------- 2016-09-01 17:14:05
+
+2016-09-01 17:12:04 [][info][abc\frontend\components\wxmp\MpManager::processMessage] no handler found
+2016-09-01 17:12:04 [][info][abc\frontend\components\wxmp\MpManager::processMessage] no handler found
+2016-09-01 17:12:05 [][info][abc\frontend\components\wxmp\MpManager::processMessage] no handler found
+2016-09-01 17:12:06 [][info][abc\frontend\controllers\LoginController::getWechatLoginUrl] wechat login callback: https://tz8-dev.muder.pw/login/wechat-login-callback
+2016-09-01 17:12:06 [-][info][abc\frontend\controllers\LoginController::actionWechatLoginCallback] used app id: wx7a84fcbe9e98e97f
+2016-09-01 17:12:06 [-][info][abc\frontend\components\AccountManager::handleWechatLoginCallback] wechat login callback, code: 0412Tsab1IrlVq0G9Kab1siqab12TsaL, appId: wx7a84fcbe9e98e97f
+2016-09-01 17:12:06 [-][info][abc\frontend\components\AccountManager::loginWithWechat] Call function with args: ["0412Tsab1IrlVq0G9Kab1siqab12TsaL","wx7a84fcbe9e98e97f"]
+2016-09-01 17:12:06 [-][info][abc\frontend\components\AccountManager::loginWithWechat] Use wechat user session
+2016-09-01 17:12:06 [-][info][abc\frontend\components\AccountManager::loginWithWechat] get account by openId: ook-7wLch8xSS-mM-urjLCCs91n0 unionId: ook-7wLch8xSS-mM-urjLCCs91n0
+2016-09-01 17:12:06 [-][info][abc\frontend\components\AccountManager::loginWithWechat] account is empty, make a new ook-7wLch8xSS-mM-urjLCCs91n0 unionId: ook-7wLch8xSS-mM-urjLCCs91n0
+2016-09-01 17:12:13 [][info][abc\frontend\components\wxmp\MpManager::processMessage] no handler found
+
+
+
+------------ 2016-08-30 21:06:56
+Unable to find 'app\assets\AppAsset' in file: /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/assets/AppAsset.php. Namespace missing?
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/layouts/main.php
+use app\assets\AppAsset;
+=>
+use frontend\assets\AppAsset;
+
+------------- 2016-08-25 20:19:06
+
+~/workspace/bc/advanced/MissionImpossible
+$ ./init 
+Yii Application Initialization Tool v1.0
+
+Which environment do you want the application to be initialized in?
+
+  [0] Development
+  [1] Test
+  [2] Production
+
+  Your choice [0-2, or "q" to quit] 0
+
+  Initialize the application under 'Development' environment? [yes|no] yes
+
+  Start initialization ...
+
+  unchanged yii
+  unchanged console/config/params-local.php
+  unchanged console/config/main-local.php
+  unchanged common/config/params-local.php
+  unchanged common/config/main-local.php
+  unchanged frontend/config/params-local.php
+      exist frontend/config/main-local.php
+            ...overwrite? [Yes|No|All|Quit] No
+       skip frontend/config/main-local.php
+  unchanged frontend/web/index-test.php
+   generate frontend/web/index.php
+  unchanged tests/codeception/config/config-local.php
+  unchanged backend/config/params-local.php
+      exist backend/config/main-local.php
+            ...overwrite? [Yes|No|All|Quit] No
+       skip backend/config/main-local.php
+  unchanged backend/web/index-test.php
+  unchanged backend/web/index.php
+   generate cookie validation key in backend/config/main-local.php
+   generate cookie validation key in frontend/config/main-local.php
+      chmod 0777 backend/runtime
+      chmod 0777 backend/web/assets
+      chmod 0777 frontend/runtime
+      chmod 0777 frontend/web/assets
+      chmod 0755 yii
+      chmod 0755 tests/codeception/bin/yii
+
+  ... initialization completed.
+
+
+
 ------------- 2016-08-23 15:44:18
 
 2016-08-23 15:41:40 [187][error][abc\app\controllers\ajax\MissionController::actionCreate] save mission failed: eewer

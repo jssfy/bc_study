@@ -5,6 +5,529 @@ remote: Counting objects: 672048, done.
 remote: Compressing objects: 100% (15/15), done.
 Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
+
+
+
+------- 2016-09-02 09:59:07
+require()语句包括并运行指定文件。 
+require() 和 include()除了怎样处理失败之外在各方面都完全一样。include() 产生一个警告而 require()则导致一个致命错误。换句话说，如果你想在丢失文件时停止处理页面，那就别犹豫了，用 require() 吧。include() 就不是这样，脚本会继续运行。同时也要确认设置了合适的include_path。 
+
+-------- 2016-09-02 09:56:22
+
+
+https://segmentfault.com/q/1010000000437998
+php文件只要开始标签而不要结尾标签?
+
+这是官方手册上推荐的用法，手册上有详细说明：
+
+    如果文件内容是纯 PHP 代码，最好在文件末尾删除 PHP 结束标记。这可以避免在 PHP 结束标记之后万一意外加入了空格或者换行符，会导致 PHP 开始输出这些空白，而脚本中此时并无输出的意图。
+
+纯 PHP 文件必须省略关闭标签、
+文件末尾必须空一行。
+换仿佛必须是 LF。
+这就是PSR-2风格指南里的， 该指南是经过许多的开源项目风格调查之后总结的一个多数人使用的方法。 旨在让不同的 PHP 项目之间切换， 或审阅别人代码时， 能够无缝开始， 降低熟悉风格的成本。 这个风格上的所有内容都是有一定意义的，比如省略关闭标签主要是文件 include 和 输出内容不受干扰的考量。 否则很有可能在你的关闭标签后面掺杂东西到另一个文件里， 没有经验的人会很难排查错误。
+www.php-fig.org
+我这两天翻译个这个， yii2的风格， 基本是在psr2基础上做少许修改（缩进四个空格改为tab），https://github.com/AbrahamGreyson/yii2-zh-cn/blob/master/internals/core-code-style.md
+更正下，经过激烈的讨论，yii2决定完全兼容psr2， 移除tab缩进，改为更符合社区多数人习惯的4空格缩进。
+一点题外话，这仅仅是代码风格指南，最大的意义不是所有人都遵守它，而是在一个圈子内大家尽量维持一致，以便提高协作的效率，在这点上google有一篇文章专门讲公司内部代码规范的必要性。 大家支持并尊重该指南的基础是， 不搞那么多个性化，一切都按照大家约定的习惯来。 目前 PHP 已经有相当多大项目完全遵照这个风格。例如yii2 symfony2 laravel。如果你想在测试的时候集成风格的检查， 可以安装 PHP_CodeSniffer ， 他能在构建的时候给你检查风格是否符合你的设定。
+另外注释是另一个范畴了， 建议你用符合 PHPdoc 规范的注释。 可以自动把你的代码生成 api 手册， 可以代替类图 uml之类的东西。 快速查询时比较方便。
+    2014年03月18日回答 · 2014年03月18日更新 
+
+----------- 2016-08-31 19:23:53
+curl
+
+    public static function upload($url, $filedata) {
+        $curl = curl_init ();
+        if (class_exists ( '/CURLFile' )) {//php5.5跟php5.6中的CURLOPT_SAFE_UPLOAD的默认值不同
+//            curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, true );
+        } else {
+            if (defined ( 'CURLOPT_SAFE_UPLOAD' )) {
+//                curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, false );
+            }
+        }
+        curl_setopt ( $curl, CURLOPT_URL, $url );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, FALSE );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, FALSE );
+        if (! empty ( $filedata )) {
+            curl_setopt ( $curl, CURLOPT_POST, 1 );
+            curl_setopt ( $curl, CURLOPT_POSTFIELDS, $filedata );
+        }
+        curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        $output = curl_exec ( $curl );
+        curl_close ( $curl );
+        return $output;
+
+    }
+
+    private function http_post_media($url,$strPOST)
+    {
+        $oCurl = curl_init ();
+//        curl_setopt ( $oCurl, CURLOPT_SAFE_UPLOAD, false);
+//        curl_setopt($oCurl, CURLOPT_POSTFIELDS, array(
+//            'file' => '@'.realpath('image.png'),
+//        ));
+
+        if (stripos ( $url, "https://" ) !== FALSE) {
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYPEER, FALSE );
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYHOST, false );
+        }
+
+        curl_setopt ( $oCurl, CURLOPT_URL, $url );
+        curl_setopt ( $oCurl, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt ( $oCurl, CURLOPT_POST, true );
+        curl_setopt ( $oCurl, CURLOPT_POSTFIELDS, $strPOST );
+        $sContent = curl_exec ( $oCurl );
+        $aStatus = curl_getinfo ( $oCurl );
+        curl_close ( $oCurl );
+        if (intval ( $aStatus ["http_code"] ) == 200) {
+            return $sContent;
+        } else {
+            return false;
+        }
+
+    }
+
+----------- 2016-08-31 17:16:04
+differences between self and static:
+http://www.jb51.net/article/68754.htm
+
+---------- 2016-08-31 16:27:45
+to delete a file:
+ $result = @unlink($full_file_path);
+
+----------- 2016-08-31 14:33:56
+obtain runtime path:
+  http://www.kuitao8.com/20141102/3208.shtml
+
+return Yii::$app->runtimepath;
+  /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime
+
+class Yii extends \yii\BaseYii
+class BaseYii
+{
+    /**
+     * @var \yii\console\Application|\yii\web\Application the application instance
+     */
+    public static $app;
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php
+abstract class Application extends Module
+ * @property string $runtimePath The directory that stores runtime files. Defaults to the "runtime"
+
+
+---------- 2016-08-31 14:15:51
+https://mp.weixin.qq.com/wiki/11/c88c270ae8935291626538f9c64bd123.html
+
+http://frontend.tz8/test/send-image
+http://frontend.tz8/test/send-text
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/TestController.php
+    public function actionSendText()
+    {
+        if (!YII_ENV_PROD) {
+            if(Wechat::postTextToUser("ook-7wLch8xSS-mM-urjLCCs91n0", "afternoon anhua, again")) return "true";
+            else return "false";
+        }
+    }
+    public function actionSendImage()
+    {
+        if (!YII_ENV_PROD) {
+            if(Wechat::postImageToUser("ook-7wLch8xSS-mM-urjLCCs91n0", "wXFdY0s3osL-_rZxv7xJICUeB7xdDa6kJQWwIi8IXGjmXe1G4zclcmTIv-wfMJgH")) return "true";
+            else return "false";
+        }
+    }
+
+-------- 2016-08-31 13:39:44
+
+yii:
+
+public function actionDownloadImage() {
+    if(!YII_ENV_PROD) {
+        return __DIR__;
+    }
+}
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers
+
+    public function actionDownloadImage() {
+        if(!YII_ENV_PROD) {
+            $url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGB7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2h6dHVvVlhsMmp5alBhc1ZDaFZtAAIEJFzGVwMEAI0nAA==";
+            $full_file_path = "/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime/images/test.jpg";
+            Util::curl_get_image($url, $full_file_path);
+            return __DIR__;
+        }
+    }
+~/workspace/bc/advanced/MissionImpossible/frontend/runtime
+$ ll images/
+total 48
+drwxrwxr-x 2 www-data www-data  4096  8月 31 13:46 ./
+drwxrwxrwx 7 kidd     kidd      4096  8月 31 13:45 ../
+-rw-r--r-- 1 www-data www-data 37962  8月 31 13:46 test.jpg
+
+
+    public function actionDownloadImage() {
+        if(!YII_ENV_PROD) {
+            $url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGB7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2h6dHVvVlhsMmp5alBhc1ZDaFZtAAIEJFzGVwMEAI0nAA==";
+            $filename = uniqid(date("Y_m_d_H_i_s_")).".jpg";
+            $full_file_path = "/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime/images/".$filename;
+            Util::curl_get_image($url, $full_file_path);
+            return Wechat::postImageToServer($full_file_path);
+        }
+    }
+
+https://mp.weixin.qq.com/wiki/10/78b15308b053286e2a66b33f0f0f5fb6.html
+正确情况下的返回JSON数据包结果如下：
+{"type":"TYPE","media_id":"MEDIA_ID","created_at":123456789}
+
+response:
+    "{\"type\":\"image\",\"media_id\":\"jnRmmoNh0G1LoxVeUzs9HLOvzVk7dsYis9ejpNwhjo73k1pjXafJmZucVU9aoiwG\",\"created_at\":1472622961}"
+
+verification:
+http请求方式: GET
+http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID
+请求示例（示例为通过curl命令获取多媒体文件）
+curl -I -G "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID"
+
+  $url = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=$mpAccessToken&media_id=".$arr['media_id'];
+  return $url;
+  http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=i1Jxxi5TsEVUg15GxUtHfBcoQm3uXMBssCptUaZI3lUKIshOcJ_EhuXKACR5FQkXegP5nN7PwWFAPsaOQ1_CcB6tJnKkb04-EY16W4jk2JPdli1vt4QrpgTj0sJ75XwUYVRbADATQM&media_id=wXFdY0s3osL-_rZxv7xJICUeB7xdDa6kJQWwIi8IXGjmXe1G4zclcmTIv-wfMJgH
+
+----------- 2016-08-31 13:33:04
+http://www.php100.com/html/php/lei/2013/0905/5393.html
+  php使用curl来获取远程图片
+<?php
+function getImg($url = "", $filename = "")
+{
+ //去除URL连接上面可能的引号
+  //$url = preg_replace( '/(?:^['"]+|['"/]+$)/', '', $url );
+  $hander = curl_init();
+  $fp = fopen($filename,'wb');
+  curl_setopt($hander,CURLOPT_URL,$url);
+  curl_setopt($hander,CURLOPT_FILE,$fp);
+  curl_setopt($hander,CURLOPT_HEADER,0);
+  curl_setopt($hander,CURLOPT_FOLLOWLOCATION,1);
+  //curl_setopt($hander,CURLOPT_RETURNTRANSFER,false);//以数据流的方式返回数据,当为false是直接显示出来
+  curl_setopt($hander,CURLOPT_TIMEOUT,60);
+  curl_exec($hander);
+  curl_close($hander);
+  fclose($fp);
+  Return true;
+}
+getImg("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGB7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2h6dHVvVlhsMmp5alBhc1ZDaFZtAAIEJFzGVwMEAI0nAA==", __DIR__."/tmp/test.jpg");
+?>
+~/workspace/php
+$ tree tmp
+tmp
+└── test.jpg
+
+--------------- 2016-08-30 16:05:15
+
+The development web server built in to PHP 5.4+ does not work in the way you want. That is, it's not a PHP process, and you can't have it run code for you.
+
+It's designed to serve PHP applications and content from the specified directory. The output of the server process is the access log. You can write to the log using the error_log function, with a value of 4 as the message_type. 
+
+------- 2016-08-26 19:05:28
+
+$b = new test\test\Inside();
+echo get_class($b)."\n";
+
+if a class under the same ns is declared twice, there will be below error:
+$ php test.php
+PHP Fatal error:  Cannot declare class test\Inside, because the name is already in use in /home/kidd/workspace/php/composer/Http/File/Interface.php on line 17
+PHP Stack trace:
+PHP   1. {main}() /home/kidd/workspace/php/composer/test.php:0
+PHP   2. require_once() /home/kidd/workspace/php/composer/test.php:67
+
+在PHP开发过程中，如果希望从外部引入一个class，通常会使用include和require方法，去把定义这个class的文件包含进来。这个在小规模开发的时候，没什么大问题。但在大型的开发项目中，这么做会产生大量的require或者include方法调用，这样不因降低效率，而且使得代码难以维护，况且require_once的代价很大。
+
+在PHP5之前，各个PHP框架如果要实现类的自动加载，一般都是按照某种约定自己实现一个遍历目录，自动加载所有符合约定规则的文件的类或函数。 当然，PHP5之前对面向对象的支持并不是太好，类的使用也没有现在频繁。 在PHP5后，当加载PHP类时，如果类所在文件没有被包含进来，或者类名出错，Zend引擎会自动调用__autoload 函数。此函数需要用户自己实现__autoload函数。 在PHP5.1.2版本后，可以使用spl_autoload_register函数自定义自动加载处理函数。当没有调用此函数，默认情况下会使用SPL自定义的spl_autoload函数。
+
+---------- 2016-08-26 18:03:07
+
+要注意的是，当前脚本文件的第一个命名空间前面不能有任何代码
+为什么要说第一个命名空间呢？因为同一脚本文件中可以创建多个命名空间。
+
+在说别名和导入之前，需要知道关于空间三种名称的术语，以及PHP是怎样解析它们的。官方文档说得非常好，我就直接拿来套了。
+1.非限定名称，或不包含前缀的类名称，例如 $comment = new Comment();。如果当前命名空间是Blog\Article，Comment将被解析为Blog\Article\Comment。如果使用Comment的代码不包含在任何命名空间中的代码（全局空间中），则Comment会被解析为Comment。
+2.限定名称，或包含前缀的名称，例如 $comment = new Article\Comment();。如果当前的命名空间是Blog，则Comment会被解析为Blog\Article\Comment。如果使用Comment的代码不包含在任何命名空间中的代码（全局空间中），则Comment会被解析为Comment。
+3.完全限定名称，或包含了全局前缀操作符的名称，例如 $comment = new \Article\Comment();。在这种情况下，Comment总是被解析为代码中的文字名(literal name)Article\Comment。
+其实可以把这三种名称类比为文件名（例如 comment.php）、相对路径名（例如 ./article/comment.php）、绝对路径名（例如 /blog/article/comment.php），这样可能会更容易理解。
+
+http://php.net/manual/zh/language.namespaces.rules.php
+
+namespace test;
+spl_autoload_register(function($class){
+  if($class == 'Http_File_Interface'){
+    require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  }
+});
+spl_autoload_register(function($class){
+  if($class == 'test\Inter') {
+    require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  }
+});
+$a = new Inter();
+$a->name();
+
+in below code, "test\test\Inside" is still in the hello namespace, which means the namespace defined in Interface.php does not affect following code. Even put some "use" clauses in Interface.php does not affect the naming logic in the following code.
+  namespace hello;
+  require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  $b = new test\test\Inside();
+
+
+导入规则is in effect only when it is in the "use" clause;
+Example #1 名称解析示例
+<?php
+namespace A;
+use B\D, C\E as F;
+// 函数调用
+foo();      // 首先尝试调用定义在命名空间"A"中的函数foo()
+            // 再尝试调用全局函数 "foo"
+\foo();     // 调用全局空间函数 "foo" 
+my\foo();   // 调用定义在命名空间"A\my"中函数 "foo" 
+F();        // 首先尝试调用定义在命名空间"A"中的函数 "F" 
+            // 再尝试调用全局函数 "F"
+// 类引用
+new B();    // 创建命名空间 "A" 中定义的类 "B" 的一个对象
+            // 如果未找到，则尝试自动装载类 "A\B"
+new D();    // 使用导入规则，创建命名空间 "B" 中定义的类 "D" 的一个对象
+            // 如果未找到，则尝试自动装载类 "B\D"
+new F();    // 使用导入规则，创建命名空间 "C" 中定义的类 "E" 的一个对象
+            // 如果未找到，则尝试自动装载类 "C\E"
+new \B();   // 创建定义在全局空间中的类 "B" 的一个对象
+            // 如果未发现，则尝试自动装载类 "B"
+new \D();   // 创建定义在全局空间中的类 "D" 的一个对象
+            // 如果未发现，则尝试自动装载类 "D"
+new \F();   // 创建定义在全局空间中的类 "F" 的一个对象
+            // 如果未发现，则尝试自动装载类 "F"
+// 调用另一个命名空间中的静态方法或命名空间函数
+B\foo();    // 调用命名空间 "A\B" 中函数 "foo"
+B::foo();   // 调用命名空间 "A" 中定义的类 "B" 的 "foo" 方法
+            // 如果未找到类 "A\B" ，则尝试自动装载类 "A\B"
+D::foo();   // 使用导入规则，调用命名空间 "B" 中定义的类 "D" 的 "foo" 方法
+            // 如果类 "B\D" 未找到，则尝试自动装载类 "B\D"
+\B\foo();   // 调用命名空间 "B" 中的函数 "foo" 
+\B::foo();  // 调用全局空间中的类 "B" 的 "foo" 方法
+            // 如果类 "B" 未找到，则尝试自动装载类 "B"
+// 当前命名空间中的静态方法或函数
+A\B::foo();   // 调用命名空间 "A\A" 中定义的类 "B" 的 "foo" 方法
+              // 如果类 "A\A\B" 未找到，则尝试自动装载类 "A\A\B"
+\A\B::foo();  // 调用命名空间 "A\B" 中定义的类 "B" 的 "foo" 方法
+              // 如果类 "A\B" 未找到，则尝试自动装载类 "A\B"
+?>
+
+
+------------- 2016-08-26 17:06:41
+
+实例化一个类的时候，如果文件中不包括类文件，就会调用__autoload函数去加载类库文件。
+最经常使用的就是这种方法，根据类名，找出类文件，然后require_once
+http://www.jb51.net/article/31399.htm
+
+1. 这种方法的好处就是简单易使用。当然也有缺点，缺点就是将类名和文件路径强制做了约定，当修改文件结构的时候，就势必要修改类名。 
+function __autoload($class_name) {
+  echo "trying autoloading $class_name\n";
+  $path = str_replace('_', '/', $class_name);
+  require_once $path . '.php';
+}
+// 这里会自动加载Http/File/Interface.php 文件
+$a = new Http_File_Interface();
+$a->name();
+
+2. 这种方法的好处就是类名和文件路径只是用一个映射来维护，所以当文件结构改变的时候，不需要修改类名，只需要将映射中对应的项修改就好了。 
+这种方法相较于前面的方法缺点是当文件多了的时候这个映射维护起来非常麻烦，或许这时候你就会考虑使用json或者单独一个文件来进行维护了。或许你会想到使用一个框架来维护或者建立这么一个映射。
+$map = array(
+  'Http_File_Interface' => '/home/kidd/workspace/php/composer/Http/File/Interface.php'
+);
+function __autoload($class_name) {
+  global $map;
+  if (isset($map[$class_name])) {
+    require_once $map[$class_name];
+  }
+  else {
+    echo "not found\n";
+  }
+}
+// 这里会自动加载Http/File/Interface.php 文件
+$a = new Http_File_Interface();
+$a->name();
+
+__autoload的最大缺陷是无法有多个autoload方法 
+
+如果你的PHP版本大于5.1的话，你就可以使用spl_autoload 
+
+
+3. (PHP 5 >= 5.1.2)
+http://www.jb51.net/article/88816.htm
+将__autoload换成loadprint函数。但是loadprint不会像__autoload自动触发，这时spl_autoload_register()就起作用了，它告诉PHP碰到没有定义的类就执行loadprint()。
+$map = array(
+  'Http_File_Interface' => '/home/kidd/workspace/php/composer/Http/File/Interface.php'
+);
+function loadprint($class_name) {
+  global $map;
+  if (isset($map[$class_name])) {
+    require_once $map[$class_name];
+  }
+  else {
+    echo "not found\n";
+  }
+}
+spl_autoload_register('loadprint');
+// 这里会自动加载Http/File/Interface.php 文件
+$a = new Http_File_Interface();
+$a->name();
+
+spl_autoload_register() 调用静态方法
+  spl_autoload_register( array('test','loadprint') );
+  class test {
+    public static function loadprint( $class )
+
+bool spl_autoload_register ([ callback $autoload_function ] )
+将函数注册到SPL __autoload函数栈中。如果该栈中的函数尚未激活，则激活它们。
+
+如果在你的程序中已经实现了__autoload函数，它必须显式注册到__autoload栈中。因为spl_autoload_register()函数会将Zend Engine中的__autoload函数取代为spl_autoload() 或 spl_autoload_call()。
+
+spl_autoload_register(function($class){
+  echo "hello";
+  if($class == 'Http_File_Interface'){
+    require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  }
+});
+$a = new Http_File_Interface();
+$a->name(); 
+
+
+Interface.php:
+<?php 
+
+  class Inter {
+    public function name() {
+      echo "http file inter\n";
+    }
+  }
+  class Http_File_Interface {
+    public function name() {
+      echo "http file Http_File_Interface\n";
+    }
+  }
+
+?>
+
+test.php
+spl_autoload_register(function($class){
+  if($class == 'Http_File_Interface'){
+    require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  }
+});
+spl_autoload_register(function($class){
+  if($class == "Inter") {
+    require_once("/home/kidd/workspace/php/composer/Http/File/Interface.php");
+  }
+});
+$a = new Inter();
+$a->name();
+
+-------- 2016-08-26 16:12:32
+composer 
+
+第一件事情在composer.json就是使用require关键字了，你将告诉composer哪些包是你项目所需要的
+{
+    "require": {
+        "monolog/monolog": "1.0.*"
+    }
+}
+基本上包的命名是 主名/项目名称（ monolog/monolog），主名必须唯一，但是项目也就是我们的包的名称可以有相同的，例如: igorw/json,和seldaek/json
+我们需要使用monolog的版本是1.0.*，他的意思是只要版本是1.0分支即可，例如1.0.0，1.0.2或者1.0.99
+版本定义的两种方式：
+    标准的版本：定义保准的版本包文件，如：1.0.2
+    一定范围的版本：使用比较符号来定义有效的版本的范围，有效的符号有>, >=, <,<=, !=
+    通配符：特别的匹配符号*，例如1.0.*就相当于>=1.0,<1.1版本的即可
+    下一个重要的版本：~符号最好的解释就是，~1.2就相当于>1.2,<2.0，但~1.2.3就相当于>=1.2.3,<1.3版本。  
+在项目文件路径下运行
+$ composer install
+这样子他会自动下载monolog/monolog文件到你的vendor目录下面。
+ 
+接下来需要说明一件事情就是
+    composer.lock - 锁定文件
+在安装完所有需要的包之后，composer会生成一张标准的包版本的文件在composer.lock文件中。这将锁定所有包的版本。
+    使用composer.lock（当然是和composer.json一起）来控制你的项目的版本
+这一点非常的重要，我们使用install命令来处理的时候，它首先会判断composer.lock文件是否存在，如果存在，将会下载相对应的版本(不会在于composer.json里面的配置)，这意味着任何下载项目的人都将会得到一样的版本。
+如果不存在composer.lock，composer将会通过composer.json来读取需要的包和相对的版本，然后创建composer.lock文件
+这样子就可以在你的包有新的版本之后，你不会自动更新了，升级到新的版本，使用update命令即可，这样子就能获取最新版本的包并且也更新了你的composer.lock文件。
+$ php composer.phar update
+或者
+$ composer update
+
+Packagist是composer的主要仓库
+composer仓库的基础是包的源码，你可以随意的获取，Packagist的目的建成一个任何人都可以使用的仓库，这就意味着在你的文件中任意的require包了。
+
+to user Monolog without autoload:
+
+$ cat composer.json 
+{
+    "require": {
+        "monolog/monolog": "1.0.*"
+    }
+}
+
+<?php
+
+require("vendor/monolog/monolog/src/Monolog/Logger.php");
+require("vendor/monolog/monolog/src/Monolog/Handler/HandlerInterface.php");
+require("vendor/monolog/monolog/src/Monolog/Formatter/FormatterInterface.php");
+require("vendor/monolog/monolog/src/Monolog/Formatter/LineFormatter.php");
+
+require("vendor/monolog/monolog/src/Monolog/Handler/AbstractHandler.php");
+require("vendor/monolog/monolog/src/Monolog/Handler/AbstractProcessingHandler.php");
+require("vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php");
+
+$log = new Monolog\Logger('name');
+$log->pushHandler(new Monolog\Handler\StreamHandler('app.log', Monolog\Logger::WARNING));
+                                 
+$log->addWarning('Foo');
+
+?>
+
+$ tree
+.
+├── app.log -> the genrated log file
+├── composer.json
+├── composer.lock
+├── test.php
+└── vendor
+
+or
+
+$loader = require 'vendor/autoload.php';
+$loader->add('Monolog\Logger', __DIR__);
+
+$log = new Monolog\Logger('name');
+$log->pushHandler(new Monolog\Handler\StreamHandler('app.log', Monolog\Logger::WARNING));
+                                 
+$log->addWarning('Foo');
+
+------------ 2016-08-25 18:10:04
+php 字符串 以什么开头 以什么结尾 startWith endWith
+星期一, 2013-10-07 13:40 — shipingzhong
+
+//第一个是原串,第二个是 部份串
+function startWith($str, $needle) {
+
+    return strpos($str, $needle) === 0;
+
+}
+
+//第一个是原串,第二个是 部份串
+ function endWith($haystack, $needle) {   
+
+      $length = strlen($needle);  
+      if($length == 0)
+      {    
+          return true;  
+      }  
+      return (substr($haystack, -$length) === $needle);
+ }
+
+
 ----------- 2016-08-07 20:57:56
 http://blog.csdn.net/th362cn/article/details/8575344
 PHP数组添加一个元素的方式： push(), arr[], 

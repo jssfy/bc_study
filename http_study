@@ -1,0 +1,10 @@
+
+
+--------- 2016-09-02 09:39:54
+根据 RFC 2616 -- HTTP/1.1，响应报头 Location 后的 URI 在规范中明确地说明了是一个绝对路径！像这种不规范的 Location 应强烈遣责！
+
+RFC 2616 - HTTP/1.1
+14.30 Location
+http://tools.ietf.org/html/rfc2616#section-14.30
+
+请求报头 Referer 和响应报头 Content-Location 在 RFC 2616 中说明了既可以使用绝对路径，也可以使用相对路径。 

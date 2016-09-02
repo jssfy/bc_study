@@ -21,6 +21,48 @@ PING tz8.muder.pw (121.43.153.62) 56(84) bytes of data.
 
 tz8-dev.muder.pw
 
+
+
+-------- 2016-09-02 11:06:54
+a big mistake was made the day before yesterday: 
+  测试号菜单指向线上了 [php yii tools/create-wechat-menu, the added url for the menu should point to the test address, e.g., https://tz8-dev.muder.pw/mission/list]
+
+
+----------- 2016-09-01 11:20:36
+url sharing:
+  邀请：已有account，不动；无，添加invitor.
+  关注：无account，添加backup; 有，更新invitor。
+
+---------- 2016-08-31 17:16:52
+wechat will send a message after 5s if the server message is not handled timely.
+
+test:
+  to create a request into the db: http://frontend.tz8/test/qrcode-click-menu
+  trigger image sending and db clear: http://frontend.tz8/test/temporary [actually to call Wechat::generateAndSendTemporaryQrcode]
+  to send image directly: TestController::actionSendImage
+
+------- 2016-08-30 10:20:16
+to clone a mission: [自行发起]
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/MissionController.php
+  public function actionCreate($mt = null)
+  点击自行发起跳转发起挑战页，每日打卡时间与挑战天数预设为相同参数
+
+a second temp request with the same scene id generates different tickets.
+got temp ticket: gQE48DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL3Z6c2NtNTNsdkR6Rjk1TTdlQlZtAAIEGAjFVwMEPAAAAA==
+got temp ticket: gQEv7zoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL3Z6djlaMW5sVmp3dno1UE1tUlZtAAIEewzFVwMEPAAAAA==
+
+
+<img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=<?= Html::encode($ticket) ?>" />
+
+----------- 2016-08-29 11:45:40
+
+6.【周期挑战】踩超过50%，图片显示状态未改变 ［后端配合］
+7.【周期挑战】【发起挑战】无法加入情况，自行发起挑战，挑战参数预设［后端配合，新功能］
+8.【周期挑战】【加入挑战】当前周不足打卡次数，加入挑战情况 ［后端支持］
+
+7. 
+http://10.12.0.24/#g=1&p=2_1_%E6%97%A0%E6%B3%95%E5%8A%A0%E5%85%A5
+
 --------- 2016-08-23 17:04:59
 
 【周期挑战】发起、加入、打卡目前主要问题如下：

@@ -1,0 +1,37 @@
+
+
+------------ 2016-08-30 09:28:08
+wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -  
+sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'  
+sudo apt-get update  
+sudo apt-get install jenkins  
+
+Jenkins home: /var/lib/jenkins
+
+启动/关闭
+    sudo /etc/init.d/jenkins start  
+    sudo /etc/init.d/jenkins stop
+
+log路径/var/log/jenkins/jenkins.log
+
+http://192.168.1.6:8080/
+
+
+* Starting Jenkins Continuous Integration Server jenkins                                                    The selected http port (8080) seems to be in use by another program 
+Please select another port to use for jenkins
+
+http://www.myexception.cn/software/1898160.html
+修改端口号：
+如果8080端口被占用了，可以修改端口号， 如下，
+a.修改/etc/init.d/jenkins中的8080端口号
+  check_tcp_port "http" "$HTTP_PORT" "6060" || return 2
+b.修改/etc/default/jenkins的8080端口号
+  HTTP_PORT=6060
+
+
+http://localhost:6060
+To ensure Jenkins is securely set up by the administrator, a password has been written to the log (not sure where to find it?) and this file on the server:
+/var/lib/jenkins/secrets/initialAdminPassword
+Please copy the password from either location and paste it below.
+
+installed plugins suggested by community.

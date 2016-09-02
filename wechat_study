@@ -1,0 +1,534 @@
+
+
+
+
+----------- 2016-08-31 20:46:05
+
+公众号提示该公众号暂时无法提供服务的解决方法
+  make sure the wechat message handler returned 200.
+
+------------- 2016-08-31 15:46:00
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/ToolsController.php
+
+
+自定义菜单创建接口
+https://mp.weixin.qq.com/wiki/10/0234e39a2025342c17a7d23595c6b40a.html
+
+
+------------ 2016-08-31 16:01:15
+note: 
+$url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=".$mpAccessToken;
+https://mp.weixin.qq.com/wiki/11/c88c270ae8935291626538f9c64bd123.html
+当用户和公众号产生特定动作的交互时（具体动作列表请见下方说明），微信将会把消息数据推送给开发者，开发者可以在一段时间内（目前修改为48小时）调用客服接口，通过POST一个JSON数据包来发送消息给普通用户。此接口主要用于客服等有人工消息处理环节的功能，方便开发者为用户提供更加优质的服务。
+
+目前允许的动作列表如下（公众平台会根据运营情况更新该列表，不同动作触发后，允许的客服接口下发消息条数不同，下发条数达到上限后，会遇到错误返回码，具体请见返回码说明页）：
+1、用户发送信息
+2、点击自定义菜单（仅有点击推事件、扫码推事件、扫码推事件且弹出“消息接收中”提示框这3种菜单类型是会触发客服接口的）
+3、关注公众号
+4、扫描二维码
+5、支付成功
+6、用户维权
+为了帮助公众号使用不同的客服身份服务不同的用户群体，客服接口进行了升级，开发者可以管理客服账号，并设置客服账号的头像和昵称。该能力针对所有拥有客服接口权限的公众号开放。
+另外，请开发者注意，本接口中所有使用到media_id的地方，现在都可以使用素材管理中的永久素材media_id了。 
+
+2016-08-31 16:00:53 [-][error][abc\frontend\components\wxmp\Wechat::postContents] {"errcode":45015,"errmsg":"response out of time limit or subscription is canceled hint: [uH3rka0454ge11]"}
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:25
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/wxmp/Wechat.php:375
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/wxmp/Wechat.php:184
+
+    public function actionSendTemporary() {
+        // get user open id
+        $account_id = $_COOKIE[AccountManager::USER_ID];
+        $account = Account::findOne($account_id);
+        if(is_null($account)) {
+            throw new AppException("Account not existing");
+        }
+        $open_id = $account->open_id;
+//        $open_id = "ook-7wLch8xSS-mM-urjLCCs91n0";
+
+        // step 1: generate temporary qrcode url
+        $response = $this->getTemporary();
+        $ticket = $response['ticket'];
+        $url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=$ticket";
+
+        // step 2: download image to local
+        $filename = uniqid(date("Y_m_d_H_i_s_")).".jpg";
+        $full_file_path = Yii::$app->runtimepath."/images/".$filename;
+        Util::curl_get_image($url, $full_file_path);
+
+        // step 3: upload the image to wechat and get media id
+        $media_id = Wechat::postImageToServer($full_file_path);
+
+        Logger::info("to post image");
+        // step 4: send image to user
+        if($media_id !== false) {
+            Logger::info("to post message to: ".$open_id);
+            Wechat::postImageToUser($open_id, $media_id);
+        }
+
+    }
+
+
+    public static function postImageToUser($open_id, $media_id) {
+        $post_data = array(
+            'touser' => $open_id,
+            'msgtype' => 'image',
+            'image' => array(
+                'media_id' => $media_id,
+            )
+        );
+
+        return static::postMessageToUser($post_data);
+    }
+
+    public static function postTextToUser($open_id, $content) {
+        $post_data = array(
+            'touser' => $open_id,
+            'msgtype' => 'text',
+            'text' => array(
+                'content' => $content
+            )
+        );
+
+        return static::postMessageToUser($post_data);
+    }
+
+    public static function postMessageToUser($post_data_array) {
+        $mpAccessToken = static::getMpAccessToken();
+        if(!empty($mpAccessToken)){
+            $data_string = json_encode($post_data_array);
+            $url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=".$mpAccessToken;
+            $header = array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string));
+            $response = static::postContents($url, $data_string, $header, $mpAccessToken);
+            if($response === false) {
+                Logger::error("failed to post message, Wechat::postContents failed");
+            }
+        }
+        else {
+            Logger::error("failed to post message, access token not available");
+            return false;
+        }
+
+        return $response;
+    }
+
+    private function http_post_media($url,$strPOST)
+    {
+        $oCurl = curl_init ();
+//        curl_setopt ( $oCurl, CURLOPT_SAFE_UPLOAD, false);
+//        curl_setopt($oCurl, CURLOPT_POSTFIELDS, array(
+//            'file' => '@'.realpath('image.png'),
+//        ));
+
+        if (stripos ( $url, "https://" ) !== FALSE) {
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYPEER, FALSE );
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYHOST, false );
+        }
+
+        curl_setopt ( $oCurl, CURLOPT_URL, $url );
+        curl_setopt ( $oCurl, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt ( $oCurl, CURLOPT_POST, true );
+        curl_setopt ( $oCurl, CURLOPT_POSTFIELDS, $strPOST );
+        $sContent = curl_exec ( $oCurl );
+        $aStatus = curl_getinfo ( $oCurl );
+        curl_close ( $oCurl );
+        if (intval ( $aStatus ["http_code"] ) == 200) {
+            return $sContent;
+        } else {
+            return false;
+        }
+
+    }
+
+    public static function upload($url, $filedata) {
+        $curl = curl_init ();
+        if (class_exists ( '/CURLFile' )) {//php5.5跟php5.6中的CURLOPT_SAFE_UPLOAD的默认值不同
+//            curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, true );
+        } else {
+            if (defined ( 'CURLOPT_SAFE_UPLOAD' )) {
+//                curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, false );
+            }
+        }
+        curl_setopt ( $curl, CURLOPT_URL, $url );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, FALSE );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, FALSE );
+        if (! empty ( $filedata )) {
+            curl_setopt ( $curl, CURLOPT_POST, 1 );
+            curl_setopt ( $curl, CURLOPT_POSTFIELDS, $filedata );
+        }
+        curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        $output = curl_exec ( $curl );
+        curl_close ( $curl );
+        return $output;
+
+    }
+
+    public static function postImageToServer($path=null) {
+        $mpAccessToken = static::getMpAccessToken();
+        if(!empty($mpAccessToken)){
+
+            $filepath = "/home/kidd/tmp/test.jpeg";
+            if($path != null) $filepath = $path;
+            if (class_exists ( '\CURLFile' )) { //关键是判断curlfile,官网推荐php5.5或更高的版本使用curlfile来实例文件
+                $filedata = array (
+                    'fieldname' => new \CURLFile ( realpath ( $filepath ), 'image/jpeg' )
+                );
+            } else {
+                $filedata = array (
+                    'fieldname' => '@' . realpath ( $filepath )
+                );
+            }
+            $url = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=" . $mpAccessToken . "&type=image";
+            $result = self::http_post_media ( $url, $filedata );//调用upload函数
+            if(!$result) return false;
+            else {
+                $arr = json_decode($result, true);
+                Logger::info("result: ".$result);
+                $url = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=$mpAccessToken&media_id=".$arr['media_id'];
+                Logger::info("got image url: ".$url);
+                return $arr['media_id'];
+            }
+
+//
+//            $type = "image";
+//            $filepath = "/home/kidd/tmp/test.jpeg";
+//
+//            $post_data = array(
+//                'fieldname' => '@'.realpath($filepath),
+//            );
+//
+//            if (class_exists ( '\CURLFile' )) {//关键是判断curlfile,官网推荐php5.5或更高的版本使用curlfile来实例文件
+//                Logger::info("CURLFILE exists");
+//                $post_data = array (
+//                    'fieldname' => new \CURLFile ( realpath ( $filepath ), 'image/jpeg' )
+//                );
+//            } else {
+//                Logger::info("CURLFILE not exists");
+//                $post_data = array (
+//                    'fieldname' => '@' . realpath ( $filepath )
+//                );
+//            }
+//
+//            $data_string = json_encode($post_data);
+//            Logger::info($data_string);
+//
+////            $url = "http://api.weixin.qq.com/cgi-bin/media/upload?access_token=$mpAccessToken&type=$type";
+//            $url = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=$mpAccessToken&type=$type";
+//            $header = array(
+//                'Content-Type: application/json',
+//                'Content-Length: ' . strlen($data_string),
+//                );
+//            $response = static::postContents($url, $data_string, null, $mpAccessToken);
+////            $response=self::http_post_media($url, $post_data);
+        }
+        else {
+
+            return "failed to get access token";
+        }
+
+        return json_encode($response);
+    }
+
+    public static function postContents($url, $post_data, $header, $token=null, $try_count=0) {
+        Logger::logFunctionCall();
+        if ($try_count > self::MAX_TRY_COUNT) {
+            Logger::warning('post contents failed, reach max try count');
+            return false;
+        }
+        if (!is_null($token)) {
+            $full_url = sprintf($url, $token);
+        } else {
+            $full_url = $url;
+        }
+        $response =  Util::curl('POST', $full_url, $post_data, $header);
+        if(empty($response['res'])){
+            Logger::warning('post contents failed, try again');
+            return self::postContents($url, $post_data, $header, $token, $try_count+1);
+        }
+        Logger::info('Response: ' . $response['res']);
+
+        $response = json_decode($response['res'], true);
+        if(!empty($response['errcode'])) {
+            Logger::error(json_encode($response));
+            // check response, if token invalid, refresh token and try again
+            if ($response['errcode'] == self::INVALID_TOKEN_CODE && !is_null($token)) {
+                Logger::info('access token invalid, refresh token and try again');
+                // refresh access token
+                $new_token = self::getMpAccessToken(true);
+                return self::postContents($url, $post_data, $header, $new_token, $try_count+1);
+            }
+            return false;
+        }
+        return $response;
+    }
+
+----------- 2016-08-31 12:23:40
+
+下载多媒体文件
+
+公众号可调用本接口来获取多媒体文件。请注意，视频文件不支持下载，调用该接口需http协议。
+
+接口调用请求说明
+
+http请求方式: GET
+http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID
+请求示例（示例为通过curl命令获取多媒体文件）
+curl -I -G "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID"
+
+http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=qLqQf_JtM0mC3JPSW6rmGj3wthXApTL-JLHxAbOXSyZW-UMbGRDG4OFGu73iT2ZI9WSFFVxMlzTuooCe3ZuILWdOShwm1hp1zJM-vcD5B5ug7fNgzSY_w7fGNcwxwPX8QFFeAGAXMM&media_id=Vuo8BIGQADx3vNYc8e6-OvJMafW1J2bsvmS3BM2a6noVkLoQADChvnvJKK_cxTQS
+
+---------- 2016-08-31 11:08:29
+
+https://mp.weixin.qq.com/wiki/11/c88c270ae8935291626538f9c64bd123.html
+{
+    "touser":"OPENID",
+    "msgtype":"image",
+    "image":
+    {
+      "media_id":"MEDIA_ID"
+    }
+}
+
+https://mp.weixin.qq.com/wiki/15/2d353966323806a202cd2deaafe8e557.html
+公众号经常有需要用到一些临时性的多媒体素材的场景，例如在使用接口特别是发送消息时，对多媒体文件、多媒体消息的获取和调用等操作，是通过media_id来进行的。素材管理接口对所有认证的订阅号和服务号开放（注：自定义菜单接口和素材管理接口向第三方平台旗下未认证订阅号开放）。通过本接口，公众号可以新增临时素材（即上传临时多媒体文件）。 
+请注意：
+1、对于临时素材，每个素材（media_id）会在开发者上传或粉丝发送到微信服务器3天后自动删除（所以用户发送给开发者的素材，若开发者需要，应尽快下载到本地），以节省服务器资源。
+2、media_id是可复用的。
+3、素材的格式大小等要求与公众平台官网一致。具体是，图片大小不超过2M，支持bmp/png/jpeg/jpg/gif格式，语音大小不超过2M，长度不超过60秒（公众平台官网可以在文章中插入小于30分钟的语音，但这些语音不能用于群发等场景，只能放在文章内，这方面接口暂不支持），支持mp3/wma/wav/amr格式
+4、需使用https调用本接口。
+
+
+https://mp.weixin.qq.com/debug/cgi-bin/apiinfo?t=index&type=%E5%9F%BA%E7%A1%80%E6%94%AF%E6%8C%81&form=%E5%A4%9A%E5%AA%92%E4%BD%93%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%8E%A5%E5%8F%A3%20/media/upload
+
+基础支持: 多媒体文件上传接口 /media/upload
+
+请求地址：
+    http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=HA4WODWzDB81lMFqv-d7duJIMeYzo2ehx2O8nzul-rCfFul_v65gtUknObHNY8CjIq8tu0nbZxP0XoYGTgZIlKC2rjjq8r4DINMckwbYvZFy_3a2hYtRH3IvaZC6DPROHORiAIALSV&type=image 
+
+返回结果:
+
+        200 OK
+
+        Connection: keep-alive
+        Date: Wed, 31 Aug 2016 03:43:05 GMT
+        Content-Type: text/plain
+        Content-Length: 118
+
+        {
+            "type": "image", 
+            "media_id": "IVSGE451WKYrjvBaSDrTOoxvMfK31YjltkaadMZKPtcFr233VhHhVpIpNAdF_9iT", 
+            "created_at": 1472614985
+        }
+
+提示:
+    Request successful 
+
+1. 
+$ curl -F media=@/home/kidd/tmp/test.jpeg "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=mG4a3KAkgza263OaRf_wDkIzqM61c4ee4FoieCtE4YkXWSwLMkoVMdUb07I09sIZTgXntjOqJ6cvm4u3EXiZK6eQpnK0ekCE28F71nOSH3rFU60iifMN4mn_UAfaNzq4NRFhAHASWK&type=image"
+{"type":"image","media_id":"BQxsSMFrq0YSvdCP9R2NC0NT16zXpGCghfD5EMKJhtDYkl1cefVDk-CnTBK7xMQf","created_at":1472615790}
+
+2. one fix:
+http://blog.csdn.net/hongtu1993/article/details/40784355
+
+    private function http_post_media($url,$strPOST)
+    {
+        $oCurl = curl_init ();
+//        curl_setopt ( $oCurl, CURLOPT_SAFE_UPLOAD, false);
+//        curl_setopt($oCurl, CURLOPT_POSTFIELDS, array(
+//            'file' => '@'.realpath('image.png'),
+//        ));
+
+        if (stripos ( $url, "https://" ) !== FALSE) {
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYPEER, FALSE );
+            curl_setopt ( $oCurl, CURLOPT_SSL_VERIFYHOST, false );
+        }
+
+        curl_setopt ( $oCurl, CURLOPT_URL, $url );
+        curl_setopt ( $oCurl, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt ( $oCurl, CURLOPT_POST, true );
+        curl_setopt ( $oCurl, CURLOPT_POSTFIELDS, $strPOST );
+        $sContent = curl_exec ( $oCurl );
+        $aStatus = curl_getinfo ( $oCurl );
+        curl_close ( $oCurl );
+        if (intval ( $aStatus ["http_code"] ) == 200) {
+            return $sContent;
+        } else {
+            return false;
+        }
+
+    }
+
+    public static function upload($url, $filedata) {
+        $curl = curl_init ();
+        if (class_exists ( '/CURLFile' )) {//php5.5跟php5.6中的CURLOPT_SAFE_UPLOAD的默认值不同
+//            curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, true );
+        } else {
+            if (defined ( 'CURLOPT_SAFE_UPLOAD' )) {
+//                curl_setopt ( $curl, CURLOPT_SAFE_UPLOAD, false );
+            }
+        }
+        curl_setopt ( $curl, CURLOPT_URL, $url );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, FALSE );
+        curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, FALSE );
+        if (! empty ( $filedata )) {
+            curl_setopt ( $curl, CURLOPT_POST, 1 );
+            curl_setopt ( $curl, CURLOPT_POSTFIELDS, $filedata );
+        }
+        curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        $output = curl_exec ( $curl );
+        curl_close ( $curl );
+        return $output;
+
+    }
+
+    public static function postImageToServer() {
+        $mpAccessToken = static::getMpAccessToken();
+        if(!empty($mpAccessToken)){
+
+            $filepath = "/home/kidd/tmp/test.jpeg";
+            if (class_exists ( '\CURLFile' )) {//关键是判断curlfile,官网推荐php5.5或更高的版本使用curlfile来实例文件
+                $filedata = array (
+                    'fieldname' => new \CURLFile ( realpath ( $filepath ), 'image/jpeg' )
+                );
+            } else {
+                $filedata = array (
+                    'fieldname' => '@' . realpath ( $filepath )
+                );
+            }
+            $url = "http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=" . $mpAccessToken . "&type=image";
+            $result = self::http_post_media ( $url, $filedata );//调用upload函数
+            return json_encode($result);
+
+--------- 2016-08-31 10:58:14
+    public function actionSendText()
+    {
+        if (!YII_ENV_PROD) {
+            if(Wechat::postMessageToUser("ook-7wLch8xSS-mM-urjLCCs91n0", "morning anhua")) return true;
+            else return false;
+        }
+    }
+
+    public static function postMessageToUser($open_id, $content) {
+        $mpAccessToken = static::getMpAccessToken();
+        if(!empty($mpAccessToken)){
+            $post_data = '{
+                "touser":"'.$open_id.'",
+                "msgtype":"text",
+                "text":
+                {
+                     "content":"'.$content.'"
+                }
+            }';
+
+            $url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=".$mpAccessToken;
+            $header = array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($post_data));
+            $response = static::postContents($url, $post_data, $header, $mpAccessToken);
+        }
+        else return false;
+
+        return $response;
+    }
+
+
+    public static function postContents($url, $post_data, $header, $token=null, $try_count=0) {
+        Logger::logFunctionCall();
+        if ($try_count > self::MAX_TRY_COUNT) {
+            Logger::warning('post contents failed, reach max try count');
+            return false;
+        }
+        if (!is_null($token)) {
+            $full_url = sprintf($url, $token);
+        } else {
+            $full_url = $url;
+        }
+        $response =  Util::curl('POST', $full_url, $post_data, $header);
+        if(empty($response['res'])){
+            Logger::warning('post contents failed, try again');
+            return self::postContents($url, $post_data, $header, $token, $try_count+1);
+        }
+        Logger::info('Response: ' . $response['res']);
+
+        $response = json_decode($response['res'], true);
+        if(!empty($response['errcode'])) {
+            Logger::error(json_encode($response));
+            // check response, if token invalid, refresh token and try again
+            if ($response['errcode'] == self::INVALID_TOKEN_CODE && !is_null($token)) {
+                Logger::info('access token invalid, refresh token and try again');
+                // refresh access token
+                $new_token = self::getMpAccessToken(true);
+                return self::postContents($url, $post_data, $header, $new_token, $try_count+1);
+            }
+            return false;
+        }
+        return $response;
+    }
+
+
+------------ 2016-08-31 11:00:48
+
+
+class QrcodeController extends WebController
+{
+    static $string_type = 0;
+    static $int_type = 1;
+    public function actionCreate()
+    {
+        $model = new SceneForm;
+        $scene_id = null;
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            // obtain ticket in order to generate url for qrcode
+            if($model->type == self::$string_type) {
+                $scene_id = $model->scene_str;
+                $post_data = array(
+                    'action_name' => 'QR_LIMIT_STR_SCENE',
+                    'action_info' => array(
+                        'scene' => array(
+                            'scene_str' => $scene_id
+                        )
+                    )
+                );
+            }
+            else {
+                $scene_id = $model->scene_id;
+                $post_data = array(
+                    'action_name' => 'QR_LIMIT_SCENE',
+                    'action_info' => array(
+                        'scene' => array(
+                            'scene_id' => $scene_id
+                        )
+                    )
+                );
+            }
+            $data_string = json_encode($post_data);
+            $response = Wechat::postQrcodeTicket($data_string);
+            if(!$response) {
+                return $this->render('error');
+            }
+            $model->ticket = $response['ticket'];
+            // save to qrcode_ticket table
+            {
+                $qr_ticket = QrTicket::find()
+                    ->where(['ticket' => $model->ticket])
+                    ->one();
+
+                if(empty($qr_ticket)){
+                    $qr_ticket = new QrTicket();
+                    $qr_ticket->client_event_key = $scene_id;
+                    $qr_ticket->type = $model->type;
+                    $qr_ticket->ticket = $model->ticket;
+                    $qr_ticket->save();
+                }
+            }
+            return $this->render('create_confirm', ['model' => $model]);
+        } else {
+            $model->type = self::$string_type;
+            $model->scene_id = 1111;
+            $model->scene_str = 'abc';
+            return $this->render('create', ['model' => $model]);
+        }
+    }

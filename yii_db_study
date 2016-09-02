@@ -31,6 +31,39 @@ $count = Yii::$app->db->createCommand('SELECT COUNT(*) FROM post')->queryScalar(
 
 
 
+----------- 2016-08-31 18:23:12
+in below code, new lines will be generated and all old lines will be deleted.
+
+            $id = 100;
+            $requests = PendingQrcodeRequests::find()->all();
+            foreach ($requests as $request) {
+                Logger::info("to delete request: ");
+                $account_id = $request->account_id;
+//                Wechat::generateAndSendTemporaryQrcode($account_id);
+//                $to_delete = PendingQrcodeRequests::findOne(["account_id" => $account_id]);
+                $n = new PendingQrcodeRequests();
+                $n->account_id = $id++;
+                $n->save();
+//                $to_delete->delete();
+                $request->delete();
+            }
+
+------- 2016-08-30 15:49:19
+active record rules:
+
+
+    public function rules()
+    {
+        return [
+            [['type', 'scene_id', 'scene_str'], 'required'],
+            [['scene_id'], 'integer'],
+            [['scene_id'], 'compare', 'compareValue' => 1, 'operator' => '>='],
+            [['scene_id'], 'compare', 'compareValue' => 100000, 'operator' => '<='],
+            [['scene_str'], 'string', 'max' => 64],
+            [['scene_str'], 'compare', 'compareValue' => 100000, 'operator' => '<='],
+        ];
+    }
+
 ----------- 2016-08-19 18:28:12
  BC/MissionImpossible / models/ChallengeReward.php
     public function getUser() {
