@@ -73,6 +73,80 @@ mysql> show tables;
 
 
 
+
+----------- 2016-09-06 10:53:03
+挑战吧TZB-138
+【公众号】单次挑战增加打卡进行中未打卡时的提醒
+
+   客服接口-发消息
+  接口调用请求说明
+  http请求方式: POST
+  https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN
+
+  开发者在根据开发文档的要求完成开发后，使用6.0.2版及以上版本的微信用户在与公众号进行客服沟通，公众号使用不同的客服账号进行回复后，用户可以看到对应的客服头像和昵称。 
+
+发送客服消息  每日限额  500000 
+  默认情况下，每个公众号调用接口都不能超过一定限制，当超过一定限制时，调用对应接口会收到如下错误返回码： {"errcode":45009,"errmsg":"api freq out of limit"}
+
+
+    private function check() {
+        try {
+            $now = date('Y-m-d H:i:s');
+            $one_hour_in_the_future = date('Y-m-d H:i:s', time()+3600);
+            $missions = Mission::find()->where("unix_timestamp(stop_time) > unix_timestamp(\"$now\")")
+                ->andWhere("unix_timestamp(stop_time) < unix_timestamp(\"$one_hour_in_the_future\")")
+                ->andWhere("unix_timestamp(start_time) < unix_timestamp(\"$now\")")
+                ->all();
+
+            foreach ($missions as $mission) {
+                if(is_null($mission)) continue;
+                $remaining = strtotime($mission->stop_time) - strtotime($now);
+                $lifetime = strtotime($mission->stop_time) - strtotime($mission->start_time);
+
+                
+------------ 2016-09-05 11:32:41
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/mission/single/pay_new.html
+  <form action="/mission/index?mid={{mission.id}}" method="post">
+    => http://frontend.tz8/mission/reward?cid=11370
+      PayManager::sendRedPack($account->open_id, $act_name, $wishing, $send_name, $remark, $send_money);
+
+select id from period_mission;
+update period_mission set start_time='2016-08-30 00:00:00' where id=1914;
+  this cmd fails sometimes.
+
+mysql> udpate period_mission set start_time='2016-08-30 00:00:00' where id=1914; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'udpate period_mission set start_time='2016-08-30 00:00:00' where id=1914' at line 1
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/mission/week/pay_new.html
+period_mission:
+  <button @click="sendreward()" class="btn-reward text-center block">抢</button>
+
+查询订单
+https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_2
+
+下载对账单
+https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_6
+  账单类型  bill_type   是   String(8)   ALL   
+  ALL，返回当日所有订单信息，默认值
+  SUCCESS，返回当日成功支付的订单
+  REFUND，返回当日退款订单 
+
+
+$ grep -nr orderQuery
+frontend/components/wxpay/MicroPay.php:91:    $result = WxPayApi::orderQuery($queryOrderInput);
+frontend/components/wxpay/WxPayApi.php:154: public static function orderQuery($inputObj, $timeOut = 6)
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc/advanced/MissionImpossible
+$ grep -nr downloadbill
+frontend/components/wxpay/WxPayApi.php:293:   $url = "https://api.mch.weixin.qq.com/pay/downloadbill";
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/wxpay/WxPayApi.php
+
+https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_6#
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/wxpay/WxPayApi.php
+public static function downloadBill($inputObj, $timeOut = 6)
+
 ------------ 2016-08-22 14:18:49
 
   "waitreward": false,    // 当在本轮挑战中，用户在最后一天已打卡时，处于此状态

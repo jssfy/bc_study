@@ -2,6 +2,79 @@
 
 
 
+------ 2016-09-06 13:11:27
+wxpay
+https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_1
+温馨提示：
+    ◆ 给同一个实名用户付款，单笔单日限额2W/2W
+    ◆ 给同一个非实名用户付款，单笔单日限额2000/2000
+    ◆ 一个商户同一日付款总额限额100W
+    ◆ 仅支持商户号已绑定的APPID；
+    ◆ 针对付款的目标用户，已微信支付实名认证的用户可提供校验真实姓名的功能，未实名认证的用户无法校验，企业可根据自身业务的安全级别选择验证类型；
+    ◆ 付款金额必须小于或等于商户当前可用余额的金额；
+    ◆ 已付款的记录，企业可通过企业付款查询查看相应数据。
+
+
+------------- 2016-09-06 11:05:03
+https://mp.weixin.qq.com/wiki/7/85eff372c164ddc66c47777dc972279f.html
+
+公众号调用接口并不是无限制的。为了防止公众号的程序错误而引发微信服务器负载异常，默认情况下，每个公众号调用接口都不能超过一定限制，当超过一定限制时，调用对应接口会收到如下错误返回码：
+
+{"errcode":45009,"errmsg":"api freq out of limit"}
+
+开发者可以登录微信公众平台，在帐号后台开发者中心接口权限模板查看帐号各接口当前的日调用上限和实时调用量，对于认证帐号可以对实时调用量清零，说明如下：
+
+1、目前清零功能只对认证帐号开放。
+2、由于指标计算方法或统计时间差异，实时调用量数据可能会出现误差，一般在1%以内。
+3、每个帐号每月共10次清零操作机会，清零生效一次即用掉一次机会。
+4、清零机会可以10次都用在对同一个接口进行清零，也可以用在不同接口上。
+5、每个有接口调用限额的接口都可以进行清零操作。
+6、清零一次后，只有确认清零的接口才会生效，不是清零所有接口。
+
+--------- 2016-09-05 14:24:01
+wxpay:
+
+http://zhidao.baidu.com/link?url=9JNX3KG-XtAljlg1JDOIvP054Q9xCXrIDoOIye2pbn6XnEvajixT3IlQYkXmz2JDBVqRQNzp927WlAtNEZSb_aQQwhSY4A1XdXMz_-uOS2C
+微信支付是有一定的限额的，用户转账付款单笔单日限额20000元，收款无限额；未添加过银行卡的用户转账付款单笔单日限额200元，收款单笔单日限额3000元。超过限额后若想继续使用，需要添加一张银行卡，验证身份信息。这是官方给出的具体限额，你可以根据你自己的条件来选择支付。如果超出限额，就如上面介绍，可以更换银行卡解决这个问题。支付都是及时到账的，如果是转账，在两个小时内就会完成。
+
+
+http://www.cnblogs.com/txw1958/p/weixin-redpackets.html
+一、微信红包SDK
+现金红包、裂变红包、企业付款本质均为商户和用户之间的转账，微信官方定义其接口时，操作方法类似。
+1. 请求URL
+现金红包
+https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack
+裂变红包
+https://api.mch.weixin.qq.com/mmpaymkttransfers/sendgroupredpack
+企业付款
+https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers
+
+http://www.cnblogs.com/txw1958/p/weixin-redpackets.html
+企业付款查询调用方法
+
+http://zhidao.baidu.com/link?url=5j_MvjehNaNZtfXnHibwOcGejOWG-lhPatqrLm45udFyQzVXsAfdKeCiWp4Y3VGskS-RBtELiIzvFC2HuEExIklcJHfDG05OMQZ7mpEGdxO
+微信支付是集成在微信客户端的支付功能，用户可以通过手机完成快速的支付流程。微信支付以绑定银行卡的快捷支付为基础，向用户提供安全、快捷、高效的支付服务。
+　　微信支付开通条件：
+　　1)拥有公众帐号，且为服务号;
+　　2)公众帐号须通过微信认证;(未认证用户，可先申请微信认证);
+不过对于商家来说，用户喜欢什么支付方式商家就要具备什么样的支付功能。除了微信支付外，支付宝也是商家最常用的支付方式。像微盟(weimob)平台的微盟支付除了微信支付还，还整合了支付宝、财付通、银联三大在线支付功能，避免消费者在支付环节的跳出。
+
+https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_6
+
+
+1. 已经解决，需要关注两天后，才会出现红包的形式
+2. wechat version
+
+我的微信的版本是6.3，按照文档上的说明应该是以红包的形式接收，但现在却还是消息的形式。会不会是应该我是在微信商户的后台管理，手动发送测试看看的，没有调用微信提供的api进行发放，所以会出现这样问题。我在自己的服务器端调用这个https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack api接口，发放就不会出现现在这个问题，可以出现红包的形式？（正在搭服务器端环境，还没搭好，所以暂时测试不了）
+
+
+https://pay.weixin.qq.com/index.php/public/cms/content_detail?lang=zh&id=6000
+现金红包触达消息规则
+    现金红包发放后会以公众号消息的形式触达用户，不同情况下触达消息的形式会有差别
+http://www.zhihu.com/question/39042856
+    微信企业红包发放到个人微信号，有的显示是正常个人红包的样子，有的显示是一个模板消息：您收到一个红包...怎么破？
+    一方面是6.1版本，这个文档里很清楚；文档没说清楚的是 另外还有关注时间的限制，<=50小时，也是模板消息，看这个网址
+
 ----------- 2016-08-31 20:46:05
 
 公众号提示该公众号暂时无法提供服务的解决方法

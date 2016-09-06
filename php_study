@@ -221,6 +221,7 @@ tmp
 └── test.jpg
 
 --------------- 2016-08-30 16:05:15
+php -S
 
 The development web server built in to PHP 5.4+ does not work in the way you want. That is, it's not a PHP process, and you can't have it run code for you.
 

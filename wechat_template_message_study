@@ -1,0 +1,258 @@
+
+
+
+
+----------- 2016-09-06 21:42:38
+
+
+    private function notify($open_id, $first, $title, $date, $status, $remark, $url) 
+    {
+        Logger::info('send notify message to user ' . $open_id);
+        Logger::info('first: ' . $first);
+        Logger::info('title: ' . $title);
+        return MessageSender::sendTemplateMessage($open_id, $first, $title, $date, $status, $remark, $url);
+    }
+    /**
+     * for single mission only
+     * assuming the mission is ongoing
+     * @param $mission
+     * TZB-138
+     * 持续大于2小时，结束前1小时提醒
+     * 持续大于1小时，结束前半小时提醒
+     * 持续大于半小时，结束前15分钟提醒
+     * 持续大于10分钟，结束前5分钟提醒
+     * 小于10分钟，不做二次提醒
+     * 注：提醒仅对尚未打卡的用户发送，已打卡不提醒
+     */
+    private function notifyNearFinish($mission, $notify, $challenges) {
+        if(is_null($mission)) return;
+        $now = date('Y-m-d H:i:s');
+        $remaining = strtotime($mission->stop_time) - strtotime($now);
+        if($remaining <= 0) return;
+        $lifetime = strtotime($mission->stop_time) - strtotime($mission->start_time);
+        if($lifetime < 10*60) {
+            $this->updateStatus($notify, MissionNotifyStatus::NOTIFY_NEAR_FINISH);
+            return;
+        }
+
+        $to_notify = false;
+        if ($lifetime < 30*60) {
+            if($remaining < 5*60) {
+                $to_notify = true;
+            }
+        }
+        elseif ($lifetime < 60*60) {
+            if($remaining < 15*60) {
+                $to_notify = true;
+            }
+        }
+        elseif ($lifetime < 2*60*60) {
+            if($remaining < 30*60) {
+                $to_notify = true;
+            }
+        }
+        else {
+            if($remaining < 60*60) {
+                $to_notify = true;
+            }
+        }
+        if($to_notify) {
+            // generate notify message
+            $first = "您参与的挑战“" . $mission->name . $this->getReminderText($this->getTimeStr($remaining));
+            $title = $mission->getShortName();
+            $date = $mission->start_time;
+            $status = "挑战即将结束";
+            $remark = "\n点击“详情”去打卡";
+            $url = MissionManager::getMissionUrl($mission->id, MissionType::SINGLE);
+            foreach ($challenges as $challenge) {
+                if (is_null($challenge)) {
+                    continue;
+                }
+                if ($mission->isUserChecked($challenge->user_id)) {
+                    continue;
+                }
+                $open_id = $this->getOpenId($challenge);
+                if (!$open_id) {
+                    Logger::error('can not get openid for challenge ' . $challenge->id);
+                    continue;
+                }
+                $ret = $this->notify($open_id, $first, $title, $date, $status, $remark, $url);
+                if (!$ret) {
+                    Logger::error('notify for challenge ' . $challenge->id . ' failed');
+                }
+            }
+            $this->updateStatus($notify, MissionNotifyStatus::NOTIFY_NEAR_FINISH);
+        }
+    }
+
+    private function getTimeStr($mil) {
+        if($mil >= 59*60) return "1小时";
+        elseif ($mil > 31*60) return round($mil/60)."分钟";
+        elseif ($mil >= 29*60) return "半小时";
+        elseif ($mil >= 60) return round($mil/60)."分钟";
+        else return $mil."秒";
+    }
+
+    private function getReminderText($timeStr) {
+        return '”还剩' . $timeStr . "，赶快去打卡吧！\n";
+    }
+
+
+class MessageSender
+{
+    const COLOR = '#173177';
+    const SEND_TEMPLATE_MSG_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s";
+    
+    public static function sendTemplateMessage($open_id, $first, $title, $time, $status, $remark, $detail_url=null)
+    {
+        // check if user subscribed
+        $account = Account::findOne(['open_id' => $open_id]);
+        if (empty($account) || $account->subscribed !== 1) {
+            Logger::warning('user not subscribed, do not send template message: ' . $open_id);
+            return;
+        }
+        // send message
+        $token = Wechat::getMpAccessToken();
+        if (!$token) {
+            throw new AppException('获取公众平台token失败');
+        }
+        $data = [
+            'touser' => $open_id,
+            'template_id' => \Yii::$app->params['wechat.template_id'][YII_ENV],
+            'data' => [
+                'first' => [
+                    'value' => $first,
+                    'color' => self::COLOR,
+                ],
+                'keyword1' => [
+                    'value' => $title,
+                    'color' => self::COLOR,
+                ],
+                'keyword2' => [
+                    'value' => $time,
+                    'color' => self::COLOR,
+                ],
+                'keyword3' => [
+                    'value' => $status,
+                    'color' => self::COLOR,
+                ],
+                'remark' => [
+                    'value' => $remark,
+                    'color' => self::COLOR,
+                ],
+            ],
+        ];
+        if (!is_null($detail_url)) {
+            $data['url'] = $detail_url;
+        }
+        $post_data = json_encode($data);
+        $header = array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($post_data));
+        return Wechat::postContents(self::SEND_TEMPLATE_MSG_URL, $post_data, $header, $token);
+    }
+}
+
+
+------------- 2016-09-06 21:15:52
+
+ALTER TABLE `mission` ADD COLUMN `reminded` TINYINT(1) NOT NULL DEFAULT '0';
+
+mission near finish reminder:
+
+<?php
+
+namespace console\tasks;
+
+use frontend\models\Mission;
+use frontend\components\wxmp\Wechat;
+use frontend\components\util\Logger;
+
+use yii\base\Exception;
+use yii\helpers\Json;
+
+// TZB-138
+// 持续大于2小时，结束前1小时提醒
+// 持续大于1小时，结束前半小时提醒
+// 持续大于半小时，结束前15分钟提醒
+// 持续大于10分钟，结束前5分钟提醒
+// 小于10分钟，不做二次提醒
+// 注：提醒仅对尚未打卡的用户发送，已打卡不提醒
+
+class MissionReminderTask
+{
+    public function perform() {
+//        $this->check();
+    }
+
+    private function scheduleNext($interval=10) {
+        $time = time() + $interval;
+        TaskQueue::enqueueAtTime(new MissionReminderTask(), $time, true);
+    }
+
+    private function check() {
+        try {
+            $now = date('Y-m-d H:i:s');
+            $one_hour_in_the_future = date('Y-m-d H:i:s', time()+3600);
+            $missions = Mission::find()->where("unix_timestamp(stop_time) > unix_timestamp(\"$now\")")
+                ->andWhere("unix_timestamp(stop_time) < unix_timestamp(\"$one_hour_in_the_future\")")
+                ->andWhere("unix_timestamp(start_time) < unix_timestamp(\"$now\")")
+                ->all();
+
+            foreach ($missions as $mission) {
+                if(is_null($mission)) continue;
+                $remaining = strtotime($mission->stop_time) - strtotime($now);
+                $lifetime = strtotime($mission->stop_time) - strtotime($mission->start_time);
+
+                $text = $this->getReminderText("$remaining seconds", $mission->id, $mission->name);
+                Logger::info($text);
+                if ($lifetime < 10*60) {
+                    continue;
+                }
+                elseif ($lifetime < 30*60) {
+                    if($remaining < 5*60) {
+                        // send text
+                        $text = $this->getReminderText("5分钟", $mission->id, $mission->name);
+                        Logger::info($text);
+                    }
+                }
+                elseif ($lifetime < 60*60) {
+                    if($remaining < 15*60) {
+                        // send text
+                        $text = $this->getReminderText("15分钟", $mission->id, $mission->name);
+                        Logger::info($text);
+                    }
+                }
+                elseif ($lifetime < 2*60*60) {
+                    if($remaining < 30*60) {
+                        // send text
+                        $text = $this->getReminderText("半小时", $mission->id, $mission->name);
+                        Logger::info($text);
+                    }
+                }
+                else {
+                    if($remaining < 60*60) {
+                        // send text
+                        $text = $this->getReminderText("1小时", $mission->id, $mission->name);
+                        Logger::info($text);
+                    }
+                }
+            }
+            $this->scheduleNext();
+        } catch (Exception $e) {
+            Logger::info('run MissionReminderTask failed: ' . $e);
+            $this->scheduleNext();
+            return;
+        }
+    }
+
+    private function generateMissionUrl($mid) {
+        $host = \Yii::$app->params['host'][YII_ENV];
+        $url = sprintf("<a href=\"%s\">%s</a>", $host . "/mission/index/?mid={$mid}&mt=0", "点击查看任务详情");
+        return $url;
+    }
+
+    private function getReminderText($timeStr, $mid, $mname) {
+        return '您的任务\“' . $mname . '\”还剩' . $timeStr . '，' . $this->generateMissionUrl($mid);
+    }
+}

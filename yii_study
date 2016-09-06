@@ -20,6 +20,29 @@ advanced:
 php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
+------------ 2016-09-05 13:45:53
+if post request is as below, then the parameters such as round can only be accessed as in the parameter instead of getParaByKeyFromPostRequest.
+                    <form action="/mission/index?mid={{ mid }}&mt={{ mt }}&round={{cur_round}}" method="post">
+                        <input type="hidden" name="Period_Mission[name]" value="{{ name }}">
+                        <button type="submit" class="btn-reward text-center block">抢</button>
+                    </form>
+
+    public function actionIndex($mid = 0, $iid = null, $mt = null, $review=null, $round=null)
+    {
+        Logger::info("index start");
+        if (\Yii::$app->request->isPost) {
+            Logger::info("index post, mid: ".$mid." and mt ".$mt." and round ".$round);
+        }
+
+            $round = SessionTool::getParaByKeyFromPostRequest('round');
+            if(is_null($round)) {
+                $round = 1;
+                Logger::info("!!!!!!!! no round ");
+            }
+            else {
+                Logger::info("!!!!!!!! got round ".$round);
+            }
+
 --------- 2016-08-31 19:10:02
 /home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/ToolsController.php
 

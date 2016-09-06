@@ -4,7 +4,66 @@ mysql manual:
 
 
 
+------------ 2016-09-06 15:43:52
 
+
+    private function check() {
+        try {
+            $now = date('Y-m-d H:i:s');
+            $one_hour_in_the_future = date('Y-m-d H:i:s', time()+3600);
+            $missions = Mission::find()->where("unix_timestamp(stop_time) > unix_timestamp(\"$now\")")
+                ->andWhere("unix_timestamp(stop_time) < unix_timestamp(\"$one_hour_in_the_future\")")
+                ->andWhere("unix_timestamp(start_time) < unix_timestamp(\"$now\")")
+                ->all();
+
+            foreach ($missions as $mission) {
+                if(is_null($mission)) continue;
+                $remaining = strtotime($mission->stop_time) - strtotime($now);
+                $lifetime = strtotime($mission->stop_time) - strtotime($mission->start_time);
+
+without \"$one_hour_in_the_future\", there might be below error message: 
+
+Next yii\db\Exception: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '15:28:53)) AND (unix_timestamp(stop_time) < unix_timestamp(2016-09-06 16:28:53))' at line 1
+The SQL being executed was: SELECT * FROM `mission` WHERE (unix_timestamp(stop_time) > unix_timestamp(2016-09-06 15:28:53)) AND (unix_timestamp(stop_time) < unix_timestamp(2016-09-06 16:28:53)) in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/db/Schema.php:633
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/db/Command.php(915): yii\db\Schema->convertException(Object(PDOException), 'SELECT * FROM `...')
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/db/Command.php(362): yii\db\Command->queryInternal('fetchAll', NULL)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/db/Query.php(210): yii\db\Command->queryAll()
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/db/ActiveQuery.php(133): yii\db\Query->all(NULL)
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/console/tasks/MissionReminderTask.php(37): yii\db\ActiveQuery->all()
+
+
+---------- 2016-09-06 11:32:31
+http://bbs.csdn.net/topics/310121656
+
+在insert into ... 和 select ... where..的时候 如果字段为数字类型，添加或者查询数据时，给数字添加引号是不是多余的？
+insert into table (atype) values ('1')
+insert into table (atype) values (1)
+atype是数字字段，这两种方法都行啊，因为mysql手册上面的东西实在是太乱，根本找不到相关的信息。 
+
+不多余，不加引号总让人对sql注入感到担心，所以只要mysql的sql_mode不严格设置(一般很少设置严格),都要加引号。
+特别是查询语句，如果你select ...where后面的条件和用户输入相关，不加引号加大了受攻击的危险系数。
+
+$user_id = $_GET['user_id'];//假如用户在url里构造参数使得$_GET['user_id']为 1 or 1=1
+$sql = "select * from `user` where user_id={$user_id}";//下面这句sql不就变成了select * from `user` where user_id=1 or 1=1，所有user数据?
+
+insert into table (atype) values (select something from sometable limit 1) ，括号里是可以构造sql语句的，指不定就给人利用去攻击了，所以还是加引号保险点。
+
+delete,update等也要注意此类问题。 
+
+---------- 2016-09-06 11:24:34
+
+http://stackoverflow.com/questions/17541312/alter-table-add-multiple-columns-after-column1
+If you want to add single column after specific field, then the mysql query is:
+ALTER TABLE users
+    ADD COLUMN count SMALLINT(6) NOT NULL
+    AFTER lastname
+If you want to add multiple columns, then you need to use 'ADD' command each time for a column. The mysql query as follows as:
+ALTER TABLE users
+    ADD COLUMN count SMALLINT(6) NOT NULL,
+    ADD COLUMN log VARCHAR(12) NOT NULL,
+    ADD COLUMN status INT(10) UNSIGNED NOT NULL
+    AFTER lastname
 
 ---------- 2016-08-26 14:54:47
 
