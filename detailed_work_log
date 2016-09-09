@@ -74,6 +74,25 @@ mysql> show tables;
 
 
 
+
+----------- 2016-09-08 20:21:42
+update `period_mission` set start_time="2016-09-06 00:00:00" where id=1985;
+
+
+---------- 2016-09-07 20:02:39
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/mission/week/end_new.html
+  <!-- 领奖 -->
+  <div class="checkin-wrapper">
+    <div class="item-50">
+      <a href="/mission/index?mid={{ id }}&mt=1&review=true" class="item-100 btn-history block btn-checkin text-center">回&nbsp;&nbsp;顾</a>
+    </div>
+    <div class="item-50">
+            <a href="/mission/create?mt=1&rmid={{ mid }}" class="item-100 block btn-checkin text-center">发&nbsp;&nbsp;起</a>
+    </div>
+  </div>
+
+
 ----------- 2016-09-06 10:53:03
 挑战吧TZB-138
 【公众号】单次挑战增加打卡进行中未打卡时的提醒
@@ -103,7 +122,7 @@ mysql> show tables;
                 $remaining = strtotime($mission->stop_time) - strtotime($now);
                 $lifetime = strtotime($mission->stop_time) - strtotime($mission->start_time);
 
-                
+
 ------------ 2016-09-05 11:32:41
 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/mission/single/pay_new.html
   <form action="/mission/index?mid={{mission.id}}" method="post">

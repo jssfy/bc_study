@@ -20,7 +20,7 @@ PING 123.57.227.173 (123.57.227.173) 56(84) bytes of data.
 
 to connect to the machine: 6 digits password
 user: root
-pwd: Ki...0
+pwd: K...0
 $ ssh root@123.57.227.173
 
 i-255ajr7y4
