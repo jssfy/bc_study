@@ -3,7 +3,33 @@
 
 
 
+--------- 2016-09-11 14:19:21
+return \yii::$app->runtimePath;
+  /home/kidd/workspace/yii/basic/runtime
 
+return \yii::$app->basePath."; vendor: ".\yii::$app->vendorPath;
+  /home/kidd/workspace/yii/basic; vendor: /home/kidd/workspace/yii/basic/vendor
+
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/base/Application.php
+
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/base/Application.php
+    /**
+     * Returns the configuration of core application components.
+     * @see set()
+     */
+    public function coreComponents()
+    {
+        return [
+            'log' => ['class' => 'yii\log\Dispatcher'],
+            'view' => ['class' => 'yii\web\View'],
+            'formatter' => ['class' => 'yii\i18n\Formatter'],
+            'i18n' => ['class' => 'yii\i18n\I18N'],
+            'mailer' => ['class' => 'yii\swiftmailer\Mailer'],
+            'urlManager' => ['class' => 'yii\web\UrlManager'],
+            'assetManager' => ['class' => 'yii\web\AssetManager'],
+            'security' => ['class' => 'yii\base\Security'],
+        ];
+    }
 
 ------------ 2016-08-23 12:05:19 pretty url
 http://localhost/index.php/country/index

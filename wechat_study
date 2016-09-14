@@ -1,6 +1,13 @@
 
 
 
+--------- 2016-09-03 17:43:36
+
+the call might fail, just retry:
+kidd@kidd-T430:~/workspace/php$ php get.php 
+{"res":false,"httpCode":0}
+kidd@kidd-T430:~/workspace/php$ php get.php 
+{"res":"{\"access_token\":\"AnrdT88uFtTDZYzO3rVtr4sb0Z9b-QAzGJFKkwiDfIR0Ukkj-CkyenlMh9hWc-AIOSEaDznEhQMzXmuPUh19PjQ3uf0MyjeoLp8wBgOIbFO7LswdzPZcTQC-5C32Etj4DQZaAFAHUD\",\"expires_in\":7200}","httpCode":200}
 
 ------ 2016-09-06 13:11:27
 wxpay

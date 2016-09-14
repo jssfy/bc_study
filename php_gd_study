@@ -1,0 +1,39 @@
+
+
+
+------------ 2016-09-11 22:34:08
+php gd
+
+kidd@kidd-T430:~/workspace/php/tipi$ apt-cache search php5-gd
+php5-gd - GD module for php5
+
+phpinfo();
+  ->
+gd
+GD Support  enabled
+GD Version  2.1.1-dev
+FreeType Support  enabled
+FreeType Linkage  with freetype
+FreeType Version  2.5.2
+GIF Read Support  enabled
+GIF Create Support  enabled
+JPEG Support  enabled
+libJPEG Version   8
+PNG Support   enabled
+libPNG Version  1.2.50
+WBMP Support  enabled
+XPM Support   enabled
+libXpm Version  30411
+XBM Support   enabled
+WebP Support  enabled
+
+Directive Local Value Master Value
+gd.jpeg_ignore_warning  0 0
+
+---------------- 2016-09-11 22:34:31
+http://blog.csdn.net/bluestarf/article/details/17299657
+我的基本环境：Linux ubuntu10.04 系统安装时自动安装了apache2.2.14/php5.3.2/mysql5.1.41当然我的netren.org网站在上面运行一直正常.
+后来为支持更高级的图片显示功能需要安装GD图形支持.
+通过google百度等很多网站搜索“php支持GD”基本上都会说“重新编译php”./configure --with-GD**** 之类的.
+还有一种方法：修改php.ini文件.将该文件中的;extension=php_gd2.dll前面的“；”去掉.此方法仅适用于windows.当然对我来说是一点用途都没有.当然还有人使用rpm命令实现的,本人更不敢恭维！
+实在是不想做重装php的动作,通过查询php.net知识库,得到启示：在debian或ubuntu这样的系统内只需运行一个命令即可搞定：apt-get install php5-gd 

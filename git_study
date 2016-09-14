@@ -1,6 +1,15 @@
 
 
 
+
+-------------- 2016-09-14 08:07:29
+github
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/jssfy/php_general.git
+git push -u origin master
+
 -------------- 2016-08-25 20:41:34
 git add --all .
 

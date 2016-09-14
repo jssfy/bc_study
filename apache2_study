@@ -9,6 +9,72 @@ enable and disable port 80
 
 vice versa
 
+-------------- 2016-08-27 07:57:12
+cgi test with c
+
+localhost:7070/cgi-bin/hello.cgi
+
+kidd@kidd-T430:/etc/apache2$ cat mods-available/cgi.load
+LoadModule cgi_module /usr/lib/apache2/modules/mod_cgi.so 
+kidd@kidd-T430:/etc/apache2$ ls /usr/lib/apache2/modules/mod_cgi.so
+/usr/lib/apache2/modules/mod_cgi.so
+kidd@kidd-T430:/etc/apache2$ sudo a2enmod cgi
+
+/etc/apache2/sites-available/7070.conf
+  ScriptAlias /cgi-bin/ /home/kidd/workspace/web/cgi-bin/
+
+sudo service restart apache2
+
+kidd@kidd-T430:~/workspace/web$ tree
+.
+├── cgi-bin
+│   ├── hello.cgi
+│   └── hellokidd.cgi
+├── hello.c
+└── index.html
+
+// hello.c
+#include <stdio.h>
+int main()
+{
+  printf("Content-Type: text/html\n\n");
+  printf("Hello, kidd\n");
+  return 0;
+}
+
+http://localhost:7070/cgi-bin/hellokidd.cgi
+
+/etc/apache2/apache2.conf [below configs might not be necessary]
+<Directory /home/kidd/workspace/web>
+  Options Indexes FollowSymLinks ExecCGI
+  AllowOverride None
+  Require all granted
+  AddHandler cgi-script .cgi
+</Directory>
+
+------------ 2016-08-27 07:38:05
+to add a new virtual host:
+
+/etc/apache2/sites-available/7070.conf
+  add a new config file by copying from some other file. and modify the listening port and root directory: [and others if necessary]
+  <VirtualHost *:7070>
+  DocumentRoot /home/kidd/workspace/web
+
+enable the corresponding port by adding it into ports.conf:
+  /etc/apache2/ports.conf
+  Listen 7070
+
+add the root folder into config:
+  /etc/apache2/apache2.conf
+  <Directory /home/kidd/workspace/web>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+  </Directory>
+
+sudo service apache2 restart
+
+
 --------------- 2016-08-03 01:20:43
 if DocumentRoot is not set neither in apache2.conf or any other .conf files, it seems /var/www will be adopted as the default one.
 

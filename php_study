@@ -8,6 +8,20 @@ Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
 
+------------- 2016-09-03 17:36:41
+kidd@kidd-T430:~/workspace/php$ php get.php 
+PHP Fatal error:  Call to undefined function curl_init() in /home/kidd/workspace/php/get.php on line 4
+
+You don't have curl support in your PHP. This question has been asked many times here – Shef Jun 17 '11 at 7:20 
+
+Go to your php.ini file and remove the ; mark from the beginning of the following line:
+;extension=php_curl.dll
+ubuntu 13.0 and above, simply use the debundled package. In a terminal type the following to install it and do not forgot to restart server.
+sudo apt-get install php-curl
+Or if you're using the old PHP5
+sudo apt-get install php5-curl
+
+
 ------- 2016-09-02 09:59:07
 require()语句包括并运行指定文件。 
 require() 和 include()除了怎样处理失败之外在各方面都完全一样。include() 产生一个警告而 require()则导致一个致命错误。换句话说，如果你想在丢失文件时停止处理页面，那就别犹豫了，用 require() 吧。include() 就不是这样，脚本会继续运行。同时也要确认设置了合适的include_path。 

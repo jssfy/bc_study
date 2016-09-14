@@ -2,6 +2,11 @@
 
 
 
+----------- 2016-09-11 23:00:06
+met an issue: 
+  accidentally put a line into Application.php, and the page does not show from apache. and the http response is connection closed, internal error.
+  Luckily noticed the warnings in the phpstorm project view warnings and saw some warnings in Application.php, and then removed the accidentally pasted line.
+
 ----------- 2016-09-01 18:21:01
 headache:
   used "DEFAULT" as a var name, and php stopped without any warning. But phpstorm has some warning as seen from ide, which i did not notice.
