@@ -1,0 +1,80 @@
+
+
+------- 2016-09-14 15:11:05
+$ find . -type f -size +7000k
+
+
+--------- 2016-09-14 12:23:32
+如何在基于DEB的系统下检查是否安装了一个包。[http://blog.csdn.net/hshl1214/article/details/49929927]
+1. dpkg -s firefox
+
+2. 
+$ dpkg-query -l vim
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name           Version      Architecture Description
++++-==============-============-============-=================================
+ii  vim            2:7.4.052-1u amd64        Vi IMproved - enhanced vi editor
+
+3.
+$ dpkg --get-selections | grep gd
+gdb           install
+gdisk           install
+gir1.2-gdata-0.0        install
+gir1.2-gdkpixbuf-2.0        install
+libgd3:amd64          install
+libgdata-common         install
+libgdata13          install
+libgdbm3:amd64          install
+libgdiplus          install
+libgdk-pixbuf2.0-0:amd64      install
+libgdk-pixbuf2.0-common       install
+libgdk-pixbuf2.0-dev        install
+libgupnp-igd-1.0-4:amd64      install
+libmono-cscompmgd8.0-cil      install
+php7.0-gd         install
+printer-driver-sag-gdi        install
+python-gdbm         install
+python3-gdbm:amd64        install
+unity-scope-gdrive        install
+wireless-regdb
+
+$ dpkg --get-selections | grep php
+dh-php            install
+libapache2-mod-php7.0       install
+php-common          install
+php-mbstring          install
+php-pear          install
+php-xml           install
+php7.0            install
+php7.0-cgi          install
+php7.0-cli          install
+php7.0-common         install
+php7.0-curl         install
+php7.0-dev          install
+php7.0-fpm          install
+php7.0-gd         install
+php7.0-json         install
+php7.0-mbstring         install
+php7.0-mysql          install
+php7.0-opcache          install
+php7.0-readline         install
+php7.0-xml          install
+pkg-php-tools         install
+
+http://baike.baidu.com/link?url=Bdwf2-3ykjNDxPYL8VAPSTzQTz_w-CSGbK_83FIQzkpzxxiAjkpaFmazYL-IlIssk0X6NHfRFYkl8v75rnZBha
+apt-get update
+在修改/etc/apt/sources.list或/etc/apt/preferences之后运行该命令。此外您需要定期运行这一命令以确保您的软件包列表是最新的。
+apt-get install packagename
+安装一个新软件包（参见下文的aptitude）
+apt-get remove packagename
+卸载一个已安装的软件包（保留配置文档）
+apt-get remove --purge packagename
+卸载一个已安装的软件包（删除配置文档）
+apt-get autoremove packagename
+删除包及其依赖的软件包
+apt-get autoremove --purge packagname
+删除包及其依赖的软件包+配置文件，比上面的要删除的彻底一点
+dpkg --force-all --purge packagename
+有些软件很难卸载，而且还阻止了别的软件的应用，就能够用这个，但是有点冒险。

@@ -1,0 +1,95 @@
+
+image processing in php:
+  gd
+  imagick (image magick extension)
+  Gmagick (GraphicsMagick extension)
+  Cairo
+
+http://www.slideshare.net/avalanche123/introduction-toimagine
+  vpn might be needed
+
+----------- 2016-09-14 14:16:56
+
+2016-09-14 14:13:16 [-][error][abc\frontend\components\ErrorHandler::logException] Imagine\Exception\InvalidArgumentException: Saving image in "" format is not supported, please use one of the following extension: "gif", "jpeg", "png", "wbmp", "xbm" in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/imagine/imagine/lib/Imagine/Gd/Image.php:552
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/imagine/imagine/lib/Imagine/Gd/Image.php(210): Imagine\Gd\Image->saveOrOutput('', Array, 'Yii::$app->runt...')
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/TestController.php(48): Imagine\Gd\Image->save('Yii::$app->runt...', Array)
+#2 [internal function]: frontend\controllers\TestController->actionRotate()
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/imagine/imagine/lib/Imagine/Gd/Image.php
+    final public function save($path, array $options = array())
+    {
+        $format = isset($options['format'])
+            ? $options['format']
+            : pathinfo($path, \PATHINFO_EXTENSION);
+
+        $this->saveOrOutput($format, $options, $path);
+
+        return $this;
+    }
+
+--------- 2016-09-14 13:41:09
+https://github.com/yiisoft/yii2-imagine
+  Installation
+    The preferred way to install this extension is through composer.
+    Either run
+    php composer.phar require --prefer-dist yiisoft/yii2-imagine
+    or add
+    "yiisoft/yii2-imagine": "~2.0.0"
+    to the require section of your composer.json.composer require --prefer-dist yiisoft/yii2-imagine
+    Installation
+    The preferred way to install this extension is through composer.
+    Either run
+    php composer.phar require --prefer-dist yiisoft/yii2-imagine
+    or add
+    "yiisoft/yii2-imagine": "~2.0.0"
+    to the require section of your composer.json.
+
+
+---------- 2016-09-14 14:05:02
+~/workspace/bc/advanced/MissionImpossible
+$ composer require --prefer-dist yiisoft/yii2-imagine
+You are running composer with xdebug enabled. This has a major impact on runtime performance. See https://getcomposer.org/xdebug
+Using version ^2.0 for yiisoft/yii2-imagine
+./composer.json has been updated
+Loading composer repositories with package information
+Updating dependencies (including require-dev)
+  - Installing imagine/imagine (v0.5.0)                             
+    Downloading: 100%         
+
+  - Installing yiisoft/yii2-imagine (2.0.4)
+    Downloading: 100%         
+
+imagine/imagine suggests installing ext-imagick (to use the Imagick implementation)
+imagine/imagine suggests installing ext-gmagick (to use the Gmagick implementation)
+Writing lock file
+Generating autoload files
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc/advanced/MissionImpossible
+$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+  modified:   composer.json
+  modified:   composer.lock
+  modified:   vendor/composer/LICENSE
+  modified:   vendor/composer/autoload_namespaces.php
+  modified:   vendor/composer/autoload_psr4.php
+  modified:   vendor/composer/autoload_real.php
+  modified:   vendor/composer/autoload_static.php
+  modified:   vendor/composer/installed.json
+  modified:   vendor/yiisoft/extensions.php
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+  vendor/imagine/
+  vendor/yiisoft/yii2-imagine/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+

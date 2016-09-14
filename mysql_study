@@ -3,6 +3,84 @@ mysql manual:
 
 
 
+--------- 2016-09-14 18:50:53
+http://blog.csdn.net/mr_linjw/article/details/49849691
+1. MySQL 为日期增加一个时间间隔：date_add()
+[html] view plain copy
+    set @dt = now();  
+    select date_add(@dt, interval 1 day);   - 加1天  
+    select date_add(@dt, interval 1 hour);   -加1小时  
+    select date_add(@dt, interval 1 minute);    - 加1分钟  
+    select date_add(@dt, interval 1 second); -加1秒  
+    select date_add(@dt, interval 1 microsecond);-加1毫秒  
+    select date_add(@dt, interval 1 week);-加1周  
+    select date_add(@dt, interval 1 month);-加1月  
+    select date_add(@dt, interval 1 quarter);-加1季  
+    select date_add(@dt, interval 1 year);-加1年  
+例：更新某个时间，每个时间加上一个星期
+[html] view plain copy
+    UPDATE comment c set c.time = DATE_ADD(c.time, INTERVAL 7 DAY) ;  
+2. MySQL 为日期减去一个时间间隔：date_sub()，格式同date_add（）类似
+例子：更新某个时间，使每个时间减少一个月
+[html] view plain copy
+    UPDATE comment c set c.time = DATE_SUB(c.time, INTERVAL 1 MONTH)
+
+---------- 2016-09-14 17:50:39
+mysql> select checkin.id, day(checkin_time) from checkin, challenge where checkin.challenge_id=challenge.id and challenge.mission_id=128;
++-----+-------------------+
+| id  | day(checkin_time) |
++-----+-------------------+
+| 379 |                13 |
+| 380 |                13 |
+| 381 |                13 |
+| 382 |                13 |
+| 383 |                12 |
+| 385 |                12 |
+| 386 |                12 |
+| 387 |                11 |
+| 388 |                11 |
+| 389 |                10 |
+| 390 |                10 |
+| 391 |                10 |
+| 392 |                14 |
++-----+-------------------+
+13 rows in set (0.00 sec)
+
+mysql> update period_mission set start_time="2016-09-10 16:45:00" where id=128;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select checkin.id, checkin_time from checkin, challenge where checkin.challenge_id=challenge.id and challenge.mission_id=128;
++-----+---------------------+
+| id  | checkin_time        |
++-----+---------------------+
+| 379 | 2016-09-13 16:45:00 |
+| 380 | 2016-09-13 16:45:00 |
+| 381 | 2016-09-13 16:45:00 |
+| 382 | 2016-09-13 16:45:00 |
+| 383 | 2016-09-12 16:45:00 |
+| 385 | 2016-09-12 16:45:00 |
+| 386 | 2016-09-12 16:45:00 |
+| 387 | 2016-09-11 16:45:00 |
+| 388 | 2016-09-11 16:45:00 |
+| 389 | 2016-09-14 17:45:09 |
+| 390 | 2016-09-14 17:45:09 |
+| 391 | 2016-09-14 17:46:09 |
++-----+---------------------+
+12 rows in set (0.00 sec)
+
+mysql> update checkin set checkin_time="2016-09-10 16:45:00" where id=389;Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update checkin set checkin_time="2016-09-10 16:45:00" where id=390;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update checkin set checkin_time="2016-09-10 16:45:00" where id=391;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
 ---------- 2016-09-09 11:14:29
 period mission reminder test:
 

@@ -7,6 +7,18 @@ met an issue:
   accidentally put a line into Application.php, and the page does not show from apache. and the http response is connection closed, internal error.
   Luckily noticed the warnings in the phpstorm project view warnings and saw some warnings in Application.php, and then removed the accidentally pasted line.
 
+
+---------- 2016-09-13 14:01:28
+http://www.baidu.com/link?url=_J_taS2tnMFTvSMuq8H3TZOJtKfqDw2gSSDuGGwCFaECsbqDslE5QlmsLKaXpqf_jxT8bb_zobQLtNBIE1LEw-CIxVbff35jYyLPNzMuajO&wd=&eqid=ee3d2256000048730000000257d795ed
+ 发生了Post错误:错误代码40005,微信返回错误信息:invalid file type
+给客户部署 PxxCms, 使用群发功能发送图文的的时候提示: 发生了Post错误:错误代码40005,微信返回错误信息:invalid file type, 没学过php伤不起 ...
+Google 到某哥的博客, 有解决方案, 但是tmd 收费...擦了, 自己改
+找到 \PigCms\Lib\Action\User\MessageAction.class.php 的 sendAll 方法, 大约112 行, 改成如下,注释掉第一行file_put_contents(...);
+//file_put_contents(CONF_PATH.'img_'.$img['id'].'.jpg',file_get_contents($img['pic']));
+$postMedia['media']=$_SERVER['DOCUMENT_ROOT'].str_replace('http://'.$_SERVER['HTTP_HOST'],'',$img['pic']);
+原因看代码应该就理解了.
+转载请注明出处:http://duwei.cnblogs.com/
+
 ----------- 2016-09-01 18:21:01
 headache:
   used "DEFAULT" as a var name, and php stopped without any warning. But phpstorm has some warning as seen from ide, which i did not notice.

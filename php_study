@@ -20,7 +20,75 @@ ubuntu 13.0 and above, simply use the debundled package. In a terminal type the 
 sudo apt-get install php-curl
 Or if you're using the old PHP5
 sudo apt-get install php5-curl
+--------- 2016-09-14 14:52:46
+php里函数调用时前面加@是什么意思？
+屏蔽错误的  只是不显示错误提示 并不能改掉错误
 
+-------- 2016-09-14 13:28:44
+header() is used to send a raw HTTP header. See the » HTTP/1.1 specification for more information on HTTP headers.
+
+Remember that header() must be called before any actual output is sent, either by normal HTML tags, blank lines in a file, or from PHP. It is a very common error to read code with include, or require, functions, or another file access function, and have spaces or empty lines that are output before header() is called. The same problem exists when using a single PHP/HTML file. 
+
+--------- 2016-09-14 11:55:11
+PHP配置文件详解php.ini [http://www.cnblogs.com/hbl/archive/2008/02/15/1069367.html]
+; PHP还是一个不断发展的工具，其功能还在不断地删减
+; 而php.ini的设置更改可以反映出相当的变化，
+; 在使用新的PHP版本前，研究一下php.ini会有好处的 
+; 这个文件控制了PHP许多方面的观点。为了让PHP读取这个文件，它必须被命名为
+; 'php.ini'。PHP 将在这些地方依次查找该文件：当前工作目录；环境变量PHPRC
+; 指明的路径；编译时指定的路径。
+; 在windows下，编译时的路径是Windows安装目录。
+; 在命令行模式下，php.ini的查找路径可以用 -c 参数替代。
+
+; 该文件的语法非常简单。空白字符和用分号';'开始的行被简单地忽略（就象你可能
+; 猜到的一样）。 章节标题（例如 : [Foo]）也被简单地忽略，即使将来它们可能
+; 有某种的意义。
+;
+; 指示被指定使用如下语法：
+; 指示标识符 = 值
+; directive = value
+; 指示标识符 是 *大小写敏感的* - foo=bar 不同于 FOO = bar。
+
+
+ini_get("display_errors");
+
+[echo phpinfo();]
+$ php test.php | grep ini
+Configuration File (php.ini) Path => /etc/php/7.0/cli
+Loaded Configuration File => /etc/php/7.0/cli/php.ini
+
+
+phpinfo for yii2 advanced with nginx:
+System  Linux kidd-OptiPlex-9020 3.13.11-ckt363.13.0_kidd #1 SMP Wed Apr 6 18:10:00 CST 2016 x86_64
+Server API  FPM/FastCGI
+Virtual Directory Support disabled
+Configuration File (php.ini) Path /etc/php/7.0/fpm
+Loaded Configuration File /etc/php/7.0/fpm/php.ini
+Scan this dir for additional .ini files /etc/php/7.0/fpm/conf.d
+Additional .ini files parsed  /etc/php/7.0/fpm/conf.d/10-mysqlnd.ini, /etc/php/7.0/fpm/conf.d/10-opcache.ini, /etc/php/7.0/fpm/conf.d/10-pdo.ini, /etc/php/7.0/fpm/conf.d/15-xml.ini, /etc/php/7.0/fpm/conf.d/20-calendar.ini, /etc/php/7.0/fpm/conf.d/20-ctype.ini, /etc/php/7.0/fpm/conf.d/20-curl.ini, /etc/php/7.0/fpm/conf.d/20-dom.ini, /etc/php/7.0/fpm/conf.d/20-exif.ini, /etc/php/7.0/fpm/conf.d/20-fileinfo.ini, /etc/php/7.0/fpm/conf.d/20-ftp.ini, /etc/php/7.0/fpm/conf.d/20-gd.ini, /etc/php/7.0/fpm/conf.d/20-gettext.ini, /etc/php/7.0/fpm/conf.d/20-iconv.ini, /etc/php/7.0/fpm/conf.d/20-json.ini, /etc/php/7.0/fpm/conf.d/20-mbstring.ini, /etc/php/7.0/fpm/conf.d/20-mysqli.ini, /etc/php/7.0/fpm/conf.d/20-pdo_mysql.ini, /etc/php/7.0/fpm/conf.d/20-phar.ini, /etc/php/7.0/fpm/conf.d/20-posix.ini, /etc/php/7.0/fpm/conf.d/20-readline.ini, /etc/php/7.0/fpm/conf.d/20-shmop.ini, /etc/php/7.0/fpm/conf.d/20-simplexml.ini, /etc/php/7.0/fpm/conf.d/20-sockets.ini, /etc/php/7.0/fpm/conf.d/20-sysvmsg.ini, /etc/php/7.0/fpm/conf.d/20-sysvsem.ini, /etc/php/7.0/fpm/conf.d/20-sysvshm.ini, /etc/php/7.0/fpm/conf.d/20-tokenizer.ini, /etc/php/7.0/fpm/conf.d/20-wddx.ini, /etc/php/7.0/fpm/conf.d/20-xmlreader.ini, /etc/php/7.0/fpm/conf.d/20-xmlwriter.ini, /etc/php/7.0/fpm/conf.d/20-xsl.ini
+
+$ cat /etc/php/7.0/cli/conf.d/20-gd.ini
+; configuration for php gd module
+; priority=20
+extension=gd.so
+
+$ cat /etc/php/7.0/fpm/conf.d/20-gd.ini
+; configuration for php gd module
+; priority=20
+extension=gd.so
+
+/usr
+$ fn gd.so
+./lib/php/20151012/gd.so
+
+
+----------- 2016-09-14 11:49:52
+$ tail -f /var/log/php/error.log 
+
+[12-Sep-2016 11:13:16 Asia/Chongqing] PHP Fatal error:  Uncaught Error: Call to undefined function gd_info() in /home/kidd/workspace/php/web_mysql/c28/info.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/kidd/workspace/php/web_mysql/c28/info.php on line 5
 
 ------- 2016-09-02 09:59:07
 require()语句包括并运行指定文件。 

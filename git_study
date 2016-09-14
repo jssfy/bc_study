@@ -2,6 +2,7 @@
 
 
 
+
 -------------- 2016-09-14 08:07:29
 github
 
@@ -9,6 +10,39 @@ github
 
 git remote add origin https://github.com/jssfy/php_general.git
 git push -u origin master
+
+-------------- 2016-09-13 16:41:00
+http://stackoverflow.com/questions/6887228/git-hangs-while-writing-objects
+
+$ git config --global http.postBuffer 524288000  [yes, this helps, but it would be rather slow to push]
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc/advanced/MissionImpossible
+$ git push origin HEAD:refs/for/master
+Counting objects: 62, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (18/18), done.
+Writing objects:  33% (6/18), 2.07 MiB | 34.00 KiB/s 
+
+$ git push origin HEAD:refs/for/master
+Counting objects: 31, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects:  71% (5/7), 2.07 MiB | 44.00 KiB/s   
+
+
+
+
+Writing objects: 100% (7/7), 4.26 MiB | 16.00 KiB/s, done.
+Total 7 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas: 100% (3/3)
+remote: Processing changes: updated: 1, refs: 1, done    
+remote: 
+remote: Updated Changes:
+remote:   http://git.niub.la/24043 [feature] TZB-178 生成邀请二维码
+remote: 
+To ssh://anhye@git.niub.la:29419/BC/MissionImpossible
+ * [new branch]      HEAD -> refs/for/master
+
 
 -------------- 2016-08-25 20:41:34
 git add --all .
