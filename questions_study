@@ -2,6 +2,40 @@
 
 
 
+----------- 2016-09-20 20:11:38
+~/workspace/bc/advanced/MissionImpossible
+$ rm -rf /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime/Twig/cache
+
+2016-09-20 20:10:51 [187][error][abc\frontend\components\ErrorHandler::logException] Error: Call to undefined method frontend\components\util\TwigHelper::format_time_range() in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime/Twig/cache/5c/5ce9787304024c41606a987e5faf8b4383fa9206b184f786fc3ce97eabffa0f4.php:31
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Template.php(387): __TwigTemplate_40dddb1ce9c3a616ff19d254cbffbd5cb6f0ade4eb77260f29ec123cb6b187c3->doDisplay(Array, Array)
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Template.php(355): Twig_Template->displayWithErrorHandling(Array, Array)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/runtime/Twig/cache/86/866517e73c5cae94f433c30073ac440d98c58c8b54933633dc688d043da345d5.php(87): Twig_Template->display(Array)
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Template.php(387): __TwigTemplate_ac4d84c0c9079877e449e53d29fe083c9397bf1efbbcb58c437be003296b9247->doDisplay(Array, Array)
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Template.php(355): Twig_Template->displayWithErrorHandling(Array, Array)
+#5 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Template.php(366): Twig_Template->display(Array)
+#6 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/twig/twig/lib/Twig/Environment.php(347): Twig_Template->render(Array)
+#7 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2-twig/ViewRenderer.php(152): Twig_Environment->render('pre-checkin_new...', Array)
+#8 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/View.php(245): yii\twig\ViewRenderer->render(Object(yii\web\View), '/home/kidd/work...', Array)
+#9 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/View.php(149): yii\base\View->renderFile('/home/kidd/work...', Array, Object(frontend\controllers\MissionController))
+#10 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php(378): yii\base\View->render('single/pre-chec...', Array, Object(frontend\controllers\MissionController))
+#11 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/WebController.php(90): yii\base\Controller->render('single/pre-chec...', Array, false)
+#12 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/MissionController.php(156): frontend\controllers\WebController->render('single/pre-chec...', Array)
+#13 [internal function]: frontend\controllers\MissionController->actionIndex('2220', NULL, '0', NULL)
+#14 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)
+#15 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php(154): yii\base\InlineAction->runWithParams(Array)
+#16 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('index', Array)
+#17 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('mission/index/', Array)
+#18 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#19 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/web/index.php(21): yii\base\Application->run()
+#20 {main}
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:29
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php:25
+
+
+------------ 2016-09-20 18:24:12
+2016-09-20 18:23:40 [][info][abc\frontend\controllers\LoginController::actionLogin] account is null with db: {"dsn":"mysql:host=10.11.255.110;port=31306;dbname=tz8","username":"tz8","password":"7fedb3187f03","attributes":null,"pdo":{},"enableSchemaCache":false,"schemaCacheDuration":3600,"schemaCacheExclude":[],"schemaCache":"cache","enableQueryCache":true,"queryCacheDuration":3600,"queryCache":"cache","charset":"utf8mb4","emulatePrepare":null,"tablePrefix":"admin_","schemaMap":{"pgsql":"yii\\db\\pgsql\\Schema","mysqli":"yii\\db\\mysql\\Schema","mysql":"yii\\db\\mysql\\Schema","sqlite":"yii\\db\\sqlite\\Schema","sqlite2":"yii\\db\\sqlite\\Schema","sqlsrv":"yii\\db\\mssql\\Schema","oci":"yii\\db\\oci\\Schema","mssql":"yii\\db\\mssql\\Schema","dblib":"yii\\db\\mssql\\Schema","cubrid":"yii\\db\\cubrid\\Schema"},"pdoClass":null,"commandClass":"yii\\db\\Command","enableSavepoint":true,"serverStatusCache":"cache","serverRetryInterval":600,"enableSlaves":true,"slaves":[],"slaveConfig":[],"masters":[],"masterConfig":[]}
+
 ----------- 2016-09-11 23:00:06
 met an issue: 
   accidentally put a line into Application.php, and the page does not show from apache. and the http response is connection closed, internal error.

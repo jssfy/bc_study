@@ -9,6 +9,14 @@ url sharing + id
 
 
 
+---------- 2016-09-22 16:37:44
+BC/MissionImpossible / frontend/config/main.php
+'errorHandler' => [
+            'class' => 'frontend\components\ErrorHandler',
+        ],
+
+class ErrorHandler extends \yii\web\ErrorHandler
+
 --------- 2016-09-12 10:05:38
 mb_strwidth
 

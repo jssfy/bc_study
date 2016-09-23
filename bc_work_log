@@ -25,6 +25,18 @@ test:
 http://frontend.tz8/mission/list
 http://frontend.tz8/test/click-menu
 
+------- 2016-09-20 10:53:26
+deleting a user from db will lead to a lot of problems such as non-existing challenge user, mission creator, etc. many pages' access will fail.
+
+------- 2016-09-19 11:04:22
+数据库手动修改方式：（举例如下，这里的符号是脚印）
+update user set nickname = "👣", username = "👣" where id=2;
+update account set nickname = "👣" where id=186;
+
+用户名目前不支持自动更新，因此已有的乱码只能通过手动修改数据库。
+
+任务名称和描述等由于不同客户端前端支持有差异，服务器端无法得到正确的表情，暂缓处理部分客户端的乱码问题。
+
 ---------- 2016-09-05 17:07:04
 1. wanted pay all red pack at a time, try to find if there is any possible way. [wait for PM to decide, postponed]
 2. find out the account which has not accepted the redpack. (downloadbill and queryorder, testing it requires official appid and secretid, etc., postponed. watch from public account direclty.)

@@ -1,0 +1,630 @@
+
+/etc/mysql/my.cnf
+
+# ALTER DATABASE tz8_dev CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+  character_set_database does not have to be utf8mb4
+
+ALTER TABLE mission MODIFY COLUMN name varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '挑战名称';
+ALTER TABLE period_mission MODIFY COLUMN name varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+ALTER TABLE user MODIFY COLUMN nickname varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '昵称';
+ALTER TABLE user MODIFY COLUMN username varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名称';
+
+ALTER TABLE account MODIFY COLUMN nickname varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL;
+
+
+ALTER TABLE states CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+update user set nickname = "👣", username = "👣" where id=2;
+  note: to copy the above line instead of [update user set nickname = "\U+1F463", username = "\U+1F463" where id=2;];
+update account set nickname = "👣" where id=186;
+
+----------- 2016-09-18 18:46:43
+test:
+
+insert into mission set name="一😄二", announce="一😄二";
+
+
+test:
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8mb4                    |
+| character_set_connection | utf8mb4                    |
+| character_set_database   | utf8mb4                    |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8mb4                    |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+
+prod:
+mysql> show variables like "%character%";
++--------------------------+----------------------------------+
+| Variable_name            | Value                            |
++--------------------------+----------------------------------+
+| character_set_client     | utf8mb4                          |
+| character_set_connection | utf8mb4                          |
+| character_set_database   | utf8                             |
+| character_set_filesystem | binary                           |
+| character_set_results    | utf8mb4                          |
+| character_set_server     | utf8mb4                          |
+| character_set_system     | utf8                             |
+| character_sets_dir       | /usr/local/mysql/share/charsets/ |
++--------------------------+----------------------------------+
+8 rows in set (0.00 sec)
+
+
+---------- 2016-09-18 18:34:18
+online test: 
+mysql> show create table account;
+
+| account | CREATE TABLE `account` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `open_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `union_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `avatar` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nickname` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gender` int(11) DEFAULT '0' COMMENT '1: 男, 2: 女',
+  `province` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `birthday` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `privilege` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `interest` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `phone` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `subscribed` int(11) NOT NULL DEFAULT '-1' COMMENT '0: false, 1: true, -1: unknown',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone_index` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci |
+
+mysql> show create table user;
+| user  | CREATE TABLE `user` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `account_type` varchar(10) DEFAULT NULL COMMENT '账号类型',
+  `account_id` bigint(20) DEFAULT '-1' COMMENT '账户ID',
+  `nickname` varchar(45) DEFAULT NULL COMMENT '昵称',
+  `username` varchar(45) NOT NULL COMMENT '用户名称',
+  `passwd` varchar(45) DEFAULT NULL COMMENT '密码',
+  `head_img` varchar(1024) DEFAULT NULL COMMENT '头像',
+  `gender` int(11) NOT NULL DEFAULT '0' COMMENT '性别',
+  `birthday` datetime DEFAULT NULL COMMENT '出生日期',
+  `phone` varchar(45) DEFAULT NULL COMMENT '电话',
+  `regist_time` datetime DEFAULT NULL COMMENT '注册时间',
+  `announce` varchar(45) DEFAULT NULL COMMENT '个性签名',
+  `province` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `balance` int(11) DEFAULT '0' COMMENT '用户账户余额',
+  `inviter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '0: unknown',
+  `invite_time` datetime DEFAULT NULL COMMENT '邀请时间',
+  `invite_mode` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='用户基本信息' |
+
+
+
+--------- 2016-09-18 18:25:23
+chaning the table character set will apply to all columns. 
+  to change some specific column to a specific character set: [be aware of the execution order]
+    ALTER TABLE states MODIFY COLUMN name varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+note: to insert emoji, the COLLATE setting is not necessary.
+
+
+mysql> ALTER TABLE states CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci; 
+ERROR 1366 (HY000): Incorrect string value: '\xF0\x9F\x98\x84\xE4\xBA...' for column 'name' at row 4
+mysql> delete from states where code="ar";
+Query OK, 1 row affected (0.02 sec)
+
+mysql> ALTER TABLE states CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+mysql> insert into states set code="ar", name="一\U+1F604二", population=11;    ERROR 1366 (HY000): Incorrect string value: '\xF0\x9F\x98\x84\xE4\xBA...' for column 'name' at row 1
+mysql> ALTER TABLE states CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+Query OK, 15 rows affected (0.07 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> insert into states set code="ar", name="一\U+1F604二", population=11;    Query OK, 1 row affected (0.01 sec)
+
+
+--------- 2016-09-18 17:56:44
+be careful: copy the below line correctly instead of copying (insert into states set code="ar", name="一\U+1F604二", population=11;), which will generate plain strings like the "ae" line in the below table.
+
+mysql> insert into states set code="ar", name="一😄二", population=11;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from states;
++------+----------------------------+------------+
+| code | name                       | population |
++------+----------------------------+------------+
+| ae   | 一U+1F604二一U+1F604二     |         11 |
+| AH   | anhuaye                    |          0 |
+| aq   | 一U+1F604二一U+1F604二     |         11 |
+| ar   | 一😄二                       |         11 |
+| aw   | 一U+1F604二一U+1F604二     |         11 |
+| BR   | Brazil                     |   17015000 |
+| CA   | California                 |     114000 |
+| FL   | Florida                    |    5922700 |
+| IN   | Indiana                    |  101366000 |
+| MA   | Massatrusit                |    5963400 |
+| NY   | NewYork                    |    1886000 |
+| OL   | Orland                     |  127758000 |
+| PH   | Philadelphia               |   14694000 |
+| TX   | Texus                      |    8216700 |
+| UT   | Utar                       |   27357000 |
+| YA   | yeanhua                    |          0 |
++------+----------------------------+------------+
+16 rows in set (0.00 sec)
+
+mysql> show create table states;
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table  | Create Table                                                                                                                                                                                                                                     |
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| states | CREATE TABLE `states` (
+  `code` char(2) NOT NULL,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `population` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
+
+
+-------- 2016-09-18 17:44:14
+below works: 
+| country | CREATE TABLE `country` (
+  `code` char(2) NOT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `population` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 |
+
+---------- 2016-09-18 17:37:44
+
+mysql> ALTER DATABASE yii2basic CHARACTER SET = utf8 COLLATE = utf8_unicode_ci; Query OK, 1 row affected (0.00 sec)
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8                       |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+mysql> ALTER DATABASE yii2basic CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> show variables like "%character%";                                       +--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8mb4                    |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+------------ 2016-09-18 17:26:55
+online test:
+mysql> show create database tz8_dev;
++----------+------------------------------------------------------------------+
+| Database | Create Database                                                  |
++----------+------------------------------------------------------------------+
+| tz8_dev  | CREATE DATABASE `tz8_dev` /*!40100 DEFAULT CHARACTER SET utf8 */ |
++----------+------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+offline test:
+mysql> show create database tz8_dev;
++----------+---------------------------------------------------------------------+
+| Database | Create Database                                                     |
++----------+---------------------------------------------------------------------+
+| tz8_dev  | CREATE DATABASE `tz8_dev` /*!40100 DEFAULT CHARACTER SET utf8mb4 */ |
++----------+---------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+------- 2016-09-18 15:47:32
+after modifying username for wechat, getUserInfo does not work immediately, not sure how long to take.
+
+    public static function getUserInfo($openid, $accessToken){
+        $url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$accessToken.'&openid='.$openid.'&lang=zh_CN';
+        $response = static::get_contents($url);
+        error_log("get user info: ");
+        error_log(json_encode($response));
+        return $response;
+    }
+
+https://api.weixin.qq.com/sns/userinfo?access_token=0YF3UlVAIH18zZhWcC1pkQZXmvCbsSfWAzyij-xvydVfMaVvR3OuZIbEBqJKUHiZh77hy4pOs2bDRAavXjzQkIPAN0eGvsW3xinnv_2h-I8&openid=ook-7wLch8xSS-mM-urjLCCs91n0&lang=zh_CN
+https://api.weixin.qq.com/sns/userinfo?access_token=vm3dA82x7C8BilGxXuHIoT-ayo24yXIecvuvsGZ55PJ7TCxmcPxJOKvTMa4uc69vIhmdBSt3JniINt4a0aAOrTXyVRWMW_DjAHv24q_jlkw&openid=ook-7wLch8xSS-mM-urjLCCs91n0&lang=zh_CN
+
+----------- 2016-09-18 15:11:33
+
+| user  | CREATE TABLE `user` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `account_type` varchar(10) DEFAULT NULL COMMENT '账号类型',
+  `account_id` bigint(20) DEFAULT '-1' COMMENT '账户ID',
+  `nickname` varchar(45) DEFAULT NULL COMMENT '昵称',
+  `username` varchar(45) NOT NULL COMMENT '用户名称',
+  `passwd` varchar(45) DEFAULT NULL COMMENT '密码',
+  `head_img` varchar(1024) DEFAULT NULL COMMENT '头像',
+  `gender` int(11) NOT NULL DEFAULT '0' COMMENT '性别',
+  `birthday` datetime DEFAULT NULL COMMENT '出生日期',
+  `phone` varchar(45) DEFAULT NULL COMMENT '电话',
+  `regist_time` datetime DEFAULT NULL COMMENT '注册时间',
+  `announce` varchar(45) DEFAULT NULL COMMENT '个性签名',
+  `province` varchar(50) DEFAULT NULL,
+  `city` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `balance` int(11) DEFAULT '0' COMMENT '用户账户余额',
+  `inviter_id` bigint(20) NOT NULL DEFAULT '0',
+  `invite_time` datetime DEFAULT NULL COMMENT '邀请时间',
+  `invite_mode` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COMMENT='用户基本信息' |
+
+ALTER TABLE user MODIFY COLUMN nickname varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '昵称';
+ALTER TABLE user MODIFY COLUMN username varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名称';
+
+update mission set name="\U+1F463 is \U+1F463" where id=2087;
+  if sent from wechat, the copied result is: <img class="emoji emoji1f463" text="_web" src="/zh_CN/htmledition/v2/images/spacer.gif">
+
+| account | CREATE TABLE `account` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `open_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `union_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `avatar` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nickname` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gender` int(11) DEFAULT '0' COMMENT '1: 男, 2: 女',
+  `province` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `birthday` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `privilege` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `interest` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `phone` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `subscribed` int(11) NOT NULL DEFAULT '-1' COMMENT '0: false, 1: true, -1: unknown',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone_index` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=203 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci |
+ALTER TABLE account MODIFY COLUMN nickname varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL;
+
+👀
+
+footprint: [http://www.fuhaodq.com/emoji/list_7.html]
+  <img class="emoji emoji1f463" text="_web" src="/zh_CN/htmledition/v2/images/spacer.gif">
+👣
+  to get the symbols from http://www.fuhaodq.com/emoji/list_7.html
+
+----------- 2016-09-18 14:53:31
+
+| mission | CREATE TABLE `mission` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '具体挑战项目ID',
+  `tmpl_id` bigint(20) DEFAULT '0' COMMENT '挑战模板ID',
+  `name` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '挑战名称',
+  `announce` varchar(64) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战宣言',
+  `declare` varchar(128) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战说明',
+  `description` varchar(128) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战描述',
+  `creator_id` bigint(20) DEFAULT NULL COMMENT '创建者ID',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `stop_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `end_time` datetime DEFAULT NULL COMMENT '终止时间',
+  `ticket` float DEFAULT '1' COMMENT '承诺金',
+  `ticket_unit` varchar(45) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT 'yuan',
+  `joined_count` int(11) DEFAULT '0' COMMENT '参与人数',
+  `max_user` int(11) DEFAULT '50' COMMENT '最多参与人数',
+  `min_user` int(11) DEFAULT '1' COMMENT '最少参与人数',
+  `status` int(11) DEFAULT '0' COMMENT '任务状态',
+  `checkin_type` int(11) DEFAULT '0' COMMENT '打卡类型',
+  `checkin_min_count` int(11) DEFAULT '1' COMMENT '最少打卡次数',
+  `reward_total` float DEFAULT '0' COMMENT '总奖金池',
+  `reward_send` float DEFAULT '0' COMMENT '已发送红包总额',
+  `checkin_photo` varchar(10240) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '打卡示例图片',
+  `checkin_mode` int(11) DEFAULT '0' COMMENT '打卡模式',
+  `checkin_unlike_invalid` int(11) DEFAULT '50' COMMENT '打卡被踩无效数',
+  `checkin_like_valid` int(11) DEFAULT '0' COMMENT '打卡被赞有效数',
+  `reward_calc_type` int(11) NOT NULL DEFAULT '0' COMMENT '红包分发类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2082 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='具体挑战' |
+
+below is php string copy from annouce to name, ok.
+[Sun Sep 18 14:51:35 2016] {"creator_id":11,"create_time":"2016-09-18","tmpl_id":0,"name":"一😄二","announce":"一😄二","start_time":"2016/09/18 15:00","stop_time":"2016/09/19 15:00","checkin_unlike_invalid":50,"checkin_like_valid":0,"ticket":"1000","checkin_type":"1","reward_calc_type":1,"description":""}
+[Sun Sep 18 14:51:35 2016] 10.12.0.28:62921 [200]: /ajax/mission/create
+[Sun Sep 18 14:51:36 2016] 10.12.0.28:62922 [302]: /mission/orderdone?oid=2105&res=1&mt=0
+[Sun Sep 18 14:51:36 2016] 10.12.0.28:62923 [302]: /mission/index?mid=2081&mt=0
+
+below is from db read
+[Sun Sep 18 14:51:36 2016] {"id":2081,"tmpl_id":0,"name":"一?二","announce":"一😄二","declare":null,"description":"","creator_id":11,"create_time":"2016-09-18 00:00:00","start_time":"2016-09-18 15:00:00","stop_time":"2016-09-19 15:00:00","end_time":"2016-09-20 15:00:00","ticket":1000,"ticket_unit":null,"joined_count":1,"max_user":50,"min_user":1,"status":0,"checkin_type":1,"checkin_min_count":1,"reward_total":1000,"reward_send":0,"checkin_photo":null,"checkin_mode":0,"checkin_unlike_invalid":50,"checkin_like_valid":0,"reward_calc_type":1}
+
+ALTER TABLE mission MODIFY COLUMN name varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '挑战名称';
+| mission | CREATE TABLE `mission` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '具体挑战项目ID',
+  `tmpl_id` bigint(20) DEFAULT '0' COMMENT '挑战模板ID',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '挑战名称',
+  `announce` varchar(64) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战宣言',
+  `declare` varchar(128) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战说明',
+  `description` varchar(128) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '挑战描述',
+
+select results does not show correctly by default: 
+
+mysql> select * from test;
++----+---------+------------+
+| id | name    | population |
++----+---------+------------+
+|  1 | ?       |          1 |
+|  2 | ?       |          1 |
+|  3 | 一?二   |         12 |
++----+---------+------------+
+3 rows in set (0.00 sec)
+
+FIX!!!
+mysql> set names utf8mb4;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test;
++----+------------+------------+
+| id | name       | population |
++----+------------+------------+
+|  1 | 😄           |          1 |
+|  2 | 😄           |          1 |
+|  3 | 一😄二       |         12 |
++----+------------+------------+
+3 rows in set (0.00 sec)
+
+or /etc/mysql/my.cnf
+[mysql]
+default-character-set = utf8mb4
+
+一😄二
+
+how to insert manually:
+mysql> insert into test set name="一\U+1F604二一\U+1F604二", population=11;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from test;
++----+----------------------+------------+
+| id | name                 | population |
++----+----------------------+------------+
+|  1 | 😄                     |          1 |
+|  2 | 😄                     |          1 |
+|  3 | 一😄二                 |         12 |
+|  4 | 一😄二一😄二             |         11 |
++----+----------------------+------------+
+
+
+---------- 2016-09-18 12:28:08
+
+mission create:
+
+announce: 一"笑脸"二
+一: "\u4e00"
+二: "\u4e8c"
+[Sun Sep 18 12:27:03 2016] {"mt":"0","Mission":{"announce":"\u4e00\ud83d\ude04\u4e8c","ticket":"1000","start_time":"2016\/09\/18 13:00","stop_time":"2016\/09\/19 13:00","checkin_type":"1","description":""}}
+
+name: "笑脸"
+[18-Sep-2016 06:13:16 UTC] test create is triggered with post data: {"name":"\ud83d\ude04","population":"1","button":"create"}
+
+ALTER DATABASE yii2basic CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+ALTER TABLE test CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE test CHANGE name name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8mb4                    |
+| character_set_connection | utf8mb4                    |
+| character_set_database   | utf8mb4                    |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8mb4                    |
+| character_set_server     | utf8mb4                    |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+mysql> show variables like "%collation%";
++----------------------+--------------------+
+| Variable_name        | Value              |
++----------------------+--------------------+
+| collation_connection | utf8mb4_unicode_ci |
+| collation_database   | utf8mb4_unicode_ci |
+| collation_server     | utf8mb4_unicode_ci |
++----------------------+--------------------+
+3 rows in set (0.00 sec)
+
+http://zhidao.baidu.com/link?url=l7hIcbuKAIv-7PVsiBMR7456APCbVSAgof2OgXkzbcb7vIxPDreO5CCPwj5TsRfYU3hKQQp9CeNQDlqts7De7nCE4OTiXOde8_eXaVvkbqO
+4、在获取数据库连接的时候执行sql:set names utf8mb4；我使用的是alibaba的开源数据库连接池程序，在配置文件中增加一行如下配置
+<property name="connectionInitSqls" value="set names utf8mb4；" />
+重新启动应用程序，问题解决。
+
+http://bbs.csdn.net/topics/390854608
+折腾了两天，mysql已经升级到了5.6.2，所有编码都已设为utf8mb4
+变量输出如下：
+character_set_client     | utf8mb4                    
+character_set_connection | utf8mb4                    
+character_set_database   | utf8mb4                    
+character_set_filesystem | binary                     
+character_set_results    | utf8mb4                    
+character_set_server     | utf8mb4                    
+character_set_system     | utf8                       
+character_sets_dir       | /usr/share/mysql/charsets/ 
+collation_connection | utf8mb4_general_ci 
+collation_database   | utf8mb4_unicode_ci 
+collation_server     | utf8mb4_unicode_ci 
+
+对应表以及字段‘message’ 编码都已经设为utf8mb4_bin
+用query()写入的时候，还是报错“Incorrect string value: '\xF0\x9F\x98\x8A\xF0\x9F...' for column 'message' at row 1”
+求问题其他可能性。。。 
+
+Mysql版本 >= MySQL 5.5.3
+把数据库字符集修改为 utf8mb4
+修改连接数据库的编码
+init-connect='SET NAMES utf8mb4'
+character-set-server=utf8mb4 
+
+FIX !!!
+/var/www/html/yii/basic/config/db.php
+<?php
+return [
+    'class' => 'yii\db\Connection',
+    'dsn' => 'mysql:host=10.12.0.1;dbname=yii2basic',
+    'username' => 'root',
+    'password' => 'xxxx',
+    'charset' => 'utf8mb4',
+];
+
+http://www.linuxidc.com/Linux/2015-04/115840.htm
+utf8mb4和utf8到底有什么区别呢？原来以往的mysql的utf8一个字符最多3字节，而utf8mb4则扩展到一个字符最多能有4字节，所以能支持更多的字符集。
+解决方案：将Mysql的编码从utf8转换成utf8mb4。
+需要 >= MySQL 5.5.3版本、从库也必须是5.5的了、低版本不支持这个字符集、复制报错
+停止MySQL Server服务
+修改 my.cnf或者mysql.ini
+[client]
+ default-character-set = utf8mb4
+[mysql]
+ default-character-set = utf8mb4
+[mysqld]
+ character-set-client-handshake = FALSE
+ character-set-server = utf8mb4
+ collation-server = utf8mb4_unicode_ci
+ init_connect='SET NAMES utf8mb4'
+重启 MySQL Server、检查字符集
+mysql> SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+
+below not necessary as from test with mobile web:
+  [client]
+  # default-character-set = utf8mb4
+  [mysql]
+   default-character-set = utf8mb4
+  [mysqld]
+   character-set-client-handshake = FALSE
+   character-set-server = utf8mb4
+   collation-server = utf8mb4_unicode_ci
+   init_connect='SET NAMES utf8mb4'
+
+--------- 2016-09-18 10:21:38
+https://my.oschina.net/wingyiu/blog/153357
+
+emoji表情
+
+在做移动应用时，会遇到ios用户会在文本的区域输入emoji表情，如果不做一定处理，就会导致插入数据库异常。
+
+ 一 什么是Emoji   
+      emoji就是表情符号；词义来自日语（えもじ，e-moji，moji在日语中的含义是字符）
+　　表情符号现已普遍应用于手机短信和网络聊天软件。
+　　emoji表情符号，在外国的手机短信里面已经是很流行使用的一种表情。 
+二 Emoji表情符号问题
+   1 问题：
+     IOS版本之间发送的Emoji表情符号不兼容，只看到方块
+     不同IOS版本在数据库存数据时，有时会发生系统错误
+   2 现象：
+     IOS 4 输入Emoji表情符，在IOS5.01 显示正常，在IOS5.1中（大陆版）显现为方块， 但IOS5.01/5.1输入的表情符号，显示正      常
+     IOS5.01/5.1 输入表情符，在IOS5.01/5.1中显示正常，但在IOS4.X显示为方块
+     输入Emoji入帖子正文， 可正常存储。 但用户昵称在IOS4.X 输入Emoji，系统正常， 而IOS5.01/5.1则提示系统错误。
+   3 本质:
+     iOS 5 and OS X 10.7 (Lion) use the Unicode 6.0 standard ‘unified’ code points for emoji.
+     iOS 5 Emoji  采用Unicode 6 标准来统一code points 
+
+     iOS 4 on SoftBank iPhones used a set of unofficial code points in the Unicode Private Use Area, and so aren't      compatible with any other systems
+     iOS 4 采用SoftBank Unicode， 一种非官方的, 采用私有Unicode 区域。
+   4 举例:
+      one emoji symbol "tiger", it is "\U0001f42f" in iOS5, but "\ue050" in earlier iOS version
+    虎脸Emoji符号在iOS5 为Unicode：\U0001f42f；而在IOS4.x 为：\ue050 (SoftBank 编码)
+    另外： 按理讲， 从iOS5 应该兼容以前版本的emoji, 但现在出现5.01版本完美兼容（无论大陆版，美版，还是港版）， 而5.1     大陆版出现了不兼容现象（腾讯微信也出现了同样的问题）。 
+
+三 问题分析 
+   1 系统存储错误问题（如昵称，帖子内容）
+    原因：
+    由于IOS5.X 采用新的Unicode， 其UTF8 编码大多为4个字节， 而由于昵称/帖子内容column并没设成utf8mb4，因此存储会    发生错误。
+    解决方法：
+    将昵称/帖子内容设成utf8mb4 
+General error 1366 incorrect string value
+  向MySQL导入数据时，出现以下错误提示：
+  SQLSTATE[HY000]: General error: 1366 Incorrect string value: '\\xF4\\x80\\x81\\xBA file://xE5...'/ for column 'CONTENT' at row 1 ......
+  【原因】
+  这是因为 MySQL 数据库字符集设定是 utf8，而导入的数据含有非 utf8 编码的字符（特别是中文或其它非英文字符），所以出现此错误。
+  【解决】
+  方法1：
+  把要导入的数据转换为 utf8 编码后再导入。（如果是txt、csv等文本数据，可以用记事本打开，然后另存为 UTF-8 编码的文本即可）
+  方法2：（网上介绍，本人未试过）
+  1) 修改 MySQL 中要导入数据的数据表字符集，例如：改为中文gbk字集
+  mysql> alter table content modify author varchar(30) character set gbk;
+  注意：要将数据表里面的所有列都要逐一这样处理。然后再重新导入数据，即可成功！
+  2) 页面需要声明用GBK或者GB2312编码，而且在页面需要进行转码，例如：
+  String content1 = new String(request.getParameter("content1").getBytes("ISO-8859-1"));
+  页面读取不需要转码，写入需要转码。
+  方法3：（网上介绍，本人未试过）
+  修改整个数据库的编码：
+  mysql> alter database testdb character set gbk;
+  阅读(7854)| 评论(1)
+         
+    ALTER TABLE country MODIFY COLUMN name varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL;  
+
+
+CREATE TABLE `test` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `population` INT(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+http://blog.csdn.net/renhuailin/article/details/50545604
+Google说MySQL的utf8不是真正的UTF8，只能包含三个字节的unicode，4个字节就会报错。要解决此总是需要使用utf8mb4 这个编码。可是我把表和column的CHARSET都改成utf8mb4 后仍无法存入Emoji字符。
+原来还要在my.cnf里修改下mysqld的character-set-server，把它改为utf8mb4，然后重启mysqld，就可存入Emoji字符了。
+/etc/mysql/my.cnf [ubuntu]
+[mysqld]
+character-set-server = utf8mb4
+所以，建议大家以后在设计表时 default character set 最好设置为utf8mb4,因为现在Emoji字符已经很流行了，用户难免会在浏览器里输入Emoji字符。
+  sudo service myssql restart
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.05 sec)
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | utf8mb4                    |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)

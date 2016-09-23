@@ -20,6 +20,136 @@ advanced:
 php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
+
+
+--------- 2016-09-22 16:46:41
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php
+    /**
+     * Returns the view object that can be used to render views or view files.
+     * The [[render()]], [[renderPartial()]] and [[renderFile()]] methods will use
+     * this view object to implement the actual view rendering.
+     * If not set, it will default to the "view" application component.
+     * @return View|\yii\web\View the view object that can be used to render views or view files.
+     */
+    public function getView()
+    {
+        if ($this->_view === null) {
+            $this->_view = Yii::$app->getView();
+        }
+        return $this->_view;
+    }
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php
+    /**
+     * Returns the view object.
+     * @return View|\yii\web\View the view application component that is used to render various view files.
+     */
+    public function getView()
+    {
+        return $this->get('view');
+    }
+
+    /**
+     * Renders a view file.
+     * @param string $file the view file to be rendered. This can be either a file path or a path alias.
+     * @param array $params the parameters (name-value pairs) that should be made available in the view.
+     * @return string the rendering result.
+     * @throws InvalidParamException if the view file does not exist.
+     */
+    public function renderFile($file, $params = [])
+    {
+        return $this->getView()->renderFile($file, $params, $this);
+    }
+
+use yii\web\Controller;
+class WebController extends Controller
+    public function render($view, $data = null, $return = false)
+    {
+        // add common render params
+        $user = \Yii::$app->user;
+        if (!$user->isGuest && is_array($data)) {
+            // add production and subscribed param
+            $account = Account::findIdentity($user->id);
+            $data['production'] = YII_ENV === 'prod';
+            $data['subscribed'] = $account->subscribed === 1;
+        }
+        if (defined('YII_DEBUG_CONTROLLER')) {
+            return [
+                'view' => $view,
+                'data' => $data,
+                'return' => $return
+            ];
+        } else {
+            return parent::render($view, $data, $return);
+        }
+    }
+
+--------- 2016-09-21 12:06:39
+<form name="form1" method="post" action="/ajax/vote/veto">
+    <input type="text" name="cid">
+    <input type="submit" name="button" id="btn1" value="veto">
+</form>
+<hr>
+
+    public function actionVeto()
+    {
+        if(Yii::$app->request->isPost)
+            Logger::info("is post request");
+        else
+            Logger::info("is get request");
+
+for comparison: (if param is in the url string, )
+<form name="form1" method="post" action="/ajax/vote/veto?name=kidd">
+    <input type="text" name="cid">
+    <input type="submit" name="button" id="btn1" value="veto">
+</form>
+<hr>
+    public function actionVeto($name = null)
+    {
+        if(Yii::$app->request->isPost)
+            Logger::info("is post request with params: ".json_encode(Yii::$app->request->bodyParams)." and name: ".SessionTool::getParaByKeyFromPostRequest('name'));
+        else
+            Logger::info("is get request");
+        return true;
+
+---------- 2016-09-18 11:27:58
+http://stackoverflow.com/questions/23237377/yii2-curl-bad-request-400
+
+Yii2 cUrl Bad Request (#400)
+     disabling csrf is not a good option. – Kshitiz Aug 14 '14 at 5:38 
+
+Is there another way to fix it? Maybe generate a new CSRF token and send it in the POST data?
+
+what is the difference between base controller and web controller, base controller does not have that many problems.
+
+use yii\base\Controller;
+use yii\helpers\Json;
+use yii\helpers\Url;
+
+/**
+ * CountryController implements the CRUD actions for Country model.
+ */
+class TestController extends Controller
+{
+    public function actionTest() {
+        return $this->render("test.html");
+    }
+
+    public function actionCreate() {
+        $test = new Test();
+        error_log("test create is triggered");
+
+        $data = Yii::$app->request->post();
+//        return Json::encode($data);
+        $test->name = $data['name'];
+        $test->population = $data['population'];
+        if(!$test->save()) {
+            return json_encode($test->getErrors());
+        }
+        $statusCode = 302;
+        $url = "test.html";
+        return $this->render("test.html");
+        return Yii::$app->getResponse()->redirect(Url::to($url), $statusCode);
 ------------ 2016-09-05 13:45:53
 if post request is as below, then the parameters such as round can only be accessed as in the parameter instead of getParaByKeyFromPostRequest.
                     <form action="/mission/index?mid={{ mid }}&mt={{ mt }}&round={{cur_round}}" method="post">

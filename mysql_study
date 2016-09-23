@@ -3,6 +3,96 @@ mysql manual:
 
 
 
+--------- 2016-09-18 17:21:14
+set names gbk;
+
+Query OK, 0 rows affected (0.00 sec)
+它相当于下面的三句指令：
+SET character_set_client = gbk;
+SET character_set_results = gbk;
+SET character_set_connection = gbk;
+因此，这个方法也可以解决所有字符编码设置为gbk，而控制台显示中文乱码的问题。
+
+⑤当然你也可以试试SET character_set_client = gbk;  即set这种命令来修改各个变量，但当时我不知道这个，也没试过。如果你上面的方法不行可以试试这个。
+
+with and without
+  # [mysql]
+  # default-character-set = utf8mb4
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8mb4                    |
+| character_set_connection | utf8mb4                    |
+| character_set_database   | utf8mb4                    |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8mb4                    |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8mb4                    |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.01 sec)
+
+mysql> show create database yii2basic;
++-----------+--------------------------------------------------------------------------------------------------+
+| Database  | Create Database                                                                                  |
++-----------+--------------------------------------------------------------------------------------------------+
+| yii2basic | CREATE DATABASE `yii2basic` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ |
++-----------+--------------------------------------------------------------------------------------------------+
+
+
+--------- 2016-09-18 10:46:02
+
+mysql增加列，修改列名、列属性，删除列
+MySQL 
+mysql修改表名，列名，列类型，添加表列，删除表列
+alter table test rename test1; --修改表名
+alter table test add  column name varchar(10); --添加表列
+alter table test drop  column name; --删除表列
+alter table test modify address char(10) --修改表列类型
+||alter table test change address address  char(40)
+alter table test change  column address address1 varchar(30)--修改表列名 
+
+修改mysql 表的字符编码
+mysql> alter table country convert to character set utf8mb4;
+Query OK, 13 rows affected (0.07 sec)
+Records: 13  Duplicates: 0  Warnings: 0
+当然还可以设置mysql的客户端和服务器的默认编码
+vi /etc/mysql/my.conf
+在[mysql] 下面 添加  default-character-set=utf8
+在[mysqld] 下面添加 
+character-set-server=utf8
+collaction-server = utf8-greneral-cli
+修改完后重启mysql server
+
+mysql> show create table country;
++---------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table   | Create Table                                                                                                                                                                                       |
++---------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| country | CREATE TABLE `country` (
+  `code` char(2) NOT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `population` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 |
+
+
+
 --------- 2016-09-14 18:50:53
 http://blog.csdn.net/mr_linjw/article/details/49849691
 1. MySQL 为日期增加一个时间间隔：date_add()
@@ -80,6 +170,20 @@ mysql> update checkin set checkin_time="2016-09-10 16:45:00" where id=391;
 Query OK, 1 row affected (0.00 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 
+mysql> update test set name="一\U+1F604二一\U+1F604二" where id=1;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from test;
++----+----------------------+------------+
+| id | name                 | population |
++----+----------------------+------------+
+|  1 | 一😄二一😄二             |          1 |
+|  2 | 😄                     |          1 |
+|  3 | 一😄二                 |         12 |
+|  4 | 一😄二一😄二             |         11 |
++----+----------------------+------------+
+4 rows in set (0.00 sec)
 
 ---------- 2016-09-09 11:14:29
 period mission reminder test:

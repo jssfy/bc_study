@@ -1,0 +1,44 @@
+
+
+------------ 2016-09-19 15:23:41
+https://wiki.niub.la/tzb:code_standards
+
+---------- 2016-09-19 11:07:20
+
+./vendor/bin/phpcs --standard=Yii2 frontend/controllers/
+
+https://www.phpxy.com/article/3.html
+ 2016  curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
+ 2017  ls
+ 2018  php phpcbf.phar -h
+ 2019  ls
+ 2020  cp phpcbf.phar /usr/bin/phpcbf
+ 2021  sudo cp phpcbf.phar /usr/bin/phpcbf
+ 2022  sudo chmod a+x /usr/bin/phpcbf
+
+这里的 phpcbf 是代码修复工具。
+
+phpcbf /path/to/code
+
+
+-------- 2016-09-19 15:30:13
+
+概述
+
+挑战吧开发文档采用doxygen自动生成，使用doxygen有如下好处：
+
+    使用和管理方便，只需有配置文件，一个命令就能生成文档；
+    根据注释生成，能保证注释更新后即自动更新；
+    协助推进代码注释的完善；
+    使用辅助工具可以生成类继承关系图、函数调用关系等，方便理解；
+
+配置文件
+
+frontend部分的配置文件位于：MissionImpossible/frontend/Doxyfile。具体配置可参考doxygen官方文档。
+本地生成文档
+
+    安装doxygen及dot，参考doxygen官网。
+    运行命令生成文档：
+
+cd frontend && doxygen Doxyfile
+
