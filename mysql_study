@@ -1,6 +1,42 @@
 mysql manual:
   http://dev.mysql.com/doc/refman/5.7/en/using-explain.html
 
+?? which is more efficient: accessing db multiple times on different tables or by joining tables?
+
+------------ 2016-09-28 21:39:40
+
+mysql backup:
+mysqldump -h 10.12.0.61 -u tz8_dev -p --databases tz8_dev > /home/anye/test_back.sql
+
+http://www.cnblogs.com/kissdodog/p/4174421.html
+
+　　2、备份多个数据库
+　　语法：
+mysqldump -u username -p --databases dbname2 dbname2 > Backup.sql
+　　加上了--databases选项，然后后面跟多个数据库
+mysqldump -u root -p --databases test mysql > D:\backup.sql
+　　3、备份所有数据库
+　　mysqldump命令备份所有数据库的语法如下：
+mysqldump -u username -p -all-databases > BackupName.sql
+　　示例：
+mysqldump -u -root -p -all-databases > D:\all.sql
+
+二、数据还原
+　　1、还原使用mysqldump命令备份的数据库的语法如下：
+　　mysql -u root -p [dbname] < backup.sq
+　　示例：
+mysql -u root -p < C:\backup.sql
+　　2、还原直接复制目录的备份
+　　通过这种方式还原时，必须保证两个MySQL数据库的版本号是相同的。MyISAM类型的表有效，对于InnoDB类型的表不可用，InnoDB表的表空间不能直接复制。
+
+e.g., 
+mysqldump -h 10.12.0.61 -u tz8_dev -p --databases tz8_dev > /home/kidd/test_back.sql
+mysqldump -h 10.168.76.32 -u tz8_dev -p --databases tz8_dev > /home/ahye/online_test_back.sql
+  scp ahye@121.43.153.62:/home/ahye/online_test_back.sql ~/tmp/
+~/workspace/bc/advanced/MissionImpossible
+$ mysql -u root -p < ~/tmp/online_test_back.sql
+Enter password:
+
 
 
 --------- 2016-09-18 17:21:14

@@ -25,6 +25,45 @@ test:
 http://frontend.tz8/mission/list
 http://frontend.tz8/test/click-menu
 
+-------- 2016-09-29 14:08:15
+online test db:
+  need to regenerate comments table:
+    /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/database/2016-09-20.patch.sql
+
+dynamic cards:
+to generate jobs and cards for existing checkins and period mission:
+  ~/workspace/bc/advanced/MissionImpossible
+  $ php yii tools/create-history-cards
+
+mysqldump -h 10.168.76.32 -u tz8_dev -p --databases tz8_dev > /home/ahye/online_test_back.sql
+  scp ahye@121.43.153.62:/home/ahye/online_test_back.sql ~/tmp/
+  
+[ahye@tz8-server001 wx-dev.yqtz8.com]$ php yii tools/create-history-cards
+
+生成历史周报卡片的输出信息[仅针对周期性任务]： 
+To generate cards for weekly report
+Finished generating cards for weekly report
+joined_count_not_zero: 123 # joined_count不为0的任务数量
+challenge_null: 13　＃joined_count不为0且不存在任何挑战的任务数量
+challenge_count_not_enough: 9 # joined_count不为0且存在挑战但挑战数和joined_count数不符的任务数量
+creator null: 10　#joined_count不为０且创建者不存在的任务数量
+not_started: 0　＃未开始的任务数量
+finished: 76　＃已结束的任务数量
+cards: 98　＃应生成的卡片数量　　查看card_base表和card_weekly_report表
+jobs: 25　＃应生成的定时任务数量　查看card_jobs表
+ongoing: 15　＃进行中的任务数量
+
+生成历史打卡卡片的输出信息： 
+ to generate cards for checkins:  
+Finished generating cards for checkins
+challenge_null: 143　＃相应challenge不存在的打卡数量
+user_null: 19　＃存在challenge且相应challenge的用户不存在的打卡数量
+mission_null: 0　＃存在challenge用户且任务不存在的打卡数量
+time_invalid: 7 # checkin time not withing mission active period
+cards: 247　＃应生成的卡片数量　查看card_base表
+jobs: 0　＃应生成的定时任务数量 查看card_jobs表
+
+
 ------- 2016-09-20 10:53:26
 deleting a user from db will lead to a lot of problems such as non-existing challenge user, mission creator, etc. many pages' access will fail.
 

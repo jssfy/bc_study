@@ -73,7 +73,74 @@ mysql> show tables;
 
 
 
+----------- 2016-09-29 14:31:31
+2016-09-29 14:29:53 [-][-][-][info][abc\frontend\components\event\MessageCardWeeklyReport::generateMessageForDb] [{"id":0,"nickname":null,"head_img":null,"checkins":[false,false,false,false,false,false,false],"checkin_count":0,"like_count":0,"reward":0}]
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:19
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/event/MessageCardWeeklyReport.php:71
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/event/CardEventManager.php:44
+    
 
+-------------- 2016-09-29 11:37:42
+php yii tools/create-history-cards
+  
+  Log: console/runtime/logs/console.log
+
+生成历史周报卡片的输出信息[仅针对周期性任务]： 
+To generate cards for weekly report
+Finished generating cards for weekly report
+joined_count_not_zero: 123 # joined_count不为0的任务数量
+challenge_null: 13　＃joined_count不为0且不存在任何挑战的任务数量
+challenge_count_not_enough: 9 # joined_count不为0且存在挑战但挑战数和joined_count数不符的任务数量
+creator null: 10　#joined_count不为０且创建者不存在的任务数量
+not_started: 0　＃未开始的任务数量
+finished: 76　＃已结束的任务数量
+cards: 98　＃应生成的卡片数量　　查看card_base表和card_weekly_report表
+jobs: 25　＃应生成的定时任务数量　查看card_jobs表
+ongoing: 15　＃进行中的任务数量
+
+生成历史打卡卡片的输出信息： 
+ to generate cards for checkins:  
+Finished generating cards for checkins
+challenge_null: 143　＃相应challenge不存在的打卡数量
+user_null: 19　＃存在challenge且相应challenge的用户不存在的打卡数量
+mission_null: 0　＃存在challenge用户且任务不存在的打卡数量
+cards: 247　＃应生成的卡片数量　查看card_base表
+jobs: 0　＃应生成的定时任务数量 查看card_jobs表
+
+-------- 2016-09-27 18:42:45
+
+sample dynamic card:
+{
+    "description": "第二周第1次打卡",
+    "checkin_photo": null,
+    "head_img": "http://wx.qlogo.cn/mmopen/BiaDj5n6yJib8w1J11GFTLW0OKFydEgzDUajZMkVhLuxrZELqxpF4yAuOyEvPR9s4P5icyo0nMhV5tTSGfQQ7ExMuaVcIyCafPV/0",
+    "nickname": "张亮",
+    "like": 0,
+    "unlike": 0,
+    "status": 4,
+    "like_list": [],
+    "comment_list": [],
+    "type": 2,
+    "obj_id": "32656",
+    "title": null,
+    "create_time": "1分钟前",
+    "mission_id": 3175,
+    "id": "108",
+    "mission_type": 1,
+    "user_id": 2
+}
+
+sample new message:
+{
+    "type": 1,
+    "create_time": "2016-09-27 14:14:24",
+    "initiator": "qwang",
+    "head_img": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLCvhV2xwZKYsRovWLVULw0JB44Kf8niaF507xyhWLTh9eh3P8nM2WOc1wJ0uA3ibmJ6gh0a41JJDCEg/0",
+    "content": "赞了你的打卡",
+    "owner": "Lucky star",
+    "target": "32651",
+    "checkin_photo": null
+}
 
 ----------- 2016-09-08 20:21:42
 update `period_mission` set start_time="2016-09-06 00:00:00" where id=1985;
