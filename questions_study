@@ -1,6 +1,9 @@
 
 
+--------- 2016-10-09 00:31:31
+why git push pushed to all remote branches?
 
+where is php log by default?
 ----------- 2016-09-29 21:58:21
 
     public static function getVoteUserList($cid, $vote = 1)

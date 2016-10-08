@@ -1,0 +1,68 @@
+
+
+--------- 2016-09-21 01:19:14
+kidd@kidd-T430:~/workspace/yii$ composer config repo.packagist composer https://packagist.phpcomposer.com
+
+[RuntimeException]                                             
+  File "composer.json" cannot be found in the current directory
+
+kidd@kidd-T430:~/workspace/yii$ cd ~/.config/composer/
+kidd@kidd-T430:~/.config/composer$ composer config repo.packagist composer https://packagist.phpcomposer.com
+
+then we can see below details:
+/home/kidd/.config/composer/composer.json
+{
+    "require": {
+        "fxp/composer-asset-plugin": "~1.1.1",
+        "composer/composer": "dev-master"
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    }
+}
+
+close vpn, and it is much faster.
+
+
+kidd@kidd-T430:~/workspace/php/test$ sudo composer config -l -g
+[sudo] password for kidd: 
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+[repositories.packagist.type] composer
+[repositories.packagist.url] https?://packagist.org
+[repositories.packagist.allow_ssl_downgrade] true
+....
+[home] /home/kidd/.composer
+
+kidd@kidd-T430:~/.config/composer$ ll ~/.composer
+total 24
+drwxr-xr-x  3 root root 4096  9月 21 01:27 ./
+drwxr-xr-x 44 kidd kidd 4096  9月 21 01:27 ../
+-rw-------  1 root root  100  9月 21 01:27 auth.json
+drwxr-xr-x  2 root root 4096  9月 21 01:27 cache/
+-rw-------  1 root root   21  9月 21 01:27 config.json
+-rw-r--r--  1 root root   13  9月 21 01:27 .htaccess
+
+
+---------- 2016-09-21 00:35:06
+
+http://blog.csdn.net/meegomeego/article/details/38984051
+
+composer里有一个global命令，可以将一些可共用的php命令比如composer, phpunit等安装到~/.composer/vendor/目录下，跟PEAR的方式很像。
+那我们就来装一些常用的php工具吧，包括composer自己也是可以用composer来安装的！
+$ ./composer.phar global require 'composer/composer:dev-master'
+$ ./composer.phar global require 'phpunit/phpunit:3.7.*'
+$ ./composer.phar global require 'fabpot/php-cs-fixer:dev-master'
+安装好以后删除composer.phar，将~/.composer/vendor/bin 添加到你的PATH变量里，重启终端，你就可以在任意地方使用这些php工具命令了，而且因为所有的信息都存在~/.composer/composer.json目录里的，安装了什么工具在那里都一目了然，妈妈在也不用担心又考了什么文件到/usr/bin了。所有composer global安装的工具都在~/.composer/vendor里，要杀要剐随心所欲，大不了全部删了重新composer install一下！也不用每次都要sudo才能给这些php小工具升级了。
+
+kidd@kidd-T430:~/workspace/yii$ la ~/.config/composer/
+auth.json      composer.lock  keys.dev.pub   vendor
+composer.json  .htaccess      keys.tags.pub
+
+
+https://packagist.org/packages/friendsofphp/php-cs-fixer
+  friendsofphp/php-cs-fixer
+  composer require friendsofphp/php-cs-fixer
+  A tool to automatically fix PHP code style

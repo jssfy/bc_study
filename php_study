@@ -7,6 +7,8 @@ Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
 
+------- 2016-09-21 00:11:32
+if parent and son have the same field, it seems the parent's member is hidden by son if accessing via son.
 
 ------------- 2016-09-03 17:36:41
 kidd@kidd-T430:~/workspace/php$ php get.php 

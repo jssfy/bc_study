@@ -1105,4 +1105,10 @@ INSERT INTO `qrcode_general` VALUES (null, 'okpkfv0u2gB1rJauNZ_Qm6lJ8Aew','gh_d7
 INSERT INTO `qrcode_ticket` VALUES (null, 'gQHq8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL2EwUzJvaWZsUDVoRzROR3lCR2hXAAIEa8KhVwMEAAAAAA==', '1111', 1);
 
 
----------------- 
+---------------- 2016-10-09 01:41:58
+http://www.cnblogs.com/zhangronghua/archive/2008/03/12/1102744.html
+
+刚刚开始学习PHP，一切都感觉很新鲜，也有很多不懂的地方，今天就遇到了一个麻烦。在按照php5 MySQL5 apache2 phpmyadmin ZendOptimizer安装与配置[转]一文中指明的过程配置好php环境后，便开始录入＜PHP和MYSQL WEB开发＞中的demo学习，可是在连接mysql时遇到了”class 'mysqli' not found'的错误。第一反应是检查自己的配置，在确认是按照正确上文介绍的方法配置后，还是没有解决问题，只能利用google搜索。最后找到解决方法，原来mysqli是php5新增中的函数库，在上文介绍时，并没有为该函数库做配置，要想在php中使用mysqli函数库，需要将php.ini文件中“;extension=php_mysqli.dll"行的;去掉。这样就能解决这个错误了。
+    很简单的一个错误，因为是初学者的原因，费了不少事。:)
+
+http://blog.csdn.net/liehuo123/article/details/20044883

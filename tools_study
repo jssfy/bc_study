@@ -537,4 +537,106 @@ http://tutorials.scrisoft.com/solve-this-error-yiiwebrequestcookievalidationkey-
 apache加载的php.ini可以通过网页访问echo phpinfo(); 得知加载的是哪个文件。
   Loaded Configuration File   /etc/php/7.0/apache2/php.ini
 
+------------ 2016-10-08 22:37:17
+ali ecs
 
+sudo apt-get install mysql-server
+  if fails with "not found", run "sudo apt-get update"
+
+to access from outside instead of accessing by localhost: "mysql -h localhost -u root -p"
+mysql> select Host, User, Password from user;
++--------------+------------------+-------------------------------------------+
+| Host         | User             | Password                                  |
++--------------+------------------+-------------------------------------------+
+| localhost    | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| iz255ajr7y4z | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| 127.0.0.1    | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| ::1          | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| localhost    | debian-sys-maint | *566EBFF8F335D5DA20C7C061EB48B861A857F56A |
++--------------+------------------+-------------------------------------------+
+5 rows in set (0.00 sec)
+
+MySQL 可以用localhost 连接，但不能用IP连接的问题，局域网192.168.*.* 无法连接mysql
+Mysql 默认是没有开启这个权限的(只允许使用 host:localhost,或者 host:127.0.0.1)，如果想用  host:192.168.1.* ,来访问mysql ,需要手动开启这个权限
+进入Mysql终端输入这个命令
+
+grant all privileges on *.* to 'user'@'123.57.227.173' identified by 'password';
+
+mysql> select Host, User, Password from user;+----------------+------------------+-------------------------------------------+
+| Host           | User             | Password                                  |
++----------------+------------------+-------------------------------------------+
+| localhost      | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| iz255ajr7y4z   | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| 127.0.0.1      | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| ::1            | root             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
+| localhost      | debian-sys-maint | *566EBFF8F335D5DA20C7C061EB48B861A857F56A |
+| 123.57.227.173 | kidd             | *E304EF3BD5A80B65A7EECA65855CFF5790A83600 |
++----------------+------------------+-------------------------------------------+
+6 rows in set (0.00 sec)
+
+flush priviledges;
+
+/etc/mysql/my.cnf [commenting below line works, meanwhile, the % record should be there for some user and corresponding pwd, the pwd does not have to be the same as system user]
+# bind-address  = 127.0.0.1
+
+service mysql restart
+
+MySQL> grant 权限1,权限2,…权限n on 数据库名称.表名称 to 用户名@用户地址 identified by ‘连接口令’;
+权限1,权限2,…权限n代表select,insert,update,delete,create,drop,index,alter,grant,references,reload,shutdown,process,file等14个权限。
+当权限1,权限2,…权限n被all privileges或者all代替，表示赋予用户全部权限。
+当数据库名称.表名称被*.*代替，表示赋予用户操作服务器上所有数据库所有表的权限。
+用户地址可以是localhost，也可以是ip地址、机器名字、域名。也可以用’%'表示从任何地址连接。
+‘连接口令’不能为空，否则创建失败。
+
+e.g., to let kidd@113.47.41.11 access remote mysql db, connect with root and: 
+  grant all privileges on *.* to 'kidd'@'113.47.41.11' identified by 'kidd';
+  other users seem not having this priviledge:
+    mysql> grant all privileges on *.* to 'kidd'@'113.47.41.11' identified by 'kidd';
+    ERROR 1045 (28000): Access denied for user 'kidd'@'113.47.41.11' (using password: YES)
+
+2. to create a remote git repository to push web sites to:
+root@iZ255ajr7y4Z:/var/www/ch28# git commit -m "Take Off"
+*** Please tell me who you are.
+Run
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+fatal: unable to auto-detect email address (got 'root@iZ255ajr7y4Z.(none)')
+root@iZ255ajr7y4Z:/var/www/ch28# git remote -v
+root@iZ255ajr7y4Z:/var/www/ch28# git config --global user.email "309228933@qq.com"
+root@iZ255ajr7y4Z:/var/www/ch28# git config --global user.name "kidd"
+
+root@iZ255ajr7y4Z:/var/www/ch28# git commit -m "Take Off"
+[master (root-commit) bba58cf] Take Off
+ 1 file changed, 1 insertion(+)
+ create mode 100644 readme
+root@iZ255ajr7y4Z:/var/www/ch28# git branch -a
+* master
+
+after "git init", there is no branch.
+
+同步本地代码到远程仓库
+    git push <remote name> <branchname>
+    如果push时提示“ refusing to update checked out branch:refs/heads/master”，说明远程仓库创建是没有使用—bare选项。
+    解决这个冲突需要远程仓库管理员：
+    具体可以是将远程仓库当前分支切换到其他分支（如谁也不会使用的分支），
+    或者按照提示内容，设置denyCurrentBranch = ignore。
+
+root@iZ255ajr7y4Z:/var/www/ch28# git config --global receive.denyCurrentBranch "ignore"
+
+root@iZ255ajr7y4Z:/var/log# find . -mmin -3
+./apache2/access.log
+./apache2/error.log
+root@iZ255ajr7y4Z:/var/log# tail -f apache2/error.log
+  logs from error_log also in /var/log/apache2/error.log
+
+php error_log: 
+By default, /var/log/apache2/error.log.
+This can be configured in /etc/php5/apache2/php.ini
+  but how? modifying error_log and log_errors does not help.
+  it turns out to be the file access issue: (chmod a+w, thanks to http://askubuntu.com/questions/14763/where-are-the-apache-and-php-log-files)
+root@iZ255ajr7y4Z:/var/www/ch28# tail -f runtime/info.log 
+[09-Oct-2016 02:03:03 Asia/Chongqing] hello this is from error_log
+
+when the configured log file is not accessible, the log will be written to /var/log/php5/error.log.
