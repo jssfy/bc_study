@@ -20,6 +20,61 @@ update user set nickname = "👣", username = "👣" where id=2;
   note: to copy the above line instead of [update user set nickname = "\U+1F463", username = "\U+1F463" where id=2;];
 update account set nickname = "👣" where id=186;
 
+------ 2016-10-08 14:47:52
+http://stackoverflow.com/questions/32391005/php-function-imagettftext-to-write-text-with-smileys/32455685
+
+To answer your question: you can't have colored smileys using imagefttext. I'm sorry 😉.
+
+I suggest You using PHP ImageMagick library. Though I didn't try it with emoji I'we encountered the same problem as yours with other Unicode characters when tried to render text with DG.
+BTW migrating to IM is good idea at least because of better performance and less quirks in it.
+
+https://github.com/stv0g/unicode-emoji/blob/master/symbola/Symbola.ttf
+  Symbola.ttf does not help.
+
+http://ufonts.com/download/maiandra-gd/30084.html
+  Maiandra GD Font .ttf (TrueType Font)
+
+----- 2016-10-08 14:37:16
+
+http://blog.csdn.net/tornge/article/details/51272908
+今天刚做了一个微信应用，在获取微信昵称的过程中报错了，经查原因是微信昵称中包含emoji字符，在写入数据库的时候出错，所以想办法在写入之前把这些字符过滤掉，于是在网上找到一个方法，记录一下。
+移除微信昵称中的emoji字符：
+
+function removeEmoji($text) {
+
+    $clean_text = "";
+
+    // Match Emoticons
+    $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+    $clean_text = preg_replace($regexEmoticons, '', $text);
+
+    // Match Miscellaneous Symbols and Pictographs
+    $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+    $clean_text = preg_replace($regexSymbols, '', $clean_text);
+
+    // Match Transport And Map Symbols
+    $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+    $clean_text = preg_replace($regexTransport, '', $clean_text);
+
+    // Match Miscellaneous Symbols
+    $regexMisc = '/[\x{2600}-\x{26FF}]/u';
+    $clean_text = preg_replace($regexMisc, '', $clean_text);
+
+    // Match Dingbats
+    $regexDingbats = '/[\x{2700}-\x{27BF}]/u';
+    $clean_text = preg_replace($regexDingbats, '', $clean_text);
+
+    return $clean_text;
+}
+
+?? https://github.com/iamcal/php-emoji
+
+
+------------ 2016-10-08 14:04:51
+
+set names utf8mb4;
+
+
 ----------- 2016-09-18 18:46:43
 test:
 

@@ -624,3 +624,66 @@ class QrcodeController extends WebController
             return $this->render('create', ['model' => $model]);
         }
     }
+
+------------ 2016-10-08 19:37:08
+$ php yii tools/create-wechat-menu
+{"button":[{"type":"view","name":"我的挑战","url":"https:\/\/wx-dev.yqtz8.com\/mission\/list"},{"type":"view","name":"发起挑战","url":"https:\/\/wx-dev.yqtz8.com\/mission\/create"},{"name":"更多","sub_button":[{"type":"click","name":"我要打卡","key":"BUTTON_CHECKIN"},{"type":"click","name":"邀请二维码","key":"BUTTON_TEMP_QRCODE"},{"type":"click","name":"社交","key":"BUTTON_SOCIAL"}]}]}/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/ToolsController.php:73:
+array(2) {
+  'res' =>
+  string(27) "{"errcode":0,"errmsg":"ok"}"
+  'httpCode' =>
+  int(200)
+}
+
+class ToolsController extends Controller
+{
+
+    // Wechat custom menu
+    private static $custom_menu = [
+        "button" => [
+            [
+                "type" => "view",
+                "name" => "我的挑战",
+                "url" => "https://wx.yqtz8.com/mission/list"
+            ],
+            [
+                "type" => "view",
+                "name" => "发起挑战",
+                "url" => "https://wx.yqtz8.com/mission/create"
+            ],
+            [
+                "name" => "更多",
+                "sub_button" => [
+                    [
+                        "type" => "click",
+                        "name" => "我要打卡",
+                        "key" => "BUTTON_CHECKIN"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "邀请二维码",
+                        "key" => "BUTTON_TEMP_QRCODE"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "社交",
+                        "key" => "BUTTON_SOCIAL"
+                    ],
+                ],
+            ],
+        ]
+    ];
+
+    public function actionCreateWechatMenu()
+    {
+        $token = Wechat::getMpAccessToken();
+        if (!$token) {
+            throw new AppException('获取access token失败');
+        }
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $token;
+        $menu_data = json_encode(self::$custom_menu, JSON_UNESCAPED_UNICODE);
+        echo $menu_data;
+        $res = Util::curl($method = 'POST', $url, $postData = $menu_data);
+        var_dump($res);
+    }
+

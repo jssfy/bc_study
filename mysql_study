@@ -3,6 +3,32 @@ mysql manual:
 
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
+
+-------- 2016-10-08 10:43:38
+offset starts from 0:
+
+    SELECT  
+        keyword  
+    FROM  
+        keyword_rank  
+    WHERE  
+        advertiserid='59'  
+    order by  
+        keyword  
+    LIMIT 2 OFFSET 1;  
+比如这个SQL ，limit后面跟的是2条数据，offset后面是从第1条开始读取
+Sql代码  收藏代码
+    SELECT  
+        keyword  
+    FROM  
+        keyword_rank  
+    WHERE  
+        advertiserid='59'  
+    ORDER BY  
+        keyword  
+    LIMIT 2 ,1;
+而这个SQL，limit后面是从第2条开始读，读取1条信息。
+
 ------------ 2016-09-28 21:39:40
 
 mysql backup:
