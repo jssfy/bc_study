@@ -9,6 +9,50 @@ enable and disable port 80
 
 vice versa
 
+----------- 2016-10-11 10:08:19
+apache2 config:
+
+/etc/apache2/sites-enabled/7070-web-mysql.conf
+
+<VirtualHost 10.12.0.36:7070>
+  if '10.12.0.36' is used instead of '*', then accessing by 'http://localhost:7070/info.php' will receive 404
+  the reponse is like:
+    HTTP/1.1 404 Not Found
+    Date: Tue, 11 Oct 2016 02:09:13 GMT
+    Server: Apache/2.4.7 (Ubuntu)
+    Content-Length: 282
+    Connection: close
+    Content-Type: text/html; charset=iso-8859-1
+
+apachectl restart
+sudo service apached2 restart
+
+
+
+
+
+
+
+
+
+----------- 2016-10-11 10:16:16
+$ sudo service apache2 restart
+ * Restarting web server apache2                                                                                                      AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message [ OK ]
+kidd@kidd-OptiPlex-9020:
+/etc/apache2
+$ sudo service apache2 restart
+ * Restarting web server apache2 
+
+put 'ServerName localhost:80' to the end of /etc/apache2/apache2.conf helps. But adding them to '/etc/apache2/sites-enabled/*.conf' does not help. It does not help even I removed all other .conf files under sites-available.
+  However, putting 'ServerName localhost' at the top of '/etc/apache2/sites-available/7070-web-mysql.conf' instead of inside <VirtualHost ...> helps, even all other .conf files are there under sites-available.
+
+---------- 2016-10-11 10:00:47
+http://forum.ubuntu.org.cn/viewtopic.php?t=263778
+
+在debian/ubuntu上，www-data是默认运行web服务的用户/组，一般在通过apt安装web服务程序时生成。搭建web服务的文件夹/文件一般要设置成www-data的。
+不过，你也可以不用www-data，自己建一个新的用户和组，然后对apache/ngnix/lighttpd等web服务程序进行配置。不过这样比较麻烦。
+如果你是编译的，不会生成www-data用户/组，需要自己弄
+
 -------------- 2016-08-27 07:57:12
 cgi test with c
 

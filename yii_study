@@ -21,6 +21,80 @@ php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
 
+
+-------- 2016-10-11 15:14:32
+
+class Mission extends \yii\db\ActiveRecord
+{
+    use ProfileTrait;
+
+namespace frontend\components\util;
+
+use frontend\components\util\Logger;
+
+/**
+ * 定义用于记录性能日至的trait。
+ *
+ * 使用方法：
+ * 1. 在类中使用此trait。
+ *  use ProfileTrait
+ * 2. 在需要记录性能日志的函数前后调用方法：
+ *  a. 在函数开始执行前：self::beginProfile(__METHOD__)
+ *  b. 在函数执行完毕、return之前：self::endProfile(__METHOD__)
+ */
+trait ProfileTrait
+{
+    private static $profiles = [];
+
+    public static function beginProfile($method)
+    {
+        self::$profiles[$method] = microtime(true);
+    }
+
+    public static function endProfile($method)
+    {
+        if (!isset(self::$profiles[$method])) {
+            return;
+        }
+        $cost = microtime(true) - self::$profiles[$method];
+        unset(self::$profiles[$method]);
+        Logger::perf('[' . $method . '] ' . $cost);
+    }
+}
+
+---------- 2016-10-10 21:21:14
+
+active record: indexby
+    http://blog.csdn.net/iefreer/article/details/38766707
+            $checkins = Checkin::find()->where('mission_type=:mission_type', [':mission_type' => 1])->indexBy('user_id')->all();
+            return \yii\helpers\Json::encode($checkins);
+
+e.g.,
+        if ($round > 0 && $this->mission_type == MissionType::PERIOD) {
+            list($start, $stop) = $this->mission->getRoundRange($round);
+            $like_users = (new \yii\db\Query())
+                ->select(['user.nickname as nickname', 'user.head_img as head_img', 'user.id as id'])
+                ->from('checkin')
+                ->innerJoin('checkin_vote', 'checkin.id = checkin_vote.checkin_id and checkin_vote.opt = 0')
+                ->leftJoin('user', 'checkin_vote.user_id = user.id')
+                ->where(['challenge_id' => $this->id])
+                ->andWhere(['>=', 'checkin_time', $start])
+                ->andWhere(['<', 'checkin_time', $stop])
+                ->indexBy('id')
+                ->all();
+        } else {
+            $like_users = (new \yii\db\Query())
+                ->select(['user.nickname as nickname', 'user.head_img as head_img', 'user.id as id'])
+                ->from('checkin')
+                ->innerJoin('checkin_vote', 'checkin.id = checkin_vote.checkin_id and checkin_vote.opt = 0')
+                ->leftJoin('user', 'checkin_vote.user_id = user.id')
+                ->where(['challenge_id' => $this->id])
+                ->indexBy('id')
+                ->all();
+        }
+        return array_values($like_users);
+    }
+
 ---------- 2016-09-28 16:46:35
 
             $job = new CardJob;

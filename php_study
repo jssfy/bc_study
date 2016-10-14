@@ -6,6 +6,40 @@ remote: Compressing objects: 100% (15/15), done.
 Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
+------------ 2016-10-14 21:24:55
+
+a good pay:
+今天正式上线测试发现new message的一个很不该犯的错误，如下循环中$is_checkin作为每一轮的flag，我不小心将其放到循环外了，但本来每次循环前都需要初始化的，因此导致每次都没用上一次的flag，从而导致产生的一些错误的值。
+        foreach ($messages as $message) {
+            $is_checkin = true;
+
+各种偶然重现，实在要吐。
+于是把线上数据拉到本地测试，幸好能重现。查看ajax返回是有数据的，于是进一步通过chrome看页面错误（console），发现某处出现空对象访问。于是进一步试探空间何对象为空。将后台代码的某一属性强制赋初始值后发现可以解决问题。于是进一步找何时该属性会变空。结果发现上面提到的错误使用的flag。
+
+----------- 2016-10-09 19:16:20
+array values chinese:
+<?php
+function myfunction(&$value, $key)
+{
+  $value = urlencode($value)."hello";
+}
+
+function arrayUrldecode($array)
+{
+  array_walk_recursive($array, 'myfunction');
+  return urldecode(json_encode($array));
+}
+
+$array = [
+  '值是' => '值值是',
+];
+
+$result = arrayUrldecode($array);
+echo $result;
+
+?>
+
+for yii, \yii\helpers\Json::encode does not have this issue.
 
 ------- 2016-09-21 00:11:32
 if parent and son have the same field, it seems the parent's member is hidden by son if accessing via son.

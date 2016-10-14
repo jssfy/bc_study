@@ -1,5 +1,125 @@
 
 
+
+-------- 2016-10-12 10:54:46
+
+                <div class="status text-center">
+                  <span class="block" v-if="score.reward!=null" v-text="(score.reward / 100.0) | currency '¥' 2"></span>
+                  <p v-if="score.reward!=null">奖励</p>
+                  <p v-if="score.reward==null">未领奖</p>
+                </div>
+                
+------ 2016-10-10 19:02:10
+from local:
+ when "php yii console/start-worker" is in process, modifying card_jobs will be seen by the thread. 
+ however in online test machine, modifying the card_jobs' event_time is not seen until re-deployment from jenkins.
+
+------------ 2016-10-10 15:33:01
+
+$ranking = array_slice($ranking, $offset, $count, true);
+  be careful with array_slice if the key is a number. 
+
+ * @param bool $preserve_keys [optional] <p>
+ * Note that array_slice will reorder and reset the
+ * array indices by default. You can change this behaviour by setting
+ * preserve_keys to true.
+
+----------- 2016-10-10 14:24:16
+mysql> select * from card_base where mission_id=201;
++-----+------+--------+---------------------+-----------------+------------+------------------------+--------------+---------+---------------------+
+| id  | type | obj_id | create_time         | title           | mission_id | description            | mission_type | user_id | update_time         |
++-----+------+--------+---------------------+-----------------+------------+------------------------+--------------+---------+---------------------+
+| 443 |    2 |    518 | 2016-09-30 19:48:09 | NULL            |        201 | 第一周第1次打卡        |            1 |      12 | 2016-09-30 19:48:22 |
+| 444 |    2 |    519 | 2016-09-30 19:48:09 | NULL            |        201 | 第一周第1次打卡        |            1 |       3 | 2016-09-30 19:48:39 |
+| 447 |    2 |    522 | 2016-09-30 20:09:09 | NULL            |        201 | 第二周第1次打卡        |            1 |      12 | 2016-09-30 20:09:27 |
+| 448 |    2 |    523 | 2016-09-30 20:10:09 | NULL            |        201 | 第二周第1次打卡        |            1 |       2 | 2016-09-30 20:10:18 |
+| 522 |    1 |    163 | 2016-09-23 04:00:00 | 第一周战报      |        201 |                        |            1 |       0 | 2016-10-08 13:00:42 |
+| 545 |    1 |    168 | 2016-09-30 04:00:00 | 第二周战报      |        201 |                        |            1 |       0 | 2016-10-10 13:20:27 |
++-----+------+--------+---------------------+-----------------+------------+------------------------+--------------+---------+---------------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from checkin_in where mission_id=201;
+ERROR 1146 (42S02): Table 'tz8_dev.checkin_in' doesn't exist
+mysql> select * from checkin where mission_id=201;
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+| id  | challenge_id | mission_id | mission_type | user_id | photo                                                            | like_count | unlike_count | comment_count | checkin_time        | veto_admin_id |
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+| 518 |          920 |        201 |            1 |      12 | https://qiniu.yqtz8.com/images/2016_09_30_19_48_22_57ee5106394bd |          1 |            1 |             0 | 2016-09-17 05:00:00 |            -1 |
+| 519 |          921 |        201 |            1 |       3 | https://qiniu.yqtz8.com/images/2016_09_30_19_48_38_57ee5116ea75f |          1 |            0 |             0 | 2016-09-17 05:00:00 |            12 |
+| 522 |          920 |        201 |            1 |      12 | https://qiniu.yqtz8.com/images/2016_09_30_20_09_27_57ee55f7bf7c6 |          1 |            0 |             0 | 2016-09-24 05:00:00 |            -1 |
+| 523 |          922 |        201 |            1 |       2 | https://qiniu.yqtz8.com/images/2016_09_30_20_10_18_57ee562a37a0b |          1 |            0 |             0 | 2016-09-17 05:00:00 |            -1 |
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+4 rows in set (0.00 sec)
+
+
+---------- 2016-10-10 13:26:58
+持续2周的挑战，没有第二周周报挑战结束: 任务实际结束时间是10.14，今天是10.10，可见是因为手动修改数据库导致任务提前结束，生成周报的任务时间是创建任务的时候确定的，手动修改数据库并不会触发任务执行，因此如果有测试需求的话需要强行执行一次生成周报的任务「通过修改card_jobs表中相应任务的event_time」。
+
+------------ 2016-10-09 17:23:18
+
+actionReport
+  getChallengeReport will fail if reward is not confirmed.
+
+2016-10-09 17:20:46 [187][error][abc\frontend\components\ErrorHandler::logException] frontend\components\AppException: 无挑战战报 in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ReportManager.php:251
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/MissionController.php(902): frontend\components\ReportManager::getChallengeReport(Object(frontend\models\PeriodMission), Object(frontend\models\User))
+#1 [internal function]: frontend\controllers\MissionController->actionReport('118', '1', NULL)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php(154): yii\base\InlineAction->runWithParams(Array)
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('report', Array)
+#5 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('mission/report', Array)
+#6 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#7 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/web/index.php(21): yii\base\Application->run()
+#8 {main}
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:29
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php:25
+2016-10-09 17:22:49 [-][error][abc\frontend\components\ErrorHandler::logException] yii\base\InvalidRouteException: Unable to resolve the request: mission/118 in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Controller.php:125
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('118', Array)
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('mission/118', Array)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/web/index.php(21): yii\base\Application->run()
+#4 {main}
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ReportManager.php
+        // 有奖金尚未领取，视为挑战未结束，不生成战报
+        $rewards = ChallengeReward::getRewardsByChallenge($challenge->id, null);
+        foreach ($rewards as $reward) {
+            if ($reward->status == RewardStatus::PENDING) {
+                // 当前挑战有奖金尚未领取，不生成战报
+                Logger::info('test 3');
+                return;
+            }
+        }
+
+------------ 2016-10-09 11:02:08
+2016-10-08 22:35:09 [57][error][abc\frontend\components\ErrorHandler::logException] exception 'frontend\components\AppException' with message 'invalid date' in /niub/www/sourcecode/wx.yqtz8.com/frontend/components/util/TwigHelper.php:522
+Stack trace:
+#0 /niub/www/sourcecode/wx.yqtz8.com/frontend/components/event/MessageCardBase.php(45): frontend\components\util\TwigHelper::getFriendlyTimeText('2016-10-08 22:3...')
+#1 /niub/www/sourcecode/wx.yqtz8.com/frontend/components/event/MessageCardCheckin.php(76): frontend\components\event\MessageCardBase->loadFromBase(Object(frontend\models\event\CardBase))
+#2 /niub/www/sourcecode/wx.yqtz8.com/frontend/components/DynamicCardsManager.php(82): frontend\components\event\MessageCardCheckin::generateMessageForPage(Object(frontend\models\event\CardBase))
+#3 /niub/www/sourcecode/wx.yqtz8.com/frontend/controllers/ajax/MissionController.php(893): frontend\components\DynamicCardsManager::getMissionCardsByType('292', '0', 2, '0', '10')
+#4 [internal function]: frontend\controllers\ajax\MissionController->actionDynamicCards('292', '0', '0', '10')
+#5 /niub/www/sourcecode/wx.yqtz8.com/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)
+#6 /niub/www/sourcecode/wx.yqtz8.com/vendor/yiisoft/yii2/base/Controller.php(154): yii\base\InlineAction->runWithParams(Array)
+#7 /niub/www/sourcecode/wx.yqtz8.com/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('dynamic-cards', Array)
+#8 /niub/www/sourcecode/wx.yqtz8.com/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('ajax/mission/dy...', Array)
+#9 /niub/www/sourcecode/wx.yqtz8.com/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#10 /niub/www/sourcecode/wx.yqtz8.com/frontend/web/index.php(20): yii\base\Application->run()
+#11 {main}
+
+mysql> select * from checkin where mission_id=292 and mission_type=0;
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+| id  | challenge_id | mission_id | mission_type | user_id | photo                                                            | like_count | unlike_count | comment_count | checkin_time        | veto_admin_id |
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+| 666 |          585 |        292 |            0 |       9 | https://qiniu.yqtz8.com/images/2016_10_08_22_27_45_57f902619902c |          1 |            0 |             0 | 2016-10-08 22:27:10 |            -1 |
+| 667 |          586 |        292 |            0 |      57 | https://qiniu.yqtz8.com/images/2016_10_08_22_35_06_57f9041ab2689 |          1 |            0 |             0 | 2016-10-08 22:35:10 |            -1 |
+| 668 |          583 |        292 |            0 |       4 | https://qiniu.yqtz8.com/images/2016_10_08_22_35_06_57f9041ac029c |          1 |            0 |             0 | 2016-10-08 22:35:10 |            -1 |
+| 671 |          581 |        292 |            0 |       8 | https://qiniu.yqtz8.com/images/2016_10_09_08_48_26_57f993da1d8a4 |          1 |            0 |             0 | 2016-10-09 08:48:10 |            -1 |
++-----+--------------+------------+--------------+---------+------------------------------------------------------------------+------------+--------------+---------------+---------------------+---------------+
+4 rows in set (0.00 sec)
+
+
 --------- 2016-10-09 00:31:31
 why git push pushed to all remote branches?
 

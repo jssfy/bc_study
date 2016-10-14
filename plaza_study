@@ -1,0 +1,25 @@
+
+
+
+----------- 2016-10-14 18:06:51
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/AdminController.php
+
+class AdminController extends Controller
+{
+    public function actionBackendRegister($name, $email, $password)
+
+
+class User extends ActiveRecord implements IdentityInterface
+{
+    const STATUS_DELETED = 0;
+    const STATUS_ACTIVE = 10;
+
+
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%user}}';
+    }

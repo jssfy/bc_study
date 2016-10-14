@@ -44,6 +44,11 @@ to generate jobs and cards for existing checkins and period mission:
 mysqldump -h 10.168.76.32 -u tz8_dev -p --databases tz8_dev > /home/ahye/online_test_back.sql
   scp ahye@121.43.153.62:/home/ahye/online_test_back.sql ~/tmp/
   
+mysqldump -h 10.168.76.32 -u tz8 -p --databases tz8 > /home/ahye/online_back_1014.sql
+  https://wx.yqtz8.com/mission/news?mid=316&mt=0&uid=26
+  http://frontend.tz8/mission/news?mid=316&mt=0&uid=26
+
+
 [ahye@tz8-server001 wx-dev.yqtz8.com]$ php yii tools/create-history-cards
 
 生成历史周报卡片的输出信息[仅针对周期性任务]： 

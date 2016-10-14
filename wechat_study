@@ -2,6 +2,10 @@
 
 
 
+---------- 2016-10-14 12:24:48
+if not subscribed: below will fail with message "未关注该测试号"
+    https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx7a84fcbe9e98e97f&redirect_uri=https%3A%2F%2Fwx.yqtz8.com%2Fsite%2Fredirect%3Fredirect_url%3Dhttp%253A%252F%252Fwx-dev.yqtz8.com%252Flogin%252Fwechat-login-callback&response_type=code&scope=snsapi_userinfo&state=userinfo#wechat_redirect
+
 ------------ 2016-09-18 16:51:49
 
 after modifying username for wechat, getUserInfo does not work immediately, not sure how long to take.

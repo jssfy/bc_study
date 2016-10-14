@@ -1,5 +1,89 @@
 
 
+
+-------- 2016-10-09 11:22:46
+$ git checkout -b release --track origin/release
+
+------------ 2016-10-09 11:18:58
+
+git fetch ssh://anhye@git.niub.la:29419/BC/MissionImpossible refs/changes/30/25330/1 && git cherry-pick FETCH_HEAD
+
+
+-------- 2016-10-09 10:33:21
+a new commit is generated on "git merge": [however, if there are more commits in the to-be-merged branch, there will not be a new merge commit]
+$ git merge master
+Merge made by the 'recursive' strategy.
+ 2 | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 2
+kidd@kidd-OptiPlex-9020:
+~/workspace/test/git_test
+$ git log
+commit 43db8b8a18672e5f4625679becf88297dd0854bb
+Merge: 6c3dd41 c7654d0
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:32:37 2016 +0800
+
+    Merge branch 'master' into new
+
+commit 6c3dd41296d1c6bb8e4eb06b0e598151a7519b43
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:32:32 2016 +0800
+
+    3
+
+commit c7654d0f7e09a7f44e91f0a4f2a630d8677b1bef
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:08:18 2016 +0800
+
+    2
+
+commit 4d620bb38cb089fbcdadbafbf06ea3b9a422c619
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:07:39 2016 +0800
+
+    1
+
+$ git reset --hard 6c3dd41296d1c6bb8e4eb06b0e598151a7519b43
+HEAD is now at 6c3dd41 3
+kidd@kidd-OptiPlex-9020:
+~/workspace/test/git_test
+$ git log
+commit 6c3dd41296d1c6bb8e4eb06b0e598151a7519b43
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:32:32 2016 +0800
+
+    3
+
+commit 4d620bb38cb089fbcdadbafbf06ea3b9a422c619
+Author: anhye <anhye@niub.la>
+Date:   Sun Oct 9 10:07:39 2016 +0800
+
+    1
+
+------------ 2016-10-09 10:17:23
+$ git rebase origin/master
+Cannot rebase: You have unstaged changes.
+Please commit or stash them.
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc_study
+$ git add .
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc_study
+$ git rebase origin/master
+Cannot rebase: Your index contains uncommitted changes.
+Please commit or stash them.
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc_study
+$ git commit -m "abc_1008"
+[master 5407357] abc_1008
+ 5 files changed, 244 insertions(+), 2 deletions(-)
+kidd@kidd-OptiPlex-9020:
+~/workspace/bc_study
+$ git rebase origin/master
+First, rewinding head to replay your work on top of it...
+Applying: abc_1008
+
 ------------ 2016-10-09 02:14:48
 http://blog.csdn.net/afeiqiang/article/details/50814553
 
