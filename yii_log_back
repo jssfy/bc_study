@@ -1,0 +1,115 @@
+
+
+
+---------- 2016-10-24 10:19:03
+
+<?php
+
+return [
+    'traceLevel' => YII_DEBUG ? 3 : 0,
+    'flushInterval' => 1,
+    'targets' => [
+        [
+            'class' => 'yii\log\FileTarget',
+            //'class' => 'yii\log\SyslogTarget',
+            //'identity' => 'txs',
+            //'enabled' => false,
+            'levels' => ['info', 'warning', 'error'],
+            'exportInterval' => 1,
+            'maxFileSize' => 1048576,
+            'categories' => ['abc\*'],
+            'logVars' => [],
+            'logFile' => '@runtime/logs/service.log',
+            'prefix' => function ($message) {
+                $user = Yii::$app->has('user', true)
+                    ? Yii::$app->get('user') : null;
+                $userID = $user ? $user->getId(false) : '-';
+
+                return "[$userID]";
+            }
+        ],
+        [
+            'class' => 'yii\log\FileTarget',
+            'levels' => ['info'],
+            'exportInterval' => 1,
+            'maxFileSize' => 1048576,
+            'categories' => ['perf'],
+            'logVars' => [],
+            'logFile' => '@runtime/logs/perf.log',
+            'prefix' => function ($message) {
+                $user = Yii::$app->has('user', true)
+                    ? Yii::$app->get('user') : null;
+                $userID = $user ? $user->getId(false) : '-';
+
+                return "[$userID]";
+            }
+        ],
+        [
+            'class' => 'yii\log\FileTarget',
+            'levels' => ['error'],
+            'exportInterval' => 1,
+            //'enabled' => false,
+            'maxFileSize' => 1048576,
+            'categories' => ['yii\db\*'],
+            'logVars' => [],
+            'logFile' => '@runtime/logs/dbprofile.log',
+            'prefix' => function ($message) {
+                $user = (Yii::$app && Yii::$app->has('user', true)) ?
+                    Yii::$app->get('user') : null;
+                $userID = $user ? $user->getId(false) : '-';
+
+                return "[$userID]";
+            }
+        ],
+        [
+            'class' => 'yii\log\FileTarget',
+            //'enabled' => false,
+            'levels' => ['warning', 'error'],
+            'exportInterval' => 1,
+            'maxFileSize' => 1048576,
+            'except' => ['abc\*', 'yii\db\*'],
+            'logFile' => '@runtime/logs/framework.log',
+            'prefix' => function ($message) {
+                $user = (Yii::$app && Yii::$app->has('user', true))
+                    ? Yii::$app->get('user') : null;
+                $userID = $user ? $user->getId(false) : '-';
+
+                return "[$userID]";
+            }
+        ],
+        [
+            'class' => 'yii\log\EmailTarget',
+            'enabled' => false && YII_DEBUG,
+            'except' => ['app\components\AppException', 'yii\web\HttpException:404', 'yii\web\HttpException:400'],
+            'levels' => ['error'],
+            'mailer' => 'mailer',
+            'message' => [
+                'from' => 'fq@niub.la',
+                'to' => [
+                    'prong@niub.la',
+                    'qwang@niub.la',
+                    'zhyzhu@niub.la',
+                    'jrenx@niub.la',
+                ],
+                'subject' => '【ABC Insurance】【Offline】New issue found!!!',
+            ],
+        ],
+        [
+            'class' => 'yii\log\EmailTarget',
+            'enabled' => YII_ENV_PROD,
+            'except' => ['app\components\AppException', 'yii\web\HttpException:404', 'yii\web\HttpException:400'],
+            'levels' => ['error'],
+            'mailer' => 'mailer',
+            'message' => [
+                'from' => 'fq@niub.la',
+                'to' => [
+                    'prong@niub.la',
+                    'qwang@niub.la',
+                    'zhyzhu@niub.la',
+                    'jrenx@niub.la',
+                ],
+                'subject' => '【ABC Insurance】【Online】New issue found!!!',
+            ],
+        ],
+    ],
+];

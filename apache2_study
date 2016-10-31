@@ -27,7 +27,14 @@ apache2 config:
 apachectl restart
 sudo service apached2 restart
 
-
+when enabling a new folder as a website, remember to configure as below, otherwise there would be errors like "apache AH01630: client denied by server configuration". Notice: adding the config to '/etc/apache2/sites-available/8081-default.conf' does not help.
+ 
+$ sudo subl ../apache2.conf
+<Directory /home/kidd/workspace/test_yii/>
+  Options Indexes FollowSymLinks
+  AllowOverride None
+  Require all granted
+</Directory>
 
 
 

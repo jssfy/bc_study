@@ -1,6 +1,23 @@
 
 
 
+---------- 2016-10-28 17:36:41
+
+
+#include <unistd.h>
+int main() {
+  double num = 10.2;
+  int i = num * 100;
+  printf("%d\n", i);
+
+  return 0;
+}
+
+$ ./a.out
+1019
+
+
+
 ---------------- 2016-08-06 09:44:56 
 encoding
 

@@ -1,5 +1,44 @@
 
 
+---------- 
+
+
+----------- 2016-10-21 12:07:29
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/models/User.php
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey)
+    {
+        $accessToken = AccountToken::find()
+            ->where(['token' => $authKey, 'deleted' => 0])
+            ->andWhere(['user_id' => $this->id])
+            ->one();
+        if (!empty($accessToken)) {
+            return true;
+        }
+        return $this->authKey === $authKey;
+    }
+
+mysql> desc account_token;
++-------------+--------------+------+-----+-------------------+----------------+
+| Field       | Type         | Null | Key | Default           | Extra          |
++-------------+--------------+------+-----+-------------------+----------------+
+| id          | bigint(20)   | NO   | PRI | NULL              | auto_increment |
+| user_id     | bigint(20)   | YES  | MUL | NULL              |                |
+| token       | varchar(70)  | YES  | MUL | NULL              |                |
+| device_type | varchar(30)  | YES  |     | NULL              |                |
+| os_version  | varchar(30)  | YES  |     | NULL              |                |
+| extend      | varchar(100) | YES  |     | NULL              |                |
+| client_ip   | varchar(16)  | YES  |     | NULL              |                |
+| channel     | varchar(100) | YES  |     | NULL              |                |
+| deleted     | bit(1)       | YES  |     | b'0'              |                |
+| created_at  | timestamp    | YES  |     | CURRENT_TIMESTAMP |                |
+| updated_at  | timestamp    | YES  |     | NULL              |                |
++-------------+--------------+------+-----+-------------------+----------------+
+11 rows in set (0.00 sec)
 
 --------- 2016-08-14 23:37:06
 http://www.yiichina.com/tutorial/332

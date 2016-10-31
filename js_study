@@ -1,0 +1,14 @@
+
+
+---------- 2016-10-18 15:59:15
+
+    <script type="text/javascript">
+        function disableInput()
+        {
+            document.getElementById("mission_repeat").disabled="true";
+        }
+        function enableInput()
+        {
+            document.getElementById("mission_repeat").disabled="";
+        }
+    </script>

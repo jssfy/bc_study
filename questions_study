@@ -1,6 +1,68 @@
 
 
 
+
+------------ 2016-10-27 16:03:03
+?? 
+Yii::$app->user->returnUrl
+
+
+----------- 2016-10-19 17:18:02
+
+   public function getMission()
+    {
+        if ($this->mission_type == MissionType::PERIOD) {
+            return $this->hasOne(PeriodMission::className(), ['id' => 'mission_id']);
+        } else {
+            return $this->hasOne(Mission::className(), ['id' => 'mission_id']);
+        }
+    }
+
+    not sure why, hasOne returns below object instead of a raw mission.
+{
+    "sql": null,
+    "on": null,
+    "joinWith": null,
+    "select": null,
+    "selectOption": null,
+    "distinct": null,
+    "from": null,
+    "groupBy": null,
+    "join": null,
+    "having": null,
+    "union": null,
+    "params": [],
+    "where": null,
+    "limit": null,
+    "offset": null,
+    "orderBy": null,
+    "indexBy": null,
+    "modelClass": "frontend\\models\\Mission",
+    "with": null,
+    "asArray": null,
+    "multiple": false,
+    "primaryModel": {
+        "id": 21963,
+        "mission_id": 2134,
+        "user_id": 29,
+        "regist_time": "2016-09-19 13:22:58",
+        "status": 0,
+        "checkin_valid": null,
+        "checkin_invalid": null,
+        "checkin_count": 0,
+        "mission_type": 0,
+        "start_round": 1,
+        "invite_image": null,
+        "inviter_id": 0
+    },
+    "link": {
+        "id": "mission_id"
+    },
+    "via": null,
+    "inverseOf": null
+}
+
+
 -------- 2016-10-12 10:54:46
 
                 <div class="status text-center">

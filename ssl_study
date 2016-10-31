@@ -1,0 +1,20 @@
+
+
+----------- 2016-10-31 11:04:19
+php:
+    public function verifySignature()
+    {
+        $pingplusplusSignature = Yii::$app->request->headers->get('x-pingplusplus-signature');
+        $raw_data = file_get_contents('php://input');
+        if (empty($pingplusplusSignature)) {
+            throw new AppException("signature is empty");
+        }
+
+        $pub_key_path = __DIR__ . "/rsa_public_key.pem";
+        $pub_key_contents = file_get_contents($pub_key_path);
+
+        $verifySignatureResult = openssl_verify($raw_data, base64_decode($pingplusplusSignature), $pub_key_contents, OPENSSL_ALGO_SHA256);
+        if (!$verifySignatureResult) {
+            throw new AppException("wrong signature");
+        }
+    }

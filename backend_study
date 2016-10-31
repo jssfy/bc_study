@@ -1,0 +1,31 @@
+
+
+------- 2016-10-17 20:14:52
+logs:
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/backend/config/main.php
+        \Yii::error('start calculating average revenue');
+        
+
+------------ 2016-10-17 18:41:04
+/home/kidd/workspace/bc/advanced/MissionImpossible/backend/config/main.php
+return [
+    'id' => 'app-backend',
+    'basePath' => dirname(__DIR__),
+    'controllerNamespace' => 'backend\controllers',
+    'bootstrap' => ['log'],
+    'modules' => [
+        'admin' => [
+          ......
+                [
+                    'label' => '运营工具',
+                    'items' => [
+                        ['label' => 'Qrcode', 'url' => '/admin/qrcode'],
+                    ],
+                ],
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/console/controllers/AdminController.php
+
+class AdminController extends Controller
+{
+    public function actionBackendRegister($name, $email, $password)

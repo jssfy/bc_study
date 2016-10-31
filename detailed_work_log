@@ -72,6 +72,28 @@ mysql> show tables;
 17 rows in set (0.00 sec)   
 
 
+-------------- 2016-10-20 20:41:38 join mission
+2016-10-20 20:40:07 [26][info][abc\frontend\components\PayManager::getUnifiedOrder] order result: {"appid":"wx578e5c618aa17da8","mch_id":"1368138702","nonce_str":"5u7F2MbaAeFlDllf","prepay_id":"wx201610202040070d49bde91f0952625863","result_code":"SUCCESS","return_code":"SUCCESS","return_msg":"OK","sign":"D01D4382265A74976D319CAF827B1837","trade_type":"JSAPI"}
+2016-10-20 20:40:07 [26][info][abc\frontend\components\OrderManager::getPayParams] js api params: {"appId":"wx578e5c618aa17da8","nonceStr":"n7zmwrxldyjfof2jn6dg5j0q3v3ijyer","package":"prepay_id=wx201610202040070d49bde91f0952625863","signType":"MD5","timeStamp":"1476967207","paySign":"3A655857E29EEDA7BE883E36A5FF54F8","trade_num":"1368138702201610202040073426"}
+2016-10-20 20:41:13 [-][info][abc\frontend\controllers\OrderController::actionNotify] <xml><appid><![CDATA[wx578e5c618aa17da8]]></appid>
+<attach><![CDATA[加入挑战]]></attach>
+<bank_type><![CDATA[ICBC_DEBIT]]></bank_type>
+<cash_fee><![CDATA[100]]></cash_fee>
+<fee_type><![CDATA[CNY]]></fee_type>
+<is_subscribe><![CDATA[Y]]></is_subscribe>
+<mch_id><![CDATA[1368138702]]></mch_id>
+<nonce_str><![CDATA[bmf1ce8105380vx1ljhs0lt76teflkvj]]></nonce_str>
+<openid><![CDATA[ojPIlwYjdiQtRxLw6uN2iM7-Glww]]></openid>
+<out_trade_no><![CDATA[1368138702201610202040073426]]></out_trade_no>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<return_code><![CDATA[SUCCESS]]></return_code>
+<sign><![CDATA[3B4EE0D4DD405D349353A3C5EC01F292]]></sign>
+<time_end><![CDATA[20161020204111]]></time_end>
+<total_fee>100</total_fee>
+<trade_type><![CDATA[JSAPI]]></trade_type>
+<transaction_id><![CDATA[4005962001201610207237416443]]></transaction_id>
+</xml>
+
 
 ----------- 2016-09-29 14:31:31
 2016-09-29 14:29:53 [-][-][-][info][abc\frontend\components\event\MessageCardWeeklyReport::generateMessageForDb] [{"id":0,"nickname":null,"head_img":null,"checkins":[false,false,false,false,false,false,false],"checkin_count":0,"like_count":0,"reward":0}]

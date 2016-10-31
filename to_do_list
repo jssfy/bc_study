@@ -6,7 +6,19 @@ qrcode + personal info picture
 
 url sharing + id
 
+---------- 2016-10-24 13:33:21 
+???
+after copying the whole website to a new folder, accessing gii does not work.
+    http://10.12.0.36:6061/gii (http://10.12.0.36:6061/ works)
+    which indicates: 'The requested URL /gii was not found on this server.'
+        /home/kidd/workspace/test_yii/basic/web/index.php was not even executed on the http request (while 'http://10.12.0.36:6061/' triggered the execution.)
 
+and to study .htaccess
+
+----------- 2016-10-21 14:58:39
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ReportManager.php
+to call after confirm:
+    createChallengeReport($mission, $user)
 
 
 ---------- 2016-09-22 16:37:44

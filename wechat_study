@@ -1,5 +1,40 @@
 
 
+---------- 2016-10-27 13:37:14
+authorization:
+https://www.zhihu.com/question/24691963
+    ios版的微信 怎么清除内置浏览器的cookie? 已找到一个办法：退出微信账号，重新登录
+
+2016-10-27 13:36:47 [][info][abc\frontend\components\wxmp\MpManager::processMessage] no handler found for message: <xml><ToUserName><![CDATA[gh_ad456821e729]]></ToUserName>
+<FromUserName><![CDATA[ook-7wLch8xSS-mM-urjLCCs91n0]]></FromUserName>
+<CreateTime>1477546607</CreateTime>
+<MsgType><![CDATA[event]]></MsgType>
+<Event><![CDATA[VIEW]]></Event>
+<EventKey><![CDATA[https://wx-dev.yqtz8.com/mission/create]]></EventKey>
+<MenuId>408742541</MenuId>
+</xml>
+2016-10-27 13:36:47 [][info][abc\frontend\controllers\LoginController::getWechatLoginUrlBase] wechat login callback: https://wx-dev.yqtz8.com/login/wechat-login-callback
+2016-10-27 13:36:47 [][info][abc\frontend\controllers\LoginController::actionIndex] Wechat Login Url: https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx7a84fcbe9e98e97f&redirect_uri=https%3A%2F%2Fwx.yqtz8.com%2Fsite%2Fredirect%3Fredirect_url%3Dhttps%253A%252F%252Fwx-dev.yqtz8.com%252Flogin%252Fwechat-login-callback&response_type=code&scope=snsapi_base&state=base#wechat_redirect
+2016-10-27 13:36:49 [-][info][abc\frontend\controllers\LoginController::actionWechatLoginCallback] used app id: wx7a84fcbe9e98e97f
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::handleWechatLoginCallback] wechat login callback, code: 031NqrnL1V84T11rkvnL1fklnL1Nqrng, appId: wx7a84fcbe9e98e97f
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::loginWithWechat] Call function with args: ["031NqrnL1V84T11rkvnL1fklnL1Nqrng","wx7a84fcbe9e98e97f","wx_pub"]
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Call function with args: ["https:\/\/api.weixin.qq.com\/sns\/oauth2\/access_token?appid=wx7a84fcbe9e98e97f&secret=4bc274f2609078248cb3f23a76a9df83&code=031NqrnL1V84T11rkvnL1fklnL1Nqrng&grant_type=authorization_code"]
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Response: {"access_token":"BnOSxODyMU5B4yCQpM0kPSRLtGVzOF6cwhZlN61p2mavmlbxd-OXK6mnaLc3H5MKrUCKWhZPxbWyFENb8PXI7JZD18NVdvI5059ZQB0Mgg0","expires_in":7200,"refresh_token":"sbeh1-Y7xfTvWbaa2LEEDNr9k1-GFJOlgrwzspFXpcS53hEjNo4Uyvy-TqKb-14QN1vbakbu3uXmqWBNMgIb1f8QtiXt48jBUE-5bCttNcY","openid":"ook-7wLch8xSS-mM-urjLCCs91n0","scope":"snsapi_base"}
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::getUserInfo] login with snsapi_base
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Call function with args: ["https:\/\/api.weixin.qq.com\/cgi-bin\/token?appid=wx7a84fcbe9e98e97f&secret=4bc274f2609078248cb3f23a76a9df83&grant_type=client_credential"]
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Response: {"access_token":"SI4gXc5YMX2MZo39F4NqiyJEkKuTzxMqiyno9M58YD71nvzEgd-FhDxm4yAl6rgxplI7eHJ93QDNMubExBRks8NLfuZKWNsRgf-zDXKit--2j65JaX4poBkJvwvAyW1oAVSgADAHCZ","expires_in":7200}
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Call function with args: ["https:\/\/api.weixin.qq.com\/cgi-bin\/user\/info?access_token=%s&openid=ook-7wLch8xSS-mM-urjLCCs91n0&lang=zh_CN","SI4gXc5YMX2MZo39F4NqiyJEkKuTzxMqiyno9M58YD71nvzEgd-FhDxm4yAl6rgxplI7eHJ93QDNMubExBRks8NLfuZKWNsRgf-zDXKit--2j65JaX4poBkJvwvAyW1oAVSgADAHCZ"]
+2016-10-27 13:36:49 [-][info][abc\frontend\components\wxmp\Wechat::getContents] Response: {"subscribe":1,"openid":"ook-7wLch8xSS-mM-urjLCCs91n0","nickname":"叶安华👀","sex":1,"language":"zh_CN","city":"海淀","province":"北京","country":"中国","headimgurl":"http:\/\/wx.qlogo.cn\/mmopen\/PiajxSqBRaEJkp2ibNelHjpXwSUzqSaUIVRJ8Lxd9HtLDxMic2ziasKXY52oW5RLNLEH203qBoXUiavuZsp0aDnGGtQ\/0","subscribe_time":1476419044,"unionid":"oNlIjwCTOL5Nw3LM2g0W_ro4k5X4","remark":"","groupid":0,"tagid_list":[]}
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::loginWithWechat] userinfo: {"subscribe":1,"openid":"ook-7wLch8xSS-mM-urjLCCs91n0","nickname":"叶安华👀","sex":1,"language":"zh_CN","city":"海淀","province":"北京","country":"中国","headimgurl":"http://wx.qlogo.cn/mmopen/PiajxSqBRaEJkp2ibNelHjpXwSUzqSaUIVRJ8Lxd9HtLDxMic2ziasKXY52oW5RLNLEH203qBoXUiavuZsp0aDnGGtQ/0","subscribe_time":1476419044,"unionid":"oNlIjwCTOL5Nw3LM2g0W_ro4k5X4","remark":"","groupid":0,"tagid_list":[],"appId":"wx7a84fcbe9e98e97f"}
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::loginWithWechat] get account by openId: ook-7wLch8xSS-mM-urjLCCs91n0 unionId: oNlIjwCTOL5Nw3LM2g0W_ro4k5X4
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::loginWithWechat] account : 10 login..
+2016-10-27 13:36:49 [-][info][abc\frontend\components\AccountManager::login] generateAccountToken 10
+2016-10-27 13:36:49 [10][info][abc\frontend\components\AccountManager::loginWithWechat] 叶安华👣登录成功
+2016-10-27 13:36:49 [10][info][abc\frontend\components\AccountManager::handleWechatLoginCallback] wechat login success
+2016-10-27 13:36:52 [10][info][abc\frontend\components\MissionManager::checkResetMissionType] mission index, type defaults to 0
+2016-10-27 13:36:52 [10][info][abc\frontend\controllers\MissionController::actionCreate] to render mission create: 
+2016-10-27 13:36:54 [10][info][abc\frontend\controllers\ajax\MissionController::actionSharecontent] request share content: https://wx-dev.yqtz8.com/mission/create/
+
 
 
 ---------- 2016-10-14 12:24:48

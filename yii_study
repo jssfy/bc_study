@@ -21,6 +21,131 @@ php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
 
+---------- 2016-10-28 11:45:20
+$ php yii console/upload-file-to-qiniu /home/kidd/abc/logo.png png
+
+to pass params for console action:
+    public function actionUploadFileToQiniu($filename, $ext = 'jpeg')
+
+--------- 2016-10-25 15:55:07
+/home/kidd/workspace/bc/advanced/MissionImpossible/backend/config/main.php
+return [
+    'id' => 'app-backend',
+    'basePath' => dirname(__DIR__),
+    'controllerNamespace' => 'backend\controllers',
+    'language' => 'zh-CN',
+    'timeZone' => 'Asia/Shanghai',
+
+------- 2016-10-25 14:33:31
+layout:
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/backend/views/layouts/main.php
+
+
+--------- 2016-10-25 10:46:46
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/config/main.php
+in this way: 
+    'modules' => [
+        'v1' => [
+            'class' => 'frontend\api\v1\Module',
+        ],
+    ],
+
+
+---------- 2016-10-25 10:27:38
+rest controller
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/ajax/AjaxController.php
+class AjaxController extends \yii\rest\Controller
+{
+
+    public function behaviors()
+    {
+
+-------- 2016-10-24 11:45:13
+Logger::info('user class: ' . get_class(Yii::$app->user));
+
+2016-10-24 11:44:45 [27][info][abc\frontend\controllers\MissionController::actionIndex] user class: yii\web\User
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:19
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/controllers/MissionController.php:171
+
+
+---------- 2016-10-19 15:42:00
+active record:
+
+    public static function getUserTotalReward($uid)
+    {
+        $user_total_reward = (new \yii\db\Query())
+            ->from('challenge_reward')
+            ->where(['user_id' => $uid, 'status' => RewardStatus::RECEIVED])
+            ->sum('reward');
+
+        return $user_total_reward;
+    }
+
+
+            $sql = (new \yii\db\Query())
+                    ->select('chin.checkin_time,chll.user_id,chll.start_round')
+                    ->from('checkin as chin')
+                    ->innerJoin('challenge as chll', 'chll.id=chin.challenge_id')
+                    ->where(['chll.mission_type' => $mt])
+                    ->andWhere(['chll.mission_id' => $mid]);
+
+        $activeUserCountWithin7days = Challenge::find()
+                        ->select('challenge.user_id')
+                        ->innerJoin('checkin', 'challenge.id=checkin.challenge_id')
+                        ->where(
+                            'checkin.checkin_time >= :start and checkin.checkin_time <= :today',
+                            [':start' => $start, ':today' => $today]
+                        )
+                        ->distinct()
+                        ->count();
+
+        $total_single_input = (new \yii\db\Query())
+            ->select('ticket')
+            ->from('challenge')
+            ->where(['user_id' => $uid, 'mission_type' => MissionType::SINGLE])
+            ->innerJoin('mission', 'mission_id=mission.id')
+            ->sum('ticket');
+        return $total_single_input;
+
+with new \yii\db\Query(), the member should be accessed via array format: [while with active record, the result is in an object]
+        $period_challenges = (new \yii\db\Query())
+            ->select('start_round, repeat, ticket')
+            ->from('challenge')
+            ->where(['user_id' => $uid, 'mission_type' => MissionType::PERIOD])
+            ->innerJoin('period_mission', 'mission_id=period_mission.id')
+            ->all();
+
+        $total_period_input = 0;
+        foreach ($period_challenges as $challenge) {
+            $total_period_input += ($challenge['repeat'] - $challenge['start_round']+ 1) * $challenge['ticket'];
+        }
+        return $total_period_input;
+
+    /**
+     * @param $uid
+     * @return int return the number of users who have joined the same mission as $uid
+     */
+    public static function getComradeCount($uid)
+    {
+        $challenges = Challenge::findBySql('select user_id from challenge where (mission_id, mission_type) in (select mission_id, mission_type from challenge where user_id=' . $uid . ') group by user_id')->all();
+        return count($challenges) - 1; // deduct the user her/him-self
+    }
+
+   
+    public static function getComrades($uid, $curPage = 0, $limit = 10)
+    {
+        $offset = $curPage * $limit;
+        $cmd = 'select count(user_id) as cc, user_id from challenge where (mission_id, mission_type) in 
+          (select mission_id, mission_type from challenge where user_id=' . $uid . ') 
+          and user_id != ' . $uid . ' group by user_id order by cc desc limit ' . $limit . ' offset ' . $offset;
+        $challenges = \Yii::$app->db->createCommand($cmd)->queryAll();
+//        $challenges = Challenge::findBySql($cmd)->all();
+        return Json::encode($challenges);
+    }
+    output: [{"cc":"15","user_id":"4"},{"cc":"13","user_id":"5"},{"cc":"9","user_id":"6"},{"cc":"8","user_id":"7"},{"cc":"7","user_id":"8"},{"cc":"7","user_id":"9"},{"cc":"7","user_id":"10"},{"cc":"6","user_id":"14"},{"cc":"6","user_id":"3"},{"cc":"6","user_id":"15"}]
+!!!!!!!!!!! however, with Challenge::findBySql, the results are without 'cc's.
 
 -------- 2016-10-11 15:14:32
 
@@ -954,15 +1079,65 @@ http://www.zhangyoo.com/php_develop/php_framework/93.html
 以上就是个人的总结，欢迎同行指正！多多指教！
 
 
+--------- 2016-10-18 10:39:49
+ActiveForm
+Yii2中对于表单和字段的支持组件为ActiveForm和ActiveField
+
+http://blog.csdn.net/iefreer/article/details/42651521
+
+    <?= $form->field($model, 'username')->textInput()->hint('Please enter your nick name instead of email')->label('Nick name') ?>  
+
+maxlength is character length instead of byte length.
+
+yii activeform 输入框长度
+echo $form->field($model, 'name')->textInput(['maxlength' => 20, 'style'=>'width:350px'])->label('挑战宣言');
+
+without rules, active record data will not be loaded:
+    public function rules()
+    {
+        return [
+            [['announce', 'description'], 'required'],
+        ];
+    }
+
+if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+
+http://www.yiichina.com/topic/5924
+rules方法里是不是要把数据库里的每个字段都列出来一遍才能完成 model->attributes=$_POST['Model']的操作，不然model的值都是空的啊。
+是这样的, 这也不麻烦吧 gii直接帮你生成好验证规则了..
+不想验证的字段 给safe即可...
+当然 如果你非要不写rule 还想load post data
+重写一下 onUnsafeAttribute 方法即可 ... 不过强烈不建议这种做法.
 
 
 
+------------ 2016-10-18 16:32:16
+Yii2表达提交时报错：yii2 Unable to verify your data submission
+遇到这种情况，是因为YII2的防止csrf攻击，你则不能多次提交相同的表单。如果你希望当前可以多次重复提交，可以在当前提交的表单controller中添加
+帮助
+public $enableCsrfValidation = false;
+这句话即可。
 
+----------- 2016-10-18 18:05:34
+active form
+$form = ActiveForm::begin();
 
+echo $form->field($model, 'type')->radioList(['0'=>'单次','1'=>'周期'])->label('任务类型');
+echo $form->field($model, 'repeat')->textInput(['maxlength' => 20, 'style'=>'width:350px', 'id'=>'period'])->label('如果是周期任务，持续几周？');
+echo $form->field($model, 'announce')->textInput(['maxlength' => 20, 'style'=>'width:350px'])->label('挑战宣言');
 
+echo $form->field($model, 'ticket')->textInput(['maxlength' => 20, 'style'=>'width:350px'])->label('单次保证金 [单位：元]');
 
+echo $form->field($model, 'description')->textarea(['rows'=>5, 'maxlength' => 128])->label('挑战描述');
 
+echo $form->field($model, 'checkin_photo')->fileInput()->label('打卡示例图片');
+?>
 
+<div class="form-group">
+    <?php echo Html::submitButton('create', ['class' => 'btn btn-primary']) ?>
+</div>
+
+<?php ActiveForm::end(); ?>
 
 
 

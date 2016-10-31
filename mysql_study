@@ -4,6 +4,70 @@ mysql manual:
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
 
+--------- 2016-10-21 12:09:27
+
+                Account::updateAll(
+                    ['nickname' => $nickname, 'username' => $nickname, 'updated_at' => new \yii\db\Expression('NOW()')],
+                    ['id' => $user->account_id]
+                );
+
+                
+------------- 2016-10-21 10:14:45
+mysql> select a.id, b.name, b.id from challenge as a, mission as b where a.mission_id = b.id and a.user_id=14;
++-----+---------------------------------------------------+-----+
+| id  | name                                              | id  |
++-----+---------------------------------------------------+-----+
+|  64 | 密云会议定时签到                                  |  54 |
+|  80 | 挑战卷舌头                                        |  55 |
+| 195 | 红包领取                                          |  29 |
+| 245 | 分红包                                            |  47 |
+| 247 | 一起测试吧                                        |  48 |
+| 253 | 到了会场再打卡                                    | 185 |
+| 255 | 夜晚的会议希望大家都能参与                        |  50 |
+| 256 | 戎朋测试                                          |  51 |
+| 332 | 夜晚的回忆希望                                    |  69 |
+| 395 | 北京办公室庆中秋!                                 | 216 |
+| 442 | 中秋欢乐家庭大趴体                                | 228 |
+| 461 | 回到家打开封闭                                    | 242 |
+| 462 | 回到家酒店                                        | 243 |
+| 463 | 阿斯顿法国                                        | 244 |
+| 527 | 散步                                              | 108 |
+| 576 | 一                                                | 121 |
+| 623 | 早餐挑战第一口造型-等你瓜分奖金池                 | 312 |
+| 624 | 早起挑战-瓜分奖金池                               | 313 |
+| 681 | 啊考虑考虑                                        | 140 |
++-----+---------------------------------------------------+-----+
+19 rows in set (0.00 sec)
+
+---------- 2016-10-19 21:14:43
+
+alter table `card_base` add column `checkin_photo` varchar(1024) DEFAULT NULL;
+alter table `card_base` add column `announce` varchar(64) DEFAULT NULL;
+
+
+alter table `card_base` modify `checkin_photo` varchar(1024) DEFAULT NULL;
+alter table 表名称 modify 字段名称 字段类型 [是否允许非空];
+
+----------- 2016-10-19 18:51:27
+第四次 按照 b c两个条件来分组
+select count(a),b,c from test group by b,c 
+
+----------- 2016-10-19 14:57:46
+http://blog.csdn.net/k8080880/article/details/8482659
+1、in 后面是记录集，如
+select id, nickname from user where id in (select id from user where id>31);
+2、in 后面是字符串
+mysql> select id, nickname from user where id in (1, 2, '3');
++----+----------+
+| id | nickname |
++----+----------+
+|  1 | 张亮     |
+|  2 | 张亮     |
+|  3 | Justice  |
++----+----------+
+3 rows in set (0.00 sec)
+
+
 -------- 2016-10-08 10:43:38
 offset starts from 0:
 

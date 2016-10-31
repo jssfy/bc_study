@@ -6,6 +6,70 @@ remote: Compressing objects: 100% (15/15), done.
 Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
+
+---------- 2016-10-31 11:30:10
+do not use $index = date('m', strtotime($i. ' month', $now)); to get previous months, as it seems to calculate according to 30days a month.
+        $cur_month = date('m', $now);
+        for ($i = -5; $i <= 0; ++$i) {
+            $month = $cur_month + $i;
+            if ($month <=0) {
+                $month += 12;
+            }
+            $index = sprintf('%\'02s', $month);
+            $monthly_input[$index] = 0;
+            $monthly_reward[$index] = 0;
+            $accumulated_input[$index]  = 0;
+            $accumulated_reward[$index] = 0;
+        }
+
+another way to calc month:
+http://alfred-long.iteye.com/blog/1613227
+http://www.w3school.com.cn/php/func_date_mktime.asp
+  mktime(hour,minute,second,month,day,year,is_dst); 返回整数的 Unix 时间戳，如果错误则返回 FALSE。
+$tmp_forwardmonth=mktime(0,0,0,0,1,2016);
+echo date('m' , $tmp_forwardmonth); 
+  if the current month is 1, then the output is 12;
+
+----------- 2016-10-28 11:07:23
+form submission issue:
+
+10.2 -> 10.19999
+
+
+<form action="/admin/sponsor/create" method="post" id="form" onsubmit="return toValidate()">
+    <div><input type="submit" value="立即赞助" </div>
+    <p><input type="hidden" name="mt" value=<?= $missionType ?> ></p>
+    <p><input type="hidden" name="mid" id="mid" value=<?= $missionId ?>></p>
+    <p>赞助金额(元) <br /> <input type="text" name="money" id="money" value="100"/></p>
+    <p>描述 <br /> <input type="text" name="desc" style="width: 350px; " id='desc' value="" /></p>
+</form>
+
+alert is fine: 10.2
+            val = document.getElementById("money").value;
+            alert(val);
+
+ok:
+            return round((10.2*100.0), 0);
+
+1019:
+            return floor((10.2*100.0));
+
+1019:
+            return (int)(10.2*100.0);
+
+            
+--------- 2016-10-25 11:19:29
+if (YII_ENV_PROD) {
+  $config['userFilter'] = json_decode(file_get_contents(__DIR__ . '/users.json'), true);
+} else {
+  $config['userFilter'] = json_decode(file_get_contents(__DIR__ . '/users-local.json'), true);
+}
+
+        $devFilter = Yii::$app->params['userFilter'];
+        
+-------- 2016-10-24 10:16:53
+在单引号串中反斜线失去了它的扩展含义（除了添入反斜杠\\和添入单引号\'）。所以，当你想在字串中进行变量代换和包含\n（换行符）等转义序列时，你应该使用双引号。
+
 ------------ 2016-10-14 21:24:55
 
 a good pay:
@@ -117,6 +181,12 @@ extension=gd.so
 $ fn gd.so
 ./lib/php/20151012/gd.so
 
+
+----------- 2016-10-21 14:28:15
+
+        usort($all_missions, function ($a, $b) {
+            return ($a['stop_time'] > $b['stop_time']);
+        });
 
 ----------- 2016-09-14 11:49:52
 $ tail -f /var/log/php/error.log 
@@ -1814,3 +1884,71 @@ require()语句的性能与include()相类似，都是包括并运行指定文�
 　　require引入文件的时候，如果碰到错误，会给出提示，并停止运行下边的代码。
 
 !!! no matter "include" or "require", __DIR__ is always where the exact file is located.
+
+------------ 2016-10-18 17:26:49
+http://www.jb51.net/article/25796.htm
+
+file uploading:
+
+<?php
+if ($_FILES["file"]["error"] > 0)
+{
+  echo "Error: " . $_FILES["file"]["error"] . "<br />";
+}
+else
+{
+  echo "Upload: " . $_FILES["file"]["name"] . "<br />";
+  echo "Type: " . $_FILES["file"]["type"] . "<br />";
+  echo "Size: " . ($_FILES["file"]["size"] / 1024) . " Kb<br />";
+  echo "Stored in: " . $_FILES["file"]["tmp_name"];
+  sleep(60);
+}
+
+?> 
+
+<html>
+<body>
+<form action="upload_file.php" method="post"
+enctype="multipart/form-data">
+<label for="file">Filename:</label>
+<input type="file" name="file" id="file" />
+<br />
+<input type="submit" name="submit" value="Submit" />
+</form>
+</body>
+</html> 
+
+上面的例子在服务器的 PHP 临时文件夹创建了一个被上传文件的临时副本。
+这个临时的复制文件会在脚本结束时消失。要保存被上传的文件，我们需要把它拷贝到另外的位置
+
+output as seen from browser:
+Upload: Screenshot from 2016-07-27 16:50:44.png
+Type: image/png
+Size: 32.8056640625 Kb
+Stored in: /tmp/phpFRyFEv
+
+the local test passes with the above code, and the tmp file is generated under /tmp/
+but for yii, $_FILE is empty.
+  not this: max_file_uploads,post_max_size大小都不得超过才可以上传 [http://blog.csdn.net/yageeart/article/details/39235233]
+  !!!: http://www.yiichina.com/question/931 不支持中文文件名的文件上传。 看着多了个空格。加上引号，或者把空格去掉，应该就可以了。
+
+2016-10-18 09:39:03 [10.12.0.36][18][t510btg56ptsnn6g9sor6fbom6][error][abc\backend\admin\controllers\TemplateController::actionCreate] and model: {"checkin_photo":{"name":"","type":"","tmp_name":"","error":4,"size":0},"file":{"name":"test.png","type":"image/png","tmp_name":"/tmp/phpUnwnBv","error":0,"size":175861}}
+Logger::error('and model: ' . \yii\helpers\Json::encode($_FILES));
+
+yii output:
+$_FILES = [
+    'checkin_photo' => [
+        'name' => ''
+        'type' => ''
+        'tmp_name' => ''
+        'error' => 4
+        'size' => 0
+    ]
+    'file' => [
+        'name' => 'test.png'
+        'type' => 'image/png'
+        'tmp_name' => '/tmp/phpxhE1KD'
+        'error' => 0
+        'size' => 175861
+    ]
+]

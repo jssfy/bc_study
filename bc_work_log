@@ -19,6 +19,8 @@ $ ping -c 2 tz8.muder.pw
 PING tz8.muder.pw (121.43.153.62) 56(84) bytes of data.
 64 bytes from 121.43.153.62: icmp_seq=1 ttl=49 time=29.0 ms
 
+mysql -h 10.168.76.32 -u tz8 -p
+
 tz8-dev.muder.pw
 
 test:
@@ -27,6 +29,9 @@ http://frontend.tz8/test/click-menu
 
 email:
   anhye.abcft
+
+online test logs:
+  backend: /niub/www/sourcecode/console-dev.yqtz8.com/backend/runtime/logs
 
 ------------ 2016-10-08 18:22:27
 １. 经过和张亮、胥冥讨论，comment列表一次性全部返回，当前无需offset和limit控制。
