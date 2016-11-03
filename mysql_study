@@ -4,6 +4,44 @@ mysql manual:
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
 
+----------- 2016-11-03 14:55:00
+if not commented below commented lines, the lower part will cost 1 more second.
+
+2016-11-03 14:52:05 [10.12.0.36][18][-][error][abc\backend\admin\components\PlazaManager::getMissionRecommendList] spent time ms: 32.968997955322 and 1388.1499767303
+
+compared to:
+
+2016-11-03 14:53:08 [10.12.0.36][18][-][error][abc\backend\admin\components\PlazaManager::getMissionRecommendList] spent time ms: 34.518003463745 and 5.1229000091553
+
+            $midtime    = microtime(true);
+            foreach ($missions as $mission) {
+//                if ($mission->isStoped()) {
+//                    continue;
+//                }
+//                if (is_null($mission->creator)) {
+//                    continue;
+//                }
+                $data[] = [
+                    'mid' => $mission->id,
+                    'mt' => $mission->missiontype,
+                    'name' => $mission->name,
+//                    'creator_name' => $mission->creator->nickname,
+                    'create_time' => $mission->create_time,
+                    'announce' => $mission->announce,
+                    'description' => $mission->description,
+                    'start_time' => $mission->startTime,
+                    'stop_time' => $mission->stopTime,
+                    'ticket' => $mission->ticket,
+                    'offical_recommend_time'=> $mission->offical_recommend_time,
+                    'user_recommend_count'=> $mission->user_recommend_count,
+                ];
+            }
+            $endTime    = microtime(true);
+            $mid    = ($midtime - $startTime) * 1000; //将时间转换为毫秒
+            $runtime    = ($endTime - $midtime) * 1000; //将时间转换为毫秒
+            \frontend\components\util\Logger::error('spent time ms: ' . $mid . ' and ' . $runtime);
+        }
+
 --------- 2016-10-21 12:09:27
 
                 Account::updateAll(

@@ -1,0 +1,86 @@
+
+
+---------- 2016-11-01 14:36:14
+
+    sudo apt-get install 安装的package存放在 /usr/lib/python2.7/dist-packages目录中
+    pip 或者 easy_install安装的package存放在/usr/local/lib/python2.7/dist-packages目录中
+    手动从源代码安装的package存放在site-packages目录中
+
+----------- 2016-11-02 10:13:52
+
+在Ubuntu14.04上，建议通过下面的方法安装，这是一种通用的方法，也适用于Windows，当然在Windows下
+
+手动下载下来就行了
+
+wget https://bootstrap.pypa.io/get-pip.py  --no-check-certificate [vpn is necessary]
+sudo python get-pip.py
+
+如果在Ubuntu14.04上你用sudo apt-get install python-pip下载安装，在使用时有可能出现下面的问题
+复制代码
+
+root@ubt:~# pip 
+Traceback (most recent call last):
+  File "/usr/bin/pip", line 9, in <module>
+    load_entry_point('pip==1.5.4', 'console_scripts', 'pip')()
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 351, in load_entry_point
+    return get_distribution(dist).load_entry_point(group, name)
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 2363, in load_entry_point
+    return ep.load()
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 2088, in load
+    entry = __import__(self.module_name, globals(),globals(), ['__name__'])
+  File "/usr/lib/python2.7/dist-packages/pip/__init__.py", line 11, in <module>
+    from pip.vcs import git, mercurial, subversion, bazaar  # noqa
+  File "/usr/lib/python2.7/dist-packages/pip/vcs/mercurial.py", line 9, in <module>
+    from pip.download import path_to_url
+  File "/usr/lib/python2.7/dist-packages/pip/download.py", line 25, in <module>
+    from requests.compat import IncompleteRead
+ImportError: cannot import name IncompleteRead
+
+复制代码
+
+这是因为通过apt-get安装的pip版本太老了，老的pip版本依赖requests.compat.IncompleteRead，而在2.4.0版本的requests中已经移除了
+
+requests.compat.IncompleteRead，解决方法是先卸载pip（命令为sudo apt-get remove python-pip），然后再用上面的方法重新安装。
+
+有时，还会遇到下面的SSL错误
+
+/tmp/tmpFlFxFp/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:318: SNIMissingWarning: An HTTPS request has been made, but the SNI (Subject Name Indication) extension to TLS is not available on this platform. This may cause the server to present an incorrect TLS certificate, which can cause validation failures. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#snimissingwarning.
+/tmp/tmpFlFxFp/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:122: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+
+安装下面几个包
+
+pip install pyopenssl ndg-httpsclient pyasn1
+
+如果还有问题，再安装下面的包
+
+sudo apt-get install libffi-dev libssl-dev
+
+ 
+
+安装完后，测试一下吧，发现不能识别pip这个命令，额，我也不知道怎么回事，解决办法是在/usr/bin目录下建一个软链接，指向到/usr/local/bin/pip
+复制代码
+
+njsqrt3@temp-test2:~$ pip
+-bash: /usr/bin/pip: No such file or directory        # $PATH的值包含/usr/bin
+njsqrt3@temp-test2:~$ which pip
+/usr/local/bin/pip                                    # $PATH的值包含/usr/local/bin
+njsqrt3@temp-test2:~$ 
+njsqrt3@temp-test2:~$ echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+njsqrt3@temp-test2:~$
+
+------------------- 2016-11-02 10:16:14
+$ sudo python get-pip.py 
+The directory '/home/kidd/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+The directory '/home/kidd/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+Collecting pip
+/tmp/tmpHWvX8Y/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:318: SNIMissingWarning: An HTTPS request has been made, but the SNI (Subject Name Indication) extension to TLS is not available on this platform. This may cause the server to present an incorrect TLS certificate, which can cause validation failures. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#snimissingwarning.
+/tmp/tmpHWvX8Y/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:122: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+  Downloading pip-8.1.2-py2.py3-none-any.whl (1.2MB)
+    100% |████████████████████████████████| 1.2MB 763kB/s 
+Collecting wheel
+  Downloading wheel-0.29.0-py2.py3-none-any.whl (66kB)
+    100% |████████████████████████████████| 71kB 1.2MB/s 
+Installing collected packages: pip, wheel
+Successfully installed pip-8.1.2 wheel-0.29.0
+/tmp/tmpHWvX8Y/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:122: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.

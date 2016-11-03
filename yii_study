@@ -21,6 +21,337 @@ php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
 
+------------2016-11-03 18:38:03 
+grid view demo
+
+public function actionTest() {
+        $data = self::getTestData();
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => array_values($data),
+        ]);
+
+        $dataProvider->setSort([
+            'attributes' => [
+//                'memberCount' => [
+//                    'asc' => ['memberCount' => SORT_ASC],
+//                    'desc' => ['memberCount' => SORT_DESC],
+//                    'label' => 'memberCount'
+//                ],
+                'nickname' => [
+                    'asc' => ['nickname' => SORT_ASC],
+                    'desc' => ['nickname' => SORT_DESC],
+                    'label' => 'nickname'
+                ],
+                'create_time' => [
+                    'asc' => ['create_time' => SORT_ASC],
+                    'desc' => ['create_time' => SORT_DESC],
+                    'label' => 'create_time'
+                ],
+            ]
+        ]);
+
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+        ]);
+        return $this->render("test.html");
+    }
+
+    private static function getTestData()
+    {
+        $ret = [];
+
+        $ret[] = [
+            'create_time' => date('Y-m-d H:i:s', strtotime('-1 day')),
+            'nickname' => 'anhua',
+        ];
+        $ret[] = [
+            'create_time' => date('Y-m-d H:i:s', strtotime('-2 day')),
+            'nickname' => 'jssfy',
+        ];
+        $ret[] = [
+            'create_time' => date('Y-m-d H:i:s', strtotime('+1 day')),
+            'nickname' => 'kidd',
+        ];
+        return $ret;
+    }
+
+<?=
+\yii\grid\GridView::widget([
+    'dataProvider' => $dataProvider,
+    'columns' => [
+        ['class' => 'yii\grid\SerialColumn'],
+        [
+            'label' => '发起时间',
+            'attribute' => 'create_time',
+        ],
+        [
+            'label' => '发起人',
+            'attribute' => 'nickname',
+        ],
+    ],
+]);
+?>
+
+------------ 2016-11-03 17:13:30
+grid view - sorting
+http://www.yiichina.com/tutorial/120
+
+    /**
+     * 挑战广场action
+     * */
+    public function actionIndex($status = 'before_finish', $missiontype = 'all', $recommendonly = 1)
+    {
+        $data = PlazaManager::getMissionRecommendList($status, $missiontype, $recommendonly == 1);
+
+        usort($data, function ($a, $b) {
+            $at = strtotime($a['create_time']);
+            $bt = strtotime($b['create_time']);
+
+            return $at < $bt;
+        });
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => array_values($data),
+        ]);
+
+        $dataProvider->setSort([
+            'attributes' => [
+                'memberCount' => [
+                    'asc' => ['memberCount' => SORT_ASC],
+                    'desc' => ['memberCount' => SORT_DESC],
+                    'label' => 'memberCount'
+                ],
+                'nickname' => [
+                    'asc' => ['nickname' => SORT_ASC],
+                    'desc' => ['nickname' => SORT_DESC],
+                    'label' => 'nickname'
+                ],
+                'create_time' => [
+                    'asc' => ['create_time' => SORT_ASC],
+                    'desc' => ['create_time' => SORT_DESC],
+                    'label' => 'create_time'
+                ],
+            ]
+        ]);
+
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+-------- 2016-11-03 13:52:44
+to avoid duplicated form submit, use redirect instead of render:
+    return $this->redirect(['official', 'message'=>$message]);
+instead of
+    return $this->render('official', ['message'=>$message]);
+
+----------- 2016-11-02 11:11:57
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php
+
+    /**
+     * Initializes extensions and executes bootstrap components.
+     * This method is called by [[init()]] after the application has been fully configured.
+     * If you override this method, make sure you also call the parent implementation.
+     */
+    protected function bootstrap()
+    {
+    ......
+        error_log('------------' . Json::encode($this->bootstrap));
+        foreach ($this->bootstrap as $class) {
+
+2016/11/0211: 11: 35[
+    error
+]15075#0: *127FastCGIsentinstderr: "PHP message: ------------["log","frontend\\components\\event\\EventBootstrap","debug","gii"]"whilereadingresponseheaderfromupstream,
+client: 10.12.0.36,
+server: frontend.tz8,
+request: "GET /mission/list HTTP/1.1",
+upstream: "fastcgi://unix:/var/run/php/php7.0-fpm.sock:",
+host: "frontend.tz8"
+
+---------- 2016-11-02 11:08:45
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php
+    public function preInit(&$config)
+        error_log('---------------' . Json::encode($this->coreComponents()));
+{
+    "log": {
+        "class": "yii\\log\\Dispatcher"
+    },
+    "view": {
+        "class": "yii\\web\\View"
+    },
+    "formatter": {
+        "class": "yii\\i18n\\Formatter"
+    },
+    "i18n": {
+        "class": "yii\\i18n\\I18N"
+    },
+    "mailer": {
+        "class": "yii\\swiftmailer\\Mailer"
+    },
+    "urlManager": {
+        "class": "yii\\web\\UrlManager"
+    },
+    "assetManager": {
+        "class": "yii\\web\\AssetManager"
+    },
+    "security": {
+        "class": "yii\\base\\Security"
+    },
+    "request": {
+        "class": "yii\\web\\Request"
+    },
+    "response": {
+        "class": "yii\\web\\Response"
+    },
+    "session": {
+        "class": "yii\\web\\Session"
+    },
+    "user": {
+        "class": "yii\\web\\User"
+    },
+    "errorHandler": {
+        "class": "yii\\web\\ErrorHandler"
+    }
+}" while reading response header from upstream, client: 10.12.0.36, server: frontend.tz8, request: "GET/mission/nullHTTP/1.1", upstream: "fastcgi: //unix: /var/run/php/php7.0-fpm.sock: ", host: "frontend.tz8", referrer: "http: //frontend.tz8/mission/list"
+
+
+----------- 2016-11-01 16:32:05
+$ tail -f /var/log/php/error.log
+
+[01-Nov-2016 08:30:39 UTC] get called class for controller: app\controllers\SiteController
+
+/home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/base/Controller.php
+    public function runAction($id, $params = [])
+    {
+        error_log('get called class for controller: ' . get_called_class());
+
+ in /home/kidd/workspace/test_yii/basic/controllers/SiteController.php at line 66
+2. app\controllers\SiteController::actionIndex()
+3. in /home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/base/InlineAction.php at line 55 – call_user_func_array([app\controllers\SiteController, 'actionIndex'], [])
+4. in /home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/base/Controller.php at line 155 – yii\base\InlineAction::runWithParams([])
+5. in /home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/base/Module.php at line 454 – yii\base\Controller::runAction('', [])
+6. in /home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/web/Application.php at line 87 – yii\base\Module::runAction('', [])
+7. in /home/kidd/workspace/test_yii/basic/vendor/yiisoft/yii2/base/Application.php at line 375 – yii\web\Application::handleRequest(yii\web\Request)
+8. in /home/kidd/workspace/test_yii/basic/web/index.php at line 12 – yii\base\Application::run()
+
+http://localhost:6061/index.php?r=country/index
+
+with below config: [not accessible to country/index if set to false]
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'rules'=>array(
+            ),
+        ],
+http://localhost:6061/index.php/country/index
+
+with below only: [not accessible via 'http://localhost:6061/country/index']
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'rules'=>array(
+            ),
+        ],
+
+
+--------- 2016-11-01 15:57:44
+1. add to 'config' root:
+    'defaultRoute' => 'country/index',
+but this only solves the default route, not the index.php issue.
+
+but '$ sudo php yii serve 10.12.0.36 --port=8888' works via accessing by "http://10.12.0.36:8888/mission/index"
+
+2. 
+在urlManager的使用上，用得最多的配置项就是：
+$enablePrettyUrl ，是否开启URL美化功能。关于美化功能，我们在 路由(Route) 部分已经介绍过了。 注意如果 $enablePrettyUrl 不开启，表明使用原始的格式，那么所有路由规则都是无效的。
+$showScriptName ，是否在URL中显示入口脚本。是对美化功能的进一步补充。
+suffix 设置一个 .html 之类的假后缀，是对美化功能的进一步补充。
+rules 保存路由规则们的声明，注意并非保存其实例。
+$enableStrictParsing 是否开启严格解析。该选项仅在开启美化功能后生效。在开启严格解析模式时， 所有请求必须匹配 $rules[] 所声明的至少一个路由规则。 如果未开启，请求的PATH_INFO部分将作为所请求的路由进行后续处理。
+在 UrlManager::init() 初始化过程中，可以发现 urlManager 使用了应用所提供的缓存组件（有果有的话）， 对所有路由规则的实例进行缓存。
+
+to hide index.php in url:
+http://tutsnare.com/remove-index-php-from-url-in-yii2/
+1) load module and modify /etc/apache2/apache2.conf and 'sudo service apache2 restart'
+<Directory /home/kidd/workspace/test_yii/>
+  Options Indexes FollowSymLinks
+  AllowOverride All
+  Require all granted
+</Directory>
+
+sudo a2enmod rewrite
+/etc/apache2
+$ ls mods-enabled/
+access_compat.load  authz_user.load  filter.load       php7.0.load
+alias.conf          autoindex.conf   mime.conf         rewrite.load
+
+to check if mod_rewrite has been enabled make a php file and add below code
+phpinfo();
+
+
+2. put .htaccess under the web root
+RewriteEngine on
+
+# if a directory or a file exists, use it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# otherwise forward it to index.php
+RewriteRule . index.php
+
+http://www.yiiframework.com/wiki/15/how-to-hide-index-php-on-nginx/
+!!!!!!!!!! with nginx, we do not need to add .htaccess file:
+test via http://kidd.host/country/index
+
+add below config to '/etc/nginx/sites-available/default'
+    make sure /home/kidd/workspace/test_yii/basic/log is writable 
+    add kidd.host local dns
+    'sudo service nginx restart'
+
+server {
+  charset utf-8;
+  client_max_body_size 128M;
+
+  listen 80; ## listen for ipv4
+
+  server_name kidd.host;
+  root        /home/kidd/workspace/test_yii/basic/web/;
+  index       index.php;
+
+  access_log  "/home/kidd/workspace/test_yii/basic/log/frontend-access.log";
+  error_log   "/home/kidd/workspace/test_yii/basic/log/frontend-error.log";
+
+  location / {
+     # Redirect everything that isn't a real file to index.php
+     try_files $uri $uri/ /index.php$is_args$args;
+  }
+
+  location ~ ^/assets/.*\.php$ {
+     deny all;
+  }
+
+  location ~ \.php$ {
+     include fastcgi_params;
+     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+     #fastcgi_pass 127.0.0.1:9000;
+     #fastcgi_pass unix:/var/run/php5-fpm.sock;
+     fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+     try_files $uri =404;
+  }
+
+  location ~* /\. {
+     deny all;
+  }
+}
+
+http://www.cnblogs.com/wawahaha/p/4641691.html
+try_files $uri $uri/ /index.php?q=$uri&$args;
+按顺序检查文件是否存在，返回第一个找到的文件。结尾的斜线表示为文件夹 -$uri/。如果所有的文件都找不到，会进行一个内部重定向到最后一个参数。
+    actually "/index.php$is_args$args;" worked for this case.
+
+------- 2016-11-01 15:17:42
+return \Yii::$app->controllerNamespace;
+    frontend\controllers
+控制器Id可包含子目录前缀，例如 admin/article 代表 yii\base\Application::controllerNamespace控制器命名空间下 admin子目录中 article 控制器。 子目录前缀可为英文大小写字母、数字、下划线、正斜杠， 其中正斜杠用来区分多级子目录(如 panels/admin)。
+
 ---------- 2016-10-28 11:45:20
 $ php yii console/upload-file-to-qiniu /home/kidd/abc/logo.png png
 

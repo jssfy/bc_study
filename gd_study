@@ -10,6 +10,10 @@ the image is handled in console task, hence web support is not related.
     else
         echo "false";
 
+------------- 2016-11-03 11:21:49
+
+getimagesize fails sometimes (when accessing imgages from qiniu)
+
 ------------ 2016-09-14 12:38:34
 
 online test:

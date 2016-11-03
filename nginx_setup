@@ -1,8 +1,38 @@
 
+/etc/nginx
+$ tree
+.
+├── conf.d
+├── fastcgi_params
+├── koi-utf
+├── koi-win
+├── mime.types
+├── naxsi_core.rules
+├── naxsi.rules
+├── naxsi-ui.conf.1.4.1
+├── nginx.conf
+├── proxy_params
+├── scgi_params
+├── sites-available
+│   ├── default
+│   └── default.bak
+├── sites-enabled
+│   └── default -> /etc/nginx/sites-available/default
+├── uwsgi_params
+└── win-utf
 
+3 directories, 15 files
+
+------- 2016-11-01 18:09:19
+$ sudo nginx -t
+[sudo] password for kidd: 
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+用参数-t nginx -t 如果返回ok,用 -s reload 重新加载配置文件
+nginx 如何检测配置文件的正确性
 
 ----------- 2016-08-25 10:50:58
-
 http://www.pcre.org/
 
 
@@ -293,3 +323,101 @@ server {
 # }
 #}
 
+-------- 2016-11-01 18:49:30
+nginx sample:
+
+
+--------- 2016-11-01 15:57:44
+1. add to 'config' root:
+    'defaultRoute' => 'country/index',
+but this only solves the default route, not the index.php issue.
+
+but '$ sudo php yii serve 10.12.0.36 --port=8888' works via accessing by "http://10.12.0.36:8888/mission/index"
+
+2. 
+在urlManager的使用上，用得最多的配置项就是：
+$enablePrettyUrl ，是否开启URL美化功能。关于美化功能，我们在 路由(Route) 部分已经介绍过了。 注意如果 $enablePrettyUrl 不开启，表明使用原始的格式，那么所有路由规则都是无效的。
+$showScriptName ，是否在URL中显示入口脚本。是对美化功能的进一步补充。
+suffix 设置一个 .html 之类的假后缀，是对美化功能的进一步补充。
+rules 保存路由规则们的声明，注意并非保存其实例。
+$enableStrictParsing 是否开启严格解析。该选项仅在开启美化功能后生效。在开启严格解析模式时， 所有请求必须匹配 $rules[] 所声明的至少一个路由规则。 如果未开启，请求的PATH_INFO部分将作为所请求的路由进行后续处理。
+在 UrlManager::init() 初始化过程中，可以发现 urlManager 使用了应用所提供的缓存组件（有果有的话）， 对所有路由规则的实例进行缓存。
+
+to hide index.php in url:
+http://tutsnare.com/remove-index-php-from-url-in-yii2/
+1) load module and modify /etc/apache2/apache2.conf and 'sudo service apache2 restart'
+<Directory /home/kidd/workspace/test_yii/>
+  Options Indexes FollowSymLinks
+  AllowOverride All
+  Require all granted
+</Directory>
+
+sudo a2enmod rewrite
+/etc/apache2
+$ ls mods-enabled/
+access_compat.load  authz_user.load  filter.load       php7.0.load
+alias.conf          autoindex.conf   mime.conf         rewrite.load
+
+to check if mod_rewrite has been enabled make a php file and add below code
+phpinfo();
+
+
+2. put .htaccess under the web root
+RewriteEngine on
+
+# if a directory or a file exists, use it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# otherwise forward it to index.php
+RewriteRule . index.php
+
+http://www.yiiframework.com/wiki/15/how-to-hide-index-php-on-nginx/
+!!!!!!!!!! with nginx, we do not need to add .htaccess file:
+test via http://kidd.host/country/index
+
+add below config to '/etc/nginx/sites-available/default'
+    make sure /home/kidd/workspace/test_yii/basic/log is writable 
+    add kidd.host local dns
+    'sudo service nginx restart'
+
+server {
+  charset utf-8;
+  client_max_body_size 128M;
+
+  listen 80; ## listen for ipv4
+
+  server_name kidd.host;
+  root        /home/kidd/workspace/test_yii/basic/web/;
+  index       index.php;
+
+  access_log  "/home/kidd/workspace/test_yii/basic/log/frontend-access.log";
+  error_log   "/home/kidd/workspace/test_yii/basic/log/frontend-error.log";
+
+  location / {
+     # Redirect everything that isn't a real file to index.php
+     try_files $uri $uri/ /index.php$is_args$args;
+  }
+
+  location ~ ^/assets/.*\.php$ {
+     deny all;
+  }
+
+  location ~ \.php$ {
+     include fastcgi_params;
+     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+     #fastcgi_pass 127.0.0.1:9000;
+     #fastcgi_pass unix:/var/run/php5-fpm.sock;
+     fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+     try_files $uri =404;
+  }
+
+  location ~* /\. {
+     deny all;
+  }
+}
+
+http://www.cnblogs.com/wawahaha/p/4641691.html
+try_files $uri $uri/ /index.php?q=$uri&$args;
+按顺序检查文件是否存在，返回第一个找到的文件。结尾的斜线表示为文件夹 -$uri/。如果所有的文件都找不到，会进行一个内部重定向到最后一个参数。
+    actually "/index.php$is_args$args;" worked for this case.

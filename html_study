@@ -1,6 +1,14 @@
 
 
 
+----------- 2016-11-01 10:22:35
+for a single web page in chrome, if there are multiple url references to the same picture, e.g. as below, the picture will be loaded once only.
+
+<img src="https://qiniu.yqtz8.com/images/2016_09_28_10_33_31_57eb2bfbd35a6.jpeg" />
+<img src="https://qiniu.yqtz8.com/images/2016_09_28_10_33_31_57eb2bfbd35a6.jpeg" />
+<img src="https://qiniu.yqtz8.com/images/2016_09_28_10_33_31_57eb2bfbd35a6.jpeg" />
+
+
 ---------- 2016-08-05 16:02:25
 < A >标签 绝对路径 ， 相对路径 区别 和 对SEO的影响？
 

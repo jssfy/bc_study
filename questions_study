@@ -2,6 +2,28 @@
 
 
 
+-------------- 2016-11-03 10:39:10
+
+2016-11-03 10:37:13 [13][error][abc\frontend\components\ErrorHandler::logException] exception 'yii\base\ErrorException' with message 'getimagesize(): Read error!' in /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/components/InviteManager.php:52
+Stack trace:
+#0 [internal function]: yii\base\ErrorHandler->handleError(8, 'getimagesize():...', '/niub/www/sourc...', 52, Array)
+#1 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/components/InviteManager.php(52): getimagesize('/niub/www/sourc...')
+#2 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/components/InviteManager.php(78): frontend\components\InviteManager::loadImage('/niub/www/sourc...')
+#3 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/components/InviteManager.php(177): frontend\components\InviteManager::getAndSaveImage('http://wx.qlogo...')
+#4 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/components/event/EventBootstrap.php(69): frontend\components\InviteManager::createInviteImage(Object(frontend\models\Mission))
+#5 [internal function]: frontend\components\event\EventBootstrap::handleUpdateMissionPoster(Object(frontend\components\event\AppEvent))
+#6 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/base/Component.php(541): call_user_func(Array, Object(frontend\components\event\AppEvent))
+#7 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/controllers/ajax/MissionController.php(105): yii\base\Component->trigger('update_mission_...', Object(frontend\components\event\AppEvent))
+#8 [internal function]: frontend\controllers\ajax\MissionController->actionPoster()
+#9 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/base/InlineAction.php(55): call_user_func_array(Array, Array)
+#10 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/base/Controller.php(154): yii\base\InlineAction->runWithParams(Array)
+#11 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/base/Module.php(454): yii\base\Controller->runAction('poster', Array)
+#12 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('ajax/mission/po...', Array)
+#13 /niub/www/sourcecode/wx-dev.yqtz8.com/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#14 /niub/www/sourcecode/wx-dev.yqtz8.com/frontend/web/index.php(20): yii\base\Application->run()
+#15 {main}
+
+
 ------------ 2016-10-27 16:03:03
 ?? 
 Yii::$app->user->returnUrl

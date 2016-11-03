@@ -6,6 +6,8 @@ remote: Compressing objects: 100% (15/15), done.
 Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
+--------- 2016-11-03 11:59:11
+
 
 ---------- 2016-10-31 11:30:10
 do not use $index = date('m', strtotime($i. ' month', $now)); to get previous months, as it seems to calculate according to 30days a month.
