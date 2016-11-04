@@ -109,7 +109,117 @@ Main-Class: com.example.myapp.MyAppMain
 这样我们就可以使用如下的命令来运行程序了：（明显简单多了，也不会造成无谓的拼写错误）
 java -jar myapplication.jar 
 
+使用gradle解决我们项目需要的依赖包是主要目的，我们通常可以在http://mvnrepository.com/寻找到依赖包的gradle写法，如键入jdonframework，得到结果：http://mvnrepository.com/search.html?query=jdonframework
+点按进去以后，选择最新版本，再选择gradle
+
+我们就要在build.gradle文件中加入：
+
+repositories { mavenCentral() }
+dependencies {
+  compile "org.jdon:jdonframework:6.8"
+}
+　　这里的第一行表示的构建应该从Maven的中央存储库寻找解决它的依赖。gradle非常依赖于Maven构建工具许多惯例和设施，包括使用Maven中央作为库的依赖源。
+　　dependencies中定义的是一个编译依赖，表示在编译时可用，如果构建WAR文件， 那么依赖包将被构建到war文件的 /WEB-INF/libs目录。
+　　这样，在我们项目程序中，使用该库包的类以后，gradle就能够编译打包。 
+not like this as shown in 'http://mvnrepository.com/artifact/org.jdon/jdonframework/6.8':
+　　compile group: 'org.jdon', name: 'jdonframework', version: '6.8'
+
+package hello;
+
+import com.jdon.util.UtilValidate;
+
+public class HelloWorld {
+  public static void main(String[] args) {
+    String s ="hello1";
+    if (!UtilValidate.isEmpty(s)) {
+      System.out.println("hello2"); 
+    }
+  }
+}
+
+$ jar tvf ~/.gradle/caches/modules-2/files-2.1/org.jdon/jdonframework/6.8/3d4ba85fbe2a426b239658ab844c8a2f379f0611/jdonframework-6.8.jar | grep UtilValidate
+ 17692 Fri Oct 11 11:44:28 CST 2013 com/jdon/util/UtilValidate.class
+
+ $ java -jar ./build/libs/hello_gradle.jar
+Exception in thread "main" java.lang.NoClassDefFoundError: com/jdon/util/UtilValidate
+  at hello.HelloWorld.main(HelloWorld.java:8)
+Caused by: java.lang.ClassNotFoundException: com.jdon.util.UtilValidate
+  at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:331)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+  ... 1 more
 
 
+http://www.cnblogs.com/zhaodedong/p/5365140.html
+gradle想把所有依赖打进jar包主要有两种方式：一种是重写jar动作，一种是用第三方插件。
+jar {
+    manifest {
+        attributes 'Main-Class': 'hello.HelloWorld'
+    }    
+    into('lib') {
+        from configurations.runtime
+    }
+}
+重写jar动作
+主要是into这一句，可以参照gradle的api文档。里面专门讲了这一块。
+这种方式生成的jar包，是把所有的依赖全部打进了lib中。我一直在用这种方式打包。
 
+~/workspace/java/hello_gradle
+$ jar tvf ./build/libs/hello_gradle.jar
+     0 Fri Nov 04 19:08:40 CST 2016 META-INF/
+    55 Fri Nov 04 19:08:40 CST 2016 META-INF/MANIFEST.MF
+     0 Fri Nov 04 16:14:16 CST 2016 hello/
+   733 Fri Nov 04 18:57:40 CST 2016 hello/HelloWorld.class
+     0 Fri Nov 04 19:08:40 CST 2016 lib/
+360774 Fri Nov 04 18:56:24 CST 2016 lib/jdonframework-6.8.jar
+ 18470 Fri Nov 04 18:56:24 CST 2016 lib/scannotation-1.0.2.jar
+114040 Fri Nov 04 18:56:24 CST 2016 lib/picocontainer-1.2.jar
+2189117 Fri Nov 04 18:56:34 CST 2016 lib/guava-14.0.1.jar
+ 29871 Fri Nov 04 18:56:34 CST 2016 lib/regexp-1.2.jar
+ 73287 Fri Nov 04 18:56:34 CST 2016 lib/disruptor-3.2.0.jar
+287192 Fri Nov 04 18:56:36 CST 2016 lib/cglib-2.2.2.jar
+  4467 Fri Nov 04 18:56:36 CST 2016 lib/aopalliance-1.0.jar
+111119 Wed Oct 14 18:45:04 CST 2015 lib/commons-pool-1.6.jar
+153253 Fri Nov 04 18:56:36 CST 2016 lib/jdom-1.0.jar
+635227 Fri Nov 04 18:56:38 CST 2016 lib/log4j-core-2.0-beta8.jar
+107193 Fri Nov 04 18:56:38 CST 2016 lib/log4j-api-2.0-beta8.jar
+203035 Fri Nov 04 18:56:40 CST 2016 lib/ehcache-1.6.2.jar
+ 43581 Fri Nov 04 18:56:40 CST 2016 lib/asm-3.3.1.jar
+542241 Fri Nov 04 18:56:42 CST 2016 lib/javassist-3.6.0.GA.jar
+
+
+to use a dependent jar file:
+http://www.cnblogs.com/huhu0013/archive/2012/11/09/2762573.html
+
+apply plugin: 'java'
+
+repositories { mavenCentral() }
+dependencies {
+  compile "org.jdon:jdonframework:6.8"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'hello.HelloWorld', 'Class-Path': '/home/kidd/.gradle/caches/modules-2/files-2.1/org.jdon/jdonframework/6.8/3d4ba85fbe2a426b239658ab844c8a2f379f0611/jdonframework-6.8.jar'
+    }
+}
+
+$ java -jar ./build/libs/hello_gradle.jar 
+hello2
+hello3
+
+package hello;
+
+import com.jdon.util.UtilValidate;
+
+public class HelloWorld {
+  public static void main(String[] args) {
+    String s ="hello1";
+    if (!UtilValidate.isEmpty(s)) {
+      System.out.println("hello2"); 
+    }
+    System.out.println("hello3");
+  }
+}
 
