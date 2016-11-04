@@ -1,5 +1,56 @@
 
 
+
+-------- 2016-11-04 11:15:05
+python 执行时是如何查找包和模块的 
+python 执行一个文件，无论执行的方式是绝对路径还是相对路径，解释器都会把文件所在的目录加入到系统查找路径中，也就是 sys.path 这个 list 中，而 sys.path 又是由系统的 python 环境变量决定的。 
+
+
+---------- 2016-11-04 10:26:53
+1. 如果模块是被导入，__name__的值为模块名字
+2. 如果模块是被直接执行，__name__的值为’__main__’
+
+Python中比较特别,导入文件夹下的py文件,则这个目录下必须要有一个__init__.py文件才可
+Python的import包含文件功能就跟PHP的include类似，但更确切的说应该更像是PHP中的require，因为Python里的import只要目标不存在就报错程序无法往下执行。要包含目录里的文件，PHP中只需要给对路径就OK。Python中则不同，
+提示找不到这个模块的名字 dir.b 。通过查找官方文档，发现要包含目录下的文件时需要在目录下声明一个__init__.py文件，即使这个文件是空的也可以。当然这个文件也可以初始一些数据。
+__init__.py seems not necessary if the module is under the same directory.
+
+~/software/python/test
+$ tree
+.
+├── test.py
+└── tools
+    ├── __init__.py
+    ├── __init__.pyc
+    ├── tools.py
+    └── tools.pyc
+
+
+---------- 2016-11-04 10:38:09 
+pyc
+https://www.zhihu.com/question/30296617
+        A program doesn't run any faster when it is read from a ‘.pyc’ or ‘.pyo’ file than when it is read from a ‘.py’ file; the only thing that's faster about ‘.pyc’ or ‘.pyo’files is the speed with which they are loaded.
+        When a script is run by giving its name on the command line, the bytecode for the script is never written to a ‘.pyc’ or ‘.pyo’ file. Thus, the startup time of a script may be reduced by moving most of its code to a module and having a small bootstrap script that imports that module. It is also possible to name a ‘.pyc’ or ‘.pyo’file directly on the command line.
+
+在你 import 别的 py 文件时，那个 py 文件会被存一份 pyc 加速下次装载。而主文件因为只需要装载一次就没有存 pyc，你可以写两个 a.py 和 b.py，一个 import 另一个试试看。 
+
+当我们运行python文件程序的时候，Python解释器将源码转换为字节码，然后再由解释器来执行这些字节码。因此总的来说，它具有以下三条特性
+
+    源码距离底层更远（根据官方文档的解释。不说，你们也感觉得到）(。・`ω´・)
+    运行时都需要生成字节码，交由虚拟机执行。（你们问我虚拟机在哪儿？！你们也不看看各自都是用什么软件执行的！没错，就是解释器，别和我说是IDLE啊。虚拟机具体实现了由switch-case语句构成的框架函数PyEval_EvalFrameEx，刚刚说的字节码就是这货执行的）
+    每次执行脚本，虚拟机总要多出加载和链接的流程。（所以呢，相比于编译型语言就有点慢了。这与“有丝分裂间期”一样，准备东西也要花时间啊！）
+
+
+毕竟对于比较大的项目，要将PyCodeObject写回硬盘也是不可避免地要花些时间的，而且它又不知道你是不是也就只执行一次，之后就对刚刚跑完的脚本“弃之不顾”了呢。不过，它其实也有贴心的一面。比如，
+
+    若你在命令行直接输入“python path/to/projectDir”（假设projectDir目录含有“__main__.py”文件，以及其他将要调用的模块），那么程序运行结束后便自动为当前目录下所有的脚本生成字节码文件，并保存于本地新文件夹__pycache__当中。（这也有可能是IDE写小项目时自动生成.pyc文件的原因，不过问题描述略微暧昧。详情参见上面知乎问题板块）
+
+或者是，在命令行输入“python path/to/projectDir/__main__.py”，则生成除__main__.py外脚本的字节码文件。不过总的来说，上述这两种行为都大大缩短了项目运行前的准备时间（毕竟分工明确的程序，规模应该不会太小，复用率也不会太低。除非吃饱了撑着，搞出这么多事情(Θ皿Θメ)）
+模块在每次导入前总会检查其字节码文件的修改时间是否与自身的一致。若是则直接从该字节码文件读取内容，否则源模块重新导入，并在最后生成同名文件覆盖当前已有的字节码，从而完成内容的更新（详见import.py）。
+
+http://www.tuicool.com/articles/iYRfe2
+如果你需要 python 讲一个文件夹作为 package 执行，那么这个文件夹中必须包含一个名为 __main__.py 的文件，当执行 python -m hhlb 或者 python hhlb 的时候，这个文件中的代码都会被执行。
+
 ---------- 2016-11-01 14:36:14
 
     sudo apt-get install 安装的package存放在 /usr/lib/python2.7/dist-packages目录中

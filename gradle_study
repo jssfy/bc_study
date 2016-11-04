@@ -1,0 +1,115 @@
+
+
+
+----------- 2016-11-04 16:07:01
+首先创建一个gradle项目目录，然后在其目录下运行：
+
+gradle tasks
+  a .gradle folder is generated
+
+建立一个build.gradle文件，第一行输入：
+
+apply plugin: 'java'
+
+这简单一行带来很大变化，再次运行gradle tasks，你就会看到很多任务，包括构建项目，创建JavaDOC和运行测试。 
+
+
+到目前为止，我们的gradle目录下还没有Java源码，可以使用Eclipse创建一个Java项目，也可以手工创建一个Java项目，主要是建立一个放置源码的目录：src，然后创建一个src/main/java/hello
+  mkdir -p src/main/java/hello
+
+/home/kidd/workspace/java/gradle/src/main/java/hello/HelloWorld.java
+  package hello;
+  public class HelloWorld {
+    public static void main(String[] args) {
+      System.out.println("hello");
+    }
+  }
+
+然后，再回到src上级目录下输入gradle build，这时会发现编译成功信息，与src平行多出build目录，这个目录下有三个目录：
+    classes. 项目编译的 .class 文件
+    reports.构建的报告 包括测试报告.
+    libs. 生成的组装的库包 ( JAR and/or WAR 文件).
+我们项目的jar包就在这个libs目录下了
+
+~/workspace/java/gradle
+$ gradle build
+:compileJava
+:processResources UP-TO-DATE
+:classes
+:jar
+:assemble
+:compileTestJava UP-TO-DATE
+:processTestResources UP-TO-DATE
+:testClasses UP-TO-DATE
+:test UP-TO-DATE
+:check UP-TO-DATE
+:build
+
+BUILD SUCCESSFUL
+
+Total time: 2.473 secs
+
+~/workspace/java/hello_gradle
+$ tree
+.
+├── build
+│   ├── classes
+│   │   └── main
+│   │       └── hello
+│   │           └── HelloWorld.class
+│   ├── dependency-cache
+│   ├── libs
+│   │   └── hello_gradle.jar
+│   └── tmp
+│       ├── compileJava
+│       └── jar
+│           └── MANIFEST.MF
+├── build.gradle
+└── src
+    └── main
+        └── java
+            └── hello
+                └── HelloWorld.java
+
+http://www.cnblogs.com/adolfmc/archive/2012/10/07/2713562.html
+大家都知道一个java应用项目可以打包成一个jar，当然你必须指定一个拥有main函数的main class作为你这个jar包的程序入口。
+具体的方法是修改jar包内目录META-INF下的MANIFEST.MF文件。
+
+jar 是java的一个压缩文件名 (java archive)，但是格式仍是zip的，所以你可以用winzip等支持zip格式的软件打开，如果你是想自己生成一个jar文件，你可以用 jar工具来做。
+$ jar tvf build/libs/hello_gradle.jar 
+     0 Fri Nov 04 16:51:06 CST 2016 META-INF/
+    25 Fri Nov 04 16:51:06 CST 2016 META-INF/MANIFEST.MF
+     0 Fri Nov 04 16:14:16 CST 2016 hello/
+   539 Fri Nov 04 16:51:06 CST 2016 hello/HelloWorld.class
+
+Java插件在我们的项目中加入了一个Jar任务，每一个Jar对象都一个manifest属性，这个属性是Manifest的一个实例。
+我们可以对生成的Jar文件的主类进行配置，使用Manifest接口的attributes()方法。换句话说，我们可以使用一个包含键值对的map结构指定加入到manifest文件的属性集。
+我们能够通过设置Main-Class属性的值，指定我们程序的入口点。
+
+/home/kidd/workspace/java/hello_gradle/build.gradle
+apply plugin: 'java'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'hello.HelloWorld'
+    }
+}
+我们执行gradle assemble或gradle build命令生成一个新的jar文件
+
+http://www.blogjava.net/huanghuizz/articles/163379.html
+把manifest文件插入JAR文件
+使用 m 选项，把指定文件名的manifest文件 传入，例如
+jar cvfm myapplication.jar myapplication.mf -C classdir 
+来体验一下manifest文件的作用，如果现在我们有一个Java 应用程序打包在myapplication.jar中， main class为 com.example.myapp.MyAppMain ，那么我们可以用以下的命令来运行
+java -classpath myapplication.jar com.example.myapp.MyAppMain
+这显然太麻烦了，现在我们来创建自己的manifest文件，如下：
+Manifest-Version: 1.0
+Created-By: JDJ example
+Main-Class: com.example.myapp.MyAppMain
+这样我们就可以使用如下的命令来运行程序了：（明显简单多了，也不会造成无谓的拼写错误）
+java -jar myapplication.jar 
+
+
+
+
+

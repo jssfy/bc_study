@@ -1,0 +1,124 @@
+
+
+---------- 2016-11-04 11:27:59
+
+$ which mvn
+/home/kidd/software/apache-maven-3.3.9/bin/mvn
+
+http://blog.csdn.net/qjyong/article/details/9098213
+Maven的安装和配置
+2.1.  安装
+进入Maven官网的下载页面：http://maven.apache.org/download.cgi
+2.2.  配置
+进入Maven安装目录下的conf子目录中，打开settings.xml进行配置修改。
+2.2.1.   修改默认的本地仓库位置
+Maven默认的本地仓库位置是当前用户工作目录下的“.m2/repository”，使用过程中这个目录里的文件会比较多，占用空间越来越大。一般建议更换到其它磁盘目录下。
+
+2.2.2.   修改默认的中央仓库镜像
+Maven默认的中央仓库里的文件不全。所以，都需要自行添加其它的镜像地址。在settings.xml文件中的“<mirrors>”标签里添加如下内容：
+
+     <mirror>
+
+       <id>ibiblio</id>
+
+       <mirrorOf>central</mirrorOf>
+
+       <name>Human Readable Name for this Mirror.</name>
+
+       <url>http://mirrors.ibiblio.org/maven2/</url>
+
+     </mirror>
+
+保存所做的修改，同时还需要把这个settings.xml文件复制一份到“D:/.m2”目录下。
+
+3.   Eclipse中m2eclipse插件的安装
+Eclipse默认不支持Maven。需要给它添加m2eclipse插件。下面是具体的操作步骤。
+3.1.  插件安装
+依次选择Eclipse菜单栏的“Help”菜单à“Instance NewSoftWare”菜单项，就会弹出如下对话窗口：
+选择“Add..”按钮，又会弹出如下对话框：
+这个对话框就是用于添加一个插件地址的。在“Name”对应的输入框里输入该操作的一个标识名。在“Location”对应的输入框里输入这个插件的安装地址。注：Maven的Eclipse插件地址为：http://download.eclipse.org/technology/m2e/releases。输入后，如下图所示：
+
+这里需要选择想要安装的插件的详细内容。选中“Maven Integration for Eclipse”前面的复选框。如下图所示：
+选择完成后，点击右下方的“Next>”按钮进行安装。安装成功后，会提示需要重启Eclipse来生效这次配置。重启之后，这个Eclipse就可以使用m2eclipse插件功能了。
+
+3.2.  配置
+插件安装好之后，还需要进行一些配置才能够开始使用Maven的功能。
+3.2.1.   设置m2eclipse插件所关联的Maven程序
+依次选择Eclipse菜单栏的“Window”à“Preferences”菜单项，就会弹出如下对话框：
+在这个对话框左边的导航栏中展开“Maven”目录结点，并选择“Installations”子节点，如下图所示：
+这里需要关联上对应的Maven安装程序。具体操作是，在右边面板中选择“Add…”按钮，会弹出如下选择Maven安装目录的选择对话框：
+通过这个对话框来选择Maven的具体安装目录。选择好之后就点击“确定”按钮。如下图所示：
+
+------------- 2016-11-04 11:52:58
+maven cmd line:
+
+在maven3.0.5以上版本舍弃了create，使用generate生成项目 
+
+maven创建java工程命令
+到maven的工作目录，然后执行如下命令：
+1.创建一个java project
+mvn archetype:create -DgroupId=com.demo.maven -DartifactId=mavenDemo
+mvn compile
+2.创建一个web project：
+mvn archetype:create -DgroupId=com.demo.maven -DartifactId=mavenWebDemo -DarchetypeArtifactId=maven-archetype-mavenwebapp
+
+e.g., 
+mvn archetype:generate -DgroupId=com.demo.maven -DartifactId=mavenDemo
+
+Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): 888: 
+Choose org.apache.maven.archetypes:maven-archetype-quickstart version: 
+1: 1.0-alpha-1
+2: 1.0-alpha-2
+3: 1.0-alpha-3
+4: 1.0-alpha-4
+5: 1.0
+6: 1.1
+Choose a number: 6: 
+[INFO] Using property: groupId = com.demo.maven
+[INFO] Using property: artifactId = mavenDemo
+Define value for property 'version':  1.0-SNAPSHOT: : 
+[INFO] Using property: package = com.demo.maven
+Confirm properties configuration:
+groupId: com.demo.maven
+artifactId: mavenDemo
+version: 1.0-SNAPSHOT
+package: com.demo.maven
+ Y: : 
+[INFO] ----------------------------------------------------------------------------
+[INFO] Using following parameters for creating project from Old (1.x) Archetype: maven-archetype-quickstart:1.1
+[INFO] ----------------------------------------------------------------------------
+[INFO] Parameter: groupId, Value: com.demo.maven
+[INFO] Parameter: packageName, Value: com.demo.maven
+[INFO] Parameter: package, Value: com.demo.maven
+[INFO] Parameter: artifactId, Value: mavenDemo
+[INFO] Parameter: basedir, Value: /home/kidd/workspace/java/maven
+[INFO] Parameter: version, Value: 1.0-SNAPSHOT
+[INFO] project created from Old (1.x) Archetype in dir: /home/kidd/workspace/java/maven/mavenDemo
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 01:27 min
+[INFO] Finished at: 2016-11-04T11:54:12+08:00
+[INFO] Final Memory: 18M/213M
+[INFO] ------------------------------------------------------------------------
+kidd@kidd-OptiPlex-9020:
+~/workspace/java/maven
+$ tree
+.
+└── mavenDemo
+    ├── pom.xml
+    └── src
+        ├── main
+        │   └── java
+        │       └── com
+        │           └── demo
+        │               └── maven
+        │                   └── App.java
+        └── test
+            └── java
+                └── com
+                    └── demo
+                        └── maven
+                            └── AppTest.java
+
+12 directories, 3 files
