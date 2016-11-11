@@ -1,0 +1,266 @@
+
+
+
+------------- 2016-11-09 15:25:34
+mysql> select * from wind_wsd where open is null;
++-------+-----------+------+---------------------+---------------------+------+------+------+-------+--------+------+------+---------+
+| id    | windcode  | name | create_at           | date                | open | high | low  | close | volume | amt  | chg  | pct_chg |
++-------+-----------+------+---------------------+---------------------+------+------+------+-------+--------+------+------+---------+
+| 37803 | 000001.SH |      | 2016-11-09 15:21:51 | 2004-12-31 00:00:00 | NULL | NULL | NULL |  NULL |   NULL | NULL | NULL |    NULL |
++-------+-----------+------+---------------------+---------------------+------+------+------+-------+--------+------+------+---------+
+1 row in set (0.01 sec)
+
+
+---------- 2016-11-09 15:17:22
+10538590712.0
+Traceback (most recent call last):
+  File "wsdsave.py", line 84, in <module>
+    cursor.execute(sql, param)
+  File "C:\Python27\lib\site-packages\MySQLdb\cursors.py", line 174, in execute
+    self.errorhandler(self, exc, value)
+  File "C:\Python27\lib\site-packages\MySQLdb\connections.py", line 36, in defau
+lterrorhandler
+    raise errorclass, errorvalue
+_mysql_exceptions.DataError: (1264, "Out of range value for column 'amt' at row
+1")
+
+mysql decimal change from (40, 30) to (50, 30)
+
+-------- 2016-11-09 14:33:11
+import time, MySQLdb, sys
+         
+#connect
+conn=MySQLdb.connect(host="10.12.0.36",user="root",passwd="kidd",db="bookmarks",charset="utf8")
+cursor = conn.cursor()
+
+#add  
+# sql = "insert into test(name,age) values(%s,%s)"
+# param = ("tom",20)
+sql = 'INSERT INTO `wind_wsi` (`windcode`,`name`,`create_at`,`date`,`open`) VALUES ("000001.SH","上证综指",NOW(),"2016-11-08 09:34:00", %s)';
+param = (str(11.23),); # instead of param = (str(11.23));
+# n = cursor.execute(sql, param)
+n = cursor.execute(sql, param)
+
+http://stackoverflow.com/questions/26743154/mysqldb-python-not-all-arguments-converted-during-string-formatting-error
+
+MYSQLdb/Python - not all arguments converted during string formatting error?
+
+That is because the second argument of execute is an iterable. So you would be better off with a list, set, or tuple.
+db.cursor.execute("SELECT password FROM USERS WHERE apikey = %s", (str(request.apikey),))
+
+
+sql = 'INSERT INTO `wind_wsi` (`windcode`,`name`,`create_at`,`date`,`open`) VALUES ("000001.SH","上证综指",NOW(),"2016-11-08 09:34:00",%s)';
+param = (None,);
+# n = cursor.execute(sql, param)
+n = cursor.execute(sql, param)
+
+mysql> select * from wind_wsi order by id desc limit 1;
++-------+-----------+--------------+---------------------+---------------------+------+------------------------+------------------------+------------------------+------------------------+------------------------+----------------------------------+----------------------------------+
+| id    | windcode  | name         | create_at           | date                | open | high                   | low                    | close                  | volume                 | amt                    | chg                              | pct_chg                          |
++-------+-----------+--------------+---------------------+---------------------+------+------------------------+------------------------+------------------------+------------------------+------------------------+----------------------------------+----------------------------------+
+| 16702 | 000001.SH | 上证综指     | 2016-11-09 14:42:17 | 2016-11-08 09:34:00 | NULL | 0.00000000000000000000 | 0.00000000000000000000 | 0.00000000000000000000 | 0.00000000000000000000 | 0.00000000000000000000 | 0.000000000000000000000000000000 | 0.000000000000000000000000000000 |
++-------+-----------+--------------+---------------------+---------------------+------+------------------------+------------------------+------------------------+------------------------+------------------------+----------------------------------+----------------------------------+
+1 row in set (0.00 sec)
+
+
+
+---------- 2016-11-09 14:28:55
+http://blog.csdn.net/lengyue318/article/details/7913427
+如果一次性要插入很多条数据的话，在这里强烈 推荐使用executemany，从自己体会来讲，一条一条的insert需要2-3个小时时间的数据插入，使用executemany只需要2-3秒！！！
+conn = MySQLdb.connect(host = “localhost”, user = “root”, passwd = “password”, db = “myDB”, charset=’utf8′)
+cursor = conn.cursor()
+sql = “insert into myTable (created_day,name,count) values(%s,%s,%s) ON DUPLICATE KEY UPDATE count=count+values(count)”
+args=[("2012-08-27","name1",100),("2012-08-27","name1",200),("2012-08-27","name2",300)]
+try:
+cursor.executemany(sql, args)
+except Exception as e:
+print0(“执行MySQL: %s 时出错：%s” % (sql, e))
+finally:
+cursor.close()
+conn.commit()
+conn.close()
+
+------- 2016-11-08 20:55:13
+Data truncated for column 'Prices' at row 1怎么解决？
+
+这句话的意思是第一行数据的Prices列的数据被截断，应该是你的数据长度过长，检查下你数据库表中Prices的数据类型和精度，如果第一行的数据超过了表中的设置，就会出现这种情况，比较好的办法是把表中Prices的数据长度改长点
+
+-------- 2016-11-08 19:08:02
+如何查看python是32位还是64位：参见 ：http://blog.csdn.net/waleking/article/details/7566842 
+
+import struct
+
+struct.calcsize("P")
+
+如果是4，说明是32位的；如果是其他的是，64位的。struct.calcsize用于计算格式字符串所对应的结果长度。
+
+
+--------- 2016-11-08 18:47:58
+http://mabusyao.iteye.com/blog/967716
+常见问题：
+1.无法定位程序输入点 mysql_server_init 于动态链接库 LIBMYSQL.dll 上。
+----------------------------------------------------------------------------------------------------
+D:\usr\local\Python25>python
+Python 2.5.4 (r254:67916, Dec 23 2008, 15:10:54) [MSC v.1310 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import MySQLdb
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "D:\usr\local\Python25\Lib\site-packages\MySQLdb\__init__.py", line 19, in <module>
+    import _mysql
+ImportError: DLL load failed: 找不到指定的程序。
+----------------------------------------------------------------------------------------------------
+解决方法：把mysql安装目录的bin\libmySQL.dll文件复制到python安装目录的Lib\site-packages下 
+
+not working!
+
+You need to have a 32bit version of Python to use this adapter. Which version are you actually using ?
+  32 bit.
+  fix: renamed the previous folder to a backup and reinstalled a 64-bit version. (also need to reinstall 'MySQL-python-1.2.3.win-amd64-py2.7'), otherwise error will be "no mudule named MySQLdb" on 'import MySQLdb'
+
+-------------- 2016-11-08 15:46:16
+python mysql:
+
+1. http://dev.mysql.com/downloads/file/?id=466003
+  download the zipped version and add the bin directory to system path. and then mysql connectting to remote machine works.
+
+2. 安装MySQLdb
+http://www.codegood.com/downloads
+
+http://www.cnblogs.com/thinksasa/archive/2013/08/26/3283695.html
+ python version 2.7 required,which was not found in the registry
+安装PIL-1.1.7.win32-py2.7的时候，不能再注册表中识别出来python2.7
+  方法：新建一个register.py 文件，把一下代码贴进去，保存
+win7是 64的原因，在安装python（32位）时，如果选择只为当前用户，以上问题是不会出现的，如果选择所有用户，那就用上面的方法解决吧。
+
+for comparison:
+  ubuntu下mysql-python模块的安装
+  安装步骤：
+    1、sudo apt-get install python-setuptools
+    2、sudo apt-get install libmysqld-dev
+    3、sudo apt-get install libmysqlclient-dev
+    4、sudo apt-get install python-dev
+    5、sudo easy_install mysql-python [pip install mysql-python]
+
+https://zhidao.baidu.com/question/2010715329574801228.html
+python mysql插入数据成功且已提交，但无法查询，是什么问题？
+执行sql后要
+conn=mysql.connect(````)
+cur=conn.cursor()
+cur.execute(SQL)
+
+conn.commit()    这句很重要
+
+cur.close()
+conn.close()
+
+
+
+--------------- 2016-11-08 18:32:50 
+windows install failure: register.py
+
+#
+# script to register Python 2.0 or later for use with win32all
+# and other extensions that require Python registry settings
+#
+# written by Joakim Loew for Secret Labs AB / PythonWare
+#
+# source:
+# http://www.pythonware.com/products/works/articles/regpy20.htm
+#
+# modified by Valentine Gogichashvili as described in http://www.mail-archive.com/distutils-sig@python.org/msg10512.html
+ 
+import sys
+ 
+from _winreg import *
+ 
+# tweak as necessary
+version = sys.version[:3]
+installpath = sys.prefix
+ 
+regpath = "SOFTWARE\\Python\\Pythoncore\\%s\\" % (version)
+installkey = "InstallPath"
+pythonkey = "PythonPath"
+pythonpath = "%s;%s\\Lib\\;%s\\DLLs\\" % (
+    installpath, installpath, installpath
+)
+ 
+def RegisterPy():
+    try:
+        reg = OpenKey(HKEY_CURRENT_USER, regpath)
+    except EnvironmentError as e:
+        try:
+            reg = CreateKey(HKEY_CURRENT_USER, regpath)
+            SetValue(reg, installkey, REG_SZ, installpath)
+            SetValue(reg, pythonkey, REG_SZ, pythonpath)
+            CloseKey(reg)
+        except:
+            print "*** Unable to register!"
+            return
+        print "--- Python", version, "is now registered!"
+        return
+    if (QueryValue(reg, installkey) == installpath and
+        QueryValue(reg, pythonkey) == pythonpath):
+        CloseKey(reg)
+        print "=== Python", version, "is already registered!"
+        return
+    CloseKey(reg)
+    print "*** Unable to register!"
+    print "*** You probably have another Python installation!"
+ 
+if __name__ == "__main__":
+    RegisterPy()
+
+------------- 2016-11-09 14:21:14
+python mysql connection test
+
+#-*- coding:utf-8 -*-  
+#dbtest.py  
+#just used for a mysql test  
+''''' 
+Created on 2016-11-08 
+ 
+@author: kidd 
+'''  
+#mysqldb
+import time, MySQLdb, sys
+         
+#connect
+conn=MySQLdb.connect(host="10.12.0.36",user="root",passwd="kidd",db="bookmarks",charset="utf8")
+cursor = conn.cursor()
+
+#add  
+# sql = "insert into test(name,age) values(%s,%s)"
+# param = ("tom",20)
+sql = 'INSERT INTO `wind_wsi` (`code`,`name`,`create_at`,`date`) VALUES ("000001.SH","上证综指",NOW(),"2016-11-08 09:34:00")';
+# param = ("tom",str(20));
+# n = cursor.execute(sql, param)
+n = cursor.execute(sql)
+print n
+
+         
+# #更新
+# sql = "update user set name=%s where Id=9001"
+# param = ("ken")
+# n = cursor.execute(sql,param)
+# print n
+  
+#查询      
+# n = cursor.execute("select * from wind_wsi")
+# for row in cursor.fetchall():
+#     for r in row:
+#         print r,
+#     print "\n"
+# print ""
+  
+  
+#删除
+# sql = "delete from user where name=%s"
+# param =("ted")
+# n = cursor.execute(sql,param)
+# print n      
+conn.commit()
+cursor.close()      
+         
+#关闭      
+conn.close()

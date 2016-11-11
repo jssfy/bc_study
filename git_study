@@ -1,6 +1,52 @@
 
 
 
+-------- 2016-11-11 14:33:43
+$ gpm
+git push origin HEAD:refs/for/master
+Username for 'http://10.12.6.6:8080': ahye
+Password for 'http://ahye@10.12.6.6:8080': 
+fatal: Authentication failed for 'http://10.12.6.6:8080/apes/'
+
+$ git remote rm origin
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes
+$ git remote add origin ssh://ahye@10.12.6.6:29418/apes
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes
+$ git remote -v
+origin  ssh://ahye@10.12.6.6:29418/apes (fetch)
+origin  ssh://ahye@10.12.6.6:29418/apes (push)
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes
+$ gpm
+git push origin HEAD:refs/for/master
+The authenticity of host '[10.12.6.6]:29418 ([10.12.6.6]:29418)' can't be established.
+RSA key fingerprint is b7:95:ec:16:a9:86:14:fc:bd:c5:77:da:37:53:73:68.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[10.12.6.6]:29418' (RSA) to the list of known hosts.
+Counting objects: 87, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (14/14), 2.97 KiB | 0 bytes/s, done.
+Total 14 (delta 5), reused 0 (delta 0)
+remote: Resolving deltas: 100% (5/5)
+remote: Processing changes: refs: 1, done    
+remote: ERROR: [0eb075a] missing Change-Id in commit message footer
+remote: 
+remote: Hint: To automatically insert Change-Id, install the hook:
+remote:   gitdir=$(git rev-parse --git-dir); scp -p -P 29418 ahye@10.12.6.6:hooks/commit-msg ${gitdir}/hooks/
+remote: And then amend the commit:
+remote:   git commit --amend
+remote: 
+To ssh://ahye@10.12.6.6:29418/apes
+ ! [remote rejected] HEAD -> refs/for/master ([0eb075a] missing Change-Id in commit message footer)
+error: failed to push some refs to 'ssh://ahye@10.12.6.6:29418/apes'
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes
+$ gitdir=$(git rev-parse --git-dir); scp -p -P 29418 ahye@10.12.6.6:hooks/commit-msg ${gitdir}/hooks/
+commit-msg                                                                                                                                      100% 4682     4.6KB/s   00:00
+
 -------- 2016-10-09 11:22:46
 $ git checkout -b release --track origin/release
 

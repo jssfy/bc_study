@@ -1,6 +1,21 @@
 
 
 
+------------ 2016-11-11 20:33:34
+2016-11-11 20:26:34 INFO  WindController:30 - read object: 4
+java.lang.RuntimeException: Could not find an implementation class.
+    at javax.websocket.ContainerProvider.getWebSocketContainer(ContainerProvider.java:73)
+
+    
+
+----------- 2016-11-10 16:48:02
+                       ^
+/home/kidd/workspace/abc/apes/src/main/java/com/abcft/apes/util/MongoUtil.java:196: error: local variable datas is accessed from within inner class; needs to be declared final
+                datas.add(document);
+
+jdk 8 for intellij idea
+
+
 
 -------------- 2016-11-03 10:39:10
 

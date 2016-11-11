@@ -1,6 +1,28 @@
 
 
 
+
+
+----------- 2016-11-09 16:22:52
+$ python
+Python 2.7.6 (default, Jun 22 2015, 17:58:13) 
+[GCC 4.8.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import sys
+>>> print sys.path
+['', '/usr/local/lib/python2.7/dist-packages/rospkg-1.0.39-py2.7.egg', '/usr/local/lib/python2.7/dist-packages/MySQL_python-1.2.5-py2.7-linux-x86_64.egg', '/usr/lib/python2.7', '/usr/lib/python2.7/plat-x86_64-linux-gnu', '/usr/lib/python2.7/lib-tk', '/usr/lib/python2.7/lib-old', '/usr/lib/python2.7/lib-dynload', '/usr/local/lib/python2.7/dist-packages', '/usr/lib/python2.7/dist-packages', '/usr/lib/python2.7/dist-packages/PILcompat', '/usr/lib/python2.7/dist-packages/gtk-2.0', '/usr/lib/pymodules/python2.7', '/usr/lib/python2.7/dist-packages/ubuntu-sso-client', '/usr/lib/python2.7/dist-packages/wx-2.8-gtk2-unicode']
+
+$ pip install pymongo
+Requirement already satisfied (use --upgrade to upgrade): pymongo in /usr/lib/python2.7/dist-packages
+
+
+------------ 2016-11-09 11:12:02
+def test():
+  exit()
+
+test()
+print "Good bye!" # this line will not be output!!!
+
 -------- 2016-11-04 11:15:05
 python 执行时是如何查找包和模块的 
 python 执行一个文件，无论执行的方式是绝对路径还是相对路径，解释器都会把文件所在的目录加入到系统查找路径中，也就是 sys.path 这个 list 中，而 sys.path 又是由系统的 python 环境变量决定的。 

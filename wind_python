@@ -1,0 +1,541 @@
+
+沪深股票
+
+指数
+
+期货
+
+http://pan.baidu.com/s/1qYCkera - Wind量化接口个人版.rar
+  installed into c:\Python27\lib\site-packages OK!
+
+http://pan.baidu.com/s/1nuZa7iD - python-2.7.6.amd64.msi 
+
+??
+  Wind终端
+
+DROP TABLE IF EXISTS `wind_wsi`;
+CREATE TABLE `wind_wsi` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `windcode` varchar(32) NOT NULL COMMENT '证券代码',
+  `name` varchar(512) DEFAULT NULL COMMENT '证券名称',
+  `create_at` timestamp NULL DEFAULT NULL,
+  `date` timestamp NOT NULL,
+  `open` decimal(50, 30) DEFAULT 0 COMMENT '开盘价',
+  `high` decimal(50, 30) DEFAULT 0 COMMENT '最高价',
+  `low` decimal(50, 30) DEFAULT 0 COMMENT '最低价',
+  `close` decimal(50, 30) DEFAULT 0 COMMENT '收盘价',
+  `volume` decimal(50, 30) DEFAULT 0 COMMENT '成交量',
+  `amt` decimal(50, 30) DEFAULT 0 COMMENT '成交额',
+  `chg` decimal(50, 30) DEFAULT 0 COMMENT '涨跌',
+  `pct_chg` decimal(50, 30) DEFAULT 0 COMMENT '涨跌幅',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `wind_wsd`;
+CREATE TABLE `wind_wsd` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `windcode` varchar(32) NOT NULL COMMENT '证券代码',
+  `name` varchar(512) DEFAULT NULL COMMENT '证券名称',
+  `create_at` timestamp NULL DEFAULT NULL,
+  `date` timestamp NOT NULL,
+  `open` decimal(50, 30) DEFAULT 0 COMMENT '开盘价',
+  `high` decimal(50, 30) DEFAULT 0 COMMENT '最高价',
+  `low` decimal(50, 30) DEFAULT 0 COMMENT '最低价',
+  `close` decimal(50, 30) DEFAULT 0 COMMENT '收盘价',
+  `volume` decimal(50, 30) DEFAULT 0 COMMENT '成交量',
+  `amt` decimal(50, 30) DEFAULT 0 COMMENT '成交额',
+  `chg` decimal(50, 30) DEFAULT 0 COMMENT '涨跌',
+  `pct_chg` decimal(50, 30) DEFAULT 0 COMMENT '涨跌幅',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `wind_wsi`
+(`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`)
+VALUES
+("000001.SH","上证综指",NOW(),"2016-11-08 09:30:00","3140.967200","3140.967201","3140.967202","3140.967203","3140.967204","3140.967205","3140.967206","3140.967207151515151");
+
+INSERT INTO `wind_wsi`
+(`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`)
+VALUES
+("000001.SH","上证综指",NOW(),"2016-11-08 09:31:00.005000","3140.967200","3140.967201","3140.967202","3140.967203","3140.967204","3140.967205","3140.967206","555555553140.967207151515151");
+
+
+--------- 2016-11-09 10:29:26
+ WSS\WSD    获取历史数据（日数据/快照数据） 个人版不再限制A股和期货的代码，现在支持所有A股和股指期货的历史日行情数据的获取，除历史日行情和基本资料以外的其他日级别数据限1年
+说明：1. 技术指标每次限取50个，大于50个时可分多次获取；2. 复权因子 只能取最近三年
+
+WSI 获取历史数据（分钟数据） 股票以及期货最近1个月的分钟数据
+
+----------- 2016-11-08 10:49:45
+python
+  from WindPy import *
+  w.start()
+    a promt to input password
+    if not correctly logged in, all requests will fail. kill the wbox process if password was entered incorrect.
+
+---------- 2016-11-07 18:55:50
+在dos窗口输入systeminfo回车查看系统类型的项目，图中是x86即是32位的，若为64则是64位系统
+
+
+
+--------------- 2016-11-07 18:30:20
+
+http://snap.windin.com/dajiangzhang/q?b7710693-b50d-42ae-af4c-89109d6619ec
+通知：Wind量化接口个人版已完成升级！请大家下载最新版安装使用
+
+详细权限表
+免费个人版 
+ WSQ 订阅指标个数不超过100个
+ 交易接口 支持模拟交易；同时支持不多于5个账号；支持券商较少；
+ WSS\WSD 限300只股票（000001.SZ ~ 000100.SZ，600000.SH ~ 600199.SH）以及所有期货主力合约，三年内的数据。
+ WSI 限300只股票（000001.SZ ~ 000100.SZ，600000.SH ~ 600199.SH）以及所有期货主力合约，三个月内的数据。
+ WSET/WST/EDB 不提供
+
+http://snap.windin.com/dajiangzhang/q?529d26bf-7b34-46b1-bc92-ff9a2494b0a6
+WSS\WSD
+  个人版不再限制A股和期货的代码，现在支持所有A股和股指期货的历史日行情数据的获取，除历史日行情和基本资料以外的其他日级别数据限1年
+  说明：1. 技术指标每次限取50个，大于50个时可分多次获取；2. 复权因子 只能取最近三年
+
+------- 2016-11-07 14:53:12
+http://www.dajiangzhang.com/document
+
+
+Python可用如下命令启动量化接口：
+>>>from WindPy import *
+>>>w.start()
+
+【Step By Step 之 命令生成器/导航】使用“导航”或者“代码生成器”生成获取数据的代码
+http://www.dajiangzhang.com/q?7463343b-ee6f-4830-b27c-e3f0117d379e
+
+5. 如何使用命令生成器
+
+对于Matlab和R语言，可以使用w.menu()函数打开向导，按照向导的引导，生成取数据的命令，然后运行，即可取到您想要的数据。
+
+如果您是使用VBA,Python,C++或者C#,请使用命令生成器，命令生成器在安装目录的bin目录下（如C:\Wind\WAPI.PE\bin\WindNavigator.exe）
+
+
+------------ 2016-11-07 15:34:45
+http://www.dajiangzhang.com/q?7463343b-ee6f-4830-b27c-e3f0117d379e
+【Step By Step 之 命令生成器/导航】使用“导航”或者“代码生成器”生成获取数据的代码
+
+
+D:\abc\samples>python wsqsave.py
+1
+Welcome to use Wind Quant API for Python (WindPy)!
+You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)
+
+
+COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHT
+ RESERVED.
+IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED B
+ USING WIND QUANT API FOR Python.
+2
+.ErrorCode=0
+.Codes=[600000.SH]
+.Fields=[CLOSE,AMT]
+.Times=[20160503,20160504,20160505,20160506,20160509,20160510,20160511,20160512
+20160513,20160516,...]
+.Data=[[18.12,18.08,18.06,17.73,17.51,17.48,17.45,17.41,17.24,17.29,...],[50183
+132.0,418592994.0,269576075.0,418454827.0,386423417.0,294675478.0,208655785.0,2
+4410730.0,190929402.0,190872655.0,...]]
+3
+
+print len(data.Times)
+
+---------------- 2016-11-07 18:27:25 sample.py
+from WindPy import *
+
+print '1'
+w.start();
+
+#open a file to write.
+pf = open('D:\\abc\\temp\\temp.data', 'w')
+
+print 2
+
+#to subscribe if14.CFE
+# w.wsq("IF.CFE","rt_time,rt_last",func=myCallback)
+data = w.wsq("IF.CFE","rt_time,rt_last")
+# w.wsd("600012.SH", "chg,vwap,low,high,open", "2016-10-08", "2016-11-07", "Currency=CNY", func=myCallback)
+print data
+
+w.stop();
+print 3
+
+------------ 2016-11-08 11:46:40
+timedelta([days[, seconds[, microseconds[, milliseconds[, minutes[, hours[, weeks]]]]]]])
+
+
+--------- 2016-11-08 13:57:31 
+terms
+
+收盘价：沪市收盘价为当日该证券最后一笔交易前一分钟所有交易的成交量加权平均价（含最后一笔交易）。当日无成交的，以前收盘价为当日收盘价。深市的收盘价通过集合竞价的方式产生。收盘集合竞价不能产生收盘价的，以当日该证券最后一笔交易前一分钟所有交易的成交量加权平均价(含最后一笔交易)为收盘价。当日无成交的，以前收盘价为当日收盘价。
+
+---------- 2016-11-09 11:16:37 to retrieve wind_wsi
+sample code:
+#-*- coding:utf-8 -*-  
+
+import time, MySQLdb, sys
+from WindPy import *
+
+# obtain wind data
+w.start();
+# on 11-09, wsi data earlier than 10-10 can not be retrieved via personal account.
+data = w.wsi("000001.SH,000903.SH,000905.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2016-10-10 09:00:00", "2016-11-08 20:05:13", "")
+if (data.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+# fields = len(data.Fields)
+# for i in range(0, fields):
+#   print data.Fields[i] + ' len: '  + str(len(data.Data[i]))
+# COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+#  RESERVED.
+# IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+#  USING WIND QUANT API FOR Python.
+# time len: 726
+# windcode len: 726
+# open len: 726
+# high len: 726
+# low len: 726
+# close len: 726
+# volume len: 726
+# amount len: 726
+# change len: 726
+# pctchange len: 726
+fields = len(data.Fields)
+rows = len(data.Data[0])
+print 'Returned ' + str(fields) + ' fields and ' + str(rows) +  ' rows'
+
+#connect
+# conn=MySQLdb.connect(host="10.12.0.36",user="xxx",passwd="xxx",db="xxx",charset="utf8")
+conn=MySQLdb.connect(host="10.12.0.61",user="xxx",passwd="xxx",db="xxx",charset="utf8")
+cursor = conn.cursor()
+
+sql = 'INSERT INTO `wind_wsi` (`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`) VALUES (%s, "", NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s)';
+for i in range(rows):
+  # insert per row
+  param = (data.Data[1][i],data.Data[0][i],data.Data[2][i],data.Data[3][i],data.Data[4][i],data.Data[5][i],data.Data[6][i],data.Data[7][i],data.Data[8][i],data.Data[9][i]);
+  cursor.execute(sql, param)
+ 
+conn.commit()
+cursor.close()
+#关闭
+conn.close()
+
+w.stop();
+
+
+# using batch insert to insert all rows at a time, otherwise pushing data row by row from local to aliyun takes great time.
+#-*- coding:utf-8 -*-  
+
+import time, MySQLdb, sys
+from WindPy import *
+
+def getNoneOnNan(input):
+  if (input == input):
+    return input
+  else:
+    return None;
+
+# obtain wind data
+w.start();
+# on 11-09, wsi data earlier than 10-10 can not be retrieved via personal account.
+data = w.wsi("000001.SH,000903.SH,000905.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2016-10-10 09:00:00", "2016-11-08 20:05:13", "")
+if (data.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+fields = len(data.Fields)
+rows = len(data.Data[0])
+print 'Returned ' + str(fields) + ' fields and ' + str(rows) +  ' rows'
+
+
+import pymongo, datetime, time
+connection=pymongo.MongoClient('10.12.0.36', 27017)
+# connection=pymongo.MongoClient('120.26.95.121', 27017)
+# connection=pymongo.MongoClient('10.12.0.61', 27017)
+# db=connection.apes
+db=connection.kidd
+col=db.wind_wsi
+
+batch = []
+d1 = data.Data
+for i in range(rows):
+  # insert per row
+  doc = {
+    "windcode": d1[1][i],
+    'create_at' : int(time.mktime(datetime.datetime.now().timetuple()) * 1000),
+    'date' : int(time.mktime(d1[0][i].timetuple()) * 1000),
+    'open' : getNoneOnNan(d1[2][i]),
+    'high' : getNoneOnNan(d1[3][i]),
+    'low' : getNoneOnNan(d1[4][i]),
+    'close' : getNoneOnNan(d1[5][i]),
+    'volume' : getNoneOnNan(d1[6][i]),
+    'amt' : getNoneOnNan(d1[7][i]),
+    'chg' : getNoneOnNan(d1[8][i]),
+    'pct_chg' : getNoneOnNan(d1[9][i])
+    }
+  batch.append(doc)  
+col.insert(batch)
+
+w.stop();
+
+------------ 2016-11-09 14:10:47
+D:\abc\samples>python wsdsave.py
+Welcome to use Wind Quant API for Python (WindPy)!
+You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)!
+
+
+COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+ RESERVED.
+IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+ USING WIND QUANT API FOR Python.
+OPEN len: 6187
+HIGH len: 6187
+LOW len: 6187
+CLOSE len: 6187
+VOLUME len: 6187
+AMT len: 6187
+CHG len: 6187
+PCT_CHG len: 6187
+
+D:\abc\samples>python wsdsave.py
+Welcome to use Wind Quant API for Python (WindPy)!
+You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)!
+
+
+COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+ RESERVED.
+IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+ USING WIND QUANT API FOR Python.
+OPEN len: 2544
+HIGH len: 2544
+LOW len: 2544
+CLOSE len: 2544
+VOLUME len: 2544
+AMT len: 2544
+CHG len: 2544
+PCT_CHG len: 2544
+
+D:\abc\samples>python wsdsave.py
+Welcome to use Wind Quant API for Python (WindPy)!
+You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)!
+
+
+COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+ RESERVED.
+IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+ USING WIND QUANT API FOR Python.
+OPEN len: 2878
+HIGH len: 2878
+LOW len: 2878
+CLOSE len: 2878
+VOLUME len: 2878
+AMT len: 2878
+CHG len: 2878
+PCT_CHG len: 2878
+
+import time, MySQLdb, sys
+from WindPy import *
+
+# obtain wind data
+w.start();
+# data = w.wsd("000001.SH", "open,high,low,close,volume,amt,chg,pct_chg", "1991-07-15", "2016-11-08", "Fill=Previous")
+# if (data.ErrorCode != 0):
+#     print 'failed to load data'
+#     w.stop();
+#     exit();
+
+
+# data = w.wsd("000903.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2006-05-29", "2016-11-08", "Fill=Previous")
+# if (data.ErrorCode != 0):
+#     print 'failed to load data'
+#     w.stop();
+#     exit();
+
+data = w.wsd("000903.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2004-12-31", "2016-11-08", "Fill=Previous")
+if (data.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+fields = len(data.Fields)
+for i in range(0, fields):
+  print data.Fields[i] + ' len: '  + str(len(data.Data[i]))
+
+----------- 2016-11-09 15:31:41 
+in order to run below script on windows, set up the env first: 
+  http://www.dajiangzhang.com/document
+    个人版 安装说明
+to retrieve wind wsd data
+
+#-*- coding:utf-8 -*-  
+
+import time, MySQLdb, sys
+from WindPy import *
+
+def getNoneOnNan(input):
+  if (input == input):
+    return input
+  else:
+    return None;
+
+# obtain wind data
+w.start();
+data1 = w.wsd("000001.SH", "open,high,low,close,volume,amt,chg,pct_chg", "1991-07-15", "2016-11-08", "Fill=Previous")
+if (data1.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+fields = len(data1.Fields)
+rows1 = len(data1.Data[0])
+print 'Returned ' + str(fields) + ' fields and ' + str(rows1) +  ' rows'
+
+data2 = w.wsd("000903.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2006-05-29", "2016-11-08", "Fill=Previous")
+if (data2.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+fields = len(data2.Fields)
+rows2 = len(data2.Data[0])
+print 'Returned ' + str(fields) + ' fields and ' + str(rows2) +  ' rows'
+
+# start with 2005-01-01 instead of 2004-12-31, as the latter returns nan
+data3 = w.wsd("000905.SH", "open,high,low,close,volume,amt,chg,pct_chg", "2005-01-01", "2016-11-08", "Fill=Previous")
+if (data3.ErrorCode != 0):
+    print 'failed to load data'
+    w.stop();
+    exit();
+
+fields = len(data3.Fields)
+rows3 = len(data3.Data[0])
+print 'Returned ' + str(fields) + ' fields and ' + str(rows3) +  ' rows'
+
+print data1
+print data2
+print data3
+
+# fields = len(data.Fields)
+# print 'Times len: '  + str(len(data.Times))
+# for i in range(0, fields):
+#   print data.Fields[i] + ' len: '  + str(len(data.Data[i]))
+
+# print data.Data[0]
+
+# COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+#  RESERVED.
+# IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+#  USING WIND QUANT API FOR Python.
+# open len: 726
+# high len: 726
+# low len: 726
+# close len: 726
+# volume len: 726
+# amount len: 726
+# change len: 726
+# pctchange len: 726
+# fields = len(data.Fields)
+# rows = len(data.Data[0])
+# print 'Returned ' + str(fields) + ' fields and ' + str(rows) +  ' rows'
+
+# conn=MySQLdb.connect(host="10.12.0.36",user="xxx",passwd="xxx",db="xxx",charset="utf8")
+conn=MySQLdb.connect(host="10.12.0.61",user="xxx",passwd="xxx",db="xxx",charset="utf8")
+cursor = conn.cursor()
+
+d1 = data1.Data
+sql = 'INSERT INTO `wind_wsd` (`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`) VALUES ("000001.SH", "", NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s)';
+for i in range(rows1):
+  # insert per row
+  param = (data1.Times[i],getNoneOnNan(d1[0][i]),getNoneOnNan(d1[1][i]),getNoneOnNan(d1[2][i]),getNoneOnNan(d1[3][i]),getNoneOnNan(d1[4][i]),getNoneOnNan(d1[5][i]),getNoneOnNan(d1[6][i]),getNoneOnNan(d1[7][i]));
+  cursor.execute(sql, param)
+ 
+d2 = data2.Data
+# sql = 'INSERT INTO `wind_wsd` (`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`) VALUES ("000903.SH", "", NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s)';
+for i in range(rows2):
+  # insert per row
+  param = (data2.Times[i],getNoneOnNan(d2[0][i]),getNoneOnNan(d2[1][i]),getNoneOnNan(d2[2][i]),getNoneOnNan(d2[3][i]),getNoneOnNan(d2[4][i]),getNoneOnNan(d2[5][i]),getNoneOnNan(d2[6][i]),getNoneOnNan(d2[7][i]));
+  cursor.execute(sql, param)
+
+d3 = data3.Data
+# sql = 'INSERT INTO `wind_wsd` (`windcode`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`) VALUES ("000905.SH", "", NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s)';
+for i in range(rows3):
+  # insert per row
+  param = (data3.Times[i],getNoneOnNan(d3[0][i]),getNoneOnNan(d3[1][i]),getNoneOnNan(d3[2][i]),getNoneOnNan(d3[3][i]),getNoneOnNan(d3[4][i]),getNoneOnNan(d3[5][i]),getNoneOnNan(d3[6][i]),getNoneOnNan(d3[7][i]));
+  cursor.execute(sql, param)
+ 
+
+conn.commit()
+cursor.close()
+#关闭
+conn.close()
+
+# print data2.Times[0]
+
+w.stop();
+
+sample output:
+
+  D:\abc\samples>python wsd_mysql.py
+  Welcome to use Wind Quant API for Python (WindPy)!
+  You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)!
+
+
+  COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+   RESERVED.
+  IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+   USING WIND QUANT API FOR Python.
+  Returned 8 fields and 6187 rows
+  Returned 8 fields and 2544 rows
+  Returned 8 fields and 2877 rows
+  .ErrorCode=0
+  .Codes=[000001.SH]
+  .Fields=[OPEN,HIGH,LOW,CLOSE,VOLUME,AMT,CHG,PCT_CHG]
+  .Times=[19910715,19910716,19910717,19910718,19910719,19910722,19910723,19910724,
+  19910725,19910726,...]
+  .Data=[[133.9,134.39,135.81,137.17,137.66,138.07,139.35,140.66,140.2,140.11,...]
+  ,[134.1,134.47,135.81,137.17,138.54,138.07,139.39,140.74,141.01,141.46,...],[131
+  .87,133.14,135.39,135.81,136.66,136.7,138.07,138.69,139.99,139.27,...],[133.14,1
+  34.47,135.81,137.17,136.7,138.07,139.39,140.68,140.19,140.66,...],[1193800.0,279
+  600.0,66000.0,84700.0,1082300.0,276400.0,724100.0,598800.0,839000.0,927900.0,...
+  ],[5534900.0,1328502.0,397524.0,464416.0,5242826.0,1423205.0,3548584.0,2901485.0
+  ,4080885.0,4520783.0,...],[0.34,1.33,1.34,1.36,-0.47,1.37,1.32,1.29,-0.49,0.47,.
+  ..],[0.256024092436,0.998948454857,0.99650478363,1.00139904022,-0.342640519142,1
+  .00219464302,0.956036806107,0.925460934639,-0.348308205605,0.335259288549,...]]
+  .ErrorCode=0
+  .Codes=[000903.SH]
+  .Fields=[OPEN,HIGH,LOW,CLOSE,VOLUME,AMT,CHG,PCT_CHG]
+  .Times=[20060529,20060530,20060531,20060601,20060602,20060605,20060606,20060607,
+  20060608,20060609,...]
+  .Data=[[1378.484,1417.139,1410.366,1393.576,1427.196,1406.831,1416.034,1419.398,
+  1337.938,1350.56,...],[1407.998,1419.276,1415.19,1426.227,1429.621,1418.686,1434
+  .266,1419.398,1359.886,1358.179,...],[1370.643,1398.972,1385.586,1390.019,1399.5
+  92,1378.414,1407.173,1346.087,1317.882,1324.19,...],[1407.426,1411.5,1395.468,14
+  25.944,1407.805,1418.53,1419.211,1346.63,1354.229,1325.577,...],[2407474200.0,21
+  42330000.0,2258756600.0,2597586300.0,2985211000.0,2776855800.0,2476617000.0,2764
+  775300.0,2338390500.0,1849757500.0,...],[15326643753.0,14632124857.0,14662208727
+  .0,15924160864.0,18439879795.0,15108155435.0,14456553719.0,17357059903.0,1453128
+  6889.0,11580938584.0,...],[37.2428,4.074,-16.032,30.476,-18.139,10.725,0.681,-72
+  .581,7.599,-28.652,...],[2.7180891037,0.289464592934,-1.13581299782,2.1839268207
+  6,-1.2720695734,0.761824250221,0.0480074435472,-5.11417961121,0.564297556877,-2.
+  11574268341,...]]
+  .ErrorCode=0
+  .Codes=[000905.SH]
+  .Fields=[OPEN,HIGH,LOW,CLOSE,VOLUME,AMT,CHG,PCT_CHG]
+  .Times=[20050104,20050105,20050106,20050107,20050110,20050111,20050112,20050113,
+  20050114,20050117,...]
+  .Data=[[996.682,986.57,1003.49,993.434,996.928,1006.211,1008.01,1008.098,1012.69
+  9,990.987,...],[996.682,1008.855,1003.49,1009.0,1006.457,1009.501,1008.743,1014.
+  841,1019.48,991.022,...],[984.795,985.677,990.792,990.446,993.123,999.86,998.361
+  ,1005.348,999.266,974.333,...],[986.927,1003.633,994.595,997.606,1006.337,1008.3
+  43,1008.62,1013.07,1000.169,977.522,...],[232376203.0,348610113.0,293390559.0,33
+  9162698.0,294940533.0,313611521.0,319639380.0,471573361.0,401693734.0,435860320.
+  0,...],[1329187122.0,1919861791.0,1629216031.0,1906530712.0,1650218869.0,1778497
+  883.0,1825638693.0,2716827481.0,2284638759.0,2418653726.0,...],[nan,16.706,-9.03
+  8,3.011,8.731,2.006,0.277,4.45,-12.901,-22.647,...],[0.0,1.69272899628,-0.900528
+  371334,0.302736282349,0.875195205212,0.199336796999,0.0274708103389,0.4411968886
+  85,-1.27345597744,-2.26431727409,...]]

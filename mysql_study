@@ -4,6 +4,44 @@ mysql manual:
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
 
+---------- 2016-11-08 16:11:54
+http://www.linuxidc.com/Linux/2013-07/88032.htm
+首先，对于精度比较高的东西，比如money，我会用decimal类型，不会考虑float,double,因为他们容易产生误差，numeric和decimal同义，numeric将自动转成decimal。
+DECIMAL从MySQL 5.1引入，列的声明语法是DECIMAL(M,D)。在MySQL 5.1中，参量的取值范围如下：
+·M是数字的最大数（精度）。其范围为1～65（在较旧的MySQL版本中，允许的范围是1～254），M 的默认值是10。
+·D是小数点右侧数字的数目（标度）。其范围是0～30，但不得超过M。
+说明：float占4个字节，double占8个字节，decimail(M,D)占M+2个字节。
+如DECIMAL(5,2) 的最大值为9 9 9 9 . 9 9，因为有7 个字节可用。
+
+if the left is too big, error. [left + right is no longer than M, and right is no longer than D]
+if the right is too long, truncate.
+
+mysql> INSERT INTO `wind_wsi` (`code`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`) VALUES ("000001.SH","上证综指",NOW(),"2016-11-08 09:31:00","3140.967200","3140.967201","3140.967202","3140.967203","3140.967204","3140.967205","3140.967206","55555553140.967207151515151");
+ERROR 1264 (22003): Out of range value for column 'pct_chg' at row 1
+
+DROP TABLE IF EXISTS `wind_wsi_bak`;
+CREATE TABLE `wind_wsi_bak` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `code` varchar(32) NOT NULL COMMENT '证券代码',
+  `name` varchar(512) DEFAULT NULL COMMENT '证券名称',
+  `create_at` timestamp NULL DEFAULT NULL,
+  `date` datetime NOT NULL,
+  `open` decimal(30, 20) DEFAULT 0 COMMENT '开盘价',
+  `high` decimal(30, 20) DEFAULT 0 COMMENT '最高价',
+  `low` decimal(30, 20) DEFAULT 0 COMMENT '最低价',
+  `close` decimal(30, 20) DEFAULT 0 COMMENT '收盘价',
+  `volume` decimal(30, 20) DEFAULT 0 COMMENT '成交量',
+  `amt` decimal(30, 20) DEFAULT 0 COMMENT '成交额',
+  `chg` decimal(30, 20) DEFAULT 0 COMMENT '涨跌',
+  `pct_chg` decimal(30, 20) DEFAULT 0 COMMENT '涨跌幅',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `wind_wsi_bak`
+(`code`,`name`,`create_at`,`date`,`open`,`high`,`low`,`close`,`volume`,`amt`,`chg`,`pct_chg`)
+VALUES
+("000001.SH","上证综指",NOW(),str_to_date("20161108 09:30:00",'%Y%m%d %H:%i:%s'),"3140.967200","3140.967201","3140.967202","3140.967203","3140.967204","3140.967205","3140.967206","3140.967207151515151");
+
 ----------- 2016-11-03 14:55:00
 if not commented below commented lines, the lower part will cost 1 more second.
 

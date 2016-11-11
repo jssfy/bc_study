@@ -1,0 +1,183 @@
+
+
+
+----------- 2016-11-09 11:08:45 visual db connection support
+view -> tool windows -> database
+    add configurations for db, e.g., mysql
+
+possible issue: ClassNotFoundException com.mysql.jdbc.Driver fix in IntelliJ IDEA
+    fix: right click the newly created db instance -> properties -> data sources and drivers -> download [which will download the mysql java connector]
+
+even DDL can be seen from the visual page:
+CREATE TABLE `wind_wsi` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `windcode` varchar(32) COLLATE utf8_unicode_ci NOT NULL COMMENT '证券代码',
+  `name` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '证券名称',
+  `create_at` timestamp NULL DEFAULT NULL,
+  `date` timestamp NOT NULL,
+  `open` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '开盘价',
+  `high` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '最高价',
+  `low` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '最低价',
+  `close` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '收盘价',
+  `volume` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '成交量',
+  `amt` decimal(30,20) DEFAULT '0.00000000000000000000' COMMENT '成交额',
+  `chg` decimal(40,30) DEFAULT '0.000000000000000000000000000000' COMMENT '涨跌',
+  `pct_chg` decimal(40,30) DEFAULT '0.000000000000000000000000000000' COMMENT '涨跌幅',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16699 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+
+------ 2016-11-07 12:22:58
+ Intellij Idea调试功能总结
+    Debug的时候调试功能必不可少，各个集成环境调试的思想和步骤肯定是一样的，只不过快捷键和图标不太一样而已
+    借着记录Intellij Idea的调试快捷键和图标含义，总结一下常用的调试功能
+Intellij Idea的编译和调试快捷键总结如下：
+    shift+F10：编译 
+    shift+F9：调试  按下调试后，在Intellij下方出现如下的界面
+    F9：调试窗口的小三角，执行到下一个断点
+    shift+F8： 逐过程step over（如果当前行有方法调用，这个方法将被执行完毕返回，然后到下一行）
+    shift+F7： 逐语句step into向下执行一行。如果该行有自定义方法，则运行进入自定义方法（不进入官方类库的方法）
+    alt+shift+F7：Force step into调试的时候能进入任何方法。
+    alt+shift+F8：step out，确定某个方法没有问题时，跳出该方法
+    Drop Frame：返回某个方法的调用处重新执行
+    ctrl+shift+F8 ：view breakpoints查看断点，可以设置一些属性，比如这里可以设置x>1,表示x>1时暂停程序，用在对【循环】的调试比较方便
+    在此处右键点击x可以【set value】，在调试时直接设置x的值，用在对【条件语句】的调试比较方便
+    最后感慨一下，执行每一句都能显示相应值的功能太帅了，虽然下面的调试窗口也可以看……
+做个对比，VS中常用的调试快捷键：F5执行到下一断点，F10逐过程，F11逐语句
+
+--------- 2016-11-07 10:59:39
+http://www.cnblogs.com/yangyquin/p/5285272.html
+
+Intellij Idea 创建Web项目入门（一）
+相关软件：
+Intellij Idea14：http://pan.baidu.com/s/1nu16VyD
+JDK7：http://pan.baidu.com/s/1dEstJ5f
+Tomcat（apache-tomcat-6.0.43）：http://pan.baidu.com/s/1kUwReQF
+ 
+Intellij Idea的安装非常简单，一步一步安装即可。
+JDK的安装也挺简单的，重要的是配置环境。在环境变量Path里面添上Java的安装路径即可。
+Tomcat文件夹不用安装，直接解压放在C盘下即可，或者放在其他文件夹下也可以，但是文件夹的名字最好不要带中文~~~不信？那你试试~~
+ 
+Idea创建Web项目步骤：
+1、创建一个项目
+File -> New Project -> 输入项目名称“Demos” ，选择Project SDK为1.7 -> Next -> Finish
+ 
+2、创建一个Module
+鼠标点中项目名称demos -> 右键选择New，选择Module 
+ 
+输入Module名称“firstweb” -> 点击Next
+ 
+勾选“Web Application” -> 确认已勾选“Create web.xml” -> Finish
+ 
+3、创建好的web项目
+ 
+4、在web/WEB-INF下创建两个文件夹：classes和lib
+classes用来存放编译后输出的class文件，lib用于存放第三方jar包。
+ 
+5、配置文件夹路径
+File -> Project Structure (快捷键：Ctrl + Shift + Alt + S) -> 选择Module ：
+ 选择 Paths -> 选择"Use module compile output path" -> 将Output path和Test output path都选择刚刚创建的classes文件夹。
+ 
+接着选择Dependencies ->  将Module SDK选择为1.7 -> 点击右边的“+”号  -> 选择1 “Jars or Directories”
+ 
+ -> 选择刚刚创建的lib文件夹
+ 
+-> 选择“jar directory” -> 接着返回一路OK就行了~~
+ 
+6、配置Tomcat容器
+打开菜单Run -> 选择Edit Configuration 
+ 
+点击“+”号 -> 选择“Tomcat Server” -> 选择“Local”
+ 
+在"Name"处输入新的服务名，点击"Application server"后面的"Configure..."，弹出Tomcat Server窗口，选择本地安装的Tomcat目录 -> OK 
+ 
+在"Run/Debug Configurations"窗口的"Server"选项板中，取消勾选"After launch"，设置"HTTP port"和"JMX port"（默认值即可），点击 Apply -> OK， 至此Tomcat配置完成。
+ 
+ 
+7、在Tomcat中部署并运行项目 
+Run -> Edit Configurations，进入"Run/Debug Configurations"窗口 -> 选择刚刚建立的Tomcat容器 -> 选择Deployment -> 点击右边的“+”号 -> 选择Artifact
+ 
+->选择web项目 -> Application context可以填“/hello”(其实也可以不填的~~) -> OK
+ 
+8、编辑index.jsp文件
+ 
+ 
+9、运行Tomcat,在浏览器中查看运行结果 
+
+
+------- 2016-11-07 11:46:42
+http://cache.baiducontent.com/c?m=9d78d513d9981de90fb3ca255501d7174107c4302bd7a1502884870fd33a541b0120a1ac26510d19839b213216af3e0daba66a6537747ce0ddd5cf48debb95292f8f203f6d4fc607498247f8d610728773cb04a8b21ee4b8f33395acd0&p=882a9645dd8606fd0aafc02d02148a&newp=93759a46d6c813e000b0c7710f4f8f231610db2151d7db166b82c825d7331b001c3bbfb423231600d8c67d6601af4a5ee0fb3377340421a3dda5c91d9fb4c57479da686c2d&user=baidu&fm=sc&query=intellij+java+web&qid=d8c73bbf000501ee&p1=3
+Intellijidea建javaWeb以及Servlet简单实现 
+
+Eclipse中使用的HttpServlet类之所以识别不到的原因是没有导入Servlet-api.jar包,这个包在所安装在的tomcat的lib文件下,所以只需要导入即可。
+
+--------------- 2016-11-07 12:01:42
+http://zyjustin9.iteye.com/blog/2172445
+to add a dependent jar, e.g., servelet-api.jar for javax.servlet.ServletException, etc.
+
+二.通过Modules的Dependencies添加：(推荐)
+1.打开 File -> Project Structure （Ctrl + Shift + Alt + S）
+2.单击 Modules -> Dependencies -> "+" -> "Jars or directories" [make sure the correct module is selected, as there might be multiple modules]
+3.选择硬盘上的jar包
+4.Apply -> OK
+
+一.直接复制：(不推荐)
+方法：直接将硬盘上的jar包复制粘贴到项目的lib目录下即可。
+or cp a jar file directly to /home/kidd/abc/Demos/secondweb/web/WEB-INF/lib which is set and checked for the corresponding module in project structure config.
+注意：
+1.对于导入的eclipse项目，该方式添加的jar包没有任何反应，用make编译项目会报错
+2.对于在idea中创建的项目，该方式添加jar包，编译不报错，但是打开Structure会有"...jar ... is missing ..."的提示，需要点击"Fix"或红灯泡解决。
+
+------------ 2016-11-07 13:33:15
+intellij idea, java web, gradle
+
+http://blog.csdn.net/mercyt/article/details/51286825
+groupId 和archetypeId 了，网上找了查了一下
+来自网上的解释：
+GroupID是项目组织唯一的标识符，实际对应JAVA的包的结构，是main目录里java的目录结构。
+ArtifactID就是项目的唯一的标识符，实际对应项目的名称，就是项目根目录的名称。
+一般来说，包的命名习惯是域名的反过来,加个公司或者个人的名称吧，个人习惯。www.demo.com -> com.richard.demo; 那么都知道，test是项目名称，也是在最后面的，所有项目组的唯一标识符(groupId)：com.richard, 项目的唯一标识符（ArtifactId）demo. 这样你就知道大概对应填些什么东西了。
+
+http://blog.csdn.net/mercyt/article/details/51286825 [the dependencies as defined in build.gradle are added to external libraries by default]
+IntelliJ IDEA2016.1 + maven 创建java web 项目
+最近开始使用idea 来写java项目了，这个很流行，相比Eclipse方便了很多。功能多了，相对应的使用的复杂度也较高了，因为网上很多的使用和创建项目的简单教程，都是基于老版本的，每个新版本都有不一样的更行，对于使用小白来说，这个还是很难跟这教程一步一步的走下去，也许因为页面不一样，也许因为入口不一样了，各自各样的不一样都会给小白增加相应的难度。 因为我本身不是Java Web开发的，所有对于类似我这样的java web小白，再加上idea小白，使用起来就有好多的困难。写这个主要是为了方便自己，希望能顺便给那些和我一样的小白一些帮助吧，废话不多说了，上干货。
+1. 如下图，打开idea之后，file -> new -> project
+这里写图片描述
+2. 如下图，在弹出的new project 页面，选择maven -> 勾选Create from artifactype （如果不选择，下面的那一步就没办法走了）-> 选中webapp（值得注意的是，这个地方有两个app，选择maven-archetype-webapp）, next
+这里写图片描述
+3. 如下图，接下来就是填写groupId 和archetypeId 了，网上找了查了一下
+来自网上的解释：
+GroupID是项目组织唯一的标识符，实际对应JAVA的包的结构，是main目录里java的目录结构。
+ArtifactID就是项目的唯一的标识符，实际对应项目的名称，就是项目根目录的名称。
+一般来说，包的命名习惯是域名的反过来,加个公司或者个人的名称吧，个人习惯。www.demo.com -> com.richard.demo; 那么都知道，test是项目名称，也是在最后面的，所有项目组的唯一标识符(groupId)：com.richard, 项目的唯一标识符（ArtifactId）demo. 这样你就知道大概对应填些什么东西了。 next
+这里写图片描述
+4. 如下图，这一步，直接按照默认，点击next也可以的，但是可能创建完成之后会下载一些东西，然后导致比较慢，所以我看到写一下。点击有框出来的那个加好，输入对应的name和value，然后点击OK。next.
+来自网上的解释：
+archetypeCatalog表示插件使用的archetype元数据，不加这个参数时默认为remote，local，即中央仓库archetype元数据，由于中央仓库的archetype太多了，所以导致很慢，指定internal来表示仅使用内部元数据。
+5. 如下图，填写project name和module name， module name默认和project name 一样的，但是如果这个项目只有这一个module，不改无所谓的，如果有很多的module，那肯定是修改一下咯。
+在maven管理的project下面，可以有很多个module的子项目。有点类似一个包里面可以有很多个子包（个人是这么类比理解的）。 finish.
+这里写图片描述
+6. 如下图，别着急，项目创建完了还不一定能运行，要看你有没有配置好tomcat和jdk了（运行环境）。 下图左边圈出来的是项目的目录结构，这个对照一下就好了， 然后在右上角点击那个下拉框，再点击Edit Configurations（去设置运行环境）。
+这里写图片描述
+7,如下图，点击加号，然后往下滚，找到tomcat server, 然后选择local(选择本地的tomcat),
+这里写图片描述
+8. 如下图，默认是server的配置，2的名字是和1是同步的，所有修改1处的name就好了，然后3处选择你本地的tomcat的路径， 这些都配置好了之后，切换到server旁边的Deployment属性框
+这里写图片描述
+9. 如下图，切换到了Deployment框，点击加号，然后选中exploded的war， 点击OK.
+这里写图片描述
+10. 如下图，在右侧输入你需要运行的地址，一般都是跟着project name 一样的。最后一步，也是最重要的一步，那就是点击apply， 和OK。
+这里写图片描述
+11. 现在准备工作算是基本完成了，接下来就是点击右侧的run,然后等待奇迹的时刻了。
+这里写图片描述
+12. OK， 不知道你的是否成功，如果你最后的结果页面和我一样，一般来说是没有问题的， 结果如下。
+这里写图片描述
+13. 如果我的这边文章对你有帮助的话，请帮我点个赞吧，多谢多谢。
+
+the dependent libs are cached as below:
+$ ll ~/.gradle/caches/modules-2/files-2.1/junit/junit/
+total 24
+drwxrwxr-x 6 kidd kidd 4096 11月  7 13:36 ./
+drwxrwxr-x 3 kidd kidd 4096 10月 16  2015 ../
+drwxrwxr-x 4 kidd kidd 4096 10月 16  2015 3.8.1/
+drwxrwxr-x 4 kidd kidd 4096 10月 16  2015 3.8.2/
+drwxrwxr-x 5 kidd kidd 4096 11月  7 13:36 4.11/
+drwxrwxr-x 4 kidd kidd 4096 10月 16  2015 4.8.2/

@@ -1,0 +1,244 @@
+
+shell cmds:
+  show dbs
+  use db_name
+  db.stats()
+
+
+----------- 2016-11-09 21:33:22
+http://www.cnblogs.com/stephen-liu74/archive/2012/08/01/2561557.html
+  dup key error will fail all latter batch inserts
+
+> db.col01.find()
+{ "_id" : ObjectId("582324df424edad4cd86ebf4"), "name" : "kidd" }
+{ "_id" : ObjectId("582324df424edad4cd86ebf5"), "name" : "jssfy" }
+> db.col01.ensureIndex({"name":1},{"unique":true})
+> db.col01.find()
+{ "_id" : ObjectId("582324df424edad4cd86ebf4"), "name" : "kidd" }
+{ "_id" : ObjectId("582324df424edad4cd86ebf5"), "name" : "jssfy" }
+> db.col01.insert([{name: 'kidd'}, {name:'jssfy'}])
+E11000 duplicate key error index: kidd.col01.$name_1  dup key: { : "kidd" }
+> db.col01.insert([{name: 'kidd'}, {name:'jssf'}])
+E11000 duplicate key error index: kidd.col01.$name_1  dup key: { : "kidd" }
+> db.col01.find()
+{ "_id" : ObjectId("582324df424edad4cd86ebf4"), "name" : "kidd" }
+{ "_id" : ObjectId("582324df424edad4cd86ebf5"), "name" : "jssfy" }
+
+
+------------ 2016-11-09 21:15:03
+/usr/lib/python2.7/dist-packages/pymongo/collection.py
+
+there is batch insert but not batch update.
+
+http://blog.csdn.net/xsj_blog/article/details/52032969
+
+---- 2016-11-09 20:43:38
+有一千万条文档希望批量得到修改,把一个键的内容拆分成多个键等,比如把字符串转换成时间,怎样能较快完成?
+  推荐使用 mongodb 自带的 map-reduce 功能，理论上执行效率会大幅提高，因为 mongodb 会尽可能并行化执行，而不是默认的单线程。
+
+----------- 2016-11-09 19:43:01
+http://stackoverflow.com/questions/13959790/pymongo-mongoclient-or-connection
+
+MongoClient is the preferred method of connecting to a mongo instance. The Connection class is deprecated. But, in terms of use they are very similar.
+
+--------- 2016-11-09 17:00:31
+> db.wind_wsd.count()
+11608
+> db.wind_wsd.find({"windcode" : "000905.SH"}).count()
+2877
+> db.wind_wsd.find({"windcode" : "000903.SH"}).count()
+2544
+> db.wind_wsd.find({"windcode" : "000001.SH"}).count()
+6187
+
+
+------------ 2016-11-09 15:53:45
+windows python support:
+  pip install pymongo [this is enough to access remote mongodb]
+
+
+------- 2016-11-09 15:45:12
+> db.stats()
+{
+  "db" : "apes",
+  "collections" : 3,
+  "objects" : 15975,
+  "avgObjSize" : 205.05001564945226,
+  "dataSize" : 3275674,
+  "storageSize" : 1536000,
+  "numExtents" : 0,
+  "indexes" : 3,
+  "indexSize" : 192512,
+  "ok" : 1
+}
+
+
+------------ 2016-11-09 11:55:54
+https://www.mongodb.org/dl/win32/x86_64-2008plus-ssl?_ga=1.36231715.221700140.1478663373
+
+
+
+$ ps -ef | grep mongo
+mongodb   1127     1  0 11月08 ?      00:02:51 /usr/bin/mongod --config /etc/mongodb.conf
+
+windows:
+下载相应平台的版本，解压即可。为方便使用，将bin路径添加到系统path环境变量里。其中mongod是服务器，mongo是客户shell，然后创建数据文件目录：在c盘下创建data文件夹，里面创建db文件夹。
+
+
+
+--------- 2016-11-09 12:07:22
+http://www.runoob.com/mongodb/mongodb-create-database.html
+
+/etc/mongodb.conf
+bind_ip = 10.12.0.36
+#port = 27017
+
+ubuntu
+
+$ mongo
+MongoDB shell version: 2.4.9
+connecting to: test
+> db
+test
+
+> show collections
+foo
+system.indexes
+traces
+> db.foo.test.insert({a:'1a'})
+> show collections
+foo
+foo.test
+system.indexes
+traces
+
+$ pip install pymongo
+
+$ python
+Python 2.7.6 (default, Jun 22 2015, 17:58:13) 
+[GCC 4.8.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> connection=pymongo.Connection('localhost', 27017)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'pymongo' is not defined
+>>> import pymongo
+>>> connection=pymongo.Connection('localhost', 27017)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python2.7/dist-packages/pymongo/connection.py", line 222, in __init__
+    max_pool_size, document_class, tz_aware, _connect, **kwargs)
+  File "/usr/lib/python2.7/dist-packages/pymongo/mongo_client.py", line 352, in __init__
+    raise ConnectionFailure(str(e))
+pymongo.errors.ConnectionFailure: could not connect to localhost:27017: [Errno 111] Connection refused
+>>> connection=pymongo.Connection('10.12.0.36', 27017)
+
+other cmds:
+  db=connection.test
+  collection=db.coll
+  post = {"author": "Mike"}
+  posts = db.posts
+>>> posts.insert(post)
+ObjectId('5822a3c18f617257106e37fb')
+>>> db.collection_names()
+[u'system.indexes', u'traces', u'foo', u'foo.test', u'posts']
+
+import pymongo
+connection=pymongo.Connection('10.12.0.36', 27017) # for windows: pymongo.MongoClient('10.12.0.36', 27017)
+db=connection.kidd
+collection=db.wind_wsd
+doc = {"author": "Mike"}
+collection.insert(doc)
+
+------- 2016-11-09 13:16:39
+1.文档
+  文档时mongodb中数据的基本单元，类似关系型数据库中的行。
+  >>关系型数据库：
+    行：是标识一条存在数据库中的记录，行有唯一标识的字段，比如oracle就有隐藏存在的rowid。行有列，标识对应字段的名称，字段值为列所表示的值。
+  >>Mongodb
+    文档：标识集合中的一条记录，即集合中的一个对象，形象的对比：数组中的一个元素，List中的一个元素等（个人理解）。文档有唯一的标识“_id”,数据库可自动生成，可类比oracle的rowid。
+          文档以key/value的方式,如下文档：
+          {"name":"jack","age":20}
+          可类比数据表的列，以及列对应的值。
+
+2.集合
+  集合在mongodb中是一组文档，类似关系型数据库中的数据表。
+  >>关系型数据库：
+    表:是存储多个数据的，表中存在多行。表，即模式.表名。表中的数据行在列数、列的类型都是一样。
+    select * from [模式].表名
+  >>Mongodb
+    mongodb数据库不是关系型数据库，没有模式的概念。集合中的文档可以使不同形式的。比如：
+    {"name":"jack","age":19}
+    {"name":"wangjun","age":22,"sex":"1"}
+   
+    可以存在同一个集合当中。
+   
+    集合是由唯一的命名来标识，满足以下条件的任意UTF-8字符串：
+    >集合名不能使空字符串""
+    >集合名不能含有\0字符（空字符），这个字符标识集合名的结尾
+    >集合名不能以"system."开头，该为系统集合保留的前缀
+    >用户创建的集合名字不能含有保留字符$
+   
+    比如：集合classes   classes的子集合students  查询方式：
+    db.classes.find()
+    db.classes.students.find()
+
+
+3.数据库
+  mongodb中多个文档构成集合，多个集合构成数据库。
+  >>关系型数据库
+    在安装数据库的时候数据库实例创建，同时存在系统默认的管理员用户。之后可以创建多个用户并进行赋权，创建的表存在于不同的用户之下，不同的用户存储着不同的数据。
+  >>Mongodb
+    mongodb以文档的形式保存在集合中，可以同一数据库存储不同的数据或者集合，即DB2、oracle、teradata等都可以存储在同一个数据库中。最近做的项目就可以将这三者数据库的数据都保存到同一数据库中。
+   
+    mongodb服务器可以存在多应用或者用户的数据，可以相互独立。数据库的命名规则：
+    >不能使空字符串（""）
+    >不得含有''（空格）、.、$、/、|和\0（空字符）
+    >应全部小写
+    >最多64字节
+   
+    保留数据库名：admin、local、config
+
+shell操作：
+1.创建：db.a.insert({"name":"jack","age":19})
+        db.a.insert({"name":"luce","age":20})
+       
+2.查找：db.a.find()                  --全查
+        db.a.findOne()               --只取多个的第一个
+        db.a.find({"name":"jack"})   --根据条件查找
+       
+3.更新：db.a.update({"name":"jack"},{"age":30})
+
+4.删除：db.a.remove()                --删除所有文档，集合保留
+        db.a.remove({"name":"jack"}) --删除复合条件的文档
+        db.a.drop()                  --删除集合，于此同时所有文档也删除了
+        db.dropDatabase()            -- drop the current database
+
+
+----------- 2016-11-09 13:35:11
+$ du -sh /var/lib/mongodb/*
+3.1G  /var/lib/mongodb/journal
+64M /var/lib/mongodb/kidd.0
+129M  /var/lib/mongodb/kidd.1
+17M /var/lib/mongodb/kidd.ns
+64M /var/lib/mongodb/local.0
+17M /var/lib/mongodb/local.ns
+64M /var/lib/mongodb/microblog.0
+129M  /var/lib/mongodb/microblog.1
+17M /var/lib/mongodb/microblog.ns
+4.0K  /var/lib/mongodb/mongod.lock
+65M /var/lib/mongodb/test.0
+129M  /var/lib/mongodb/test.1
+17M /var/lib/mongodb/test.ns
+4.0K  /var/lib/mongodb/_tmp
+
+-------- 2016-11-09 20:22:33
+> db.col01.update({ "_id" : ObjectId("5822b0b29e54c21d76fe1049")}, { "_id" : ObjectId("5822b0b29e54c21d76fe1049"), name : "菜鸟教程2", age:12 })
+> db.col01.find()
+{ "_id" : ObjectId("5822b0b59e54c21d76fe104a"), "name" : "菜鸟教程" }
+{ "_id" : ObjectId("5822b0b69e54c21d76fe104b"), "name" : "菜鸟教程" }
+{ "_id" : ObjectId("5822b0b69e54c21d76fe104c"), "name" : "菜鸟教程" }
+{ "_id" : ObjectId("5822b0b79e54c21d76fe104d"), "name" : "菜鸟教程" }
+{ "_id" : ObjectId("5822b0b29e54c21d76fe1049"), "name" : "菜鸟教程2", "age" : 12 }
+
+  when updating, the key can be without quotes. and the number value can be without quotes, but string not.

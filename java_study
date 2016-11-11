@@ -1,0 +1,281 @@
+
+
+
+
+----------- 2016-11-11 16:52:46
+EXCEPTION 
+java.lang.UnsupportedClassVersionError: com/abcft/apes/controllers/WindController : Unsupported major.minor version 52.0
+
+http://stackoverflow.com/questions/22489398/unsupported-major-minor-version-52-0
+
+ 69
+down vote
+  
+
+The issue is because of Java version mismatch. Referring to the Wikipedia Java Class Reference :
+
+    J2SE 8 = 52
+    J2SE 7 = 51
+    J2SE 6.0 = 50
+    J2SE 5.0 = 49
+    JDK 1.4 = 48
+    JDK 1.3 = 47
+    JDK 1.2 = 46
+    JDK 1.1 = 45
+
+These are the reported major numbers. The error regarding the unsupported major.minor version is because during compile time you are using a higher JDK and a lower JDK during runtime.
+
+Thus, the 'major.minor version 52.0' error is possibly because the jar is compiled in jdk 1.8, but you are trying to run it in jdk 1.7 environment. To solve this, it's always better to have the jdk and jre pointed to the same version.
+
+In Intellij,
+
+    Go to Maven Settings -> Maven -> Importing. Set the JDK for importer to 1.8
+    Go to Maven Settings -> Maven -> Runner. Set the JRE to 1.8
+    Go to File -> Project Structure -> SDKs. Make sure the JDK home path is set to 1.8
+
+Restart Intellij
+
+Another approach which might help is by instructing IDEA which JDK version to start up with.
+
+Go to : /Applications/IntelliJ\ IDEA\ 15\ CE.app/Contents/Info.plist and replace the JVM version with :
+
+<key>JVMVersion</key>
+<string>1.8*</string>
+
+restarted idea: [both project structure and compiler.xml show 1.8]
+  and it disppeared?
+
+------------ 2016-11-11 15:06:37
+
+Error:(68, 24) java: local variable path is accessed from within inner class; needs to be declared final
+  updating to oracle jdk 1.8 does not help.
+
+----------- 2016-11-10 21:27:03
+upsert:
+
+    public static boolean updateTestName(String strId, String name) {
+        ObjectId id = new ObjectId(strId);
+        MongoCollection<Document> rows = database.getCollection(TEST_COL);
+        // json2Document
+
+//        Document doc = MongoUtil.json2Document(obj);
+
+        Document doc = new Document();
+        doc.append("name", "ddd");
+        doc.append("update_at", 111L);
+
+//        collection.insertOne(doc);
+
+        UpdateOptions upsert = new UpdateOptions();
+        upsert.upsert(true);
+        UpdateResult result = rows.updateOne(eq("name", name), new Document("$set", doc), upsert); // combine(set("name", name), set("age", 100)));
+        logger.info("getUpsertedId: " + result.getUpsertedId());
+        return true;
+    }
+
+> db.col01.find()
+{ "_id" : ObjectId("582463b9c9473cc30d7822dd"), "age" : 124738242, "name" : "jssf" }
+{ "_id" : ObjectId("5823261e424edad4cd86ebfc"), "age" : 100, "name" : "bbb", "update_at" : NumberLong(111) }
+{ "_id" : ObjectId("58232643424edad4cd86ebfd"), "name" : "ccc", "update_at" : NumberLong(111) }
+
+> db.col01.find()
+{ "_id" : ObjectId("582463b9c9473cc30d7822dd"), "age" : 124738242, "name" : "jssf" }
+{ "_id" : ObjectId("5823261e424edad4cd86ebfc"), "age" : 100, "name" : "bbb", "update_at" : NumberLong(111) }
+{ "_id" : ObjectId("58232643424edad4cd86ebfd"), "name" : "ccc", "update_at" : NumberLong(111) }
+{ "_id" : ObjectId("58247593fdfd805a9b9466a2"), "name" : "ddd", "update_at" : NumberLong(111) }
+
+if inserted, then result.getUpsertedId() is not null: 
+        UpdateResult result = rows.updateOne(eq("name", "fff"), new Document("$set", doc), upsert); // combine(set("name", name), set("age", 100)));
+        logger.info("getUpsertedId: " + result.getUpsertedId());
+
+  2016-11-11 14:14:13 INFO  MongoUtil:399 - getUpsertedId: BsonObjectId{value=582561b5fdfd805a9b9466a4}
+otherwise null:
+  2016-11-11 14:15:25 INFO  MongoUtil:399 - getUpsertedId: null
+
+
+---------- 2016-11-10 21:20:53
+
+    /**
+     * Update a single document in the collection according to the specified arguments.
+     *
+     * @param filter        a document describing the query filter, which may not be null.
+     * @param update        a document describing the update, which may not be null. The update to apply must include only update operators.
+     * @param updateOptions the options to apply to the update operation
+     * @return the result of the update one operation
+     * @throws com.mongodb.MongoWriteException        if the write failed due some other failure specific to the update command
+     * @throws com.mongodb.MongoWriteConcernException if the write failed due being unable to fulfil the write concern
+     * @throws com.mongodb.MongoException             if the write failed due some other failure
+     * @mongodb.driver.manual tutorial/modify-documents/ Updates
+     * @mongodb.driver.manual reference/operator/update/ Update Operators
+     */
+    UpdateResult updateOne(Bson filter, Bson update, UpdateOptions updateOptions);
+
+
+    public class UpdateOptions {
+    private boolean upsert;
+    private Boolean bypassDocumentValidation;
+
+    /**
+     * Returns true if a new document should be inserted if there are no matches to the query filter.  The default is false.
+     *
+     * @return true if a new document should be inserted if there are no matches to the query filter
+     */
+    public boolean isUpsert() {
+        return upsert;
+    }
+
+
+------------------ 2016-11-10 21:11:43
+
+/api/v1/wind/test
+com.mongodb.MongoWriteException: E11000 duplicate key error index: kidd.col01.$name_1  dup key: { : "bbb" }
+  at com.mongodb.MongoCollectionImpl.executeSingleWriteRequest(MongoCollectionImpl.java:523)
+  at com.mongodb.MongoCollectionImpl.update(MongoCollectionImpl.java:508)
+  at com.mongodb.MongoCollectionImpl.updateOne(MongoCollectionImpl.java:355)
+  at com.mongodb.MongoCollectionImpl.updateOne(MongoCollectionImpl.java:350)
+
+
+--------- 2016-11-10 20:40:12
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
+import static com.mongodb.client.model.Updates.*;
+
+
+------------ 2016-11-10 20:01:08
+> db.col01.find()
+{ "_id" : ObjectId("5823261e424edad4cd86ebfc"), "name" : "jssf" }
+{ "_id" : ObjectId("58232643424edad4cd86ebfd"), "name" : "kidd" }
+
+above _id is not searched like below:
+
+    public static boolean updateTestName(String id, String name) {
+        MongoCollection<Document> rows = database.getCollection(TEST_COL);
+        UpdateResult result = rows.updateOne(eq("_id", id), set("name", name));
+        logger.info("getUpsertedId: " + result.getUpsertedId());
+        return true;
+    }
+
+but as below:
+    public static boolean updateTestName(String strId, String name) {
+        ObjectId id = new ObjectId(strId);
+        MongoCollection<Document> rows = database.getCollection(TEST_COL);
+        UpdateResult result = rows.updateOne(eq("_id", id), set("name", name));
+        logger.info("getUpsertedId: " + result.getUpsertedId());
+        return true;
+    }
+
+2nd way:
+    public static boolean updateTestName(String strId, String name) {
+        ObjectId id = new ObjectId(strId);
+        MongoCollection<Document> rows = database.getCollection(TEST_COL);
+        // json2Document
+
+//        Document doc = MongoUtil.json2Document(obj);
+
+        Document doc = new Document();
+        doc.append("name", "bbb");
+        doc.append("update_at", 111L);
+
+//        collection.insertOne(doc);
+
+        UpdateResult result = rows.updateOne(eq("_id", id), new Document("$set", doc)); // combine(set("name", name), set("age", 100)));
+        logger.info("getUpsertedId: " + result.getUpsertedId());
+        return true;
+    }
+
+> db.col01.find()
+{ "_id" : ObjectId("58232643424edad4cd86ebfd"), "name" : "kidd" }
+{ "_id" : ObjectId("582463b9c9473cc30d7822dd"), "age" : 124738242, "name" : "jssf" }
+{ "_id" : ObjectId("5823261e424edad4cd86ebfc"), "age" : 100, "name" : "bbb", "update_at" : NumberLong(111) }
+
+
+--------------- 2016-11-10 19:58:37
+/api/v1/wind/test
+java.lang.UnsupportedOperationException: Modified count is only available when connected to MongoDB 2.6 servers or above.
+
+------ 2016-11-10 19:34:48
+Mongo
+
+    public static JsonObject getWindWsdEntry(String windCode) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WIND_WSD_COL);
+        Document doc = collection.find(eq("windcode", windCode)).first();
+        return MongoUtil.document2Json(doc);
+    }
+
+        logger.info("mongo db wsd row: " + MongoUtil.getWindWsdEntry("000001.SH"));
+
+2016-11-10 19:34:09 INFO  WindController:30 - mongo db wsd row: {"high":134.1,"windcode":"000001.SH","date":{"$numberLong":"679507200000"},"close":133.14,"pct_chg":0.2560240924358368,"open":133.9,"amt":5534900.0,"volume":1193800.0,"chg":0.339999999999975,"create_at":{"$numberLong":"1478689057000"},"low":131.87,"id":"58230121c9bb031018158d36"}
+
+
+    public static void init(String connStr, String dbName) {
+        MongoClientURI connectionString = new MongoClientURI(connStr);
+        mongo = new MongoClient(connectionString);
+        database = mongo.getDatabase(dbName);
+        initDb();
+    }
+
+---------- 2016-11-10 19:36:37
+how to locate: 
+import org.glassfish.tyrus.client.ClientManager;
+
+baidu and found it was public, go to maven center and search for org.glassfish.tyrus.client
+  not helpful
+
+  used below in build.gradle directly:
+    compile 'org.glassfish.tyrus:tyrus-client:1.0'
+
+------------- 2016-11-10 17:46:06
+
+http://blog.sina.com.cn/s/blog_53a99cf30102v6o4.html
+
+Ubuntu  14.04 java环境安装配置（不是openJAVA）
+两种配置方式
+第一:
+在 Ubuntu 中使用 PPA 安装 Java 8 ( 支持 Ubuntu 10.04 - Ubuntu 14.04 ):
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install Oracle-java8-installer
+完成之后可以通过以下命令来查看版本：
+javac -version
+安装 Java 8 需要接受许可，如果你想自动安装，那么可以在安装之前运行：
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+设置 Java 8 环境变量：
+sudo apt-get install oracle-java8-set-default
+切换为 Java 7 ：
+sudo update-java-alternatives -s java-7-oracle
+再切换为 Java 8：
+sudo update-java-alternatives -s java-8-oracle
+
+
+-------- 2016-11-10 17:51:52
+$ cat .idea/compiler.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="apes_main" target="1.7" />
+      <module name="apes_test" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
+
+if 1.8 not installed, do not use 1.8:
+  error java invalid target release
