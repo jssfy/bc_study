@@ -1,0 +1,77 @@
+
+
+------------2016-11-16 18:06:06
+
+servlet from scratch:
+
+http://blackchocolate.iteye.com/blog/1876845
+
+如果按照本流程，一定可以完成自己的第一个servlet程序。
+   首先Tomcat要安装好，在Tomcat的webapps文件夹下建立自己的项目，我这里取名为my，按照servlet的规则，项目下必须有一个名为WEB-INF的文件夹，WEB-INF的文件夹下必须有一个名为web.xml的文件，其次如果有jar包需要引用的话，要把jar包放到一个叫lib的文件夹里，lib文件夹也放到WEB-INF下，WEB-INF下还可以有classes文件夹，classes文件夹里是一些编译好的字节码。其次如果项目里还有静态页面，静态页面应该放到WEB-INF的外面。 
+
+~/software/apache-tomcat-7.0.72/webapps/raw
+$ tree
+.
+└── WEB-INF
+    ├── classes
+    │   └── HelloServlet.class
+    ├── lib
+    └── web.xml
+
+3 directories, 2 files
+
+web.xml
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+  <servlet>
+    <servlet-name>ThreeParams</servlet-name>
+    <servlet-class>HelloServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ThreeParams</servlet-name>
+    <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+</web-app> 
+
+HelloServlet.java [built from idea include the servlet jar if necessary, and copy the class directly to tomcat_home/webapps, not necessary to copy over the servlet-api.jar]
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class HelloServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -965262014458195774L;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<html><head></head><body><center><font color='red'>Hello World Servlet!</font></center></body></html>");
+        out.flush();
+        out.close();
+    }
+}
+
+without servlet-mapping, another way as below: [removing servlet-mapping from web.xml does not take effect before restarting tomcat]
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet("/hello")
+public class HelloServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -965262014458195774L;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<html><head></head><body><center><font color='red'>Hello World Servlet!</font></center></body></html>");
+        out.flush();
+        out.close();
+    }
+}

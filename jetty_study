@@ -1,0 +1,56 @@
+
+
+
+---------- 2016-11-14 15:56:03
+http://www.eclipse.org/jetty/download.html
+
+使用以下内容来创建Jetty设置文件
+
+sudo vi /etc/default/jetty
+
+添加以下行
+
+JAVA_HOME=/usr/bin/java
+JETTY_HOME=/opt/jetty
+NO_START=0
+JETTY_ARGS=jetty.port=8085
+JETTY_HOST=0.0.0.0
+JETTY_USER=jetty
+
+保存并退出该文件
+
+你需要使用以下命令来启动Jetty服务
+
+~/software/jetty9/bin
+$ sudo ./jetty.sh start
+[sudo] password for kidd: 
+Starting Jetty: OK 2016年 11月 14日 星期一 16:06:02 CST
+
+or
+使用以下命令拷贝Jetty脚本到启动目录，以便让它作为一个服务来运行
+$ cp /opt/jetty/bin/jetty.sh /etc/init.d/jetty
+  sudo service jetty start
+
+要部署java项目的话把war扔到jetty目录下的webapps里面即可
+
+--------- 2016-11-14 16:07:29
+~/software/jetty9/bin
+$ sudo ./jetty.sh check
+Jetty running pid=10754
+
+START_INI      =  /home/kidd/software/jetty9/start.ini
+START_D        =  /home/kidd/software/jetty9/start.d
+JETTY_HOME     =  /home/kidd/software/jetty9
+JETTY_BASE     =  /home/kidd/software/jetty9
+JETTY_CONF     =  /home/kidd/software/jetty9/etc/jetty.conf
+JETTY_PID      =  /var/run/jetty.pid
+JETTY_START    =  /home/kidd/software/jetty9/start.jar
+JETTY_LOGS     =  /home/kidd/software/jetty9/logs
+JETTY_STATE    =  /home/kidd/software/jetty9/jetty.state
+CLASSPATH      =  
+JAVA           =  /usr/bin/java
+JAVA_OPTIONS   =  -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.home=/home/kidd/software/jetty9 -Djetty.base=/home/kidd/software/jetty9 -Djava.io.tmpdir=/tmp
+JETTY_ARGS     =  jetty.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml
+RUN_CMD        =  /usr/bin/java -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.home=/home/kidd/software/jetty9 -Djetty.base=/home/kidd/software/jetty9 -Djava.io.tmpdir=/tmp -jar /home/kidd/software/jetty9/start.jar jetty.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml
+
+

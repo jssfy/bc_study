@@ -1,6 +1,52 @@
 
 
 
+------- 2016-11-16 16:06:03
+java WEB 目录的标准结构  
+
+WEB-ROOT   :   根目录，一般虚拟目录会直接在此目录中设置
+  | ---  WEB-INF  整个WEB中最安全的目录，无法直接访问，若访问，需要在web.xml中配置：见图
+      |-- classes  保存所有的*.class文件 所有的class都要放在 包中
+      |-- lib           存放第三方的jar文件
+      |-- web.xml  WEB的部署描述符    
+  |---   css     存放所有的*.css文件
+  |---   js        存放所有的*.js文件
+  |---   jsp      存放所有的jsp文件
+  |---   index.htm, index.jsp       欢迎页面
+
+------------ 2016-11-16 15:42:25
+java web:
+gradle/idea
+
+http://m.blog.csdn.net/article/details?id=51297473
+
+1. 第一步很简单的，file->new->project 
+2. 完成第一步后，会弹出这样一个窗体，然后在左边栏目找到gradle，然后在右边勾选java 和web 两个选项，next。
+3. 到了输入groupId和acrtifactId窗口了，对于这两个名字的解释，可以看我上一篇 maven 创建java web 项目的第三步有解释，next。 
+4. 刚进来默认选择的是Use default gradle wrapper(recommended), 我不选择这个是因为我本地有装gradle，所有不需要是用它默认的，如果选择它，那么创建项目之后，它就会去自动下载gradle，然后配置好，下载过程一般都很慢，至少我在我电脑上很慢。所有我选择的是Use local gradle distribution,。然后上面还有一个勾选，就是自动创建空的根目录文件夹，如果不选择，创建完的项目会没有java文件夹，所以勾选，让它自动创建吧，next。
+
+$ tree
+.
+├── build.gradle
+├── settings.gradle
+└── src
+    └── main
+        └── webapp
+            └── index.jsp
+
+3 directories, 3 files
+kidd@kidd-OptiPlex-9020:
+~/tmp/hello
+$ la
+build.gradle  .idea  settings.gradle  src
+
+6.创建完成之后，如果你之前没有配置tomcat的话，是没办法运行的，所以也需要配置tomcat，如下图, 左侧是成功创建的项目文件目录，如果之前没有勾选Create directories for empty content roots automatically, 那么就不会生成java 和resource这个两个孔文件夹。这不的重点是点击Edit configuration
+7. 弹出配置框，默认是配置server属性，输入这个配置的名字，name，可以取任意的名字，点击configure选择本地tomcat的路径，都配置好了直接点击OK就可以运行了。 
+8. 然后选择server 旁边的Deployment， 页面之后，点击加号，在弹出的页面选择名字更长的那个，也就是后面有（exploded）的那条，点击OK。 
+9. 在右侧输入Application context的名字，这个对应就是等会儿运行时，默认路径（http://localhost:8080/demo/）中的demo, 所以如果你不配置这项，它的默认路径将会是（http://localhost:8080/）这样的。最后点击apply, 再点击ok. 
+
+
+
 ----------- 2016-11-04 16:07:01
 首先创建一个gradle项目目录，然后在其目录下运行：
 
