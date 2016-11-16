@@ -124,6 +124,17 @@ to config:
     project structure -> artifacts -> output directory [run the web again to redeploy -> build/build artifact]
         e.g., by default it is at "/home/kidd/tmp/web_02/out/artifacts", but we can redirect it to "/home/kidd/software/apache-tomcat-7.0.72/webapps/web_02"
 
+to generate war file:
+File->Project Structure->Artifacts
+选择Type：(Web Application:Archive),设置好Output directory以及Output Layout，然后配置Tomcat服务器，运行打包好的war文件。
+
+~/software/apache-tomcat-7.0.72/webapps
+$ ls web_02/
+web_02_war exploded.war
+kidd@kidd-OptiPlex-9020:
+~/software/apache-tomcat-7.0.72/webapps
+$ ls web_02/
+index.jsp  WEB-INF
 
 ------- 2016-11-07 11:46:42
 http://cache.baiducontent.com/c?m=9d78d513d9981de90fb3ca255501d7174107c4302bd7a1502884870fd33a541b0120a1ac26510d19839b213216af3e0daba66a6537747ce0ddd5cf48debb95292f8f203f6d4fc607498247f8d610728773cb04a8b21ee4b8f33395acd0&p=882a9645dd8606fd0aafc02d02148a&newp=93759a46d6c813e000b0c7710f4f8f231610db2151d7db166b82c825d7331b001c3bbfb423231600d8c67d6601af4a5ee0fb3377340421a3dda5c91d9fb4c57479da686c2d&user=baidu&fm=sc&query=intellij+java+web&qid=d8c73bbf000501ee&p1=3
