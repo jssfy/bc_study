@@ -1,5 +1,117 @@
 
 
+---------- 2016-11-18 17:45:06
+log4j
+在apache网站：jakarta.apache.org/log4j 可以免费下载到Log4j最新版本的软件包。
+
+Log4j使用
+Log4j的包下载完成后，解压，将其中打包好的的log4j-1.x.x.jar导入你的工程LIB中。
+Log4j之所以受欢迎的原因之一是它的灵活性。Log4j提供了灵活的配置方法，默认是调用BasicConfigurator.configure()来进行配置，但如果只是简单的调用BasicConfigurator.configure()来进行配置工作，那么所有的配置都是固定的，不方便以后修改配置。另一种是动态配置，Log4j提供了PropertyConfigurator.configure(……)来动态配置，参数可以是一个properties文件所在路径的String对象，可以是一个properties文件所在路径的URL对象，也可以是一个properties对象。如果要用XML文件来配置信息，则可用类型的DOMConfigurator()函数来从一个XML文件中加载配置信息
+
+log4j.rootLogger=INFO, stdout, file
+此句为将等级为INFO的日志信息输出到stdout和R这两个目的地，stdout和R的定义在下面的代码，可以任意起名。等级可分为OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL，如果配置OFF则不打出任何信息，如果配置为INFO这样只显示INFO、WARN、ERROR的log信息，而DEBUG信息不会被显示，具体讲解可参照第三部分定义配置文件中的logger。
+
+# Root logger option
+log4j.rootLogger=INFO, stdout, file
+
+# Redirect log messages to console
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target=System.out
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+
+# Redirect log messages to a log file, support file rolling.
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.File=build/logs/log4j-application_3.log
+log4j.appender.file.MaxFileSize=5MB
+log4j.appender.file.MaxBackupIndex=10
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+
+/home/kidd/tmp/java_01/build/logs/log4j-application_3.log
+
+put log4j.properties under the same directory where the built package is located, such as "/home/kidd/tmp/java_01/gradle_java_module/build/classes/main"
+but no bother, "/home/kidd/tmp/java_01/gradle_java_module/build/resources/main/log4j.properties" is used by default.
+
+when using ctrl+f9 from idea, the gradle java project will automatically build the main/resources folder into the output "build" folder.
+
+it seems log4j.properties is loaded automatically, commenting out 'PropertyConfigurator.configure("log4j.properties");' does not bother.
+package com.jssfy;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+/**
+ * Created by kidd on 16-11-18.
+ */
+public class Hello {
+    static Logger logger = Logger.getLogger(Hello.class.getName());
+
+    public static void main(String[] args) {
+        System.out.println("hello");
+//        PropertyConfigurator.configure("log4j.properties");
+        logger.info("log4j info!!");
+    }
+}
+
+it seems getResourceAsStream will load resource from the resources folder automatically.
+  Hello.class.getClassLoader().getResourceAsStream("log4j.properties");
+after I renamed main/resources/log4j.properties to some other name, logger.info will fail like:
+  log4j:WARN No appenders could be found for logger (com.jssfy.Hello).
+  log4j:WARN Please initialize the log4j system properly.
+  log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+hence it seems resources/log4j.properties is loaded automatically in idea.
+below method finally helped: [/home/kidd/tmp/java_01/gradle_java_module/src/main/resources/log4j_bak.properties]
+        PropertyConfigurator.configure(Hello.class.getClassLoader().getResourceAsStream("log4j_bak.properties"));
+        logger.info("log4j info!!");
+
+as seen from below classpath config, '/home/kidd/tmp/java_01/gradle_java_module/build/resources/main' is already added to classpath.
+System.out.println(System.getProperty("java.class.path"));
+  /home/kidd/software/jdk1.8.0_111/jre/lib/charsets.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/deploy.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/cldrdata.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/dnsns.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/jaccess.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/jfxrt.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/localedata.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/nashorn.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/sunec.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/sunjce_provider.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/sunpkcs11.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/ext/zipfs.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/javaws.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/jce.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/jfr.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/jfxswt.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/jsse.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/management-agent.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/plugin.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/resources.jar:/home/kidd/software/jdk1.8.0_111/jre/lib/rt.jar:/home/kidd/tmp/java_01/gradle_java_module/build/classes/main:/home/kidd/tmp/java_01/gradle_java_module/build/resources/main:/home/kidd/.gradle/caches/modules-2/files-2.1/log4j/log4j/1.2.17/5af35056b4d257e4b64b9e8069c0746e8b08629f/log4j-1.2.17.jar:/home/kidd/software/idea-IU-162.2228.15/lib/idea_rt.jar
+
+for reference: [http://blog.csdn.net/knowledgeaaa/article/details/19617925]
+Java日志 - 如何在项目中指定log4j.properties路径
+方法一：
+在main函数中添加如下代码
+    public class App   
+    {  
+        static final Logger logger = Logger.getLogger(App.class);  
+        public static void main( String[] args )  
+        {  
+            PropertyConfigurator.configure("/absolute/path/to/log4j.properties");  
+            logger.debug("Hello world!");  
+        }  
+    }  
+方法二：
+在JAR文件启动参数中添加log4j.properties文件路径
+[plain] view plain copy
+print?在CODE上查看代码片派生到我的代码片
+    -Dlog4j.configuration=<FILE_PATH>  
+方法三：
+将log4j.properties文件放在工程src/main/resources目录下
+
+--------- 2016-11-18 12:41:12
+resource:
+http://riddickbryant.iteye.com/blog/436693
+Java中的getResourceAsStream有以下几种：
+1. Class.getResourceAsStream(String path) ： path 不以’/'开头时默认是从此类所在的包下取资源，以’/'开头则是从ClassPath根下获取。其只是通过path构造一个绝对路径，最终还是由ClassLoader获取资源。
+2. Class.getClassLoader.getResourceAsStream(String path) ：默认则是从ClassPath根下获取，path不能以’/'开头，最终是由ClassLoader获取资源。
+3. ServletContext. getResourceAsStream(String path)：默认从WebAPP根目录下取资源，Tomcat下path是否以’/'开头无所谓，当然这和具体的容器实现有关。
+4. Jsp下的application内置对象就是上面的ServletContext的一种实现。 
+
+  try {
+      Properties config = new Properties();
+      config.load(WindController.class.getClassLoader().getResourceAsStream("/META-INF/config.properties"));
+      logger.info("config.properties: \n" + config.toString());
+  } catch (IOException e) {
+      logger.error("load config.properties failed");
+  }
+
+2016-11-18 12:42:26 INFO  WindController:34 - config.properties: 
+{web.mongodb=mongodb://10.12.0.36:27017, test.name=kidd}
+
+if config.properties is at "/home/kidd/workspace/abc/apes/src/main/resources/META-INF/config.properties",
+  then it does not matter whether the path is starting with or without '/'
 
 ----------- 2016-11-15 15:06:22
 

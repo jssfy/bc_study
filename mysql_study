@@ -4,6 +4,40 @@ mysql manual:
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
 
+---------- 2016-11-25 10:45:50
+mysql> select distinct uid from wv_ticket;
++-----+
+| uid |
++-----+
+|   3 |
+|   2 |
+|  27 |
++-----+
+3 rows in set (0.01 sec)
+
+mysql> select distinct uid, create_time from wv_ticket;
++-----+---------------------+
+| uid | create_time         |
++-----+---------------------+
+|   3 | 2016-11-24 15:10:34 |
+|   2 | 2016-11-24 15:10:39 |
+|   3 | 2016-11-24 15:13:08 |
+|  27 | 2016-11-24 21:15:22 |
+|  27 | 2016-11-24 21:40:33 |
+|  27 | 2016-11-25 10:23:34 |
++-----+---------------------+
+6 rows in set (0.01 sec)
+
+mysql> select distinct uid from wv_ticket order by create_time asc;
++-----+
+| uid |
++-----+
+|   3 |
+|   2 |
+|  27 |
++-----+
+3 rows in set (0.00 sec)
+
 ---------- 2016-11-08 16:11:54
 http://www.linuxidc.com/Linux/2013-07/88032.htm
 首先，对于精度比较高的东西，比如money，我会用decimal类型，不会考虑float,double,因为他们容易产生误差，numeric和decimal同义，numeric将自动转成decimal。

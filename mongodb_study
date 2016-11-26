@@ -4,6 +4,67 @@ shell cmds:
   use db_name
   db.stats()
 
+
+
+----------- 2016-11-21 14:47:10
+db.tushare_information.update({}, {$unset:{'area' : ''}}, {multi: true})
+删除表中，所有的字段
+
+---------- 2016-11-21 12:28:51
+$ python tushare_information.py 
+/usr/lib/python2.7/dist-packages/pkg_resources.py:1031: UserWarning: /home/kidd/.python-eggs is writable by group/others and vulnerable to attack when used with get_resource_filename. Consider a more secure location (set with .set_extraction_path or the PYTHON_EGG_CACHE environment variable).
+  warnings.warn(msg, UserWarning)
+[Getting data:]#################################################got 2847 rows
+<type 'dict'>
+{u'updatedExisting': True, u'connectionId': 11, u'ok': 1.0, u'err': None, u'n': 1}
+
+
+------------ 2016-11-17 18:50:20
+use pretty() to format:
+  db.performance.find().pretty()
+
+------------- 2016-11-17 14:48:40
+mongodb cursor id not valid error是一个超时错误。
+当使用for  c  in  col.find()时，数据库会一次性返回很多数据，如果处理这些数据的时间超过10分钟，一直没有像数据库获取后续数据，则会出现上述错误。
+ 
+解决方案：
+取消timeout限制，在结束遍历后close()游标。
+cursor = coll.find(timeout=False)
+for c in cursor:
+    ...
+    ...
+cursor.close()
+ 
+ 
+其他方案：
+上面那个方案是我使用后成功的。还有几种方案，我尝试了一下，无效，不知道为什么。
+解决方案2：
+用batch_size()限制一次获取的数据量
+for c in col.find().batch_size(20):
+    ...
+ 
+解决方案3：
+用no_cursor_timeout参数去掉时间限制。注意后面要close()游标。
+cursor=db.images.find(no_cursor_timeout=True)
+for i in cursor:
+   .....
+   .....
+cursor.close()
+
+-------- 2016-11-17 12:55:01
+export and import
+http://chenzhou123520.iteye.com/blog/1641319
+
+$ mongoexport -h 10.12.6.6 -d apes -c measurements -o ~/tmp/measurements.dat
+connected to: 10.12.6.6
+exported 202 records
+
+$ mongoimport -h 10.12.0.36 -d apes -c measurements ~/tmp/measurements.dat 
+connected to: 10.12.0.36
+Thu Nov 17 12:56:08.134 check 9 202
+Thu Nov 17 12:56:08.137 imported 202 objects
+
+
 -------------- 2016-11-16 11:03:44
 search
 

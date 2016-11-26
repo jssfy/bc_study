@@ -17,10 +17,12 @@ TBD:
 online wind:
   120.26.95.121
 
+tz8
 ssh ahye@121.43.153.62
 $ ping -c 2 tz8.muder.pw
 PING tz8.muder.pw (121.43.153.62) 56(84) bytes of data.
 64 bytes from 121.43.153.62: icmp_seq=1 ttl=49 time=29.0 ms
+  /niub/www/sourcecode/
 
 mysql -h 10.168.76.32 -u tz8 -p
 
@@ -50,8 +52,24 @@ build  etc        jetty.state  license-eplv10-aslv20.html  modules  README.TXT  
 [abc@localhost jetty]$ sudo sh bin/jetty.sh stop
 Stopping Jetty: OK
 
+apes
 120.26.58.228
 
+
+
+你可以用这个，如果你代码能改的话：
+执行有需要的脚本前：
+chmod -R 777 /niub/www/sourcecode/vote-dev.yqtz8.com
+执行有需要的脚本后：
+chmod -R 755 /niub/www/sourcecode/vote-dev.yqtz8.com
+这个更安全
+14:53
+[LV]
+如果能在目录后面能接runtime这个目录更好。
+
+-------- 2016-11-17 17:11:44
+to get information data:
+  http://localhost:9080/api/v1/wind/information?code=000001.SZ
 
 ----------- 2016-11-16 14:58:25
 to get performance data:

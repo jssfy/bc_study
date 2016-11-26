@@ -1,0 +1,880 @@
+package com.abcft.apes.util;
+
+import com.mongodb.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
+import static com.mongodb.client.model.Updates.*;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.sql.Timestamp;
+
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
+import com.udojava.evalex.Expression;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.bson.conversions.Bson;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.ws.rs.NotFoundException;
+
+public class MongoUtil {
+    private static Logger logger = Logger.getLogger(MongoUtil.class);
+
+    private static MongoClient mongo = null;
+    private static MongoDatabase database = null;
+
+    private static String REPORT_COL = "reports";
+    public static String WIND_WSI_COL = "wind_wsi";
+    public static String WIND_WSD_COL = "wind_wsd";
+    public static String WIND_PERF_COL = "wind_performance";
+    public static String WIND_INFO_COL = "wind_information";
+    private static String WORD_COL = "words";
+    private static String WIND_WSET_COL = "wind_wset";
+
+    public static void init(String connStr, String dbName) {
+        MongoClientURI connectionString = new MongoClientURI(connStr);
+        mongo = new MongoClient(connectionString);
+        database = mongo.getDatabase(dbName);
+//        initDb();
+    }
+
+    private static void initDb() {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        charts.createIndex(Indexes.text("title"));
+    }
+
+    private static Document json2Document(JsonObject object) {
+        if (object.containsKey("id")) {
+            String oid = object.getString("id");
+            Document doc = Document.parse(object.toString());
+            doc.remove("id");
+            return doc.append("_id", new ObjectId(oid));
+        } else {
+            return Document.parse(object.toString());
+        }
+    }
+
+    private static JsonObject document2Json(Document doc) {
+        if (doc == null) {
+            logger.warn("doc is null");
+            return null;
+        }
+        ObjectId oid = (ObjectId)doc.remove("_id");
+        doc = doc.append("id", oid.toHexString());
+        return StringUtils.parseJson(doc.toJson());
+    }
+
+    public static String saveFileContent(String filePath, String fileName) {
+        try {
+            File file = new File(filePath);
+
+            MongoCollection<Document> collection = database.getCollection(MongoUtil.WORD_COL);
+            Document doc = new Document();
+
+            String contents = FileUtil.readFileToString(filePath);
+            doc.append("file_name", fileName);
+            doc.append("file_path", filePath);
+            doc.append("content", contents);
+            doc.append("create_at", System.currentTimeMillis());
+            doc.append("update_at", System.currentTimeMillis());
+
+            collection.insertOne(doc);
+            ObjectId id = (ObjectId)doc.get( "_id" );
+
+            logger.info("save file to mongo: "+ id.toHexString());
+
+            return id.toHexString();
+
+        } catch (Exception e) {
+
+        }
+
+        return "";
+    }
+
+    public static JsonObject getWordFileEntry(String strId) {
+        try {
+            ObjectId id = new ObjectId(strId);
+            MongoCollection<Document> collection = database.getCollection(MongoUtil.WORD_COL);
+            Document doc = collection.find(eq("_id", id)).first();
+
+            JsonObject docJson = MongoUtil.document2Json(doc);
+
+            //logger.info(docJson);
+
+            return docJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.info(e.getMessage());
+        }
+
+        return null;
+    }
+
+    public static List<JsonObject> getWordFileList(
+            String sort,
+            String order,
+            int offset,
+            int limit
+    ) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WORD_COL);
+
+        MongoCursor<Document> cursor = null;
+        if (! sort.equals("")) {
+            Bson sorting = null;
+            if ( ! order.equals("desc")) {
+                sorting = ascending(sort);
+            } else {
+                sorting = descending(sort);
+            }
+            cursor = collection.find().sort(sorting).skip(offset).limit(limit).iterator();
+        } else {
+            cursor = collection.find().skip(offset).limit(limit).iterator();
+        }
+
+        List<JsonObject> docs = new ArrayList<JsonObject>();
+        try {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                String createAt = StringUtils.tsToStr(new Timestamp(doc.getLong("create_at")));
+                String updateAt = StringUtils.tsToStr(new Timestamp(doc.getLong("update_at")));
+                doc.put("create_at", createAt);
+                doc.put("update_at", updateAt);
+                doc.remove("content");
+                docs.add(MongoUtil.document2Json(doc));
+            }
+        } finally {
+            cursor.close();
+        }
+        return docs;
+    }
+
+    public static int getWordFileCount() {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WORD_COL);
+        return (int)collection.count();
+    }
+
+    public static boolean updateWordFile(String strId, JsonObject data) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WORD_COL);
+        Document doc = MongoUtil.json2Document(data);
+
+        doc.append("update_at", System.currentTimeMillis());
+
+        if (!StringUtils.isEmpty(strId)) {
+            ObjectId id = new ObjectId(strId);
+            UpdateResult result = collection.updateOne(eq("_id", id), new Document("$set", doc));
+            return result.getModifiedCount() > 0;
+        } else {
+            if (doc.containsKey("_id")) {
+                doc.remove("_id");
+            }
+            doc.append("create_at", System.currentTimeMillis());
+            doc.append("update_at", System.currentTimeMillis());
+            collection.insertOne(doc);
+            return true;
+        }
+    }
+
+    public static List<JsonObject> getReportList(
+            String sort,
+            String order,
+            int offset,
+            int limit
+    ) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+
+        MongoCursor<Document> cursor = null;
+        if (! sort.equals("")) {
+            Bson sorting = null;
+            if ( ! order.equals("")) {
+                sorting = ascending(sort);
+            } else {
+                sorting = descending(sort);
+            }
+            cursor = collection.find().sort(sorting).skip(offset).limit(limit).iterator();
+        } else {
+            cursor = collection.find().skip(offset).limit(limit).iterator();
+        }
+
+        List<JsonObject> docs = new ArrayList<JsonObject>();
+        try {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                String createAt = StringUtils.tsToStr(new Timestamp(doc.getLong("create_at")));
+                String updateAt = StringUtils.tsToStr(new Timestamp(doc.getLong("update_at")));
+                doc.put("create_at", createAt);
+                doc.put("update_at", updateAt);
+                docs.add(MongoUtil.document2Json(doc));
+            }
+        } finally {
+            cursor.close();
+        }
+        return docs;
+    }
+
+    public static int getReportCount() {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+        return (int)collection.count();
+    }
+
+    public static JsonObject getReportEntry(String strId) {
+        ObjectId id = new ObjectId(strId);
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+        Document doc = collection.find(eq("_id", id)).first();
+        return MongoUtil.document2Json(doc);
+    }
+
+    public static boolean updateReport(String strId, JsonObject report) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+        ObjectId id = new ObjectId(strId);
+        Document doc = MongoUtil.json2Document(report);
+
+        String startTime = doc.getString("start_time");
+        String endTime = doc.getString("end_time");
+        if (startTime.equals("")) {
+            doc.remove("start_time");
+        }
+        if (endTime.equals("")) {
+            doc.remove("end_time");
+        }
+        doc.append("update_at", System.currentTimeMillis());
+
+        UpdateResult result = collection.updateOne(eq("_id", id), new Document("$set", doc));
+        return result.getModifiedCount() > 0;
+    }
+
+    public static String addReport(JsonObject report) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+        Document doc = MongoUtil.json2Document(report);
+
+        doc.append("create_at", System.currentTimeMillis());
+        doc.append("update_at", System.currentTimeMillis());
+
+        collection.insertOne(doc);
+        ObjectId id = (ObjectId)doc.get( "_id" );
+        return id.toHexString();
+    }
+
+    public static Document getChart(long id, boolean detail) {
+        MongoCollection<Document> collection = database.getCollection("charts");
+        FindIterable<Document> iterable = collection.find(eq("_id", id));
+        Document item = iterable.first();
+        if (item != null && !detail) {
+            normalizeChart(item);
+        }
+        return item;
+    }
+
+    private static void normalizeChart(Document item) {
+        Object id = item.get("_id");
+        item.remove("_id");
+        item.put("id", id);
+        item.remove("dataSource");
+        item.put("dataSourceUrl", "/api/v1/chart/query-data?id=" + id);
+    }
+
+    public static long getNextSequence(String name) {
+        MongoCollection<Document> collection = database.getCollection("counters");
+        Document obj =  collection.findOneAndUpdate(eq("_id", name),
+                new Document("$inc", new Document("seq", 1)));
+        return ((Number)obj.get("seq")).longValue();
+    }
+
+    public static long insertChart(Document chart) {
+        MongoCollection<Document> collection = database.getCollection("charts");
+        chart.put("_id", getNextSequence("charts"));
+        collection.insertOne(chart);
+        return ((Number)chart.get("_id")).longValue();
+    }
+
+    public static Document queryChartData(long chartId, Document paramters) {
+        MongoCollection<Document> collection = database.getCollection("charts");
+        FindIterable<Document> iterable = collection.find(eq("_id", chartId));
+        Document chart = iterable.first();
+        if (chart == null) {
+            throw new NotFoundException();
+        }
+        return queryDataByChartDefinition(chart, paramters);
+    }
+
+    private static Document queryDataByChartDefinition(Document chart, Document paramters) {
+        Document dataSource = (Document) chart.get("dataSource");
+        MongoCollection<Document> dataCollection = null;
+        String dataName = (String)dataSource.getString("dataName");
+        if (dataName != null && dataName.length() > 0) {
+            dataCollection = database.getCollection(dataName);
+        }
+        Document paramtersInfo = (Document) dataSource.get("paramters");
+        List<Document> columns = (List<Document>) dataSource.get("columns");
+
+        List<Document> queries = new ArrayList<>();
+        if (!StringUtils.isEmpty(dataSource.getString("query"))) {
+            Object queryObj = dataSource.get("query");
+            if (queryObj instanceof String) {
+                Document query = Document.parse((String)queryObj);
+                queries.add(query);
+            } else {
+                Document q = (Document)queryObj;
+                dataName = q.getString("dataName");
+                Document query = Document.parse(q.getString("sql"));
+                query.put("dataName", dataName);
+                queries.add(query);
+            }
+        } else if (dataSource.get("queries") != null) {
+            List<Object> queryObjList = (List<Object>) dataSource.get("queries");
+            for (Object queryObj : queryObjList) {
+                if (queryObj instanceof String) {
+                    queries.add(Document.parse((String)queryObj));
+                } else {
+                    Document q = (Document)queryObj;
+                    dataName = q.getString("dataName");
+                    Document query = Document.parse(q.getString("sql"));
+                    query.put("dataName", dataName);
+                    queries.add(query);
+                }
+            }
+        } else {
+            return buildResult(new ArrayList<>(), columns);
+        }
+
+        Document sort = (Document) dataSource.get("sort");
+        List<List<Document>> queryResults = new ArrayList<>();
+        boolean tableMode = "table".equals(dataSource.getString("dataType"));
+        int limit = dataSource.getInteger("limit", 0);
+
+        int rowCount = 0;
+        for (int i = 0; i < queries.size(); i++) {
+            Document query = queries.get(i);
+            String queryCol = (String)query.remove("dataName");
+            MongoCollection<Document> collection = null;
+            if (queryCol != null) {
+                collection = database.getCollection(queryCol);
+            } else {
+                collection = dataCollection;
+            }
+            if (collection == null) {
+                throw new NotFoundException();
+            }
+            Document projection = new Document();
+            for (Document column : columns) {
+                String id = column.getString("id");
+                if (!StringUtils.isEmpty(id) && column.getInteger("query_index", 0) == i) {
+                    projection.put(id, true);
+                }
+            }
+            projection.put("_id", false);
+
+            Document filter = applyQueryParamters(query, paramtersInfo, paramters);
+            FindIterable<Document> dataIterable = collection.find(filter).sort(sort).projection(projection).limit(limit);
+            List<Document> datas = dataIterable.into(new ArrayList<>());
+            queryResults.add(datas);
+            if (tableMode) {
+                rowCount += datas.size();
+            } else {
+                if (rowCount == 0) {
+                    rowCount = datas.size();
+                } else if (rowCount < datas.size()) {
+                    rowCount = datas.size();
+                }
+            }
+        }
+
+        // 合并查询结果
+        int columnCount = columns.size();
+        List<Object[]> dataList = new ArrayList<>(rowCount);
+        if (tableMode) {
+            for (List<Document> queryResult : queryResults) {
+                for (Document document : queryResult) {
+                    Object[] values = new Object[columnCount];
+                    for (int i = 0; i < columnCount; i++) {
+                        Document column = columns.get(i);
+                        String id = column.getString("id");
+                        if (StringUtils.isEmpty(id)) {
+                            values[i] = null;
+                        } else {
+                            values[i] = document.get(id);
+                        }
+                    }
+                    dataList.add(values);
+                }
+            }
+        } else {
+            for (int i = 0; i < rowCount; i++) {
+                Object[] values = new Object[columnCount];
+                for (int j = 0; j < columnCount; j++) {
+                    Document column = columns.get(j);
+                    String id = column.getString("id");
+                    if (StringUtils.isEmpty(id)) {
+                        values[j] = null;
+                    } else {
+                        int query_index = column.getInteger("query_index", 0);
+                        Document document = queryResults.get(query_index).get(i);
+                        values[j] = document.get(id);
+                    }
+                }
+                dataList.add(values);
+            }
+        }
+
+        return buildResult(dataList, columns);
+    }
+
+    private static Document buildResult(List<Object[]> dataList, List<Document> columns) {
+        Document result = new Document();
+        int rowCount = dataList.size();
+        List<Document> rows = new ArrayList<>(rowCount);
+        List<Document> cols = new ArrayList<>(columns.size());
+        List<Format> formats = new ArrayList<>(columns.size());
+        List<Expression> functions = new ArrayList<>(columns.size());
+        for (Document column : columns) {
+            String type = column.getString("type");
+            String dataType = column.getString("dataType");
+            String pattern = column.getString("pattern");
+            boolean hidden = column.getBoolean("hidden", false);
+            Format format = null;
+            if (!StringUtils.isEmpty(pattern)) {
+                if ("number".equals(type)) {
+                    format = new DecimalFormat(pattern);
+                } else if ("date".equals(type) || "date".equals(dataType)) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+                    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                    format = dateFormat;
+                }
+            }
+            formats.add(format);
+            if (!hidden) {
+                Document col = new Document();
+                col.put("type", type);
+                col.put("label", column.getString("label"));
+                col.put("pattern", pattern);
+                cols.add(col);
+            }
+            String function = column.getString("function");
+            if (StringUtils.isEmpty(function)) {
+                functions.add(null);
+            } else {
+                Expression expression = new Expression(function);
+                expression.addFunction(expression.new Function("first", 1) {
+                    @Override
+                    public BigDecimal eval(List<BigDecimal> parameters) {
+                        if (parameters.size() == 0) {
+                            throw new RuntimeException("average requires at least one parameter");
+                        }
+                        int columnIndex = parameters.get(0).intValue();
+                        if (dataList.size() == 0) {
+                            return new BigDecimal(0);
+                        }
+                        Object value = dataList.get(0)[columnIndex];
+                        return StringUtils.toBigDecimal(value);
+                    }
+                });
+                functions.add(expression);
+            }
+        }
+        result.put("cols", cols);
+        for (Object[] aDataList : dataList) {
+            Document row = new Document();
+            List<Document> cells = new ArrayList<>(columns.size());
+            for (int j = 0; j < columns.size(); j++) {
+                Document column = columns.get(j);
+                boolean hidden = column.getBoolean("hidden", false);
+                if (hidden) {
+                    continue;
+                }
+                Document cell = new Document();
+
+                Format format = formats.get(j);
+                final Object[] values = aDataList;
+                Object value = values[j];
+                Expression function = functions.get(j);
+                if (function != null) {
+                    function.addFunction(function.new Function("val", 1) {
+                        @Override
+                        public BigDecimal eval(List<BigDecimal> parameters) {
+                            if (parameters.size() == 0) {
+                                throw new RuntimeException("average requires at least one parameter");
+                            }
+                            int columnIndex = parameters.get(0).intValue();
+                            return StringUtils.toBigDecimal(values[columnIndex]);
+                        }
+                    });
+                    value = function.eval().doubleValue();
+                }
+
+                Object v = value;
+                if ((format instanceof DateFormat) && !(value instanceof Date)) {
+                    value = new Date(Long.parseLong(value.toString()));
+                }
+                if (value instanceof Date) {
+                    v = String.format("Date(%d)", ((Date) value).getTime());
+                }
+                if (format != null && value != null) {
+                    Object f = format.format(value);
+                    cell.put("v", v);
+                    cell.put("f", f);
+                } else {
+                    cell.put("v", v);
+                }
+                cells.add(cell);
+            }
+            row.put("c", cells);
+            rows.add(row);
+        }
+        result.put("rows", rows);
+        return result;
+    }
+
+    private static Document applyQueryParamters(Document query, Document paramtersInfo, Document paramters) {
+        Document filter = new Document(query);
+        for (Map.Entry<String, Object> param : paramtersInfo.entrySet()) {
+            String name = param.getKey();
+            Document info = (Document) param.getValue();
+            Object value = info.get("default");
+            String type = info.getString("type");
+            if (paramters != null && paramters.containsKey(name)) {
+                value = paramters.get(name);
+            }
+            if ("date".equals(type)) {
+                value = new Date(Long.parseLong(value.toString()));
+            } else if (NumberUtils.isCreatable(value.toString())){
+                value = NumberUtils.createNumber(value.toString());
+            }
+            replaceValue(filter, name, value);
+        }
+        return filter;
+    }
+
+    private static void replaceValue(Document document, String name, Object value) {
+        for (Map.Entry<String, Object> item : document.entrySet()) {
+            if (item.getKey().equals(name)) {
+                item.setValue(value);
+            }
+            Object v = item.getValue();
+            if (name.equals(v)) {
+                item.setValue(value);
+            } else if (v instanceof Document) {
+                replaceValue((Document) item.getValue(), name, value);
+            } else if (v instanceof List) {
+                List list = (List) v;
+                for (int i = 0; i < list.size(); i++) {
+                    Object aitem = list.get(i);
+                    if (aitem instanceof Document) {
+                        replaceValue((Document) aitem, name, value);
+                    } else if (name.equals(aitem)) {
+                        list.set(i, value);
+                    }
+                }
+            }
+        }
+    }
+
+    public static long getChartCount(String search) {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        if (StringUtils.isEmpty(search)) {
+            return charts.count();
+        } else {
+            return charts.count(regex("title", search));
+        }
+    }
+
+    public static List<Document> getChartList(String search, int offset, int limit) {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        FindIterable<Document> dataIterable;
+        if (StringUtils.isEmpty(search)) {
+            dataIterable = charts.find();
+        } else {
+            dataIterable = charts.find(regex("title", search));
+        }
+        dataIterable.sort(ascending("_id")).skip(offset).limit(limit);
+        List<Document> results = new ArrayList<>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                normalizeChart(document);
+                results.add(document);
+            }
+        });
+        return results;
+    }
+
+    public static List<Document> getAllCharts() {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        FindIterable<Document> dataIterable = charts.find().sort(ascending("_id"));
+        return dataIterable.into(new ArrayList<Document>());
+    }
+
+    public static boolean updateChartTitle(long id, String title) {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        UpdateResult result = charts.updateOne(eq("_id", id), set("title", title));
+        return result.getModifiedCount() > 0;
+    }
+
+    public static boolean updateChart(Document chart) {
+        MongoCollection<Document> charts = database.getCollection("charts");
+        UpdateResult result = charts.replaceOne(eq("_id", chart.get("_id")), chart);
+        return result.getModifiedCount() > 0;
+    }
+
+    /** wind data related utils */
+    public static JsonObject getWindWsiEntry(String windCode, long date) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WIND_WSI_COL);
+        Document doc = collection.find(combine(eq("windcode", windCode), eq("date", date))).first();
+        return MongoUtil.document2Json(doc);
+    }
+
+    public static JsonObject getWindWsdEntry(String windCode, long date) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WIND_WSD_COL);
+        Document doc = collection.find(combine(eq("windcode", windCode), eq("date", date))).first();
+        return MongoUtil.document2Json(doc);
+    }
+
+    public static JsonObject getWindPerformanceEntry(String windCode, long date) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WIND_WSD_COL);
+        Document doc = collection.find(combine(eq("windcode", windCode), eq("date", date))).first();
+        return MongoUtil.document2Json(doc);
+    }
+
+    public static Document getWindWsetEntry(String windCode) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.WIND_WSET_COL);
+        Document doc = collection.find(eq("windcode", windCode)).first();
+        return doc;
+    }
+
+    public static boolean hasWindWsetEntry(String windCode) {
+        return getWindWsetEntry(windCode) != null;
+    }
+
+    public static boolean upsertWindWsdEntry(String windCode, long date, Document doc, String collectionName) {
+        MongoCollection<Document> col = database.getCollection(collectionName);
+
+        boolean codeOnly = false;
+        if (collectionName.equals(WIND_INFO_COL)) {
+            codeOnly = true;
+        }
+        return updateWindEntry(col, windCode, date, doc, codeOnly);
+    }
+
+    public static boolean upsertWindWsiEntry(String windCode, long date, Document doc) {
+        MongoCollection<Document> col = database.getCollection(MongoUtil.WIND_WSI_COL);
+
+        return updateWindEntry(col, windCode, date, doc, false);
+    }
+
+    private static boolean updateWindEntry(MongoCollection col, String windCode, long date, Document doc, boolean codeOnly) {
+        UpdateOptions upsert = new UpdateOptions();
+        upsert.upsert(true);
+        UpdateResult result;
+        if (!codeOnly) {
+            result = col.updateOne(combine(eq("windcode", windCode), eq("date", date)), new Document("$set", doc), upsert);
+        } else {
+            result = col.updateOne(eq("windcode", windCode), new Document("$set", doc), upsert);
+        }
+//        if (null == result.getUpsertedId()) {
+//            logger.info("a row updated with matched count: " + result.getMatchedCount());
+//        } else {
+//            logger.info("a row inserted with new id: " + result.getUpsertedId());
+//        }
+        return true;
+    }
+
+    public static List<Document> getSectors() {
+        MongoCollection<Document> collection = database.getCollection("sectors");
+        FindIterable<Document> dataIterable = collection.find();
+        List<Document> datas = new ArrayList<Document>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                Long id = (Long)document.remove("_id");
+                String path = document.getString("path");
+                String[] paths = path.split("/");
+                List<Document> temp = datas;
+                for (int i=0; i < paths.length; i++) {
+                    String p = paths[i];
+                    boolean found = false;
+                    Document doc = null;
+                    for (int j=0; j < temp.size(); j++) {
+                        if (temp.get(j).getString("text").equals(p)) {
+                            doc = temp.get(j);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        doc = new Document();
+                        doc.put("text", p);
+                        if (i == paths.length - 1) {
+                            doc.put("id", id.intValue());
+                            Document attr = new Document();
+                            attr.put("group", path);
+                            doc.put("attribute", attr);
+                        } else {
+                            doc.put("id", p);
+                            doc.put("state", "closed");
+                            doc.put("children", new ArrayList<Document>());
+                        }
+                        temp.add(doc);
+                    }
+                    if (i != paths.length - 1) {
+                        temp = doc.get("children", ArrayList.class);
+                    }
+                }
+            }
+        });
+        return datas;
+    }
+
+    public static List<Document> getMeasurements() {
+        MongoCollection<Document> collection = database.getCollection("measurements");
+        FindIterable<Document> dataIterable = collection.find(eq("enabled", true));
+        List<Document> datas = new ArrayList<Document>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                document.remove("_id");
+                String measureId = document.getString("measure_id");
+                String path = document.getString("path");
+                String type = document.getString("type");
+                String table = document.getString("table");
+                String[] paths = path.split("/");
+                List<Document> temp = datas;
+                for (int i=0; i < paths.length; i++) {
+                    String p = paths[i];
+                    boolean found = false;
+                    Document doc = null;
+                    for (int j=0; j < temp.size(); j++) {
+                        if (temp.get(j).getString("text").equals(p)) {
+                            doc = temp.get(j);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        doc = new Document();
+                        doc.put("text", p);
+                        if (i == paths.length - 1) {
+                            doc.put("id", measureId);
+                            Document attr = new Document();
+                            attr.put("type", type);
+                            attr.put("dataName", table);
+                            doc.put("attribute", attr);
+                        } else {
+                            doc.put("id", p);
+                            doc.put("state", "closed");
+                            doc.put("children", new ArrayList<Document>());
+                        }
+                        temp.add(doc);
+                    }
+                    if (i != paths.length - 1) {
+                        temp = doc.get("children", ArrayList.class);
+                    }
+                }
+            }
+        });
+        return datas;
+    }
+
+    public static List<Document> getSecurities(int sectorId) {
+        MongoCollection<Document> collection = database.getCollection("wind_wset");
+
+        Document projection = new Document();
+        projection.put("_id", false);
+        projection.put("sec_name", true);
+        projection.put("windcode", true);
+        FindIterable<Document> dataIterable = collection.find(eq("sectors", sectorId)).projection(projection);
+        List<Document> datas = new ArrayList<Document>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                datas.add(document);
+            }
+        });
+        return datas;
+    }
+
+    public static boolean updateWindWsetEntry(String windCode, Document doc) {
+        MongoCollection<Document> col = database.getCollection(MongoUtil.WIND_WSET_COL);
+        col.updateOne(eq("windcode", windCode), new Document("$addToSet", doc));
+        return true;
+    }
+
+    public static boolean insertWindWsetEntries(List<Document> docs) {
+        MongoCollection<Document> col = database.getCollection(MongoUtil.WIND_WSET_COL);
+        col.insertMany(docs);
+        return true;
+    }
+
+    public static boolean test() {
+
+        MongoCollection<Document> col = database.getCollection("col01");
+        Document doc = new Document();
+        doc.append("arr", System.currentTimeMillis());
+        UpdateResult result = col.updateOne(eq("_id", 1), new Document("$addToSet", doc));
+
+        return true;
+    }
+
+    public static List<Document> getPerformanceIndexes() {
+        String search = "预测评级";
+        return searchByField("path", search, "measurements");
+    }
+
+    public static List<Document> getInformationIndexes() {
+        String search = "基本资料";
+        return searchByField("path", search, "measurements");
+    }
+
+    private static List<Document> searchByField(String field, String search, String collectionName) {
+        MongoCollection<Document> indexes = database.getCollection(collectionName);
+        FindIterable<Document> dataIterable;
+        if (StringUtils.isEmpty(search)) {
+            dataIterable = indexes.find();
+        } else {
+            dataIterable = indexes.find(regex(field, search));
+        }
+        List<Document> results = new ArrayList<>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                results.add(document);
+            }
+        });
+        return results;
+    }
+
+    public static List<Document> getAllCodes() {
+        MongoCollection<Document> codes = database.getCollection(WIND_WSET_COL);
+        FindIterable<Document> dataIterable;
+        dataIterable = codes.find();
+        List<Document> results = new ArrayList<>();
+        dataIterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                results.add(document);
+            }
+        });
+        return results;
+    }
+
+    public static Document getDataSet(String postData) {
+        Document data = Document.parse(postData);
+        return queryDataByChartDefinition(data, null);
+    }
+}

@@ -1,6 +1,63 @@
 
 
 
+------------ 2016-11-17 16:13:59
+intellij idea -> java web
+
+file -> new project -> gradle [choose java & web]
+
+  the folder structure with build.gradle and webapp is generated after auto gradle building.
+  configure tomcat and run, index.jsp is displayable.
+  as mentioned in "http://www.open-open.com/lib/view/1427034613470", 2 build artifacts are added automatically in gradle project. [配置好 tomcat，将gradle生成的artifacts（gradle构建时自动为项目天刚加了2个artifacts，一个是项目的war包，一个是没 打包的exploded，推荐用exploded）添加到tomcat的deployment中。 ]
+
+if there is no WEB-INF/web.xml, create it manually. [add the folder to artifacts if necessary]
+
+~/tmp/gradle_03
+$ tree
+.
+├── build
+│   └── tmp
+│       └── war
+│           └── MANIFEST.MF
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── out
+│   └── artifacts
+│       └── gradle_03
+│           └── exploded
+│               └── gradle_03-1.0-SNAPSHOT.war
+│                   ├── index.jsp
+│                   └── META-INF
+│                       └── MANIFEST.MF
+├── settings.gradle
+└── src
+    ├── main
+    │   ├── java
+    │   ├── resources
+    │   └── webapp
+    │       └── index.jsp
+    └── test
+        ├── java
+        └── resources
+
+19 directories, 10 files
+
+-------- 2016-11-17 15:01:05
+http://www.admin10000.com/document/6018.html
+导入Jar文件
+　　这种可能很常见，可以下载到别人搞好的jar包，这样可以直接在自己的主module下创建libs文件夹(我这里这样，只是为了兼容eclipse方式),然后把jar文件放进去,然后在module的build.gradle文件中的dependecies{}添加如下代码：
+compile files('libs/name.jar')
+　　当libs文件夹下面有多个文件时，可以用一句代码包含这些包:
+compile fileTree(dir: 'libs', include: ['*.jar'])
+　　当有文件不需要被包含时，可以这样:
+compile fileTree(dir: 'libs', exclude: ['android-support*.jar'], include: ['*.jar'])
+　　从上面的代码中可以看到我们可以使用通配符, +表示一个字符，*表示０到多个字符。
+
 ------- 2016-11-16 16:06:03
 java WEB 目录的标准结构  
 
@@ -269,3 +326,71 @@ public class HelloWorld {
   }
 }
 
+--------------- 2016-11-18 17:43:26
+sample build.gradle:
+
+group 'com.abcft'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+jettyRun {
+    httpPort = 9080
+    contextPath = "/"
+    stopKey = "stopKey"
+    stopPort = 9081
+    reload = "automatic"
+    scanIntervalSeconds = 1
+}
+jettyRunWar {
+    httpPort = 9080
+    contextPath = "/"
+    stopKey = "stopKey"
+    stopPort = 9081
+}
+jettyStop {
+    stopKey = "stopKey"
+    stopPort = 9081
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task releaseWar(type: War, dependsOn: classes) {
+    from('src/main/resources/META-INF') {
+        into('WEB-INF/classes/META-INF')
+        include 'config-release.properties', 'persistence-release.xml'
+        rename { String fileName ->
+            fileName.replace("-release", "")
+        }
+    }
+    baseName = "apes-release"
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.11'
+    compile 'log4j:log4j:1.2.17'
+    compile 'org.eclipse.jetty:jetty-util:9.3.8.v20160314'
+    compile 'javax.websocket:javax.websocket-api:1.0'
+    compile 'org.glassfish.tyrus:tyrus-container-grizzly-client:1.8.3'
+    compile 'org.glassfish.jersey.core:jersey-server:2.24'
+    compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.24'
+    testCompile 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:2.24'
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.24'
+    compile 'org.glassfish.jersey.media:jersey-media-multipart:2.24'
+    compile 'mysql:mysql-connector-java:5.1.6'
+    compile 'org.mongodb:mongo-java-driver:3.3.0'
+    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.1.2.Final'
+    compile 'org.apache.commons:commons-lang3:3.5'
+    compile 'com.udojava:EvalEx:1.0'
+}

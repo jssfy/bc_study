@@ -1,5 +1,162 @@
 
 
+-------------- 2016-11-17 17:19:02
+
+    @POST
+    @Path("result")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public static JsonObject result(
+            JsonObject body
+    ) { // call back for wind response
+        long start = System.currentTimeMillis();
+
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+
+        // cmd : string
+        // param : array
+        // data : object
+        //      codeList : codes
+        //      fieldList : fields
+        //      timeList : times
+        //      data : arrays
+        //      errorCode : error status
+
+        String cmd = body.getString("cmd");
+        JsonString dataStr = body.getJsonString("data");
+        // sample data
+        // {"codeList":["000903.SH"],"fieldList":["OPEN","HIGH","SEC_NAME"],"timeList":["2016-11-08T00:00:00","2016-11-09T00:00:00","2016-11-10T00:00:00"],"data":[3156.0273,3172.436,"中证100",3157.6802,3162.2534,"中证100",3162.8038,3193.9868,"中证100"],"errorCode":0}
+        JsonObject data = StringUtils.parseJson(dataStr.getString());
+        JsonArray codeList = data.getJsonArray("codeList"); // codeList does not work if there are multiple windcodes for wsi
+        JsonArray fieldList = data.getJsonArray("fieldList"); // there is a "windcode" field if there are multiple windcodes for wsi
+        JsonArray timeList = data.getJsonArray("timeList");
+        JsonArray dataArray = data.getJsonArray("data");
+        int error = data.getInt("errorCode");
+        if (error != 0) {
+            logger.error("error occurred, to exit with " + error + " for code: " + body.getJsonArray("param").toString());
+            return builder.build();
+        }
+
+        logger.info("cmd is: " + cmd);
+        logger.info("recved result for: " + body.getJsonArray("param").toString());
+
+        String[] dataArr = new String[dataArray.size()];
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i<dataArray.size(); ++i) {
+            JsonValue value = dataArray.get(i);
+            dataArr[i] = value.toString().replace("\"", "");
+            sb.append(dataArr[i] + ",");
+        }
+        logger.info("json array result: " + sb.toString());
+//        return builder.build();
+
+//        temp = temp.replace("\"", "");
+        // there might be different value type in dataArray
+        // JsonArray does not provide any api to judge which method to call to access member
+        // getJsonObject or getJsonNumber or others
+        // hence parse the data string into an object array
+//        Object[] dataArr = temp.substring(1, temp.length()-1).split(",");
+
+        // before upserting, all wincode keeps upper case, and all other keys are converted to lower case
+        int fieldsSize = fieldList.size();
+        if (cmd.equals("wsd")) {
+            if (null == body.getString("collection")) {
+                return null;
+            }
+            String collectionName = body.getString("collection");
+            String windcode = codeList.getString(0);
+            for (int i = 0; i < timeList.size(); ++i) {
+                Document doc = new Document();
+                doc.append("windcode", windcode);
+                doc.append("create_at", System.currentTimeMillis());
+                Long dateLong = TimeUtil.date2TimeStamp(timeList.getString(i).replaceFirst("T", " "), "yyyy-MM-dd HH:mm:ss");
+                doc.append("date", dateLong);
+                for (int j = 0; j < fieldsSize; ++j) {
+                    doc.append(fieldList.getString(j).toLowerCase(), dataArr[i * fieldsSize + j]);
+                }
+                MongoUtil.upsertWindWsdEntry(windcode, dateLong, doc, collectionName);
+            }
+        } else if (cmd.equals("wsi")) {
+            boolean multiple = false;
+            for (int i = 0; i < fieldList.size(); ++i) {
+                if (fieldList.getString(i).equals("windcode")) {
+                    // there are multiple windcodes
+                    multiple = true;
+                    break;
+                }
+            }
+            if (multiple) {
+                for (int i = 0; i < timeList.size(); ++i) {
+                    Document doc = new Document();
+                    doc.append("create_at", System.currentTimeMillis());
+                    Long dateLong = TimeUtil.date2TimeStamp(timeList.getString(i).replaceFirst("T", " "), "yyyy-MM-dd HH:mm:ss");
+                    doc.append("date", dateLong);
+                    String windcode = "";
+                    for (int j = 0; j < fieldList.size(); ++j) {
+                        doc.append(fieldList.getString(j).toLowerCase(), dataArr[i * fieldsSize + j]);
+                        if (fieldList.getString(j).toLowerCase().equals("windcode")) {
+                            windcode = dataArr[i * fieldsSize + j].toString();
+                        }
+                    }
+                    MongoUtil.upsertWindWsiEntry(windcode, dateLong, doc);
+                }
+            } else {
+                // windcode in codeList, same as wsd, but call upsertWindWsiEntry instead
+                String windcode = codeList.getString(0);
+                for (int i = 0; i < timeList.size(); ++i) {
+                    Document doc = new Document();
+                    doc.append("windcode", windcode);
+                    doc.append("create_at", System.currentTimeMillis());
+                    Long dateLong = TimeUtil.date2TimeStamp(timeList.getString(i).replaceFirst("T", " "), "yyyy-MM-dd HH:mm:ss");
+                    doc.append("date", dateLong);
+                    for (int j = 0; j < fieldList.size(); ++j) {
+                        doc.append(fieldList.getString(j).toLowerCase(), dataArr[i * fieldsSize + j]);
+                    }
+                    MongoUtil.upsertWindWsiEntry(windcode, dateLong, doc);
+                }
+            }
+        } else if (cmd.equals("wset")) {
+            Long objId;
+            if (null != body.getJsonNumber("objId")) {
+                objId = body.getJsonNumber("objId").longValue();
+
+                List<Document> docs = new ArrayList<>();
+                int rows = dataArr.length / fieldsSize;
+                for (int i = 0; i < rows; ++i) {
+                    if (MongoUtil.hasWindWsetEntry(dataArr[i * fieldsSize + 1].toString())) {
+                        // logger.info(dataArr[i * fieldsSize + 1].toString() + ": having windwset entry already");
+                        Document doc = new Document();
+                        doc.append("sectors", objId);
+                        MongoUtil.updateWindWsetEntry(dataArr[i * fieldsSize + 1].toString(), doc);
+                    } else {
+                        // logger.info(dataArr[i * fieldsSize + 1].toString() + ": not having windwset entry yet");
+                        Document doc = new Document();
+                        doc.append("_id", MongoUtil.getNextSequence("wind_wset"));
+                        List<Long> objIdArray = new ArrayList<>();
+                        objIdArray.add(objId);
+                        doc.append("sectors", objIdArray);
+                        Long dateLong = TimeUtil.date2TimeStamp(dataArr[i * fieldsSize].toString().replaceFirst("T", " "), "yyyy-MM-dd HH:mm:ss");
+                        doc.append("date", dateLong);
+                        doc.append("create_at", System.currentTimeMillis());
+                        doc.append("windcode", dataArr[i * fieldsSize + 1].toString());
+                        doc.append("sec_name", dataArr[i * fieldsSize + 2].toString());
+                        docs.add(doc);
+                    }
+                }
+                if (docs.size() > 0) {
+                    MongoUtil.insertWindWsetEntries(docs);
+                }
+            } else {
+                logger.error("obj id not existing for returned wset results");
+            }
+        }
+
+        long end = System.currentTimeMillis();
+
+        logger.info("spent " + (end-start) + "ms in total");
+
+        return builder.build();
+    }
 
 ---------- 2016-11-16 13:30:00
 

@@ -59,6 +59,61 @@ INSERT INTO `wind_wsi`
 VALUES
 ("000001.SH","上证综指",NOW(),"2016-11-08 09:31:00.005000","3140.967200","3140.967201","3140.967202","3140.967203","3140.967204","3140.967205","3140.967206","555555553140.967207151515151");
 
+-------- 2016-11-18 16:04:03
+2015-08-11 16:09
+喜欢玩量化的朋友是否还在为寻找免费数据源而烦恼呢，小编最近发现wind量化接口竟然已经向个人免费开放啦！特将此消息广而告之，让更多朋友受益！
+这个数据接口是wind的合作网站“大奖章”推出，个用用户只需注册，并提供手机号码即可免费使用，大家赶快去试试吧！
+
+---------- 2016-11-18 14:55:05
+http://www.dajiangzhang.com/q?a8dc3576-b290-4568-8f6b-6c8292f7bf68
+1. 算一千。 2. 数据量按周算，只要是在当天之前的七天内累计没有超限，就可以继续使用。3. 如果数据需求量大，可考虑开通更高一级数据权限，详见Wind金融终端->量化交易平台->付费包申请 
+
+付费包名称 默认权限 付费包权限 付费包年费 请勾选 
+数据包 Excel 500万/周 
+WSD 600万/周 
+WSS 400万/周 
+WSET 1000万/周 
+WSI 1月内500品种/天 
+WST 1天内500品种/天 
+ Excel 5000万/周 
+WSD 5000万/周 
+WSS 5000万/周 
+WSET 5000万/周 
+WSI 3年内5000品种/天 
+WST 7天内5000品种/天 
+ 3.8万元/年   
+行情包 WSQ 4000个指标 
+ WSQ 40000个指标 
+ 3.8万元/年   
+交易包 模拟交易 证券和期货实盘交易 3.8万元/年 
+
+http://www.dajiangzhang.com/q?90dc3f94-140e-49f3-8a0e-a0ed77083008
+
+您好,wsd数据每周600w条是怎么计算的,比方说我获取一支股票400个指标一天的信息,是算400条还是算1条? 
+
+----------- 2016-11-18 14:51:16
+C:\Users\Administrator\Desktop>python
+Python 2.7.6 (default, Nov 10 2013, 19:24:24) [MSC v.1500 64 bit (AMD64)] on win
+32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from WindPy import *
+>>> w.start()
+Welcome to use Wind Quant API for Python (WindPy)!
+You can use w.menu to help yourself to create commands(WSD,WSS,WST,WSI,WSQ,...)!
+
+
+COPYRIGHT (C) 2016 WIND HONGHUI INFORMATION & TECHKNOLEWDGE CO., LTD. ALL RIGHTS
+ RESERVED.
+IN NO CIRCUMSTANCE SHALL WIND BE RESPONSIBLE FOR ANY DAMAGES OR LOSSES CAUSED BY
+ USING WIND QUANT API FOR Python.
+.ErrorCode=0
+.Data=[OK!]
+>>> w.wsd('002204.SZ', 'pre_close,open,high,low,close,volume,amt,dealnum,chg,pct_chg,swing,vwap,adjfactor,close2,turn,free_turn,oi,oi_chg,pre_settle,settle,chg_settlement,pct_chg_settlement,lastradeday_s,last_trade_day,rel_ipo_chg,rel_ipo_pct_chg,trade_status,susp_days,susp_reason,maxupordown,discount,discount_ratio,open3,high3,low3,close3,settle3,oi3,close_FX,close_usd', "2016-01-01", "2016-11-17", "")
+.ErrorCode=-40522017
+.Codes=[ErrorReport]
+.Fields=[OUTMESSAGE]
+.Times=[20161118]
+.Data=[[CWSDService: quota exceeded.]]
 
 ------- 2016-11-16 11:43:53
 2016-11-16 11:38:42 INFO  WindController:119 - data: "{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2016-11-16T11:38:43\"],\"data\":[\"CWSDService: multi-codes with multi-indicators is not supported.\"],\"errorCode\":-40522018}"

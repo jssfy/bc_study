@@ -1,0 +1,52 @@
+
+
+--------- 2016-11-22 10:42:03
+https://msdn.microsoft.com/en-us/library/windows/desktop/ee684007.aspx
+
+
+http://blog.csdn.net/ffeiffei/article/details/6637418
+
+MS UI Automation是MSAA技术的一个替代品：即让控件和应用程序具有更好的可达性（accessible），关于软件的可达性，具体大家可参考一本<<Engineering Software for Accessibility>>的书，该书结合MS UIA，讲述了如何在软件开发的整个生命周期中，让软件具备可达性。回到MS UIA，简单来讲，它就是几个dll，提供了一套API和Interface，及其相应的模式，让软件的开发者遵循该模式去实现相应的interface，从而软件的使用者（不仅仅是客户，还包括例如测试人员想编写一些自动化测试代码来完成程序相关的业务逻辑）能更好的使用该软件。
+
+和原来的MSAA相比较：UIA重新设计了一套架构，无论是对传统的winform，还是新的wpf，定义了一套统一的模型；其API的使用也相对更简单；同时，和.net framework 3.0一起，也有个UISpy的工具，能辅助大家来使用UIA。
+
+
+http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDKX_EN_DVD.iso 
+
+I have an Intel i7, Win 7 64 bit and I was able to resolve this by downloading the Windows SDK 7.1 (iso image) from this link.
+
+http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDKX_EN_DVD.iso
+
+I had tried several downloads and this was the only one that actually contained the ../setup/WinSDK_amd64\WinSDK_amd64.msi file that the error message references.
+
+Previous to finding this download I had tried removing every single instance of the C++ redistributable for each version of Visual studio I had installed. This alone did not work, because the other Win 7 SDK downloads I tried did not contain the ../setup/WinSDK_amd64\WinSDK_amd64.msi file that the error message references.
+
+
+----------- 2016-11-22 12:40:31
+When installing the Microsoft Windows SDK for Windows 7 and .NET Framework 4 (Windows 7 SDK), you may see the "Installation Failed" dialog which may contain the following information: 
+
+Installation of the “Microsoft Windows SDKfor Windows 7” product has reported the following error: Please refer to Samples\Setup\HTML\ConfigDetails.htm document for further information.
+
+
+The setup log file contains the following error message:
+
+C:\Program Files\Microsoft SDKs\Windows\v7.1\Setup\SFX\vcredist_x86.exe installation failed with return code 5100
+
+OR
+
+C:\Program Files\Microsoft SDKs\Windows\v7.1\Setup\SFX\vcredist_x64.exe installation failed with return code 5100
+Back to the top | Give Feedback
+CAUSE
+This issue occurs when you install the Windows 7 SDK on a computer that has a newer version of the Visual C++ 2010 Redistributable installed.  The Windows 7 SDK installs version 10.0.30319 of the Visual C++ 2010 Redistributable. 
+Back to the top | Give Feedback
+RESOLUTION
+To resolve this issue, you must uninstall all versions of the Visual C++ 2010 Redistributable before installing the Windows 7 SDK.  You may have one or more of the following products installed:
+
+    Microsoft Visual C++ 2010 x86 Redistributable
+    Microsoft Visual C++ 2010 x64 Redistributable
+
+After uninstalling the Microsoft Visual C++ 2010 Redistributable products, you may install the Windows 7 SDK.  After installing the Windows 7 SDK, you may then reinstall the newer version of the Visual C++ 2010 Redistributable products, in order to restore the Visual C++ 2010 Redistributable products to their original state.
+Back to the top | Give Feedback
+Note This is a "FAST PUBLISH" article created directly from within the Microsoft support organization. The information contained herein is provided as-is in response to emerging issues. As a result of the speed in making it available, the materials may include typographical errors and may be revised at any time without notice. See Terms of Use for other considerations.
+
+

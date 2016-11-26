@@ -6,6 +6,20 @@ qrcode + personal info picture
 
 url sharing + id
 
+
+----------- 2016-11-24 14:13:06
+\frontend\controllers\ajax\AuthorizedAjaxController
+?? auto login??
+
+--------- 2016-11-24 11:38:43
+UI spy
+
+inspect.exe
+
+
+------------ 2016-11-24 11:26:32
+yii, batch insert??
+
 ---------- 2016-10-24 13:33:21 
 ???
 after copying the whole website to a new folder, accessing gii does not work.

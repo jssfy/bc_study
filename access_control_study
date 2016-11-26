@@ -1,6 +1,239 @@
 
 
----------- 
+
+
+---------- 2016-11-26 10:17:42
+'only' seems to limit those actions which are forbidden, while rules are allowing actions.
+If both declared, it seems rules apply finally.
+
+class SiteController extends WebController
+{
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => VoteAccessControl::className(),
+                'only' => ['index'],
+                'rules' => [
+                    [
+                        'actions' => [
+                            'index',
+                            'story',
+                            'test',
+                        ],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+
+----------- 2016-11-23 11:01:05
+how to enable auto login:
+
+2016-11-23 12:33:20 [10.12.0.36][27][-][error][abc\frontend\models\User::findIdentity] findIdentity: 27
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:29
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/models/User.php:87
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/wevote/filters/VoteAccessControl.php:33
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/User.php
+    protected function renewAuthStatus()
+    {
+        error_log('renewauthstatus');
+        Logger::info('renewauthstatus');
+        $session = Yii::$app->getSession();
+        Logger::info('has session id: ' . $session->getHasSessionId() . ', is alive: ' . $session->getIsActive());
+        Logger::info('idParam is ' . $this->idParam);
+        $id =  $session->getIsActive() ? $session->get($this->idParam) : null;
+        Logger::info('!!!!!!!!!!!!!!!!!id is: ' . $id);
+        Logger::info('!!!!!!!!!!!!!!!!!idParam is: ' . $session->get($this->idParam));
+        Logger::info('session: ' . Json::encode($session));
+
+        if ($id === null) {
+            Logger::info('1');
+            $identity = null;
+        } else {
+            Logger::info('2');
+            /* @var $class IdentityInterface */
+            $class = $this->identityClass;
+            $identity = $class::findIdentity($id);
+        }
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/wevote/controllers/SiteController.php
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => VoteAccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => [
+                            'index',
+                            'story',
+                        ],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+//                'actions' => [
+//                    'index',
+//                ],
+            ],
+        ];
+    }
+
+    refer to /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/filters/AccessControl.php -> beforeAction to find out how rules is used.
+
+2016-11-23 10:57:29 [][info][abc\yii\web\User::loginRequired] login required
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:19
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/filters/InviterFilter.php:27
+
+namespace frontend\filters;
+
+use Yii;
+use yii\filters\AccessControl;
+use frontend\components\util\Logger;
+
+class InviterFilter extends AccessControl
+{
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action)
+    {
+        $request = Yii::$app->getRequest();
+        $iid = $request->get('iid');
+        if (!is_null($iid)) {
+            $session = Yii::$app->session;
+            if ($session->isActive) {
+                $_SESSION['iid'] = $iid;
+                Logger::info("an action triggered with inviter_id: ".$iid);
+            }
+        }
+
+        return parent::beforeAction($action);
+    }
+}
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/User.php
+    public function loginRequired($checkAjax = true, $checkAcceptHeader = true)
+    {
+        error_log('login required');
+        Logger::info('login required');
+        $request = Yii::$app->getRequest();
+        $canRedirect = !$checkAcceptHeader || $this->checkRedirectAcceptable();
+        if ($this->enableSession
+            && $request->getIsGet()
+            && (!$checkAjax || !$request->getIsAjax())
+            && $canRedirect
+        ) {
+            $this->setReturnUrl($request->getUrl());
+        }
+        if ($this->loginUrl !== null && $canRedirect) {
+            $loginUrl = (array) $this->loginUrl;
+            if ($loginUrl[0] !== Yii::$app->requestedRoute) {
+                return Yii::$app->getResponse()->redirect($this->loginUrl);
+            }
+        }
+        throw new ForbiddenHttpException(Yii::t('yii', 'Login Required'));
+    }
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/filters/AccessControl.php
+    /**
+     * Denies the access of the user.
+     * The default implementation will redirect the user to the login page if he is a guest;
+     * if the user is already logged, a 403 HTTP exception will be thrown.
+     * @param User $user the current user
+     * @throws ForbiddenHttpException if the user is already logged in.
+     */
+    protected function denyAccess($user)
+    {
+        if ($user->getIsGuest()) {
+            $user->loginRequired();
+        } else {
+            throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
+        }
+    }
+
+        /**
+     * This method is invoked right before an action is to be executed (after all possible filters.)
+     * You may override this method to do last-minute preparation for the action.
+     * @param Action $action the action to be executed.
+     * @return boolean whether the action should continue to be executed.
+     */
+    public function beforeAction($action)
+    {
+        Logger::info('parent beforeaction');
+        $user = $this->user;
+        $request = Yii::$app->getRequest();
+        /* @var $rule AccessRule */
+        foreach ($this->rules as $rule) {
+            if ($allow = $rule->allows($action, $user, $request)) {
+                return true;
+            } elseif ($allow === false) {
+                if (isset($rule->denyCallback)) {
+                    Logger::info('1');
+                    call_user_func($rule->denyCallback, $rule, $action);
+                } elseif ($this->denyCallback !== null) {
+                    Logger::info('2');
+                    call_user_func($this->denyCallback, $rule, $action);
+                } else {
+                    Logger::info('3');
+                    $this->denyAccess($user);
+                }
+                return false;
+            }
+        }
+        if ($this->denyCallback !== null) {
+            Logger::info('4');
+            call_user_func($this->denyCallback, null, $action);
+        } else {
+            Logger::info('5');
+            $this->denyAccess($user);
+        }
+        return false;
+    }
+----------  2016-11-22 20:58:00
+/home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/User.php
+    public function loginRequired($checkAjax = true, $checkAcceptHeader = true)
+    {
+        $request = Yii::$app->getRequest();
+        $canRedirect = !$checkAcceptHeader || $this->checkRedirectAcceptable();
+        if ($this->enableSession
+            && $request->getIsGet()
+            && (!$checkAjax || !$request->getIsAjax())
+            && $canRedirect
+        ) {
+            $this->setReturnUrl($request->getUrl());
+        }
+        if ($this->loginUrl !== null && $canRedirect) {
+            $loginUrl = (array) $this->loginUrl;
+            if ($loginUrl[0] !== Yii::$app->requestedRoute) {
+                return Yii::$app->getResponse()->redirect($this->loginUrl);
+            }
+        }
+        throw new ForbiddenHttpException(Yii::t('yii', 'Login Required'));
+    }
+
 
 
 ----------- 2016-10-21 12:07:29

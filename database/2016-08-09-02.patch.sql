@@ -1,0 +1,1 @@
+alter table `checkin` add column veto_admin_id bigint(20) default -1 COMMENT '-1: not vetoed';

@@ -1,0 +1,222 @@
+
+
+
+---------- 2016-11-26 11:31:57
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/config/main.php
+        'errorHandler' => [
+            'class' => 'frontend\components\ErrorHandler',
+        ],
+
+error page:
+  /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/views/site/error.html 
+
+when an exception is thrown:
+2016-11-26 11:43:09 [27][info][abc\frontend\components\ErrorHandler::renderException] request: "/wevote/vote/create"
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/util/Logger.php:19
+    in /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php:87
+
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php
+/**
+     * Renders the exception.
+     * @param \Exception $exception the exception to be rendered.
+     */
+    protected function renderException($exception)
+    {
+        Logger::info('to render exception !!!!!!!!!!');
+        if (Yii::$app->has('response')) {
+            $response = Yii::$app->getResponse();
+            // reset parameters of response to avoid interference with partially created response data
+            // in case the error occurred while sending the response.
+            $response->isSent = false;
+            $response->stream = null;
+            $response->data = null;
+            $response->content = null;
+        } else {
+            $response = new Response();
+        }
+
+        $useErrorView = $response->format === Response::FORMAT_HTML && (!YII_DEBUG || $exception instanceof UserException);
+
+        if ($useErrorView && $this->errorAction !== null) {
+            Logger::info('1 to render exception !!!!!!!!!!');
+            $result = Yii::$app->runAction($this->errorAction);
+            if ($result instanceof Response) {
+                $response = $result;
+            } else {
+                $response->data = $result;
+            }
+        } elseif ($response->format === Response::FORMAT_HTML) {
+            Logger::info('2.0   to render exception !!!!!!!!!!');
+            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+                // AJAX request
+                $response->data = '<pre>' . $this->htmlEncode(static::convertExceptionToString($exception)) . '</pre>';
+            } else {
+
+                Logger::info('2 to render exception !!!!!!!!!!');
+                // if there is an error during error rendering it's useful to
+                // display PHP error in debug mode instead of a blank screen
+                if (YII_DEBUG) {
+                    ini_set('display_errors', 1);
+                }
+                Logger::info('request: ' . Json::encode(\Yii::$app->request->url));
+                $file = $useErrorView ? $this->errorView : $this->exceptionView;
+                $response->data = $this->renderFile($file, [
+                    'exception' => $exception,
+                ]);
+            }
+        } elseif ($response->format === Response::FORMAT_RAW) {
+            $response->data = static::convertExceptionToString($exception);
+        } else {
+            $response->data = $this->convertExceptionToArray($exception);
+        }
+
+        if ($exception instanceof HttpException) {
+            $response->setStatusCode($exception->statusCode);
+        } else {
+            $response->setStatusCode(500);
+        }
+
+        $response->send();
+    }
+
+---------- 2016-11-23 19:44:00
+started from yesterday afternoon:
+yesterday
+  1. copied a website to make a separate folder for wevote
+  2. study the auto login issue
+today
+  1. fixed the auto login issue this morning.
+  2. merged the new code and make login work in the dev env.
+  3. finished the prototypes for all actions/apis at https://wiki.niub.la/wevote
+  4. db design
+
+
+------ 2016-11-24 15:14:01
+test on 'VoteManager::getJoinedListByUser(3)':
+
+mysql> insert into wv_ticket set vid=1, uid=3, oid=4, is_creator=0;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into wv_ticket set vid=2, uid=3, oid=4, is_creator=0;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into wv_ticket set vid=3, uid=3, oid=4, is_creator=0;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> update wv_ticket set uid=2 where vid=2;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from wv_ticket;
++----+-----+-----+-----+------------+---------------------+
+| id | vid | uid | oid | is_creator | create_time         |
++----+-----+-----+-----+------------+---------------------+
+|  1 |   1 |   3 |   4 |          0 | 2016-11-24 15:10:34 |
+|  2 |   2 |   2 |   4 |          0 | 2016-11-24 15:10:39 |
+|  3 |   3 |   3 |   4 |          0 | 2016-11-24 15:13:08 |
++----+-----+-----+-----+------------+---------------------+
+3 rows in set (0.00 sec)
+
+
+---------- 2016-11-24 10:57:56
+date conversion from 2016/11/25 to 2016-11-25 23:59:59
+http://php.net/manual/zh/datetime.createfromformat.php
+
+
+------------ 2016-11-22 15:25:22
+
+$ gitk 755bcd13d0390918878dbfd7725ad984a2910860
+
+~/workspace/bc/advanced/MissionImpossible
+$ ./env.sh dev
+Yii Application Initialization Tool v1.0
+
+
+  Start initialization ...
+
+  unchanged yii
+  unchanged console/config/params-local.php
+  unchanged console/config/main-local.php
+  unchanged website/config/params-local.php
+      exist website/config/main-local.php
+            ...overwrite? [Yes|No|All|Quit]   overwrite website/config/main-local.php
+  unchanged website/web/index-test.php
+  unchanged website/web/index.php
+  unchanged common/config/params-local.php
+  unchanged common/config/main-local.php
+  unchanged frontend/config/params-local.php
+  overwrite frontend/config/main-local.php
+  unchanged frontend/web/index-test.php
+  unchanged frontend/web/index.php
+  unchanged tests/codeception/config/config-local.php
+  unchanged wevote/config/params-local.php
+  overwrite wevote/config/main-local.php
+  unchanged wevote/web/index-test.php
+  unchanged wevote/web/index.php
+  unchanged backend/config/params-local.php
+  overwrite backend/config/main-local.php
+  unchanged backend/web/index-test.php
+  unchanged backend/web/index.php
+   generate cookie validation key in backend/config/main-local.php
+   generate cookie validation key in frontend/config/main-local.php
+   generate cookie validation key in website/config/main-local.php
+   generate cookie validation key in wevote/config/main-local.php
+      chmod 0777 backend/runtime
+      chmod 0777 backend/web/assets
+      chmod 0777 frontend/runtime
+      chmod 0777 frontend/web/assets
+      chmod 0777 website/runtime
+      chmod 0777 website/web/assets
+      chmod 0777 wevote/runtime
+      chmod 0777 wevote/web/assets
+      chmod 0755 yii
+      chmod 0755 tests/codeception/bin/yii
+
+  ... initialization completed.
+
+----------- 2016-11-23 20:40:57
+
+DROP TABLE IF EXISTS `wv_vote`;
+CREATE TABLE `wv_vote` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) DEFAULT NULL,
+  `description` varchar(560) DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
+  `end_time` timestamp NOT NULL COMMENT '结束时间',
+  `multiple` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否允许多选: 0不允许 1允许',
+  `has_image` tinyint(1) NOT NULL DEFAULT '0' COMMENT '选项是否允许附加图片: 0否 1是',
+  `visible` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0投票后可见 1任何时候可见',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='投票基本信息';
+
+DROP TABLE IF EXISTS `wv_comments`;
+CREATE TABLE `wv_comments` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `vid` bigint(20) NOT NULL COMMENT 'wv_vote id',
+  `uid` bigint(20) NOT NULL  COMMENT 'user id',
+  `content` varchar(560) DEFAULT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='留言';
+
+DROP TABLE IF EXISTS `wv_options`;
+CREATE TABLE `wv_options` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `vid` bigint(20) NOT NULL COMMENT 'wv_vote id',
+  `content` varchar(560) DEFAULT NULL,
+  `icon` varchar(1024) DEFAULT NULL,
+  `count` bigint(20) NOT NULL COMMENT 'vote count',
+  `win` tinyint(1) NOT NULL DEFAULT '0' COMMENT '优胜选项: 0否 1是',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='可用投票选项';
+
+DROP TABLE IF EXISTS `wv_ticket`;
+CREATE TABLE `wv_ticket` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `vid` bigint(20) NOT NULL COMMENT 'wv_vote id',
+  `uid` bigint(20) NOT NULL  COMMENT 'user id',
+  `oid` bigint(20) NOT NULL  COMMENT 'wv_options id',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='投票操作';
+

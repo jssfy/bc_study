@@ -1,4 +1,115 @@
 
+to make service account menu come into effect, unsubscribe and then resubscribe.
+
+
+[ahye@tz8-server001 vote-dev.yqtz8.com]$ php yii tools/create-wechat-menu
+PHP Warning:  Module 'gd' already loaded in Unknown on line 0
+{"button":[{"type":"view","name":"我的投票","url":"https:\/\/vote-dev.yqtz8.com\/vote\/list"},{"type":"view","name":"发起投票","url":"https:\/\/vote-dev.yqtz8.com\/vote\/create"},{"name":"挑战","sub_button":[{"type":"view","name":"我的挑战","url":"https:\/\/wx-dev.yqtz8.com\/mission\/list"},{"type":"view","name":"发起挑战","url":"https:\/\/wx-dev.yqtz8.com\/mission\/create"},{"type":"click","name":"我要打卡","key":"BUTTON_CHECKIN"},{"type":"click","name":"邀请二维码","key":"BUTTON_TEMP_QRCODE"},{"type":"click","name":"社交","key":"BUTTON_SOCIAL"}]}]}array(2) {
+  ["res"]=>
+  string(27) "{"errcode":0,"errmsg":"ok"}"
+  ["httpCode"]=>
+  int(200)
+}
+Error: Module 'gd' already loaded
+
+
+----------- 2016-11-26 14:45:15
+wechat service account's menu url might have to be https-prefixed, needing ops to enable https support.
+
+
+------------- 2016-11-25 13:50:32
+changed from https to http, it takes lots of effort to take effect:
+    restart, relogin, unsubscribe, etc.
+
+class ToolsController extends Controller
+{
+
+    // Wechat custom menu
+    private static $custom_menu = [
+        "button" => [
+            [
+                "type" => "view",
+                "name" => "我的投票",
+                "url" => "https://vote-dev.yqtz8.com/vote/list"
+            ],
+            [
+                "type" => "view",
+                "name" => "发起投票",
+                "url" => "https://vote-dev.yqtz8.com/vote/create"
+            ],
+            [
+                "name" => "挑战",
+                "sub_button" => [
+                    [
+                        "type" => "view",
+                        "name" => "我的挑战",
+                        "url" => "https://wx-dev.yqtz8.com/mission/list"
+                    ],
+                    [
+                        "type" => "view",
+                        "name" => "发起挑战",
+                        "url" => "https://wx-dev.yqtz8.com/mission/create"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "我要打卡",
+                        "key" => "BUTTON_CHECKIN"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "邀请二维码",
+                        "key" => "BUTTON_TEMP_QRCODE"
+                    ],
+                    [
+                        "type" => "click",
+                        "name" => "社交",
+                        "key" => "BUTTON_SOCIAL"
+                    ],
+                ],
+            ],
+        ]
+    ];
+
+    public function actionUpdateUserinfo()
+    {
+        $accounts = Account::find()->all();
+        foreach ($accounts as $account) {
+            // 没有open_id，可能是从客户端绑定了微信帐号
+            if (empty($account->open_id)) {
+                continue;
+            }
+            $token = Wechat::getMpAccessToken();
+            $resp = Wechat::getUserInfoCgi($account->open_id, $token);
+            if (empty($resp)) {
+                Logger::info('get userinfo for user ' . $account->nickname . ' failed');
+                continue;
+            } else {
+                // update union id, head image and nickname
+                $account->union_id = $resp['unionid'];
+                if (!empty($resp['headimgurl'])) {
+                    $account->avatar = $resp['headimgurl'];
+                }
+                if (!empty($resp['nickname'])) {
+                    $account->nickname = $resp['nickname'];
+                }
+                $account->save();
+            }
+        }
+    }
+
+    public function actionCreateWechatMenu()
+    {
+        $token = Wechat::getMpAccessToken();
+        if (!$token) {
+            throw new AppException('获取access token失败');
+        }
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $token;
+        $menu_data = json_encode(self::$custom_menu, JSON_UNESCAPED_UNICODE);
+        echo $menu_data;
+        $res = Util::curl($method = 'POST', $url, $postData = $menu_data);
+        var_dump($res);
+    }
+
 
 ---------- 2016-10-27 13:37:14
 authorization:

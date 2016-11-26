@@ -1,0 +1,1 @@
+alter table `challenge_reward` add column `bill_number` varchar(50) null default "" comment "发送红包的订单号";

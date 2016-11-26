@@ -1,6 +1,84 @@
 
 
 
+------------- 2016-11-26 20:29:19
+/home/kidd/workspace/bc/advanced/MissionImpossible/frontend/config/main.php
+    'components' => [
+        'controllerMap' => [
+            'tttt' => 'frontend\controllers\TestController',
+        ],
+
+        
+An Error occurred while handling another error:
+yii\base\InvalidConfigException: Unknown component ID: request in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php:136
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(144): yii\di\ServiceLocator->get('request')
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Component.php(130): yii\web\Application->getRequest()
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php(73): yii\base\Component->__get('request')
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php(85): yii\di\ServiceLocator->__get('request')
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/ErrorHandler.php(109): frontend\components\ErrorHandler->renderException(Object(yii\base\InvalidConfigException))
+#5 [internal function]: yii\base\ErrorHandler->handleException(Object(yii\base\InvalidConfigException))
+#6 {main}
+Previous exception:
+yii\base\InvalidConfigException: The configuration for the "controllerMap" component must contain a "class" element. in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php:202
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php(258): yii\di\ServiceLocator->set('controllerMap', Array)
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Component.php(169): yii\di\ServiceLocator->setComponents(Array)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/BaseYii.php(521): yii\base\Component->__set('components', Array)
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Object.php(105): yii\BaseYii::configure(Object(yii\web\Application), Array)
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(206): yii\base\Object->__construct(Array)
+#5 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/web/index.php(19): yii\base\Application->__construct(Array)
+#6 {main}
+
+
+
+----------- 2016-11-26 16:22:38
+
+controllerMap
+
+An Error occurred while handling another error:
+yii\base\InvalidConfigException: Unknown component ID: request in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php:136
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/web/Application.php(144): yii\di\ServiceLocator->get('request')
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Component.php(130): yii\web\Application->getRequest()
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php(73): yii\base\Component->__get('request')
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/components/ErrorHandler.php(85): yii\di\ServiceLocator->__get('request')
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/ErrorHandler.php(109): frontend\components\ErrorHandler->renderException(Object(yii\base\InvalidConfigException))
+#5 [internal function]: yii\base\ErrorHandler->handleException(Object(yii\base\InvalidConfigException))
+#6 {main}
+Previous exception:
+yii\base\InvalidConfigException: The configuration for the "controllerMap" component must contain a "class" element. in /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php:202
+Stack trace:
+#0 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/di/ServiceLocator.php(258): yii\di\ServiceLocator->set('controllerMap', Array)
+#1 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Component.php(169): yii\di\ServiceLocator->setComponents(Array)
+#2 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/BaseYii.php(521): yii\base\Component->__set('components', Array)
+#3 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Object.php(105): yii\BaseYii::configure(Object(yii\web\Application), Array)
+#4 /home/kidd/workspace/bc/advanced/MissionImpossible/vendor/yiisoft/yii2/base/Application.php(206): yii\base\Object->__construct(Array)
+#5 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/web/index.php(19): yii\base\Application->__construct(Array)
+#6 {main}
+
+
+-------------- 2016-11-25 12:20:49
+
+Next exception 'yii\web\NotFoundHttpException' with message '页面未找到。' in /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/web/Application.php:99
+Stack trace:
+#0 /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#1 /niub/www/sourcecode/vote-dev.yqtz8.com/wevote/web/index.php(20): yii\base\Application->run()
+#2 {main}
+2016-11-25 12:20:16 [123.126.24.14][-][-][error][abc\wevote\components\ErrorHandler::logException] exception 'yii\base\InvalidRouteException' with message 'Unable to resolve the request "ajax/system/reporterror".' in /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/base/Module.php:460
+Stack trace:
+#0 /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/web/Application.php(87): yii\base\Module->runAction('ajax/system/rep...', Array)
+#1 /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#2 /niub/www/sourcecode/vote-dev.yqtz8.com/wevote/web/index.php(20): yii\base\Application->run()
+#3 {main}
+
+Next exception 'yii\web\NotFoundHttpException' with message '页面未找到。' in /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/web/Application.php:99
+Stack trace:
+#0 /niub/www/sourcecode/vote-dev.yqtz8.com/vendor/yiisoft/yii2/base/Application.php(375): yii\web\Application->handleRequest(Object(yii\web\Request))
+#1 /niub/www/sourcecode/vote-dev.yqtz8.com/wevote/web/index.php(20): yii\base\Application->run()
+#2 {main}
+
+
 ------------ 2016-11-11 20:33:34
 2016-11-11 20:26:34 INFO  WindController:30 - read object: 4
 java.lang.RuntimeException: Could not find an implementation class.

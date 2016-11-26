@@ -1,6 +1,54 @@
 
 
 
+--------------- 2016-11-26 17:32:54
+
+ error: unpack failed: error Missing tree
+最近新建一个仓库，push时遇到如下问题，试了好多方法，最后在stackoverflow上找到解决办法了，可是在开始时就试过这方法，但不成。至于为嘛出现的这种错误，还是不明白原因。
+git.exe push --progress  "origin" release:refs/for/release%r=xxx
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 663 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+error: unpack failed: error Missing tree 4201fba85e02299e016f0129621858ec21ac94ae
+To (url)
+! [remote rejected] release -> refs/for/release%r=xxx(n/a (unpacker error))
+error: failed to push some refs to '(url)'
+git did not exit cleanly (exit code 1) (593 ms @ 2015/5/15 9:51:12)
+ 
+解决方法：git push --no-thin origin HEAD:refs/for/release
+Git还得花时间研究下，刚接触不久，小菜鸟一枚，好多原理都还弄不明白
+
+有时候我们执行 git push 将一个 new branch 推送到远程仓库的时候，会被远程仓库阻止。
+可能是我们没有相应的权限吧。然而，我在 git push 的时候加上 --no-thin 参数，就可以将其推送上去了。
+
+git push –no-thin 实际上禁止了“thin pack transfer”优化。
+--thin
+--no-thin
+    These options are passed to git-send-pack(1). A thin transfer significantly reduces the amount of sent data when the sender and receiver share many of the same objects in common. The default is --thin.
+
+---------- 2016-11-25 10:52:01
+$ gpm
+git push origin HEAD:refs/for/master
+Counting objects: 1, done.
+Writing objects: 100% (1/1), 305 bytes | 0 bytes/s, done.
+Total 1 (delta 0), reused 0 (delta 0)
+error: unpack failed: error Missing tree bb6a900990667cbda4576f907e37a472bcaf975c
+fatal: Unpack error, check server log
+To ssh://anhye@git.niub.la:29419/BC/MissionImpossible
+ ! [remote rejected] HEAD -> refs/for/master (n/a (unpacker error))
+error: failed to push some refs to 'ssh://anhye@git.niub.la:29419/BC/MissionImpossible'
+
+  possible fix: reset to some old commit and git pull
+
+$ git fetch ssh://anhye@git.niub.la:29419/BC/MissionImpossible refs/changes/48/29148/1 && git cherry-pick FETCH_HEAD
+From ssh://git.niub.la:29419/BC/MissionImpossible
+ * branch            refs/changes/48/29148/1 -> FETCH_HEAD
+[master 4d04fec] [BugFix] add paging for ajax get apis
+ 3 files changed, 30 insertions(+), 17 deletions(-)
+
+
 -------- 2016-11-11 14:33:43
 $ gpm
 git push origin HEAD:refs/for/master
