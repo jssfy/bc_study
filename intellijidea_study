@@ -1,5 +1,7 @@
 
 
+after creating a gradle project with java and web checked, the project structure shows the artifacts which will load src/main/webapp into the root folder.
+
 ---------- 2016-11-17 18:19:37
 ??
 

@@ -1,5 +1,207 @@
 
 
+
+---------- 2016-11-29 18:32:34
+
+    public static String convertToHtml(String docPath) {
+        try {
+            String docName = FilenameUtils.getName(docPath);
+            String htmlFilePath = FileUtil.getHtmlDirectory() + "/" + StringUtils.toHexStr(docName) + ".html";
+            String fileExt = FilenameUtils.getExtension(docPath).toLowerCase();
+
+            switch (fileExt) {
+                case "doc":
+                case "docx":
+                    com.aspose.words.Document doc = new com.aspose.words.Document(docPath);
+                    convertWordToHtml(doc, htmlFilePath);
+                    break;
+                case "pdf":
+                    com.aspose.pdf.Document pdf = new com.aspose.pdf.Document(docPath);
+                    convertPdfToHtml(pdf, htmlFilePath);
+                    break;
+
+                default:
+                    break;
+            }
+
+            File file = new File(htmlFilePath);
+            HtmlUtil.addTags(file);
+
+            return htmlFilePath;
+        } catch (Exception e) {
+            LOGGER.error("convertToHtml", e);
+        }
+        return null;
+    }
+    
+    public static String convertPdfToHtml(com.aspose.pdf.Document doc, String filePath) {
+        //String fileId = StringUtils.toHexStr(fileName);
+        try {
+            File chartDir = FileUtil.getChartDirectory();
+            com.aspose.pdf.HtmlSaveOptions saveOptions = new com.aspose.pdf.HtmlSaveOptions();
+
+            //saveOptions.setFixedLayout(true);
+            //saveOptions.SpecialFolderForSvgImages = chartDir.getPath();
+            //saveOptions.RasterImagesSavingMode = HtmlSaveOptions.RasterImagesSavingModes.AsExternalPngFilesReferencedViaSvg;
+            saveOptions.RasterImagesSavingMode = HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground;
+            saveOptions.PartsEmbeddingMode = HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml;
+            saveOptions.LettersPositioningMethod = LettersPositioningMethods.UseEmUnitsAndCompensationOfRoundingErrorsInCss;
+            saveOptions.setCompressSvgGraphicsIfAny(true);
+
+            doc.save(filePath, saveOptions);
+
+            return filePath;
+        } catch (Exception e) {
+            LOGGER.error("convertToHtml", e);
+        }
+        return null;
+    }
+
+
+
+    public static String convertWordToHtml(com.aspose.words.Document doc, String filePath) {
+        //String fileId = StringUtils.toHexStr(fileName);
+        //String filePath = FileUtil.getHtmlDirectory() + "/" + fileId + ".html";
+        try {
+            File chartDir = FileUtil.getChartDirectory();
+
+            com.aspose.words.HtmlSaveOptions saveOptions = new com.aspose.words.HtmlSaveOptions(com.aspose.words.SaveFormat.HTML);
+            //saveOptions.setImagesFolder(chartDir.getPath());
+            //saveOptions.setImagesFolderAlias("api/v1/file/image");
+            saveOptions.setExportImagesAsBase64(true);
+            saveOptions.setExportDocumentProperties(true);
+            saveOptions.setExportPageMargins(true);
+            saveOptions.setExportPageSetup(true);
+            saveOptions.setExportRelativeFontSize(true);
+            saveOptions.setExportTocPageNumbers(true);
+            saveOptions.setExportXhtmlTransitional(true);
+            saveOptions.setPrettyFormat(true);
+            saveOptions.setUpdateSdtContent(true);
+            saveOptions.setExportListLabels(ExportListLabels.BY_HTML_TAGS);
+            saveOptions.setExportLanguageInformation(true);
+            saveOptions.setAllowNegativeIndent(true);
+            saveOptions.setExportRoundtripInformation(true);
+            //saveOptions.setScaleImageToShapeSize(true);
+            //saveOptions.setDefaultTemplate();
+
+            //analysisWord(doc);
+
+            doc.save(filePath, saveOptions);
+
+            return filePath;
+        } catch (Exception e) {
+            LOGGER.error("convertToHtml", e);
+        }
+        return null;
+    }
+
+----------- 2016-11-29 17:57:04
+    public static String getFileName(ContentDisposition contentDisposition) {
+        String fileName = contentDisposition.getFileName();
+        try {
+            byte[] bytes = fileName.getBytes("ISO8859-1");
+            fileName = new String(bytes, "utf-8");
+            return fileName;
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("getFileName failed", e);
+            return fileName;
+        }
+    }
+
+https://my.oschina.net/chape/blog/201725
+在JSP页面获取表单的值时会出现乱码，有两种解决方法：
+1.在调用getParameter之前通过request.setCharacterEncoding设置字符编码
+2.调用new String(str.getBytes("iso8859-1"), "UTF-8");编码后解码
+
+https://my.oschina.net/u/189445/blog/528059
+iso8859-1 通常叫做Latin-1
+属于单字节编码，最多能表示的字符范围是0-255，应用于英文系列。比如，字母a的编码为0x61=97。 
+    很明显，iso8859-1编码表示的字符范围很窄，无法表示中文字符。但是，由于是单字节编码，和计算机最基础的表示单位一致，所以很多时候，仍旧使用iso8859-1编码来表示。而且在很多协议上，默认使用该编码。比如，虽然"中文"两个字不存在iso8859-1编码，以gb2312编码为例，应该是"d6d0 cec4"两个字符（java字符占2个字节），使用iso8859-1编码的时候则将它拆开为4个字节来表示："d6 d0 ce c4"（事实上，在进行存储的时候，也是以字节为单位处理的）。而如果是UTF编码，则是6个字节"e4 b8 ad e6 96 87"。很明显，这种表示方法还需要以另一种编码为基础。  
+
+
+
+------------- 2016-11-29 17:03:04
+
+        Pattern pattern = Pattern.compile("\\\\");
+        String source = "\\hi\\how\\are\\you";
+        String[] arr = pattern.split(source);
+        for (String item : arr
+             ) {
+            logger.info(item);
+        }
+
+2016-11-29 17:02:42 INFO  TemplateController:48 - 
+2016-11-29 17:02:42 INFO  TemplateController:48 - hi
+2016-11-29 17:02:42 INFO  TemplateController:48 - how
+2016-11-29 17:02:42 INFO  TemplateController:48 - are
+2016-11-29 17:02:42 INFO  TemplateController:48 - you
+
+---------- 2016-11-29 14:45:32
+java save html as pic:
+
+1. not working well:
+        try {
+
+            Desktop.getDesktop().browse(
+                    new URL("http://www.baidu.com").toURI());
+            Robot robot = new Robot();
+            robot.delay(10000);
+            Dimension d = new Dimension(Toolkit.getDefaultToolkit().getScreenSize());
+            int width = (int) d.getWidth();
+            int height = (int) d.getHeight();
+            //最大化浏览器
+            robot.keyRelease(KeyEvent.VK_F11);
+            robot.delay(2000);
+            Image image = robot.createScreenCapture(new Rectangle(0, 0, width,
+                    height));
+            BufferedImage bi = new BufferedImage(width, height,
+                    BufferedImage.TYPE_INT_RGB);
+            Graphics g = bi.createGraphics();
+            g.drawImage(image, 0, 0, width, height, null);
+            //保存图片
+            ImageIO.write(bi, "jpg", new File("/tmp/baidu.jpg"));
+        } catch (java.awt.AWTException e) {
+            e.printStackTrace();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        } catch (java.net.URISyntaxException e) {
+            e.printStackTrace();
+        }
+2. https://github.com/xuwei-k/html2image
+
+
+----------- 2016-11-29 14:15:06
+extracted:
+
+这两天碰到一个需求需要将一些html转为图片格式，一开始想到之前用过的第三方组件库html2image,但是后来发现这个库对一些较复杂的html支持得不是很好，一些较为复杂的css没法解析，于是看了点它的源代码，打算修改下，后来发现不太现实哈，一些过于复杂的css确实不好直接转换并绘成图片，于是想到用java后台截图，网上一搜，方法还真不少，这哥们写的不错，供大家参考：http://blog.csdn.net/cping1982/article/details/5353049
+
+
+
+------------ 2016-11-28 14:04:25
+
+
+    public static Timestamp strToTs(String str) throws ParseException {
+         try {
+             Timestamp ts = Timestamp.valueOf(str);
+             return ts;
+         } catch (Exception e){
+             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+             Date date = formatter.parse(str);
+             Timestamp ts = new Timestamp(date.getTime());
+             return ts;
+         }
+    }
+
+    public static JsonObject parseJson(String string) {
+        if (StringUtils.isEmpty(string)) {
+            return Json.createObjectBuilder().build();
+        }
+        JsonReader jsonReader = Json.createReader(new StringReader(string));
+        JsonObject object = jsonReader.readObject();
+        jsonReader.close();
+        return object;
+    }
+
 ---------- 2016-11-18 17:45:06
 log4j
 在apache网站：jakarta.apache.org/log4j 可以免费下载到Log4j最新版本的软件包。

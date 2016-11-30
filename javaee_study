@@ -1,0 +1,8 @@
+
+
+---------- 2016-11-28 16:59:40
+
+
+/home/kidd/workspace/abc/apes/src/main/java/com/abcft/apes/filters/JWTSecurityFilter.java
+  public void filter(ContainerRequestContext containerRequestContext) throws IOException{}
+    comment to empty to make controllers work without login.

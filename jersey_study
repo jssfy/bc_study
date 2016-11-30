@@ -1,5 +1,57 @@
 
 
+
+------------- 2016-11-29 19:42:03
+    @GET
+    @Path("v2/report/export")
+    @Produces({"application/docx"})
+    public Response export(
+            @NotNull @QueryParam("id") String id
+    ){
+        try {
+            String filePath = WordUtil.exportDoc(id);
+            File exportFile = new File(filePath);
+            if(!exportFile.exists()) {
+                logger.warn(exportFile.getAbsolutePath() + " not found");
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            Response.ResponseBuilder response = Response.ok()
+                    .entity(exportFile)
+                    .type("application/docx");
+
+            response.header("Content-Disposition", "attachment; filename=" + URLEncoder.encode(exportFile.getName(), "UTF-8"));
+            return response.build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+    
+---------- 2016-11-29 17:11:01
+    @RolesAllowed({"admin", "user"})
+    @POST
+    @Path("v2/template/import")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public JsonObject upload(
+            @FormDataParam("files") FormDataBodyPart bodyPart
+    ) {
+        JsonObject userJson = getCurrentUser();
+        try {
+            for (BodyPart part : bodyPart.getParent().getBodyParts()) {
+                ContentDisposition contentDisposition = part.getContentDisposition();
+                String fileName = FileUtil.getFileName(contentDisposition);
+                MongoUtil.saveTemplate(fileName, userJson);
+            }
+            return BaseController.getResponse(true);
+        } catch (Exception e) {
+            return BaseController.getResponse(false);
+        }
+    }
+
+    /home/kidd/.gradle/caches/modules-2/files-2.1/org.glassfish.jersey.media/jersey-media-multipart/2.24/528dd2b1ce7f16440717556c8c30d5610f693629/jersey-media-multipart-2.24-sources.jar!/org/glassfish/jersey/media/multipart/ContentDisposition.java
+
 ------------ 2016-11-21 19:56:50
 https://jersey.java.net/documentation/latest/user-guide.html#getting-started
 

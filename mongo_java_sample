@@ -1,3 +1,112 @@
+
+
+
+
+------------ 2016-11-29 19:58:01
+
+
+    public static JsonObject checkUserByItem(String key, Object username, String password, boolean verify) {
+        try {
+            BasicDBObject query = new BasicDBObject();
+            query.put(key, username);
+            query.put("password", password);
+            query.put("email_verify", verify);
+
+            MongoCollection<Document> collection = database.getCollection(MongoUtil.ACCOUNT_COL);
+            Document doc = collection.find(query).first();
+            if (doc == null) {
+                logger.error("check user by item failed: " + key + " " + username.toString() +  " verify: " + verify );
+                return null;
+            }
+
+            JsonObject docJson = MongoUtil.document2Json(doc);
+            return docJson;
+        } catch (Exception e) {
+            //e.printStackTrace();
+            logger.info(e.getMessage());
+        }
+
+        return null;
+    }
+
+---------- 2016-11-29 16:52:36
+/home/kidd/.gradle/caches/modules-2/files-2.1/org.mongodb/mongo-java-driver/3.3.0/4ebe2ddf24fdb88a53b44dd23ee51157eb5af9cb/mongo-java-driver-3.3.0-sources.jar!/org/bson/Document.java
+
+    private static JsonObject document2Json(Document doc) {
+        if (doc == null) {
+            logger.warn("doc is null");
+            return null;
+        }
+        ObjectId oid = (ObjectId)doc.remove("_id");
+        doc = doc.append("id", oid.toHexString());
+        return StringUtils.parseJson(doc.toJson());
+    }
+
+    public static JsonObject parseJson(String string) {
+        if (StringUtils.isEmpty(string)) {
+            return Json.createObjectBuilder().build();
+        }
+        JsonReader jsonReader = Json.createReader(new StringReader(string));
+        JsonObject object = jsonReader.readObject();
+        jsonReader.close();
+        return object;
+    }
+
+
+---------- 2016-11-28 14:22:48
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
+import static com.mongodb.client.model.Updates.*;
+
+public static List<JsonObject> getReportList(
+            String sort,
+            String order,
+            int offset,
+            int limit
+    ) {
+        MongoCollection<Document> collection = database.getCollection(MongoUtil.REPORT_COL);
+
+        MongoCursor<Document> cursor = null;
+        if (! sort.equals("")) {
+            Bson sorting = null;
+            if (order.equals("asc")) {//modify by kygeng 2016-11-22
+                sorting = ascending(sort);
+            } else {
+                sorting = descending(sort);
+            }
+            cursor = collection.find().sort(sorting).skip(offset).limit(limit).iterator();
+        } else {
+            cursor = collection.find().skip(offset).limit(limit).iterator();
+        }
+
+        List<JsonObject> docs = new ArrayList<JsonObject>();
+        try {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                String createAt = StringUtils.tsToStr(new Timestamp(doc.getLong("create_at")));
+                String updateAt = StringUtils.tsToStr(new Timestamp(doc.getLong("update_at")));
+                doc.put("create_at", createAt);
+                doc.put("update_at", updateAt);
+                docs.add(MongoUtil.document2Json(doc));
+            }
+        } finally {
+            cursor.close();
+        }
+        return docs
+    }
+
+/home/kidd/.gradle/caches/modules-2/files-2.1/org.mongodb/mongo-java-driver/3.3.0/4ebe2ddf24fdb88a53b44dd23ee51157eb5af9cb/mongo-java-driver-3.3.0-sources.jar!/com/mongodb/client/FindIterable.java
+/home/kidd/.gradle/caches/modules-2/files-2.1/org.mongodb/mongo-java-driver/3.3.0/4ebe2ddf24fdb88a53b44dd23ee51157eb5af9cb/mongo-java-driver-3.3.0-sources.jar!/com/mongodb/client/model/Sorts.java
+
+
+
+
+
+
+
+
+--------------- 
 package com.abcft.apes.util;
 
 import com.mongodb.*;

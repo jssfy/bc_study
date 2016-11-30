@@ -1,0 +1,238 @@
+
+ssh ahye@120.26.245.253
+
+
+[ahye@bj-tz8-db001 ~]$ tail ~/.bashrc
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+# User specific aliases and functions
+export PATH=$PATH:/usr/local/mysql/bin/
+
+-------- 2016-11-30 11:13:18
+$ ssh ahye@120.26.245.253
+
+[ahye@bj-tz8-db001 ~]$ lsb_release -a
+LSB Version:  :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID: CentOS
+Description:  CentOS release 6.5 (Final)
+Release:  6.5
+Codename: Final
+
+db: jydb
+用户名密码为： jydb/jydb
+
+MySql 5.1直接修改MY.INI文件中的:
+default-character-set=gbk
+character-set-server=gbk
+设置项为：GBK
+MySql 5.1以上没有MY.INI文件时，复制一份my-default.ini重命名为MY.INI，并在文件结尾处添加:
+default-character-set=gbk
+character-set-server=gbk
+最后重启MySql服务，使用语句再次查询验证           show variables like 'character_set_%';
+
+直接修改MY.INI文件中的  
+innodb_log_file_size=512M
+innodb_log_buffer_size=16M
+max_connections = 2000
+table_open_cache = 8000
+max_connect_errors = 10000
+max_allowed_packet = 1G
+wait_timeout = 86400
+
+[root@bj-tz8-db001 mysql]# vim /etc/my.cnf
+
+--------------- 2016-11-30 11:26:23
+[ahye@bj-tz8-db001 ~]$ mysql -u root 
+
+mysql> create database jydb;
+
+mysql> show variables like 'character_set_%';
++--------------------------+----------------------------------+
+| Variable_name            | Value                            |
++--------------------------+----------------------------------+
+| character_set_client     | utf8mb4                          |
+| character_set_connection | utf8mb4                          |
+| character_set_database   | utf8mb4                          |
+| character_set_filesystem | binary                           |
+| character_set_results    | utf8mb4                          |
+| character_set_server     | utf8mb4                          |
+| character_set_system     | utf8                             |
+| character_sets_dir       | /usr/local/mysql/share/charsets/ |
++--------------------------+----------------------------------+
+8 rows in set (0.00 sec)
+
+mysql> create user 'jydb'@'%' identified by 'jydb';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select Host, User, Password from user;
++--------------+------+-------------------------------------------+
+| Host         | User | Password                                  |
++--------------+------+-------------------------------------------+
+| localhost    | root |                                           |
+| bj-tz8-db001 | root |                                           |
+| 127.0.0.1    | root |                                           |
+| ::1          | root |                                           |
+| localhost    |      |                                           |
+| bj-tz8-db001 |      |                                           |
+| %            | jydb | *C8B0EF1DC58B898EB416C2645DCB8E6427E27F8F |
++--------------+------+-------------------------------------------+
+7 rows in set (0.00 sec)
+
+mysql> grant select, insert, update, delete on jydb.* to 'jydb'@'%';
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> show grants for jydb
+    -> ;
++-----------------------------------------------------------------------------------------------------+
+| Grants for jydb@%                                                                                   |
++-----------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'jydb'@'%' IDENTIFIED BY PASSWORD '*C8B0EF1DC58B898EB416C2645DCB8E6427E27F8F' |
+| GRANT SELECT, INSERT, UPDATE, DELETE ON `jydb`.* TO 'jydb'@'%' 
+
+
+notice: /etc/my.cnf instead of /usr/local/mysql/my.cnf
+
+[root@bj-tz8-db001 mysql]# ls /etc/my.cnf 
+/etc/my.cnf
+[root@bj-tz8-db001 mysql]# vim /etc/my.cnf 
+[root@bj-tz8-db001 mysql]# /etc/init.d/mysql restart
+Shutting down MySQL..                                      [  OK  ]
+Starting MySQL.............................                [  OK  ]
+[root@bj-tz8-db001 mysql]# mysql -u root
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1
+Server version: 5.6.32-log MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show variables like 'character_set_%';
++--------------------------+----------------------------------+
+| Variable_name            | Value                            |
++--------------------------+----------------------------------+
+| character_set_client     | gbk                              |
+| character_set_connection | gbk                              |
+| character_set_database   | gbk                              |
+| character_set_filesystem | binary                           |
+| character_set_results    | gbk                              |
+| character_set_server     | gbk                              |
+| character_set_system     | utf8                             |
+| character_sets_dir       | /usr/local/mysql/share/charsets/ |
++--------------------------+----------------------------------+
+8 rows in set (0.00 sec)
+
+1. exec /home/kidd/Downloads/data/hnkjqdsjk01/mysql_tab_replaced_by_space.sql
+  some might fail due to "\t", replace with spaces
+
+2. exec /home/kidd/Downloads/data/hnkjqdsjk01/JYDB_Const_MySQL_ALL_tab_replaced_by_spaces.sql
+
+273 rows in total
+
+看你的mysql现在已提供什么存储引擎:
+mysql> show engines;
+
+看你的mysql当前默认的存储引擎:
+mysql> show variables like '%storage_engine%';
+
+你要看某个表用了什么引擎(在显示结果里参数engine后面的就表示该表当前用的存储引擎):
+mysql> show create table 表名;
+
+
+[root@bj-tz8-db001 prong]# ls
+datasync-client-2  datasync-client-2.zip  __MACOSX  newuser.sh
+[root@bj-tz8-db001 prong]# ls datasync-client-2
+install-service.bat  restart.bat  stop.bat
+jetty-6.1.26         restart.sh   uninstall-service.bat
+jre1.8.0_51          start.bat    version_2.6.txt
+[root@bj-tz8-db001 prong]# cd datasync-client-2
+[root@bj-tz8-db001 datasync-client-2]# ./restart.sh
+bash: ./restart.sh: Permission denied
+[root@bj-tz8-db001 datasync-client-2]# vim restart.sh
+[root@bj-tz8-db001 datasync-client-2]# sudo ./restart.sh
+sudo: ./restart.sh: command not found
+[root@bj-tz8-db001 datasync-client-2]# sudo sh ./restart.sh
+./restart.sh: line 7: /opt/gildata/client/operation.log: No such file or directory
+Starting Data Sync Client...
+Restart Data Sync Client successfully.
+./restart.sh: line 16: /opt/gildata/client/jetty-6.1.26/bin/jetty.sh: No such file or directory
+[root@bj-tz8-db001 datasync-client-2]# mkdir -p /opt/gildata/client
+[root@bj-tz8-db001 datasync-client-2]# sudo sh ./restart.sh
+Starting Data Sync Client...
+Restart Data Sync Client successfully.
+./restart.sh: line 16: /opt/gildata/client/jetty-6.1.26/bin/jetty.sh: No such file or directory
+[root@bj-tz8-db001 datasync-client-2]# ls
+install-service.bat  restart.bat  stop.bat
+jetty-6.1.26         restart.sh   uninstall-service.bat
+jre1.8.0_51          start.bat    version_2.6.txt
+[root@bj-tz8-db001 datasync-client-2]# ls jetty-6.1.26/bin/
+build_release_bundles.sh  jetty-service.conf  jetty-tasks.xml
+change_version.sh         Jetty-Service.exe   jetty-xinetd.sh
+jetty-cygwin.sh           jetty.sh            README.jetty-cygwin.txt.txt
+[root@bj-tz8-db001 datasync-client-2]# mkdir /opt/gildata/client/
+mkdir: cannot create directory `/opt/gildata/client/': File exists
+[root@bj-tz8-db001 datasync-client-2]# cp -r jetty-6.1.26/ /opt/gildata/client/
+[root@bj-tz8-db001 datasync-client-2]# ls /opt/gildata/client/
+jetty-6.1.26  operation.log
+
+[root@bj-tz8-db001 datasync-client-2]# sudo sh ./restart.sh
+Starting Data Sync Client...
+Restart Data Sync Client successfully.
+./restart.sh: line 16: /opt/gildata/client/jetty-6.1.26/bin/jetty.sh: Permission denied
+
+
+show error log in restart.sh:
+  $BASEDIR/bin/jetty.sh restart # > /dev/null &
+
+
+cp over jetty to a specific folder if necessary.
+download jdk if necessary.
+
+chmod for restart.sh to executable
+
+modify restart.sh to set the correct java home which has a bin folder containing an executable: java
+
+[root@bj-tz8-db001 datasync-client-2]# ./restart.sh
+Starting Data Sync Client...
+/usr/lib/jvm/jre-1.8.0-openjdk.x86_64
+JETTY_HOME     =  /opt/gildata/client/jetty-6.1.26
+JETTY_CONF     =  
+JETTY_RUN      =  /var/run
+JETTY_PID      =  /var/run/jetty.pid
+JETTY_ARGS     =  
+CONFIGS        =  /opt/gildata/client/jetty-6.1.26/etc/jetty-logging.xml /opt/gildata/client/jetty-6.1.26/etc/jetty.xml
+JAVA_OPTIONS   =   -Djetty.home=/opt/gildata/client/jetty-6.1.26 -Djava.io.tmpdir=/tmp
+JAVA           =  /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+JETTY_HOME     =  /opt/gildata/client/jetty-6.1.26
+JETTY_CONF     =  
+JETTY_RUN      =  /var/run
+JETTY_PID      =  /var/run/jetty.pid
+JETTY_ARGS     =  
+CONFIGS        =  /opt/gildata/client/jetty-6.1.26/etc/jetty-logging.xml /opt/gildata/client/jetty-6.1.26/etc/jetty.xml
+JAVA_OPTIONS   =   -Djetty.home=/opt/gildata/client/jetty-6.1.26 -Djava.io.tmpdir=/tmp
+JAVA           =  /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+Stopping Jetty: OK
+JETTY_HOME     =  /opt/gildata/client/jetty-6.1.26
+JETTY_CONF     =  
+JETTY_RUN      =  /var/run
+JETTY_PID      =  /var/run/jetty.pid
+JETTY_ARGS     =  
+CONFIGS        =  /opt/gildata/client/jetty-6.1.26/etc/jetty-logging.xml /opt/gildata/client/jetty-6.1.26/etc/jetty.xml
+JAVA_OPTIONS   =   -Djetty.home=/opt/gildata/client/jetty-6.1.26 -Djava.io.tmpdir=/tmp
+JAVA           =  /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+Starting Jetty: STARTED Jetty 2016年 11月 30日 星期三 16:31:31 CST
+Restart Data Sync Client successfully.
+[root@bj-tz8-db001 datasync-client-2]# 2016-11-30 16:31:31.549:INFO::Logging to STDERR via org.mortbay.log.StdErrLog
+2016-11-30 16:31:31.633:INFO::Redirecting stderr/stdout to /opt/gildata/client/jetty-6.1.26/logs/2016_11_30.stderrout.log
+
+http://120.26.245.253:8180/datasyncclient/login.seam
+set dns for host

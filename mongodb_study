@@ -5,6 +5,84 @@ shell cmds:
   db.stats()
 
 
+----------- 2016-11-29 20:31:04
+BSON是由10gen开发的一个数据格式，目前主要用于MongoDB中，是MongoDB的数据存储格式。BSON基于JSON格式，选择JSON进行改造的原因主要是JSON的通用性及JSON的schemaless的特性。
+BSON主要会实现以下三点目标：
+1.更快的遍历速度
+对JSON格式来说，太大的JSON结构会导致数据遍历非常慢。在JSON中，要跳过一个文档进行数据读取，需要对此文档进行扫描才行，需要进行麻烦的数据结构匹配，比如括号的匹配，而BSON对JSON的一大改进就是，它会将JSON的每一个元素的长度存在元素的头部，这样你只需要读取到元素长度就能直接seek到指定的点上进行读取了。
+2.操作更简易
+对JSON来说，数据存储是无类型的，比如你要修改基本一个值，从9到10，由于从一个字符变成了两个，所以可能其后面的所有内容都需要往后移一位才可以。而使用BSON，你可以指定这个列为数字列，那么无论数字从9长到10还是100，我们都只是在存储数字的那一位上进行修改，不会导致数据总长变大。当然，在MongoDB中，如果数字从整形增大到长整型，还是会导致数据总长变大的。
+3.增加了额外的数据类型
+JSON是一个很方便的数据交换格式，但是其类型比较有限。BSON在其基础上增加了“byte array”数据类型。这使得二进制的存储不再需要先base64转换后再存成JSON。大大减少了计算开销和数据大小。
+当然，在有的时候，BSON相对JSON来说也并没有空间上的优势，比如对{“field”:7}，在JSON的存储上7只使用了一个字节，而如果用BSON，那就是至少4个字节（32位）
+目前在10gen的努力下，BSON已经有了针对多种语言的编码解码包。并且都是Apache 2 license下开源的。并且还在随着MongoDB进一步地发展。
+
+MongoDB使用BSON做为文档数据存储和网络传输格式
+
+http://suo.iteye.com/blog/1073243
+按照官方的说法，MongoDB是一种可扩展的高性能的开源的面向文档（document-oriented ）的数据库，采用C++开发。
+    面向文档，那么什么是文档呢？很明显这不是我们常见的word文档。这里说的文档，是一种可以嵌套的数据集合。从关系数据库的范式的概念来说，嵌套是明显的反范式设计。范式设计的好处是消除了依赖，但是增加了关联，查询需要通过关联两张或者多张表来获得所需要的全部数据，但是更改操作是原子的，只需要修改一个地方即可。反范式则是增加了数据冗余来提升查询性能，但更新操作可能需要更新冗余的多处数据，需要注意一致性的问题。
+
+
+---------- 2016-11-28 14:34:03
+
+
+mongodb现有的数据是这样
+    {  
+      "_id" : ObjectId("4ec0b2a4ecb31ca1968000fd"),  
+      "id" : 1001,  
+      "singer" : "刘德华",  
+      "someReview" : [{  
+          "user" : "dong",  
+          "text" : "不好听"  
+        }, {  
+          "user" : "wan",  
+          "text" : "打酱油"  
+        }, {  
+          "user" : "wan",  
+          "text" : "真的挺不错，一直很喜欢刘德华"  
+        }]  
+    }  
+ 查出的结果是
+    {  
+          "user" : "wan",  
+          "text" : "打酱油"  
+    }      
+ 请问改怎么查？？谢谢
+
+楼主，你好，假如你的表(collection)叫test，可以这样做，
+db.test.find({"someReview.user":"wan"},{"someReview.user":1,"someReview.text":1})
+第一个参数是查询条件，第二参数是要查询的字段
+
+db.things.find( { someReview.user: "wan" } );
+
+> use test
+switched to db test
+> db.test.insert([{'name' : 'kidd', 'age' : 5}, {'name' : 'jssfy', age : 6}])
+> db.test.find()
+{ "_id" : ObjectId("583bd14667e7f31d19e6f506"), "name" : "kidd", "age" : 5 }
+{ "_id" : ObjectId("583bd14667e7f31d19e6f507"), "name" : "jssfy", "age" : 6 }
+> db.test.insert({[{'name' : 'kidd', 'age' : 5}, {'name' : 'jssfy', age : 6}]})
+Mon Nov 28 14:41:07.671 SyntaxError: Unexpected token [
+> db.test.insert({array : [{'name' : 'kidd', 'age' : 5}, {'name' : 'jssfy', age : 6}]})
+> db.test.find()
+{ "_id" : ObjectId("583bd14667e7f31d19e6f506"), "name" : "kidd", "age" : 5 }
+{ "_id" : ObjectId("583bd14667e7f31d19e6f507"), "name" : "jssfy", "age" : 6 }
+{ "_id" : ObjectId("583bd19367e7f31d19e6f508"), "array" : [  {  "name" : "kidd",  "age" : 5 },  {  "name" : "jssfy",  "age" : 6 } ] }
+> db.test.find({array.name : kidd})
+Mon Nov 28 14:41:49.518 SyntaxError: Unexpected token .
+> db.test.find({array.name : 'kidd'})
+Mon Nov 28 14:41:54.374 SyntaxError: Unexpected token .
+> db.test.find({'array.name' : 'kidd'})
+{ "_id" : ObjectId("583bd19367e7f31d19e6f508"), "array" : [  {  "name" : "kidd",  "age" : 5 },  {  "name" : "jssfy",  "age" : 6 } ] }
+
+> db.test.find()
+{ "_id" : ObjectId("583bd14667e7f31d19e6f506"), "name" : "kidd", "age" : 5 }
+{ "_id" : ObjectId("583bd14667e7f31d19e6f507"), "name" : "jssfy", "age" : 6 }
+{ "_id" : ObjectId("583bd19367e7f31d19e6f508"), "array" : [  {  "name" : "kidd",  "age" : 5 },  {  "name" : "jssfy",  "age" : 6 } ] }
+{ "_id" : ObjectId("583bd37867e7f31d19e6f509"), "fruits" : [  "apple",  "banana",  "pear" ] }
+> db.test.find({fruits : 'banana'})
+{ "_id" : ObjectId("583bd37867e7f31d19e6f509"), "fruits" : [  "apple",  "banana",  "pear" ] }
 
 ----------- 2016-11-21 14:47:10
 db.tushare_information.update({}, {$unset:{'area' : ''}}, {multi: true})

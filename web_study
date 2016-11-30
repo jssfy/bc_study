@@ -15,6 +15,16 @@ $ curl -l -H "Content-type: application/json" -d '{"phone":"13521389587","passwo
             JsonObject body
     ) { // call back for wind response
 
+curl -l -H "Content-type: application/json" -d '{"type":"13521389587","type":"test"}' http://localhost:9080/api/v2/template/save
+
+$ curl -X POST http://localhost:9080/api/v2/template/delete?id=583bf55439c6627c10a6a2ac
+{
+    "tid":"583bf55439c6627c10a6a2ac",
+    "success":true,
+    "message":"ok"
+}
+
+
 ---------- 2016-11-21 19:14:50
 http://blog.csdn.net/blueheart20/article/details/45174399
 

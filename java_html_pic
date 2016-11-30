@@ -1,0 +1,26 @@
+
+
+---------- 2016-11-30 10:04:25
+https://sourceforge.net/projects/cssbox/files/latest/download?source=files
+
+cssbox
+
+~/Downloads/cssbox-4.12/doc/examples
+$ ./example.sh SimpleBrowser http://www.baidu.com/
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+kidd@kidd-OptiPlex-9020:
+~/Downloads/cssbox-4.12/doc/examples
+$ ./example.sh SimpleBrowser http://www.baidu.com/
+log4j:WARN No appenders could be found for logger (cz.vutbr.web.css.CSSFactory).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+kidd@kidd-OptiPlex-9020:
+~/Downloads/cssbox-4.12/doc/examples
+$ ls
+example.bat  example.sh  README
+kidd@kidd-OptiPlex-9020:
+~/Downloads/cssbox-4.12/doc/examples
+$ subl log4j.properties
+

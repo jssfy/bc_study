@@ -1,6 +1,45 @@
 
 
 
+
+----------- 2016-11-30 17:01:51
+
+~/software/jetty9/bin
+$ sudo cp jetty.sh /etc/init.d/jetty
+
+$ sudo service jetty restart
+Stopping Jetty: No process in pidfile '/var/run/jetty.pid' found running; none killed.
+OK
+Starting Jetty: . FAILED Wed Nov 30 17:01:31 CST 2016
+
+$ netstat -apn | grep 8085
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp6       0      0 :::8085                 :::*                    LISTEN      14897/java 
+
+$ ps -ef | grep 14897
+kidd     14897  2941  0 16:49 pts/30   00:00:12 /usr/bin/java -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.home=/home/kidd/software/jetty9 -Djetty.base=/home/kidd/software/jetty9 -Djava.io.tmpdir=/tmp -jar /home/kidd/software/jetty9/start.jar jetty.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml
+
+~/software/jetty9/bin
+$ ./jetty.sh stop
+Stopping Jetty: OK
+
+~/software/jetty9
+$ tree webapps/
+webapps/
+├── apes-1.0-SNAPSHOT.war
+├── hello
+│   └── index.html
+└── README.TXT
+
+1 directory, 3 files
+
+http://localhost:8085/hello/index.html
+
+2016-11-30 17:49:00.647:WARN:oejx.XmlConfiguration:main: Property 'jetty.port' is deprecated, use 'jetty.http.port' instead
+
+change jetty.port to jetty.http.port in /etc/default/jetty
+
 ---------- 2016-11-14 15:56:03
 http://www.eclipse.org/jetty/download.html
 

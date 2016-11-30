@@ -1,0 +1,20 @@
+
+
+
+------------ 2016-11-30 15:08:07
+
+[root@bj-tz8-db001 prong]# cat newuser.sh 
+#!/usr/bin/env bash
+
+USER_NAME=$1
+PUB_KEY=$2
+
+echo 'Create user ...'
+useradd -G adm -d /home/$USER_NAME -m $USER_NAME -s /bin/bash
+mkdir /home/$USER_NAME/.ssh
+
+echo 'Gen ssh auth ...'
+echo $PUB_KEY | tee /home/$USER_NAME/.ssh/authorized_keys
+chown $USER_NAME:$USER_NAME -R /home/$USER_NAME/.ssh/
+
+echo 'Done'

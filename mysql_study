@@ -4,6 +4,36 @@ mysql manual:
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
 
+
+----------- 2016-11-30 15:45:20
+use information_schema;
+select table_name,table_rows from tables where TABLE_SCHEMA = 'jydb' order by table_rows desc;
+
+--------- 2016-11-30 12:41:41
+
+配置文件路径：/full/path/mysql/bin/my.cnf （默认为/etc/my.cnf ）
+
+
+-------- 2016-11-30 11:44:11
+my.cnf
+[client]
+default-character-set = gbk
+
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | gbk                        |
+| character_set_connection | gbk                        |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | gbk                        |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+
 ---------- 2016-11-25 10:45:50
 mysql> select distinct uid from wv_ticket;
 +-----+
@@ -309,7 +339,7 @@ mysql> alter table country convert to character set utf8mb4;
 Query OK, 13 rows affected (0.07 sec)
 Records: 13  Duplicates: 0  Warnings: 0
 当然还可以设置mysql的客户端和服务器的默认编码
-vi /etc/mysql/my.conf
+vi /etc/mysql/my.cnf
 在[mysql] 下面 添加  default-character-set=utf8
 在[mysqld] 下面添加 
 character-set-server=utf8
