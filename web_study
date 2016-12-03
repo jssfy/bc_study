@@ -24,6 +24,9 @@ $ curl -X POST http://localhost:9080/api/v2/template/delete?id=583bf55439c6627c1
     "message":"ok"
 }
 
+curl -X post http://localhost:9080/api/v2/company/send-code?phone=15611267534
+
+curl -d '{"type":"13521389587","name":"test"}' -X post http://localhost:9080/api/v2/company/create?code=2468
 
 ---------- 2016-11-21 19:14:50
 http://blog.csdn.net/blueheart20/article/details/45174399

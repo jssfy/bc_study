@@ -1,6 +1,10 @@
 
 
 
+------- 2016-12-03 14:16:03
+create multiple jetty instances:
+
+  http://jingyan.baidu.com/article/5552ef4726b8ce518ffbc981.html
 
 ----------- 2016-11-30 17:01:51
 
@@ -92,4 +96,183 @@ JAVA_OPTIONS   =  -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.ho
 JETTY_ARGS     =  jetty.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml
 RUN_CMD        =  /usr/bin/java -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.home=/home/kidd/software/jetty9 -Djetty.base=/home/kidd/software/jetty9 -Djava.io.tmpdir=/tmp -jar /home/kidd/software/jetty9/start.jar jetty.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml
 
+------------- 2016-12-03 10:45:05
+~/software/jetty9
+$ sudo ./bin/jetty.sh restart
+Stopping Jetty: OK
+Starting Jetty: . OK 2016年 12月 03日 星期六 10:44:52 CST
 
+"restart" might fail sometimes, shutting down jetty which was started by idea helped.
+
+$ ls webapps/
+apes-1.0-SNAPSHOT.war  README.TXT  root
+
+the website under webapps/root can be accessed directly.
+
+
+
+
+$ cat /var/run/jetty.pid 
+14812
+kidd@kidd-OptiPlex-9020:
+~/software/jetty9
+$ ps -ef | grep jetty
+kidd     12917 17123  0 10:17 pts/32   00:00:00 ssh jetty@10.12.6.6
+kidd     14812  3271  1 10:46 ?        00:00:09 /usr/bin/java -Djetty.logging.dir=/home/kidd/software/jetty9/logs -Djetty.home=/home/kidd/software/jetty9 -Djetty.base=/home/kidd/software/jetty9 -Djava.io.tmpdir=/tmp -jar /home/kidd/software/jetty9/start.jar jetty.http.port=8085 jetty.state=/home/kidd/software/jetty9/jetty.state jetty-logging.xml jetty-started.xml start-log-file=/home/kidd/software/jetty9/logs/start.log
+
+jetty.sh
+# JETTY_RUN
+#   Where the $NAME.pid file should be stored. It defaults to the
+#   first available of /var/run, /usr/var/run, JETTY_BASE and /tmp
+#   if not set.
+
+$ sudo ./bin/jetty.sh restart
+Stopping Jetty: No process in pidfile '/home/kidd/software/jetty9/run/jetty.pid' found running; none killed.
+OK
+Starting Jetty: start-stop-daemon: unable to open pidfile '/home/kidd/software/jetty9/run/jetty.pid' for writing (No such file or directory)
+FAILED 2016年 12月 03日 星期六 11:06:48 CST
+kidd@kidd-OptiPlex-9020:
+~/software/jetty9_bak
+$ touch run/jetty.pid
+kidd@kidd-OptiPlex-9020:
+~/software/jetty9_bak
+$ ll run/jetty.pid 
+-rw-rw-r-- 1 kidd kidd 0 12月  3 11:07 run/jetty.pid
+
+
+2016-12-03 11:18:54.415:INFO:oejsh.ContextHandler:main: Started o.e.j.w.WebAppContext@15fc442{/,file:///home/kidd/software/jetty9_bak/webapps/root/,AVAILABLE}{/root}
+java.lang.reflect.InvocationTargetException
+  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+  at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+  at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+  at java.lang.reflect.Method.invoke(Method.java:498)
+  at org.eclipse.jetty.start.Main.invokeMain(Main.java:214)
+  at org.eclipse.jetty.start.Main.start(Main.java:457)
+  at org.eclipse.jetty.start.Main.main(Main.java:75)
+Caused by: java.net.BindException: Address already in use
+  at sun.nio.ch.Net.bind0(Native Method)
+  at sun.nio.ch.Net.bind(Net.java:433)
+  at sun.nio.ch.Net.bind(Net.java:425)
+  at sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:223)
+  at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:74)
+  at org.eclipse.jetty.server.ServerConnector.open(ServerConnector.java:317)
+  at org.eclipse.jetty.server.AbstractNetworkConnector.doStart(AbstractNetworkConnector.java:80)
+  at org.eclipse.jetty.server.ServerConnector.doStart(ServerConnector.java:235)
+  at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:68)
+  at org.eclipse.jetty.server.Server.doStart(Server.java:401)
+  at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:68)
+  at org.eclipse.jetty.xml.XmlConfiguration$1.run(XmlConfiguration.java:1516)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at org.eclipse.jetty.xml.XmlConfiguration.main(XmlConfiguration.java:1441)
+  ... 7 more
+
+
+$ sudo ./bin/jetty.sh start
+/home/kidd/software/jetty9_bak/logs
+Starting Jetty: . OK 2016年 12月 03日 星期六 11:22:06 CST
+kidd@kidd-OptiPlex-9020:
+~/software/jetty9_bak
+$ netstat -apn | grep 8085
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp6       0      0 :::8085                 :::*                    LISTEN      13069/java
+
+
+~/software/jetty9_bak
+$ netstat -apn | grep 8088
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp6       0      0 :::8088                 :::*                    LISTEN      21631/java 
+
+to run multiple instances of jetty, setting different ports to them in jetty.sh
+  do not set it in /etc/default/jetty, which will override the one in jetty.sh
+  if not defined any of these 2 files, 8080 is adopted.
+
+/home/kidd/software/jetty9/bin/jetty.sh
+JETTY_HOME=/home/kidd/software/jetty9
+JETTY_RUN=$JETTY_HOME/run
+JETTY_ARGS=jetty.http.port=80
+  jetty.pid is in JETTY_RUN, and will be used for "stop".
+
+
+online:
+[ahye@tz8-demo ~]$ ls /niub/bj/app/jetty
+bin                 jetty.state                 modules      start.ini
+build               key.txt                     notice.html  start.jar
+demo-base           lib                         out          VERSION.txt
+etc                 license-eplv10-aslv20.html  README.TXT   webapps
+hs_err_pid7006.log  logs                        resources
+[ahye@tz8-demo ~]$ cat /var/run/jetty.pid
+5485
+
+默认equinox的jetty是使用 80端口，而在Linux下由于权限的关系，一般程序只能启用1024以上的端口，最简单的办法就是改变Jetty的启动端口让其大于1024，比如8080。
+
+
+[root@tz8-demo jetty]# lsb_release -a
+LSB Version:  :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID: CentOS
+Description:  CentOS release 6.5 (Final)
+Release:  6.5
+Codename: Final
+
+jetty 80 port
+
+[root@tz8-demo prong]# vim rule.sh 
+[root@tz8-demo prong]# cd /niub/bj/app/jetty_dev
+
+
+
+-------- 2016-12-03 13:57:59
+online deployment:
+
+add lines to ./bin/jetty.sh
+JETTY_HOME=/niub/bj/app/jetty_dev
+JETTY_RUN=$JETTY_HOME/run
+JETTY_ARGS=jetty.http.port=8081
+
+[root@tz8-demo jetty_dev]# ./bin/jetty.sh start
+Starting Jetty: WARNING: Property jetty.http.port in <command-line> already set in /niub/bj/app/jetty_dev/start.ini
+2016-12-03 13:54:12.606:INFO::main: Logging initialized @2507ms
+2016-12-03 13:54:12.872:WARN:oejs.HomeBaseWarning:main: This instance of Jetty is not running from a separate {jetty.base} directory, this is not recommended.  See documentation at http://www.eclipse.org/jetty/documentation/current/startup.html
+2016-12-03 13:54:13.215:INFO::main: Redirecting stderr/stdout to /niub/bj/app/jetty_dev/logs/2016_12_03.stderrout.log
+OK 2016年 12月 03日 星期六 13:54:14 CST
+
+from remote:
+http://120.26.95.121:8081/index.html
+  Unable to connect
+
+[root@tz8-demo jetty_dev]# curl http://120.26.95.121:8081/index.html
+hello, this is index
+
+http://stackoverflow.com/questions/30257978/jetty9-jetty-is-not-running-from-a-separate-jetty-base
+  Jetty recommends to run instances of Jetty not from jetty.home distribution folder directly but from jetty.base folder which should be defined separatedly
+
+
+
+---------- 2016-12-03 14:22:44
+not tried:
+
+做iptable端口转发
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8080
+iptables -t nat -A OUTPUT -p tcp -d 127.0.0.1 --dport 80 -j REDIRECT --to-ports 8080
+
+
+
+---------- 2016-12-03 14:58:59
+log generated:
+  hs_err_pid8158.log
+  
+[root@tz8-demo jetty_dev]# ./bin/jetty.sh start
+/niub/bj/app/jetty_dev/logs
+/niub/bj/app/jetty_dev
+Starting Jetty: 2016-12-03 14:32:25.568:INFO::main: Logging initialized @2710ms
+2016-12-03 14:32:26.033:WARN:oejs.HomeBaseWarning:main: This instance of Jetty is not running from a separate {jetty.base} directory, this is not recommended.  See documentation at http://www.eclipse.org/jetty/documentation/current/startup.html
+. 2016-12-03 14:32:26.776:INFO::main: Redirecting stderr/stdout to /niub/bj/app/jetty_dev/logs/2016_12_03.stderrout.log
+. . . OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000e9000000, 38797312, 0) failed; error='Cannot allocate memory' (errno=12)
+
+[root@tz8-demo jetty_dev]# ls
+bin                 key.txt                     notice.html  start.ini
+demo-base           lib                         out          start.jar
+etc                 license-eplv10-aslv20.html  README.TXT   VERSION.txt
+hs_err_pid8158.log  logs                        resources    webapps
+jetty.state         modules                     run

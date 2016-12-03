@@ -2,6 +2,31 @@
 
 
 
+----------- 2016-12-02 10:29:40
+NumberLong access:
+
+    public static boolean validate(String code, JsonObject user) {
+        if (code.isEmpty()) {
+            logger.error("validation failure: code is empty");
+            return false;
+        }
+        JsonObject codeObj = MongoUtil.getDBEntryByField(MongoUtil.ID_CODE_COL, "uid", user.getString("id"));
+        if (codeObj != null && code.equals(codeObj.getString("code"))) {
+            Long now = System.currentTimeMillis();
+            logger.info(codeObj.toString());
+            String update_at = codeObj.getJsonObject("update_at").getString("$numberLong");
+            if ((now - Long.valueOf(update_at)) <= 40 * 60 * 1000) {
+                return true;
+            } else {
+                logger.error("validation failure due to time expiration");
+                return false;
+            }
+        }
+        logger.error("validation failure with code: " + code + " for user: " + user.getString("id"));
+        return false;
+    }
+
+
 ------------ 2016-11-29 19:58:01
 
 

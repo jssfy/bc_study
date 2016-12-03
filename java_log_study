@@ -1,0 +1,74 @@
+
+
+
+----------- 2016-12-02 16:01:16
+
+
+log4j
+http://www.2cto.com/kf/201310/249532.html
+log4j的rootLogger及其他坑爹的地方
+Test1在com.ht包下面，Test2在com.ht.log包下面。每个下面打印一句：logger.info();
+经过试验发现！！！！：
+Test1将输出到控制台和ht.log
+Test2将输出到控制台和ht.log和ht2.log
+注意这里rootLogger的级别可是error，可见这里的级别不起作用。
+对于申明appender的包rootLogger的级别设置不起作用！！
+其实，这里的error只对于没有申明appender的包才起作用。如果去掉log4j.logger.com.ht.log这一句，Test1没有任何输出，除非logger.error才会输出到控制台。
+第二点：凡是申明appender的包，不论申明级别一定会包含rootLogger的输出，如果同时指定了outfile，那么日志会出现两份。
+第三点：com.ht.log这个包下面的类可以匹配到所有上级目录的设置。
+日志怎么设置要想清楚啊！不然这一句打到控制台那句打到文件，出问题了查出来的日志不连贯，好几个文件查来查去。 
+
+e.g., 
+# Root logger option
+log4j.rootLogger=INFO, stdout, file
+
+# Redirect log messages to console
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Threshold=INFO
+log4j.appender.stdout.Target=System.out
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+
+# Redirect log messages to a log file, support file rolling.
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.File=build/logs/log4j-application.log
+log4j.appender.file.Threshold=INFO
+log4j.appender.file.MaxFileSize=5MB
+log4j.appender.file.MaxBackupIndex=10
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%-5p] %c{1}:%L - %m%n
+
+## perf模块输出 ##
+log4j.logger.perf=INFO,perf
+log4j.appender.perf=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.perf.File=build/logs/log4j-perf.log
+log4j.appender.perf.layout=org.apache.log4j.PatternLayout
+log4j.appender.perf.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%-5p] %c{1}:%L - %m%n
+
+if "log4j.appender.stdout.Threshold=INFO" not set for rootLogger, all logger.debug from logger "perf" will be output to stdout (as long as the perf log is allowed).
+for "log4j.logger.perf=INFO,perf", logger.debug does not output anything. (private static Logger logger = Logger.getLogger("perf");)
+
+http://www.cnblogs.com/Fskjb/archive/2011/01/29/1947592.html
+
+限制appender叠加性
+例1：
+log4j.rootLogger=DEBUG, Console
+log4j.logger.A=DEBUG, Console
+log4j.logger.A.B=INFO, Console
+对于logger A.B输出的任何日志会往控制台输出三次，原因是A.B继承A的以及A的父logger的所有appender，
+这种继承关系仅仅是把父logger的appender添加到自己的appender列表中，父logger的输出level不会影响
+子logger的输出。
+
+例2：限制appender叠加
+log4j.rootLogger=DEBUG, Console
+log4j.logger.A=DEBUG, Console
+log4j.logger.A.B=INFO, Console
+log4j.additivity.A.B=false
+logger A.B的日志仅会输出到自己Console中，不会继承任何父logger的appender。
+
+控制appender的输出级别
+若想对输出到appender中的日志级别进行限制的话，就需要用到threshold来控制。
+log4j.threshold=ERROR 用来控制所有的appender，即输出到所有appender的日志，
+不管原来是什么级别的，都不能低于threshold所规定的级别。
+
+log4j.appender.Console.threshold=ERROR 用来控制指定的appender的输出级别。

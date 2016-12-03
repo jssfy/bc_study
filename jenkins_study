@@ -1,6 +1,8 @@
 
 
 ------------ 2016-08-30 09:28:08
+https://pkg.jenkins.io/debian-stable/
+
 wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -  
 sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'  
 sudo apt-get update  
@@ -35,3 +37,72 @@ To ensure Jenkins is securely set up by the administrator, a password has been w
 Please copy the password from either location and paste it below.
 
 installed plugins suggested by community.
+
+
+------------- 2016-12-02 18:15:40
+Stand-alone or Servlet?
+Jenkins can run stand-alone in it’s own process using it’s own web server. It can also run as one servlet in an existing framework, such as Tomcat. This section is specifically targeted to stand-alone install and execution.
+
+install:
+  https://jenkins.io/doc/book/getting-started/installing/
+
+This package installation will:
+    Setup Jenkins as a daemon launched on start. See /etc/init.d/jenkins for more details.
+    Create a jenkins user to run this service.
+    Direct console log output to the file /var/log/jenkins/jenkins.log. Check this file if you are troubleshooting Jenkins.
+    Populate /etc/default/jenkins with configuration parameters for the launch, e.g JENKINS_HOME
+    Set Jenkins to listen on port 8080. Access this port with your browser to start configuration.
+  
+If your /etc/init.d/jenkins file fails to start Jenkins, edit the /etc/default/jenkins to replace the line ----HTTP_PORT=8080---- with ----HTTP_PORT=8081---- Here, "8081" was chosen but you can put another port available.
+
+
+------------ 2016-12-02 18:26:22
+http://blog.csdn.net/wangmuming/article/details/22925931
+
+/etc/default/jenkins:
+# pulled in from the init script; makes things easier.
+NAME=jenkins
+# jenkins home location
+JENKINS_HOME=/var/lib/$NAME
+
+/var/lib/jenkins/users/kidd
+$ ls
+config.xml
+
+user/password
+  -> JENKINS_HOME/users -> edit config.xml
+    find "passwordHash":
+      #jbcrypt:$2a$10$ifbwZvER5x37BiFQVTg3AeoTf4dnYzsH/PQOxff.jDAjou.79Mi6q => #jbcrypt:$2a$10$DdaWzN64JgUtLdvxWIflcuQu2fgrrMSAMabF5TSrGK5nXitqK9ZMS
+       保存，重启Jenkins程序。然后输入用户名，密码111111 [sudo service jenkins restart]
+
+
+---------- 2016-12-02 19:51:32
+http://localhost:6060/updateCenter/
+
+manage jenkins:
+  -> manage plugins -> git plugin -> Install without Restart
+
+插件安装完毕后，我们需要在jenkins中配置Git.exe的位置。 ?? not found where to configure.
+
+set repository url to "https://github.com/jssfy/bc_study.git", and apply and save, then the build is successful.
+
+
+---------- 2016-12-03 10:13:07
+repository url:
+  ssh://jenkins@10.12.6.6:29418/apes
+
+branch specifier:
+  */master
+
+execute shell:
+if [ "$ENV" = "dev" ]; then
+  ./gradlew war
+  webapps=/home/jetty/jetty/webapps
+  cp ./build/libs/apes-1.0-SNAPSHOT.war $webapps/root.war.tmp
+  rm -f $webapps/root.war.old
+  mv $webapps/root.war $webapps/root.war.old
+  mv $webapps/root.war.tmp $webapps/root.war
+  sudo service jetty restart
+elif [ "$ENV" = "release" ]; then
+  ./deploy.sh
+fi

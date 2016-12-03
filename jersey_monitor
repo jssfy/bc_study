@@ -1,0 +1,97 @@
+
+https://jersey.java.net/documentation/latest/monitoring_tracing.html#d0e16202
+
+---------- 2016-12-02 11:22:48
+Jersey provides functionality for monitoring JAX-RS/Jersey applications. Application monitoring is useful in cases when you need to identify the performance hot-spots in your JAX-RS application, observe execution statistics of particular resources or listen to application or request lifecycle events. Note that this functionality is Jersey-specific extension to JAX-RS API.
+
+
+
+------------ 2016-12-02 17:44:07
+
+    public WebApplication() {
+
+        packages(getClass().getPackage().getName() + ".controllers");
+        register(JWTSecurityFilter.class);
+        register(RolesAllowedDynamicFeature.class);
+        register(JsonProcessingFeature.class);
+        register(MultiPartFeature.class);
+        register(NoResultExceptionMapper.class);
+        register(NotFoundExceptionMapper.class);
+        register(MyApplicationEventListener.class);
+
+/home/kidd/workspace/abc/apes/src/main/java/com/abcft/apes/perf/MyApplicationEventListener.java
+package com.abcft.apes.perf;
+
+import org.apache.log4j.Logger;
+import org.glassfish.jersey.server.monitoring.ApplicationEvent;
+import org.glassfish.jersey.server.monitoring.RequestEvent;
+import org.glassfish.jersey.server.monitoring.RequestEventListener;
+
+/**
+ * Created by ahye on 16-12-2.
+ */
+public class MyApplicationEventListener
+        implements org.glassfish.jersey.server.monitoring.ApplicationEventListener {
+    private volatile int requestCnt = 0;
+    private static Logger logger = Logger.getLogger("perf");
+
+    @Override
+    public void onEvent(ApplicationEvent event) {
+        switch (event.getType()) {
+            case INITIALIZATION_FINISHED:
+                logger.info("Application initialized.");
+                break;
+            case DESTROY_FINISHED:
+                logger.info("Application destroyed.");
+                break;
+        }
+    }
+
+    @Override
+    public RequestEventListener onRequest(RequestEvent requestEvent) {
+        requestCnt++;
+        logger.info("Request #" + requestCnt + " started.");
+        // return the listener instance that will handle this request.
+        return new MyRequestEventListener(requestCnt);
+    }
+}
+
+/home/kidd/workspace/abc/apes/src/main/java/com/abcft/apes/perf/MyRequestEventListener.java
+package com.abcft.apes.perf;
+
+import org.apache.log4j.Logger;
+import org.glassfish.jersey.server.monitoring.RequestEvent;
+import org.glassfish.jersey.server.monitoring.RequestEventListener;
+
+/**
+ * Created by kidd on 16-12-2.
+ */
+public class MyRequestEventListener implements RequestEventListener {
+    private final int requestNumber;
+    private final long startTime;
+    private static Logger logger = Logger.getLogger("perf");
+
+    public MyRequestEventListener(int requestNumber) {
+        this.requestNumber = requestNumber;
+        startTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onEvent(RequestEvent event) {
+        switch (event.getType()) {
+            case RESOURCE_METHOD_START:
+                logger.info("Method "
+                        + event.getUriInfo().getMatchedResourceMethod()
+                        .getHttpMethod()
+                        + " for request #" + requestNumber + ": "
+                        + event.getUriInfo().getPath());
+                break;
+            case FINISHED:
+                logger.info("Request #" + requestNumber
+                        + " finished. Spent time "
+                        + (System.currentTimeMillis() - startTime) + " ms.");
+                break;
+        }
+    }
+}
+
