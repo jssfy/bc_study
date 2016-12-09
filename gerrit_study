@@ -1,0 +1,181 @@
+
+
+
+
+
+-------------- 2016-12-05 19:35:46
+
+~/software/gerrit
+$ java -jar ../gerrit-2.11.war init -d review_site
+Using secure store: com.google.gerrit.server.securestore.DefaultSecureStore
+
+*** Gerrit Code Review 2.11
+*** 
+
+Create '/home/kidd/software/gerrit/review_site' [Y/n]? 
+
+*** Git Repositories
+*** 
+
+Location of Git repositories   [git]: 
+
+*** SQL Database
+*** 
+
+Database server type           [h2]: 
+
+*** Index
+*** 
+
+Type                           [LUCENE/?]: 
+
+*** User Authentication
+*** 
+
+Authentication method          [OPENID/?]: 
+
+*** Review Labels
+*** 
+
+Install Verified label         [y/N]? 
+
+*** Email Delivery
+*** 
+
+SMTP server hostname           [localhost]: 
+SMTP server port               [(default)]: 
+SMTP encryption                [NONE/?]: 
+SMTP username                  : 
+
+*** Container Process
+*** 
+
+Run as                         [kidd]: 
+Java runtime                   [/usr/lib/jvm/java-8-oracle/jre]: 
+Copy gerrit-2.11.war to /home/kidd/software/gerrit/review_site/bin/gerrit.war [Y/n]? 
+Copying gerrit-2.11.war to /home/kidd/software/gerrit/review_site/bin/gerrit.war
+
+*** SSH Daemon
+*** 
+
+Listen on address              [*]: 
+Listen on port                 [29418]: 
+
+Gerrit Code Review is not shipped with Bouncy Castle Crypto SSL v151
+  If available, Gerrit can take advantage of features
+  in the library, but will also function without it.
+Download and install it now [Y/n]? 
+Downloading http://www.bouncycastle.org/download/bcpkix-jdk15on-151.jar ...
+
+ !! FAIL !!
+
+
+error: http://www.bouncycastle.org/download/bcpkix-jdk15on-151.jar: 302 Found
+Please download:
+
+  http://www.bouncycastle.org/download/bcpkix-jdk15on-151.jar
+
+and save as:
+
+  /home/kidd/software/gerrit/review_site/lib/bcpkix-jdk15on-151.jar
+
+Press enter to continue Continue without this library  [Y/n]? Generating SSH host key ... rsa(simple)... done
+
+*** HTTP Daemon
+*** 
+
+Behind reverse proxy           [y/N]?  
+Use SSL (https://)             [y/N]? 
+Listen on address              [*]: 
+Listen on port                 [8080]: 
+Canonical URL                  [http://kidd-OptiPlex-9020:8080/]: 
+
+*** Plugins
+*** 
+
+Installing plugins.
+Install plugin download-commands version v2.11 [y/N]? 
+Install plugin reviewnotes version v2.11 [y/N]? 
+Install plugin singleusergroup version v2.11 [y/N]? 
+Install plugin replication version v2.11 [y/N]? 
+Install plugin commit-message-length-validator version v2.11 [y/N]? 
+Initializing plugins.
+No plugins found with init steps.
+
+
+Initialized /home/kidd/software/gerrit/review_site
+Executing /home/kidd/software/gerrit/review_site/bin/gerrit.sh start
+Starting Gerrit Code Review: OK
+Waiting for server on kidd-OptiPlex-9020:8080 ... OK
+Opening http://kidd-OptiPlex-9020:8080/#/admin/projects/ ...OK
+Created new window in existing browser session.
+
+
+~/software/gerrit
+$ ls review_site/
+bin  cache  data  db  etc  git  index  lib  logs  plugins  static  tmp
+
+sudo ln -s ../mods-available/proxy.load
+sudo ln -s ../mods-available/proxy.conf
+sudo ln -s ../mods-available/proxy_http.load
+sudo ln -s ../mods-available/proxy_balancer.conf
+sudo ln -s ../mods-available/proxy_balancer.load
+sudo ln -s ../mods-available/rewrite.load
+sudo ln -s ../mods-available/ssl.conf
+sudo ln -s ../mods-available/ssl.load
+
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/proxy.load
+ln: failed to create symbolic link ‘./proxy.load’: File exists
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ ls
+access_compat.load  authz_user.load  filter.load       php7.0.load
+alias.conf          autoindex.conf   mime.conf         proxy.load
+alias.load          autoindex.load   mime.load         rewrite.load
+auth_basic.load     deflate.conf     mpm_prefork.conf  setenvif.conf
+authn_core.load     deflate.load     mpm_prefork.load  setenvif.load
+authn_file.load     dir.conf         negotiation.conf  status.conf
+authz_core.load     dir.load         negotiation.load  status.load
+authz_host.load     env.load         php7.0.conf
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/proxy.conf
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/proxy_http.load
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/proxy_balancer.conf
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/proxy_balancer.load
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/rewrite.load
+ln: failed to create symbolic link ‘./rewrite.load’: File exists
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/ssl.conf
+kidd@kidd-OptiPlex-9020:
+/etc/apache2/mods-enabled
+$ sudo ln -s ../mods-available/ssl.load
+
+
+----------- 2016-12-05 20:08:16
+$ sudo service apache2 restart
+ * Restarting web server apache2                                         [fail] 
+ * The apache2 configtest failed.
+Output of config test was:
+AH00526: Syntax error on line 43 of /etc/apache2/mods-enabled/ssl.conf:
+SSLSessionCache: 'shmcb' session cache not supported (known names: ). Maybe you need to load the appropriate socache module (mod_socache_shmcb?).
+Action 'configtest' failed.
+The Apache error log may have more information.
+
+https://www.zhihu.com/question/27455017
+这个问题已经解决，修改/etc/apache2/mods-available/这个路径下的ssl.conf文件，在“SSLSessionCache shmcb:${APACHE_RUN_DIR}/ssl_scache(512000)”这条语句之前，添加语句“LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so” ，开启socache_shmcb_module，并且不同版本的apache对应的mod_socache_shmcb.so存放路径还会有所差异，对我而言，存放路径是/usr/lib/apache2/modules/mod_socache_shmcb.so 
+
+作者：张琳
+链接：https://www.zhihu.com/question/27455017/answer/37228356
+来源：知乎
+著作权归作者所有，转载请联系作者获得授权。

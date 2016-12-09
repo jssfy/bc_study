@@ -1,5 +1,19 @@
 
 
+
+------------------- 2016-12-05 20:39:08
+$ sudo a2enmod slotmem_shm
+Enabling module slotmem_shm.
+To activate the new configuration, you need to run:
+  service apache2 restart
+kidd@kidd-OptiPlex-9020:
+/etc/apache2
+$ sudo service apache2 restart
+ * Restarting web server apache2                                                AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+                                                                         [ OK ]
+
+--------------------------
+
 enable and disable port 80
   1. $ sudo a2ensite 000-default.conf 
     which uses port 80

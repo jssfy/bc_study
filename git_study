@@ -1,5 +1,55 @@
 
 
+github 
+  git push
+  settings -> ssh keys -> paste key here to auto git push without user/password
+
+在github.com上 建立了一个小项目，可是在每次push  的时候，都要输入用户名和密码，很是麻烦
+原因是使用了https方式 push
+在termail里边 输入  git remote -v 
+可以看到形如一下的返回结果
+origin  https://github.com/jssfy/bc_study.git (fetch)
+origin  https://github.com/jssfy/bc_study.git (push)
+下面把它换成ssh方式的。
+1. git remote rm origin
+2. git remote add origin git@github.com:jssfy/bc_study.git
+3. git push origin 
+
+
+----------- 2016-12-05 18:23:56
+
+
+Git邮箱不匹配问题：does not match your user account (
+
+access issue when creating the git project.
+
+-------------- 2016-12-05 17:59:34
+
+http://blog.csdn.net/enlangs/article/details/38415609
+
+$ gpm
+git push origin HEAD:refs/for/master
+Counting objects: 21, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (9/9), 2.59 KiB | 0 bytes/s, done.
+Total 9 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas: 100% (3/3)
+remote: Processing changes: refs: 1, done    
+remote: 
+remote: ERROR:  In commit 8913e93efd8e5618950d91075c1410c7b8fd73ef
+remote: ERROR:  committer email address anhye@abcft.com
+remote: ERROR:  does not match your user account.
+remote: ERROR:
+remote: ERROR:  You have not registered any email addresses.
+remote: ERROR:
+remote: ERROR:  To register an email address, please visit:
+remote: ERROR:  http://10.12.6.6:8080/#/settings/contact
+remote: 
+remote: 
+To ssh://ahye@10.12.6.6:29418/apes-crawler
+ ! [remote rejected] HEAD -> refs/for/master (invalid committer)
+error: failed to push some refs to 'ssh://ahye@10.12.6.6:29418/apes-crawler'
 
 --------------- 2016-11-26 17:32:54
 

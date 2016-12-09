@@ -1,6 +1,14 @@
 
 
 
+----------- 2016-12-09 13:41:29
+vote creation curl test:
+
+curl -d "person[]=kidd&person[]=jssfy&age=100" http://frontend.tz8/wevote/vote/create
+
+curl -d "title=test_title&description=test_desc&end_time=2016/12/10" http://frontend.tz8/wevote/vote/create
+
+
 ---------- 2016-11-26 11:31:57
 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/config/main.php
         'errorHandler' => [

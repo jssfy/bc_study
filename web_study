@@ -28,6 +28,20 @@ curl -X post http://localhost:9080/api/v2/company/send-code?phone=15611267534
 
 curl -d '{"type":"13521389587","name":"test"}' -X post http://localhost:9080/api/v2/company/create?code=2468
 
+curl -d "name=value&name2=value2" http://www.baidu.com #post数据
+
+pass array to php:
+$ curl -d "person[name]=kidd&age=100" http://frontend.tz8/wevote/test/test
+
+        $person = SessionTool::getParaByKeyFromPostRequest('person');
+        return 'name is: ' . $person['name'];
+
+        $person = SessionTool::getParaByKeyFromPostRequest('person');
+        return 'name is: ' . Json::encode($person);
+$ curl -d "person[]=kidd&person[]=jssfy&age=100" http://frontend.tz8/wevote/test/test
+name is: ["kidd","jssfy"]
+
+
 ---------- 2016-11-21 19:14:50
 http://blog.csdn.net/blueheart20/article/details/45174399
 

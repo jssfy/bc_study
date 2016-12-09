@@ -21,6 +21,74 @@ php -S 10.12.0.1:8080 -t frontend/web
     ? where is the log ? php [options] -S addr:port [-t docroot]
 
 
+------------- 2016-12-08 16:05:47
+activerecord 批量
+
+e.g.,
+        $attributes = ['title', 'description', 'end_time'];
+        $rows[] = [
+            'title' => 'title1',
+            'description' => 'desc1',
+            'end_time' => '2016-12-11 23:59:59',
+        ];
+        $rows[] = [
+            'title' => 'title2',
+            'description' => 'desc2',
+            'end_time' => '2016-12-11 23:59:59',
+        ];
+        Yii::$app->db->createCommand()->batchInsert(Vote::tableName(), $attributes, $rows)->execute();
+
+
+1. Yii::$app->db->createCommand()->batchInsert($tableName, ['name', 'sex'], [['Lucy', female"],['Lilei', male"]])->execute();
+上面的写法更友好一点, 是对 Yii::$app->createCommand($sql)的进一步包装, 避免了你手动拼sql.
+要注意的是, 这样写就没了AR模型相关的事件钩子.
+
+2. you can use batchInsert() method of yii\db\Command. See details here. When using it with ActiveRecord make sure validate all data before inserting.
+Assuming you have array of $models with class Post, it can be done like this:
+$rows = [];
+foreach ($models as $model) {
+    if (!$model->validate()) {
+        // At least one model has invalid data
+        break;
+    }
+    $rows[] = $model->attributes;
+}
+If models don't require validation you can short the code above using ArrayHelper for building $rows array.
+use yii\helpers\ArrayHelper;
+$rows = ArrayHelper::getColumn($models, 'attributes');
+Then simply execute batch insert:
+$postModel = new Post;
+Yii::$app->db->createCommand()->batchInsert(Post::tableName(), $postModel->attributes(), $rows)->execute();
+P.S. The $postModel just used for pulling attirubute names list, you can also pull this from any existing $model in your $models array.
+If you don't need to insert all attributes you can specify it when filling $rows array:
+$rows[] = [
+    'title' => $model->title,
+    'content' => $model->content,
+];
+Don't forget to replace $postModel->attributes to ['title', 'content'].
+In case of larger amount of attributes you can use some array functions to specify exact attributes for inserting.
+本文地址：IT屋 » ActiveRecord batch insert (yii2)
+
+
+        $model = new Vote();
+        return Json::encode($model->attributes());
+["id","title","description","start_time","end_time","multiple","has_image","visible"]
+
+        $model = new Vote();
+        $rows[] = [
+            'title' => 'title1',
+            'description' => 'desc1',
+            'end_time' => '2016-12-11 23:59:59',
+        ];
+        $rows[] = [
+            'title' => 'title2',
+            'description' => 'desc2',
+            'end_time' => '2016-12-11 23:59:59',
+        ];
+        Yii::$app->db->createCommand()->batchInsert(Vote::tableName(), $model->attributes(), $rows)->execute();
+Next yii\db\Exception: SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
+The SQL being executed was: INSERT INTO `wv_vote` (`id`, `title`, `description`, `start_time`, `end_time`, `multiple`, `has_image`, `visible`) VALUES ('title1', 'desc1', '2016-12-11 23:59:59'), ('title2', 'desc2', '2016-12-11 23:59:59')
+
 -------------- 2016-11-26 14:34:33
 http://www.yiichina.com/doc/guide/2.0/structure-entry-scripts
 Web 应用的入口脚本必须放在终端用户能够访问的目录下， 通常命名为 index.php， 也可以使用 Web 服务器能定位到的其他名称。

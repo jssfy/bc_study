@@ -6,8 +6,34 @@ remote: Compressing objects: 100% (15/15), done.
 Receiving objects:  95% (643793/672048), 233.82 MiB | 656.00 KiB/s
 
 
---------- 2016-11-03 11:59:11
+----------- 2016-12-09 19:50:13
 
+$name = '英文结果';
+$coding = mb_detect_encoding($name, array("ASCII",'UTF-8',"GB2312","GBK",'BIG5')); 
+echo $coding;
+
+UTF-8
+
+phpinfo()
+
+  $ php test.php | grep charset
+  default_charset => UTF-8 => UTF-8
+
+  $ php test.php | grep php.ini
+  Configuration File (php.ini) Path => /etc/php/7.0/cli
+  Loaded Configuration File => /etc/php/7.0/cli/php.ini
+
+PHP不支持多字节编码，所有字符都被认为是单字节。也就是说“中”字在GBK编码中是两个字节，PHP就把它当作2个字符来处理；在UTF-8中是三个字节，就当作3个字符来处理。
+你在保存PHP源文件时使用了UTF-8编码，所以就是3了。
+不过PHP也提供了处理多字节字符的扩展，叫做mbstring；也有用于编码转换的扩展，就是大名鼎鼎的iconv。你可以去看PHP手册中的查看相关的内容。 
+  作者：邓澄郅
+  链接：https://www.zhihu.com/question/26797290/answer/35559319
+  来源：知乎
+  著作权归作者所有，转载请联系作者获得授权。
+
+
+--------- 2016-11-03 11:59:11
+gettype() 
 
 ---------- 2016-10-31 11:30:10
 do not use $index = date('m', strtotime($i. ' month', $now)); to get previous months, as it seems to calculate according to 30days a month.

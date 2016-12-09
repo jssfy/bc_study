@@ -1,5 +1,27 @@
 
 
+
+------------ 2016-12-08 11:13:19
+iphone:
+https://linux.cn/thread/6142/1/1/
+Ubuntu 已经能在默认的情况下识别 iPhone ，并且当 iPhone 插上电脑时 Ubuntu 将自动把 iPhone 挂载到系统的桌面上。让人惊喜的是在 Ubuntu 默认情况下可以直接把 iPhone 当成 U 盘来使用，轻松管理可见目录中的文件。在默认情况下，在 Ubuntu 下管理 iPhone 上的用户音乐和图片比在 Windows 下还要方便。不过，在 Ubuntu 下同步 iPhone 的应用软件就有点纠结了。
+用 iPhone USB 连接线把 iPhone 插入到安装有 Ubuntu 系统的电脑时， Ubuntu 会自动弹出两个窗口，询问是不是要通过 Rhythmbox 来管理音乐，用 Shotwell 来管理 iPhone 上的图片资源，点击确定后就会弹出相应的程序来管理 iPhone 上的音乐和图片。
+Rhythmbox 来管理 iPhone 上的音乐资源
+Shotwell 来管理 iPhone 上的图片资源 Ubuntu 系统自带的 Rhythmbox 播放器和大家常用的 Banshee 播放器都可以实现对 iPhone 上的音乐的播放，管理，同步，在操作方面和苹果的 iTunes 也类似。例如音乐分类，修改音乐的 id3 标签这些常见操作也能很好的完成。
+﻿﻿
+上图为 Ubuntu 系统自带的 Rhythmbox 播放器，对着列表中出现的 iPhone 名称点击右键，就可以选择”sync with Library”同步音乐库中的音乐。
+上图为 Banshee 播放器，在同步设置的时候，你可以设置音乐，视频的同步方式，手工还是整个库进行 虽然，Rhythmbox 播放器 Banshee 播放器都可以实现对 iPhone 上的音乐的播放，管理，同步。但它貌似不能对 iPhone 的图片进行很好的管理，所以最后，还是选择了gtkpod ,不管是 iPhone 还是 ipod，不管是音乐还是图片， gtkpod 都可以统统搞定。
+gtkpod 的安装也很简单，一个行命令搞定，操作也很简单的，不会的朋友可以在文章后面留言，或者是在 OwnLinux 的新浪微博上留言 http://t.sina.com.cn/ownlinux
+Ubuntu下的安装命令：
+ownlinux@ownlinux:~$ sudo apt-get install gtkpod
+
+---------- 2016-12-05 16:18:35
+显示
+overflow            1024     0      1024   0% /tmp
+也就是说此时tmp只有1M，这就是文件上传失败的原因，出现这种情况基本都是因为服务器曾经磁盘过载过。
+解决方法：
+sudo umount -l /tmp
+
 ------- 2016-09-14 15:11:05
 $ find . -type f -size +7000k
 

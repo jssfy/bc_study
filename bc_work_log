@@ -67,6 +67,51 @@ chmod -R 755 /niub/www/sourcecode/vote-dev.yqtz8.com
 [LV]
 如果能在目录后面能接runtime这个目录更好。
 
+
+
+---------- 2016-12-05 13:28:37
+> db.measures.find({type : {$ne : 0}, datasetId : "wind_information"}).count()
+225
+
+
+----------- 2016-12-05 11:43:08
+apes-crawler
+
+sudo pip install gevent
+pip install ws4py
+
+below error if vpn is enabled:
+2016-12-05 12:10:08,792 - apes.crawler - ERROR - [crawler] run crawler failed with exception: [Errno 113] No route to host
+Traceback (most recent call last):
+  File "runcrawler.py", line 49, in run
+    self.crawler = Crawler(config.DEFAULT_CONFIG, config.SOURCES)
+  File "/home/kidd/workspace/abc/apes-crawler/crawler.py", line 23, in __init__
+    self._init_spiders(spider_configs)
+  File "/home/kidd/workspace/abc/apes-crawler/crawler.py", line 34, in _init_spiders
+    spider = spider_class(self.config, **config)
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/infospider.py", line 18, in __init__
+    super(InfoSpider, self).__init__(config, **kwargs)
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/basespider.py", line 21, in __init__
+    self.ws_client = Client(config)
+  File "/home/kidd/workspace/abc/apes-crawler/websocket/client.py", line 25, in __init__
+    self.ws.connect()
+  File "/usr/local/lib/python2.7/dist-packages/ws4py/client/__init__.py", line 210, in connect
+    self.sock.connect(self.bind_addr)
+  File "/usr/local/lib/python2.7/dist-packages/gevent/_socket2.py", line 228, in connect
+    raise error(err, strerror(err))
+error: [Errno 113] No route to host
+
+$ tail -f /tmp/spider_Basic_Information_Spider.log
+
+
+
+-------- 2016-12-05 11:09:42
+
+> db.wind_wset.find({"sectors" : 2}).count()
+2969
+
+
+
 -------- 2016-11-17 17:11:44
 to get information data:
   http://localhost:9080/api/v1/wind/information?code=000001.SZ

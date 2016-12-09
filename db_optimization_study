@@ -1,0 +1,10 @@
+
+
+
+----------- 2016-12-08 21:02:09
+if possible to optimize:
+
+
+  $op = Option::getById($ticket->oid);
+  CommonHelpers::throwExceptionIfEmpty($op, 'option not existing');
+  $op->updateCounters(['count' => 1]);
