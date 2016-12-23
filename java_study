@@ -1,6 +1,68 @@
 
 
 
+------------ 2016-12-20 15:25:28
+
+http://www.jb51.net/article/51357.htm
+
+今天和同事在讨论一个问题，需要检查“输入的字符串中是否包含中文”，刚开始想到是用正则表达式，正则表达式中是以[u4e00-u9fa5]来全匹配字符是否是中文，但现在面临的问题是这个字符串中还可能包含英文字符、数字、特殊字符，一时也没想出能匹配该场景的正则表达式，后来在网上搜了下，可以使用Matcher类来解决该问题
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+public class demo {
+static String regEx = "[\u4e00-\u9fa5]";
+static Pattern pat = Pattern.compile(regEx);
+public static void main(String[] args) {
+String input = "Hell world!";
+System.out.println(isContainsChinese(input));
+input = "hello world";
+System.out.println(isContainsChinese(input));
+}
+  
+public static boolean isContainsChinese(String str)
+{
+Matcher matcher = pat.matcher(str);
+boolean flg = false;
+if (matcher.find())    {
+flg = true;
+}
+return flg;
+}
+
+------------ 2016-12-20 11:33:40
+list looping:
+
+public static void compare() {  
+        List<String> list = new ArrayList<String>();  
+        Set<String> set = new HashSet<String>();  
+        for(int i=0;i<100000;i++) {  
+            list.add("a"+i);  
+        }  
+        long t1=0L,t2=0L;  
+        t1 = System.currentTimeMillis();  
+        for(String s : list) {  
+            set.add(s);  
+        }  
+        t2 = System.currentTimeMillis();  
+        System.out.println("forEach遍历的时间为："+(t2-t1)+"mm");  
+        ////two  
+        t1 = System.currentTimeMillis();  
+        for(int i=0; i<list.size(); i++) {  
+            set.add(list.get(i));  
+        }  
+        t2 = System.currentTimeMillis();  
+        System.out.println("size遍历的时间为："+(t2-t1)+"mm");  
+        ////three  
+        t1 = System.currentTimeMillis();  
+        Iterator<String> iterator = list.iterator();  
+        while(iterator.hasNext()) {  
+            set.add((String)iterator.next());  
+        }  
+        t2 = System.currentTimeMillis();  
+        System.out.println("iterator遍历的时间为："+(t2-t1)+"mm");  
+    }
+
+
 ---------- 2016-11-29 18:32:34
 
     public static String convertToHtml(String docPath) {

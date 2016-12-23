@@ -1,7 +1,47 @@
 
 
+----------- 2016-12-23 10:23:58
+http://blog.csdn.net/u013418097/article/details/49512195
+pymongo和python一样，属于典型的作死型语言
+python3不兼容python2，pymongo在升级3后也是不向后兼容的。
+
+在百度上能看到的教程基本都是pymongo1.x版本的
+比如，连接数据库时，pymongo1.x版本是这样的
+>>> import pymongo
+>>> connection=pymongo.Connection('localhost',27017)
+但是，pymongo3中是删掉了Connection方法，换成了另外一个，具体什么我也忘了，反正当时查了很久才发现原来这货不向后兼容
+但是，问题在于，目前你能查到的关于pymongo的各种教程基本都是很古老的，初学者基本都是找博客为生，而pymongo3的教程，sorry，反正我是找不到什么的
+所以，如果刚开始学的话，请不要去官网下最新的，建议使用1.x版本，练熟了再去看新的官方英文文档
+
+--------- 2016-12-23 10:15:00
+sys模块对外没有.py文件，它是内置于解释器中的，上面的代码是sys模块的源代码（c语言）。因为sys模块是整个python的基础，因此不要进行轻易的修改。 
+
+Traceback (most recent call last):
+  File "mongo.py", line 28, in <module>
+    path =os.path.dirname(sys.__file__)
+AttributeError: 'module' object has no attribute '__file__'
 
 
+--------- 2016-12-22 15:42:28
+python安装simplejson
+发表于2014 年 6 月 19 日  
+没有安装simplejson时报错
+>>> import simplejson
+Traceback (most recent call last):
+  File “<stdin>”, line 1, in <module>
+ImportError: No module named simplejson
+simplejson是ansible一个很重要的依赖，经测试在python 2.4.3及以上版本都可以用python setup.py install 安装成功。
+方法一:
+yum install python-simplejson -y
+方法二:
+wget https://pypi.python.org/packages/source/s/simplejson/simplejson-3.5.2.tar.gz#md5=10ff73aa857b01472a51acb4848fcf8b --no-check-certificate
+tar vxzf simplejson-3.5.2.tar.gz
+cd simplejson-3.5.2
+python setup.py install
+方法三:
+pip install simplejson
+方法四:
+easy_install simplejson
 
 ----------- 2016-12-09 18:28:24
 我们知道unicode是一种编码标准，具体的实现标准可能是utf-8，utf-16，gbk ......

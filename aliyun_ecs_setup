@@ -36,6 +36,25 @@ CPU： 1核    内存： 1024 MB
 包年包月
 16-09-03 00:00到期
 
+---------- 2016-12-21 12:17:10
+login without pwd:
+http://chenlb.iteye.com/blog/211809
+
+
+$ ssh root@123.57.227.173
+Welcome to Ubuntu 14.04.2 LTS (GNU/Linux 3.13.0-32-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+New release '16.04.1 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Welcome to aliyun Elastic Compute Service!
+
+Last login: Wed Dec 21 12:14:39 2016 from 123.126.24.14
+
+
+
 ----------- 2016-08-02 13:36:52
 apache2
 apt-get update [otherwise some pkgs will not be found]

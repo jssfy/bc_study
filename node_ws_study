@@ -1,0 +1,29 @@
+
+
+-------- 2016-12-23 14:37:12
+
+forever stop src/app.js
+
+npm start
+npm stop
+
+
+------------- 2016-12-23 15:12:02
+http://blog.csdn.net/wlei24wlei/article/details/40082615
+  nodejs+nodejs-websocket 实现websocket 
+
+
+
+-------- 2016-12-23 17:58:59
+
+[2016-12-23 17:13:18.565] [INFO] app - cmd {"cmd":"wsd","param":["000001.SZ","sec_name,ipo_date,mkt","2016-11-16","2016-11-17","Fill=Previous"],"id":1,"type":"cmd-response","data":"{\"codeList\":[\"000001.SZ\"],\"fieldList\":[\"SEC_NAME\",\"IPO_DATE\",\"MKT\"],\"timeList\":[\"2016-11-16T00:00:00\",\"2016-11-17T00:00:00\"],\"data\":[\"平安银行\",\"1991-04-03T00:00:00\",\"主板\",\"平安银行\",\"1991-04-03T00:00:00\",\"主板\"],\"errorCode\":0}"}
+
+nodejs:
+
+python
+def process_wind_dailymarket(response, spider):
+    temp = simplejson.JSONDecoder().decode(response)
+    result = simplejson.JSONDecoder().decode(temp['data'])
+    windcode = temp['param'][0]
+
+

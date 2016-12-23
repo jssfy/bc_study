@@ -14,7 +14,7 @@ TBD:
   qr code scan handlers are called in multiple threads. db updating should be protected.
 
 
-online wind:
+online wind: apes
   120.26.95.121
 
 tz8
@@ -57,6 +57,7 @@ apes
 
 
 
+
 你可以用这个，如果你代码能改的话：
 执行有需要的脚本前：
 chmod -R 777 /niub/www/sourcecode/vote-dev.yqtz8.com
@@ -67,7 +68,14 @@ chmod -R 755 /niub/www/sourcecode/vote-dev.yqtz8.com
 [LV]
 如果能在目录后面能接runtime这个目录更好。
 
+aliyun server for jy, online test, online apes crawler, etc.
+  ssh ahye@120.26.245.253
 
+crawler mongo save: apes
+  120.26.95.121
+
+ssh -v ahye@120.26.245.253 
+  -v to show debugging info
 
 ---------- 2016-12-05 13:28:37
 > db.measures.find({type : {$ne : 0}, datasetId : "wind_information"}).count()

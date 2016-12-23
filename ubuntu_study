@@ -1,6 +1,16 @@
 
 
 
+---------- 2016-12-21 12:26:36
+使用id 命令可以很轻松的通过用户名查看UID、GID
+
+$ id kidd
+uid=1000(kidd) gid=1000(kidd) groups=1000(kidd),4(adm),20(dialout),24(cdrom),27(sudo),30(dip),46(plugdev),108(lpadmin),124(sambashare)
+
+Centos 里的用户显示 1000 是什么意思？
+这个要不是你将原 uid=1000 的用户删除了，
+要不就是你这个文件是别的机器转移过来，文件的 UID 信息是原机器的
+
 ------------ 2016-12-08 11:13:19
 iphone:
 https://linux.cn/thread/6142/1/1/

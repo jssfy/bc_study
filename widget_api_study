@@ -1,0 +1,505 @@
+
+
+
+http://10.12.3.29:9080/api/v1/chart/get-names?codes=["000023.SZ"]
+
+http://10.12.3.29:9080/api/v1/chart/index-values?index=ipo_date&codes=["000023.SZ"]
+
+    public static void parseParametersFunction(Document parameters) {
+        if (parameters == null) {
+            return;
+        }
+        for (Object o : parameters.entrySet()) {
+            Map.Entry item = (Map.Entry) o;
+            Object value = item.getValue();
+            if (value instanceof Document) {
+                Document doc = (Document) value;
+                if (doc.containsKey("function")) {
+                    String function = doc.getString("function");
+                    Expression expression = new Expression(function);
+                    expression.addFunction(expression.new Function("curTimestamp", 0) {
+                        @Override
+                        public BigDecimal eval(List<BigDecimal> parameters) {
+                            return new BigDecimal(new Date().getTime());
+                        }
+                    });
+                    BigDecimal result = expression.eval();
+                    if (result != null) {
+                        doc.put("default", result);
+                        doc.remove("function");
+                    }
+                }
+            }
+        }
+    }
+
+sample request:
+http://10.12.3.29:9080/api/v1/chart/index-values?index=fax&codes=[%22000023.SZ%22,%22A16062.SH%22]
+  sample output:
+  { "success" : true , "message" : "ok" , "values" : [ "86-755-86154040" , "86-10-62375021"]}
+
+http://10.12.3.29:9080/api/v1/chart/indexes
+{ "success" : true , "message" : "ok" , "indexes" : { "share_totalotc" : "三板合计" , "share_otca" : "三板A股" , "crtindpdirector" : "公司独立董事(现任)" , "startdate" : "起始交易日期" , "share_restricteda_pct" : "限售A股占总股本比例" , "share_otcb" : "三板B股" , "share_restricteda_pledgedpct" : "有限售股份质押比例" , "ipo_marketMaker" : "做市商名称" , "industry_CSRC12" : "所属证监会行业名称" , "holder_controller" : "实际控制人名称" , "holder_liqsharecategory" : "流通股东持股股本性质" , "province" : "省份" , "share_rtd_frgnjur" : "限售股份(境外法人持股)" , "comp_name" : "公司中文名称" , "share_ntrd_prfshare" : "优先股" , "delist_date" : "摘牌日期" , "curr" : "交易币种" , "employee_sale" : "销售人员人数" , "employee_sale_pct" : "销售人员人数占比" , "employee_producer_pct" : "生产人员人数占比" , "share_liqa_pledged" : "无限售股份质押数量" , "trade_code" : "证券代码" , "industry_swcode" : "所属申万行业代码" , "share_rtd_frgnnp" : "限售股份(境外自然人持股)" , "us_code" : "标的代码" , "industry_gicscode" : "所属Wind行业代码" , "share_totalb_pct" : "B股合计占总股本比例" , "employee_producer" : "生产人员人数" , "exe_mode" : "行权方式" , "share_totalotc_pct" : "三板合计占总股本比例" , "RO" : "每份DR代表股份数" , "holder_totalbyfund" : "基金持股数量" , "employee_hr" : "人事人员人数" , "employee_excu" : "行政人员人数" , "fiscaldate" : "会计年结日" , "share_pledgeda" : "质押股份数量合计" , "ceo" : "总经理" , "neeq_park" : "挂牌园区" , "holder_pctbyfund" : "基金持股比例" , "employee_BA_pct" : "本科人数占比" , "email" : "公司电子邮件地址" , "share_otcb_pct" : "三板B股占总股本比例" , "share_liqh_pct" : "香港上市股占总股本比例" , "holder_liqname" : "流通股东名称" , "website" : "公司网站" , "regcapital" : "注册资本" , "address" : "注册地址" , "business" : "经营范围" , "auditor" : "审计机构" , "share_liqa_pct" : "流通A股占总股本比例" , "exe_ratio" : "合约乘数" , "share_totalb" : "B股合计" , "holder_top10pct" : "前十大股东持股比例合计" , "float_a_shares" : "流通A股" , "share_totala" : "A股合计" , "employee_PHD_pct" : "博士人数占比" , "industry_CSRC" : "所属证监会行业名称(旧)" , "share_h" : "香港上市股" , "compindex2" : "是否属于重要指数成份" , "bsharewindcode" : "同公司B股Wind代码" , "share_oversea" : "海外上市股" , "country" : "所属国家" , "holder_totalbylnfcorp" : "非金融类上市公司持股数量" , "majorproductname" : "主营产品名称" , "employee_admin" : "综合管理人员人数" , "exch_city" : "上市地点" , "windcode" : "股票代码" , "briefing" : "公司简介" , "mkt" : "上市板" , "share_totala_pct" : "A股合计占总股本比例" , "marginornot" : "是否融资融券标的" , "employee_server" : "客服人员人数" , "share_rtd_subotherdomes" : "限售股份(其他内资持股合计)" , "industryname" : "所属行业板块代码(支持历史)" , "employee_tech" : "技术人员人数" , "holder_pctbycorppension" : "企业年金持股比例" , "sec_englishname" : "股票英文简称" , "organizationcode" : "组织机构代码" , "share_totaltradable" : "流通股合计" , "holder_pctbytrustcorp" : "信托公司持股比例" , "holder_liqpct" : "流通股东持股比例" , "neeq_level" : "所属分层" , "holder_pctbyinst" : "机构持股比例合计" , "employee_MS" : "硕士人数" , "exe_startdate" : "起始行权日期" , "boardchairmen" : "董事长" , "share_totalrestricted" : "限售股合计" , "share_rtd_domesjur" : "限售股份(境内法人持股)" , "holder_totalbybywmp" : "券商集合理财持股数量" , "founddate" : "成立日期" , "holder_totalbybank" : "银行持股数量" , "industry_gics" : "所属Wind行业名称" , "holder_top10quantity" : "前十大股东持股数量合计" , "holder_totalbybysec" : "券商持股数量" , "holder_totalbyinst" : "机构持股数量合计" , "total_shares" : "总股本" , "concept" : "所属概念板块" , "employee_othdept" : "其他人员人数" , "exe_type" : "行权类型" , "employee_coll" : "专科人数" , "employee_othdegree" : "其他学历人数" , "industry_HS" : "所属恒生行业名称" , "lasttradingdate" : "最后交易日期" , "employee_pur_pct" : "采购仓储人员人数占比" , "holder_pctbybank" : "银行持股比例" , "us_type" : "标的类型" , "registernumber" : "工商登记号" , "holder_pctbyqfii" : "QFII持股比例" , "holder_pctbyinsur" : "保险公司持股比例" , "employee_admin_pct" : "综合管理人员人数占比" , "sec_name" : "证券简称" , "industry2" : "所属行业名称(支持历史)" , "marketmakedate" : "做市首日" , "employee_server_pct" : "客服人员人数占比" , "share_rtd_state" : "限售股份(国家持股)" , "exch_eng" : "交易所英文简称" , "totaltm" : "总存续期" , "holder_sharecategory" : "大股东持股股本性质" , "holder_pct" : "大股东持股比例" , "employee_MS_pct" : "硕士人数占比" , "share_rtd_statejur" : "限售股份(国有法人持股)" , "employee_pur" : "采购仓储人员人数" , "share_rtd_domesnp" : "限售股份(境内自然人持股)" , "share_liqa_pledgedpct" : "无限售股份质押比例" , "holder_pctbygeneralcorp" : "一般法人持股比例" , "exe_price" : "行权价格" , "neeq_listanndate" : "挂牌公告日" , "holder_totalbytrustcorp" : "信托公司持股数量" , "comp_name_eng" : "公司英文名称" , "holder_totalbyqfii" : "QFII持股数量" , "employee_BA" : "本科人数" , "holder_quantity" : "大股东持股数量" , "settlementmethod" : "交割方式" , "holder_pctbyhf" : "阳光私募持股比例" , "share_restrictedb" : "限售B股" , "neeq_marketmakeanndate" : "转做市公告日" , "employee_fin_pct" : "财务人员人数占比" , "share_restricteda" : "限售A股" , "listingornot" : "是否上市公司" , "backdoordate" : "借壳上市日期" , "discloser" : "信息披露人" , "issuecurrencycode" : "发行币种" , "employee_rc_pct" : "风控稽核人员人数占比" , "employee_rc" : "风控稽核人员人数" , "fax" : "公司传真" , "employee_coll_pct" : "专科人数占比" , "holder_totalbyfinancecorp" : "财务公司持股数量" , "employee_othdegree_pct" : "其他学历人数占比" , "holder_liqquantity" : "流通股东持股数量" , "holder_pctbyssfund" : "社保基金持股比例" , "industry_neeqgics" : "所属挂牌公司投资型行业名称" , "clo" : "法律顾问" , "employee_excu_pct" : "行政人员人数占比" , "industry_gx" : "所属国信行业名称" , "sec_type" : "证券类型(细类)" , "phone" : "公司电话" , "share_nontradable" : "股改前非流通股" , "industrycode" : "所属行业代码(支持历史)" , "holder_totalbycorppension" : "企业年金持股数量" , "employee_PHD" : "博士人数" , "SHSC" : "是否沪港通买入标的" , "city" : "城市" , "holder_pctbyfinancecorp" : "财务公司持股比例" , "industry_citiccode" : "所属中信行业代码" , "holder_pctbylnfcorp" : "非金融类上市公司持股比例" , "holder_num" : "股东户数" , "free_float_shares" : "自由流通股本" , "employee_othdept_pct" : "其他专业人员人数占比" , "industry_CSRCcode" : "所属证监会行业代码(旧)" , "share_pledgeda_pct" : "质押比例" , "holder_name" : "大股东名称" , "tunit" : "交易单位" , "employee_highschool_pct" : "高中及以下人数占比" , "indexcode_sw" : "所属申万行业指数代码" , "backdoor" : "是否借壳上市" , "holder_top10liqquantity" : "前十大流通股东持股数量合计" , "share_rtd_inst" : "限售股份(机构配售股份)" , "us_name" : "标的简称" , "industry_neeqgicscode" : "所属挂牌公司投资型行业代码" , "chairman" : "法定代表人" , "industry_CSRCcode12" : "所属证监会行业代码" , "hsharecode" : "同公司H股Wind代码" , "majorproducttype" : "主营产品类型" , "share_restricteda_pledged" : "有限售股份质押数量" , "employee_highschool" : "高中及以下人数" , "parvalue" : "每股面值" , "holder_totalbyinsur" : "保险公司持股数量" , "office" : "办公地址" , "employee_hr_pct" : "人事人员人数占比" , "employee" : "员工总数" , "ipo_date" : "上市日期" , "share_oversea_pct" : "海外上市股占总股本比例" , "report_cur" : "记账本位币" , "isin_code" : "ISIN代码" , "share_restrictedb_pct" : "限售B股占总股本比例" , "share_rtd_subfrgn" : "限售股份(外资持股合计)" , "indexcode_wind" : "所属Wind行业指数代码" , "exe_enddate" : "最后行权日期" , "zipcode" : "邮编" , "holder_totalbyssfund" : "社保基金持股数量" , "ipo_leadundr_n" : "主办券商(持续督导)" , "share_restricted_pct" : "限售股合计占总股本比例" , "industry_sw" : "所属申万行业名称" , "holder_totalbygeneralcorp" : "一般法人持股数量" , "industry_citic" : "所属中信行业名称" , "share_liqb" : "流通B股" , "neeq_marketmakernum" : "做市商家数" , "underlyingwindcode" : "标的Wind代码" , "share_nontradable_pct" : "股改前非流通股占总股本比例" , "share_otca_pct" : "三板A股占总股本比例" , "share_issuing" : "已发行数量" , "holder_pctbybywmp" : "券商集合理财持股比例" , "nature" : "公司属性" , "share_liqb_pct" : "流通B股占总股本比例" , "holder_pctbysec" : "券商持股比例" , "parallelcode" : "是否并行代码" , "employee_tech_pct" : "技术人员人数占比" , "transfertype" : "转让方式" , "sec_status" : "证券存续状态" , "lotsize" : "每手股数" , "bsharecode" : "同公司B股代码" , "holder_totalbyhf" : "阳光私募持股数量" , "frmindpdirector" : "公司独立董事(历任)" , "employee_fin" : "财务人员人数" , "share_tradable_pct" : "流通股合计占总股本比例"}}
+
+------------ 2016-12-20 12:58:34
+    @GET
+    @Path("get-names")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getName(@DefaultValue("") @QueryParam("codes") String codes) {
+        Document result = new Document();
+        try {
+            List<String> stocks = (List<String>) JSON.parse(codes);
+            List<String> names = MongoUtil.getStockNames(stocks);
+            result.put("success", true);
+            result.put("message", "ok");
+            result.put("names", names);
+        } catch (Exception e) {
+            logger.error("Failed to get stock name.", e);
+
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return JSON.serialize(result);
+    }
+
+http://10.12.3.29:9080/api/v1/chart/get-names?codes=[%22000023.SZ%22,%20%22000022.SZ%22]
+
+{ "success" : true , "message" : "ok" , "names" : [ "æ·±å¤©åœ°A" , "æ·±èµ¤æ¹¾A"]}
+
+
+---------- 2016-12-20 13:21:03
+> show collections;
+account
+charts
+company
+company_invite
+company_member
+company_test
+counters
+dataset_out_chart_1
+datasets
+edb_measurements
+jy_measures
+last_crawl
+last_succeed_time
+measurements
+measures
+perf_summary
+query_pool
+report_type
+reports
+reports2
+sectors
+spider_stats
+template
+tushare_information
+user
+user_test
+verification_code
+wind_analysis
+wind_edb
+wind_events
+wind_finance
+wind_information
+wind_performance
+wind_wsd
+wind_wset
+wind_wsi
+words
+work_sheet
+
+db.wind_wset.find().pretty()
+{
+  "_id" : 17412,
+  "sectors" : [
+    NumberLong(2),
+    NumberLong(4),
+    NumberLong(5),
+    NumberLong(14),
+    NumberLong(16),
+    NumberLong(17),
+    NumberLong(19),
+    NumberLong(20),
+    NumberLong(21),
+    NumberLong(22),
+    NumberLong(23),
+    NumberLong(24),
+    NumberLong(26),
+    NumberLong(27),
+    NumberLong(54)
+  ],
+  "sec_name" : "深天地A",
+  "create_at" : NumberLong("1479278977000"),
+  "date" : NumberLong("1479139200000"),
+  "windcode" : "000023.SZ"
+}
+
+> db.company.find().pretty()
+{
+  "_id" : ObjectId("584140e75b28bb2b71f8386f"),
+  "name" : "zj",
+  "create_at" : "2016-12-02 16:15:00",
+  "admin" : {
+    "id" : "583ba5e57b57ae306365c0ac",
+    "name" : "zhyzhu"
+  }
+}
+
+db.wind_information.find().pretty()
+{
+  "_id" : ObjectId("582e9ad2c3f6af591d83e9e9"),
+  "registernumber" : "440301103086495",
+  "concept" : "重组;深圳前海新区;智慧医疗;超涨;预增;预减",
+  "office" : "广东省深圳市南山区高新技术产业园(北区)朗山路东物商业大楼10楼",
+  "relationcode" : null,
+  "ipo_leadundr_n" : null,
+  "neeq_level" : null,
+  "employee_othdept" : null,
+  "employee_phd" : null,
+  "employee_ba_pct" : null,
+  "employee_tech" : null,
+  "discloser" : "侯剑",
+  "hsharecode" : null,
+  "numberofconstituents" : null,
+  "industry_neeqgics" : null,
+  "anchorbond" : null,
+  "exch_eng" : "SZSE",
+  "methodology" : null,
+  "comp_name" : "深圳市天地(集团)股份有限公司",
+  "industry_csrc" : null,
+  "employee" : 1233,
+  "employee_highschool_pct" : null,
+  "industry_csrccode" : null,
+  "fax" : "86-755-86154040",
+  "employee_sale_pct" : null,
+  "industry_gicscode" : null,
+  "neeq_marketmakernum" : 0,
+  "ceo" : "展海波",
+  "employee_coll_pct" : null,
+  "indexcode_wind" : null,
+  "majorproductname" : "深天地建筑陶瓷、深天地搅拌混凝土、深天地免振微膨胀高性能混凝土、深天地普通混凝土、深天地水泥结构件、深天地水泥预制件、深天地碎石、深天地物业管理、天地时代广场项目",
+  "employee_server" : null,
+  "marketmakedate" : null,
+  "sec_type" : "普通股",
+  "employee_hr" : null,
+  "basevalue" : 65535,
+  "sec_status" : "L",
+  "industry_citiccode" : null,
+  "employee_othdept_pct" : null,
+  "neeq_listanndate" : null,
+  "crtindpdirector" : "梁融,程汉涛,沈险峰",
+  "employee_pur" : null,
+  "bsharecode" : null,
+  "sec_name" : "深天地A",
+  "employee_admin" : null,
+  "employee_ba" : null,
+  "tendrst_code" : null,
+  "employee_rc" : null,
+  "employee_ms" : null,
+  "ro" : null,
+  "email" : "std000023@vip.163.com",
+  "employee_sale" : null,
+  "business" : "商品混凝土及其原材料的生产、销售(具体生产场地执照另行申办)；水泥制品的生产、销售(具体生产场地执照另行申办)；在合法取得土地使用权的地块上从事房地产开发；物流服务；普通货运，货物专用运输(罐式)(道路运输经营许可证有效期至2019年1月13日)；机电设备维修；物业管理；投资兴办实业(具体项目另行申报)；国内商业、物资供销业(不含专营、专控、专卖商品及限制项目)；经营进出口业务(按深府办函[1994]278号文执行)。",
+  "nature" : "公众企业",
+  "exch_city" : "深圳",
+  "employee_server_pct" : null,
+  "clo" : "东方昆仑(深圳)律师事务所",
+  "prewindcode" : null,
+  "address" : "广东省深圳市南山区高新技术产业园(北区)朗山路东物商业大楼10楼",
+  "ipo_date" : "1993-04-29T00:00:00",
+  "indexcode_sw" : null,
+  "country" : "CN",
+  "organizationcode" : "192192827",
+  "delist_date" : null,
+  "employee_phd_pct" : null,
+  "industry_sw" : null,
+  "compindex2" : null,
+  "isin_code" : "CNE000000834",
+  "industry_citic" : null,
+  "basedate" : null,
+  "employee_rc_pct" : null,
+  "report_cur" : null,
+  "employee_hr_pct" : null,
+  "launchdate" : null,
+  "boardchairmen" : "杨国富",
+  "industry_neeqgicscode" : null,
+  "industry_gx" : null,
+  "employee_othdegree" : null,
+  "windcode" : "000023.SZ",
+  "industry2" : null,
+  "industry_csrc12" : null,
+  "city" : "深圳市",
+  "transfertype" : null,
+  "employee_excu" : null,
+  "backdoor" : "否",
+  "mkt" : "主板",
+  "employee_excu_pct" : null,
+  "sec_englishname" : "UNIVERSE",
+  "employee_fin" : null,
+  "employee_tech_pct" : null,
+  "website" : "www.sztiandi.com",
+  "bsharewindcode" : null,
+  "shsc" : "否",
+  "listingornot" : "是",
+  "employee_highschool" : null,
+  "phone" : "86-755-86154212",
+  "lotsize" : 100,
+  "employee_othdegree_pct" : null,
+  "regcapital" : 138756240,
+  "parvalue" : "1.000000 CNY",
+  "employee_admin_pct" : null,
+  "industry_hs" : null,
+  "industry_gics" : null,
+  "tunit" : null,
+  "trade_code" : "000023",
+  "briefing" : "公司是全国第一家以商品混凝土为主业的上市公司，主要业务涉及商品混凝土、房地产开发及物业管理等，目前业务已扩展至湖南、陕西、江苏等地。公司在深圳���湖南均建有专业商品混凝土生产基地，可生产各种强度等级的普通混凝土和特种混凝土以及预拌砂浆，其中在预拌砂浆技术方面位居领先地位。长期以来，为深圳许多重点工程、地标建筑提供了大量优质商品混凝土，产品已覆盖整个深圳市，进入湖南株洲市场后，为当地的重点和样板工程提供了优质混凝土。市场占有率居深圳、株洲地区前列。公司秉承“一流的产品质量，一流的服务水平”的宗旨，规范和加强内部管理，培育优秀的企业文化，充分发挥资源、设备、技术、品牌共享的优势，进一步拓展新的生产基地，扩大市场占有率，拓展房地产开发项目，步入了良性、稳健发展的快车道。",
+  "curr" : "CNY",
+  "neeq_park" : null,
+  "employee_fin_pct" : null,
+  "issuecurrencycode" : null,
+  "windtype" : null,
+  "backdoordate" : null,
+  "ipo_marketmaker" : null,
+  "industrycode" : null,
+  "industry_csrccode12" : null,
+  "employee_producer_pct" : null,
+  "zipcode" : "518057",
+  "employee_coll" : null,
+  "repo_briefing" : null,
+  "employee_producer" : null,
+  "chairman" : "杨国富",
+  "marginornot" : "否",
+  "crm_issuer" : null,
+  "province" : "广东省",
+  "parallelcode" : null,
+  "date" : NumberLong("1479398400000"),
+  "industry_swcode" : null,
+  "employee_pur_pct" : null,
+  "neeq_marketmakeanndate" : null,
+  "industryname" : null,
+  "comp_name_eng" : "Shenzhen Universe (Group) Co.,Ltd",
+  "create_at" : NumberLong("1479441708000"),
+  "frmindpdirector" : "侯莉颖,范值清,张武,马保国,何晴,桑涛,罗中伟,周沅帆,梁融,程汉涛,沈险峰",
+  "employee_ms_pct" : null,
+  "auditor" : "大华会计师事务所(特殊普通合伙)",
+  "fiscaldate" : "12-31",
+  "founddate" : "19841116",
+  "majorproducttype" : "工业陶瓷、混凝土及砂浆、商业地产、石材石料、水泥制品、物业出租和管理",
+  "fake" : {
+    "industry" : "信息服务"
+  },
+  "share_otcb_pct" : 0,
+  "holder_totalbybywmp" : null,
+  "holder_num" : 12855,
+  "share_liqb_pct" : 0,
+  "exe_price" : null,
+  "share_restricteda_pct" : 0,
+  "holder_totalbybank" : null,
+  "holder_pctbyfund" : null,
+  "share_nontradable_pct" : 0,
+  "holder_liqpct" : null,
+  "share_otcb" : 0,
+  "holder_totalbylnfcorp" : null,
+  "holder_totalbyinst" : null,
+  "share_otca" : 0,
+  "share_totalotc" : 0,
+  "exe_ratio" : null,
+  "share_rtd_state" : 0,
+  "holder_controller" : null,
+  "share_restricteda_pledgedpct" : 0,
+  "share_totaltradable" : 138756240,
+  "holder_pctbysec" : null,
+  "share_pledgeda_pct" : 15.19,
+  "share_restricteda_pledged" : 0,
+  "free_float_shares" : 82159752.00000001,
+  "share_liqa_pledged" : 21082199.999999996,
+  "holder_pctbycorppension" : null,
+  "holder_totalbyfund" : null,
+  "holder_quantity" : null,
+  "startdate" : null,
+  "share_restrictedb_pct" : 0,
+  "share_rtd_domesjur" : 0,
+  "holder_top10pct" : null,
+  "share_oversea_pct" : 0,
+  "holder_totalbyqfii" : null,
+  "share_pledgeda" : 21082199.999999996,
+  "share_liqa_pct" : 100,
+  "holder_pctbylnfcorp" : null,
+  "holder_pct" : null,
+  "holder_liqname" : null,
+  "share_rtd_domesnp" : 0,
+  "share_restricted_pct" : 0,
+  "us_name" : null,
+  "share_totalb" : 0,
+  "share_rtd_frgnnp" : 0,
+  "share_liqh_pct" : 0,
+  "share_totalb_pct" : 0,
+  "holder_top10liqquantity" : 73652461,
+  "settlementmethod" : null,
+  "total_shares" : 138756240,
+  "share_rtd_subfrgn" : 0,
+  "share_h" : 0,
+  "holder_totalbycorppension" : null,
+  "exe_type" : null,
+  "holder_totalbyinsur" : null,
+  "holder_pctbytrustcorp" : null,
+  "share_totalotc_pct" : 0,
+  "lasttradingdate" : null,
+  "share_rtd_statejur" : 0,
+  "share_totala" : 138756240,
+  "share_liqa_pledgedpct" : 15.193699452709136,
+  "us_type" : null,
+  "holder_liqsharecategory" : null,
+  "underlyingwindcode" : null,
+  "holder_totalbytrustcorp" : null,
+  "holder_totalbybysec" : null,
+  "share_restricteda" : 0,
+  "share_restrictedb" : 0,
+  "share_liqb" : 0,
+  "holder_pctbybywmp" : null,
+  "holder_pctbyinst" : null,
+  "us_code" : null,
+  "exe_startdate" : null,
+  "share_totala_pct" : 100,
+  "share_totalrestricted" : 0,
+  "share_nontradable" : 0,
+  "share_tradable_pct" : 100,
+  "holder_pctbyssfund" : null,
+  "holder_totalbygeneralcorp" : null,
+  "holder_pctbygeneralcorp" : null,
+  "holder_name" : null,
+  "holder_pctbybank" : null,
+  "share_ntrd_prfshare" : 0,
+  "exe_mode" : null,
+  "share_rtd_subotherdomes" : 0,
+  "holder_pctbyinsur" : null,
+  "holder_totalbyssfund" : null,
+  "holder_sharecategory" : null,
+  "share_otca_pct" : 0,
+  "holder_pctbyhf" : null,
+  "exe_enddate" : null,
+  "holder_pctbyfinancecorp" : null,
+  "share_rtd_frgnjur" : 0,
+  "share_issuing" : 138756240,
+  "holder_totalbyfinancecorp" : null,
+  "share_oversea" : 0,
+  "totaltm" : null,
+  "holder_top10quantity" : null,
+  "holder_totalbyhf" : null,
+  "holder_liqquantity" : null,
+  "holder_pctbyqfii" : null,
+  "float_a_shares" : 138756240,
+  "share_rtd_inst" : 0
+}
+
+
+
+    @GET
+    @Path("indexes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getInformationIndexes() {
+        Document result = new Document();
+        try {
+
+            List<Document> lists = MongoUtil.getInformationIndexes();
+            int size = lists.size();
+            ArrayList<String> indexes = new ArrayList<>();
+
+            StringBuilder buffer = new StringBuilder();
+            for (int j = 0; j < size; ++j) {
+                buffer.append(lists.get(j).getString("measure_id"));
+                indexes.add(lists.get(j).getString("measure_id"));
+                if (j < size - 1) {
+                    buffer.append(',');
+                }
+            }
+
+//            List<String> stocks = (List<String>) JSON.parse(codes);
+//            List<String> names = MongoUtil.getStockNames(stocks);
+            result.put("success", true);
+            result.put("message", "ok");
+//            result.put("names", names);
+            result.put("indexes_string", buffer.toString()); // a string
+            result.put("indexes", indexes); // an array of strings in json
+        } catch (Exception e) {
+            logger.error("Failed to get stock name.", e);
+
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return JSON.serialize(result);
+    }
+
+indexes
+ --------->
+"indexes" : [ "sec_name" , "sec_englishname" , "ipo_date" , "exch_city" , "mkt" , "sec_status" , "delist_date" , "issuecurrencycode" , "curr" , "RO" , "parvalue" , "lotsize" , "tunit" , "exch_eng" , "country" , "crm_issuer" , "basedate" , "basevalue" , "numberofconstituents" , "methodology" , "repo_briefing" , "launchdate" , "windcode" , "trade_code" , "isin_code" , "anchorbond" , "hsharecode" , "bsharewindcode" , "bsharecode" , "relationcode" , "bdc" , "prewindcode" , "tendrst_code" , "compindex2" , "concept" , "marginornot" , "shsc" , "parallelcode" , "sec_type" , "backdoor" , "backdoordate" , "windtype" , "ipo_leadundr_n" , "ipo_marketMaker" , "marketmakedate" , "transfertype" , "neeq_marketmakenum" , "neeq_park" , "neeq_listanndate" , "neeq_marketmakeanndate" , "industry_neeqgics" , "industry_neeqgicscode" , "neeq_level" , "comp_name" , "comp_name_eng" , "nature" , "founddate" , "regcapital" , "chairman" , "fiscaldate" , "business" , "briefing" , "majorproducttype" , "majorproductname" , "employee" , "province" , "city" , "address" , "office" , "zipcode" , "phone" , "fax" , "email" , "website" , "discloser" , "registernumber" , "organizationcode" , "report_cur" , "listingornot" , "industry_CSRC12" , "industry_CSRCcode12" , "industry_gics" , "industry_gicscode" , "indexcode_wind" , "industry_sw" , "industry_swcode" , "indexcode_sw" , "industry_citic" , "industry_citiccode" , "industry_gx" , "industry_HS" , "industry2" , "industrycode" , "industryname" , "industry_CSRC" , "industry_CSRCcode" , "boardchairmen" , "ceo" , "crtindpdirector" , "frmindpdirector" , "auditor" , "clo" , "employee_producer" , "employee_sale" , "employee_server" , "employee_tech" , "employee_fin" , "employee_hr" , "employee_excu" , "employee_admin" , "employee_rc" , "employee_pur" , "employee_othdept" , "employee_PHD" , "employee_MS" , "employee_BA" , "employee_coll" , "employee_highschool" , "employee_othdegree" , "employee_producer_pct" , "employee_sale_pct" , "employee_server_pct" , "employee_tech_pct" , "employee_fin_pct" , "employee_hr_pct" , "employee_excu_pct" , "employee_admin_pct" , "employee_rc_pct" , "employee_pur_pct" , "employee_othdept_pct" , "employee_PHD_pct" , "employee_MS_pct" , "employee_BA_pct" , "employee_coll_pct" , "employee_highschool_pct" , "employee_othdegree_pct" , "neeq_marketmakernum"]
+
+------------- 2016-12-20 15:19:16
+
+> db.measures.find({"datasetId" : "wind_information"}).pretty()
+{
+  "_id" : ObjectId("58455b0bc3f6af591d8557ba"),
+  "datasetId" : "wind_information",
+  "id" : "windcode",
+  "name" : "股票代码",
+  "parent" : null,
+  "dataType" : 2,
+  "type" : 1
+}
+{
+  "_id" : ObjectId("58455b0bc3f6af591d8557bb"),
+  "datasetId" : "wind_information",
+  "id" : "证券资料",
+  "name" : "证券资料",
+  "parent" : null,
+  "dataType" : 0,
+  "type" : 0
+}
+
+------------- 2016-12-20 15:33:24
+
+    @GET
+    @Path("indexes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getInformationIndexes() {
+        String regEx = "[\u4e00-\u9fa5]";
+        Pattern pat = Pattern.compile(regEx);
+        Document result = new Document();
+        try {
+
+            List<Document> lists = MongoUtil.getDetailedInformationIndexes();
+            HashMap<String, String> indexes = new HashMap<>();
+//            ArrayList<String> indexes = new ArrayList<>();
+
+            for (Document doc : lists) {
+                String index = doc.getString("id");
+                // filter away the index if corrupted
+                Matcher matcher = pat.matcher(index);
+                if (matcher.find()) {
+                    continue;
+                }
+//                indexes.add(new ArrayList<String>[index, doc.getString("name")]);
+                indexes.put(index, doc.getString("name"));
+            }
+
+            result.put("success", true);
+            result.put("message", "ok");
+            result.put("indexes", indexes);
+        } catch (Exception e) {
+            logger.error("Failed to get stock name.", e);
+
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return JSON.serialize(result);
+    }
+
+------------- 2016-12-20 15:38:38
+{ "success" : true , "message" : "ok" , "indexes" : { "share_totalotc" : "ä¸‰æ¿åˆè®¡" , "share_otca" : "ä¸‰æ¿Aè‚¡" , "crtindpdirector" : "å…¬å¸ç‹¬ç«‹è‘£äº‹(çŽ°ä»»)" , "startdate" : "èµ·å§‹äº¤æ˜“æ—¥æœŸ" , "share_restricteda_pct" : "é™å”®Aè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "share_otcb" : "ä¸‰æ¿Bè‚¡" , "share_restricteda_pledgedpct" : "æœ‰é™å”®è‚¡ä»½è´¨æŠ¼æ¯”ä¾‹" , "ipo_marketMaker" : "åšå¸‚å•†åç§°" , "industry_CSRC12" : "æ‰€å±žè¯ç›‘ä¼šè¡Œä¸šåç§°" , "holder_controller" : "å®žé™…æŽ§åˆ¶äººåç§°" , "holder_liqsharecategory" : "æµé€šè‚¡ä¸œæŒè‚¡è‚¡æœ¬æ€§è´¨" , "province" : "çœä»½" , "share_rtd_frgnjur" : "é™å”®è‚¡ä»½(å¢ƒå¤–æ³•äººæŒè‚¡)" , "comp_name" : "å…¬å¸ä¸­æ–‡åç§°" , "share_ntrd_prfshare" : "ä¼˜å…ˆè‚¡" , "delist_date" : "æ‘˜ç‰Œæ—¥æœŸ" , "curr" : "äº¤æ˜“å¸ç§" , "employee_sale" : "é”€å”®äººå‘˜äººæ•°" , "employee_sale_pct" : "é”€å”®äººå‘˜äººæ•°å æ¯”" , "employee_producer_pct" : "ç”Ÿäº§äººå‘˜äººæ•°å æ¯”" , "share_liqa_pledged" : "æ— é™å”®è‚¡ä»½è´¨æŠ¼æ•°é‡" , "trade_code" : "è¯åˆ¸ä»£ç " , "industry_swcode" : "æ‰€å±žç”³ä¸‡è¡Œä¸šä»£ç " , "share_rtd_frgnnp" : "é™å”®è‚¡ä»½(å¢ƒå¤–è‡ªç„¶äººæŒè‚¡)" , "us_code" : "æ ‡çš„ä»£ç " , "industry_gicscode" : "æ‰€å±žWindè¡Œä¸šä»£ç " , "share_totalb_pct" : "Bè‚¡åˆè®¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "employee_producer" : "ç”Ÿäº§äººå‘˜äººæ•°" , "exe_mode" : "è¡Œæƒæ–¹å¼" , "share_totalotc_pct" : "ä¸‰æ¿åˆè®¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "RO" : "æ¯ä»½DRä»£è¡¨è‚¡ä»½æ•°" , "holder_totalbyfund" : "åŸºé‡‘æŒè‚¡æ•°é‡" , "employee_hr" : "äººäº‹äººå‘˜äººæ•°" , "employee_excu" : "è¡Œæ”¿äººå‘˜äººæ•°" , "fiscaldate" : "ä¼šè®¡å¹´ç»“æ—¥" , "share_pledgeda" : "è´¨æŠ¼è‚¡ä»½æ•°é‡åˆè®¡" , "ceo" : "æ€»ç»ç†" , "neeq_park" : "æŒ‚ç‰Œå›­åŒº" , "holder_pctbyfund" : "åŸºé‡‘æŒè‚¡æ¯”ä¾‹" , "employee_BA_pct" : "æœ¬ç§‘äººæ•°å æ¯”" , "email" : "å…¬å¸ç”µå­é‚®ä»¶åœ°å€" , "share_otcb_pct" : "ä¸‰æ¿Bè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "share_liqh_pct" : "é¦™æ¸¯ä¸Šå¸‚è‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "holder_liqname" : "æµé€šè‚¡ä¸œåç§°" , "website" : "å…¬å¸ç½‘ç«™" , "regcapital" : "æ³¨å†Œèµ„æœ¬" , "address" : "æ³¨å†Œåœ°å€" , "business" : "ç»è¥èŒƒå›´" , "auditor" : "å®¡è®¡æœºæž„" , "share_liqa_pct" : "æµé€šAè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "exe_ratio" : "åˆçº¦ä¹˜æ•°" , "share_totalb" : "Bè‚¡åˆè®¡" , "holder_top10pct" : "å‰åå¤§è‚¡ä¸œæŒè‚¡æ¯”ä¾‹åˆè®¡" , "float_a_shares" : "æµé€šAè‚¡" , "share_totala" : "Aè‚¡åˆè®¡" , "employee_PHD_pct" : "åšå£«äººæ•°å æ¯”" , "industry_CSRC" : "æ‰€å±žè¯ç›‘ä¼šè¡Œä¸šåç§°(æ—§)" , "share_h" : "é¦™æ¸¯ä¸Šå¸‚è‚¡" , "compindex2" : "æ˜¯å¦å±žäºŽé‡è¦æŒ‡æ•°æˆä»½" , "bsharewindcode" : "åŒå…¬å¸Bè‚¡Windä»£ç " , "share_oversea" : "æµ·å¤–ä¸Šå¸‚è‚¡" , "country" : "æ‰€å±žå›½å®¶" , "holder_totalbylnfcorp" : "éžé‡‘èžç±»ä¸Šå¸‚å…¬å¸æŒè‚¡æ•°é‡" , "majorproductname" : "ä¸»è¥äº§å“åç§°" , "employee_admin" : "ç»¼åˆç®¡ç†äººå‘˜äººæ•°" , "exch_city" : "ä¸Šå¸‚åœ°ç‚¹" , "windcode" : "è‚¡ç¥¨ä»£ç " , "briefing" : "å…¬å¸ç®€ä»‹" , "mkt" : "ä¸Šå¸‚æ¿" , "share_totala_pct" : "Aè‚¡åˆè®¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "marginornot" : "æ˜¯å¦èžèµ„èžåˆ¸æ ‡çš„" , "employee_server" : "å®¢æœäººå‘˜äººæ•°" , "share_rtd_subotherdomes" : "é™å”®è‚¡ä»½(å…¶ä»–å†…èµ„æŒè‚¡åˆè®¡)" , "industryname" : "æ‰€å±žè¡Œä¸šæ¿å—ä»£ç (æ”¯æŒåŽ†å²)" , "employee_tech" : "æŠ€æœ¯äººå‘˜äººæ•°" , "holder_pctbycorppension" : "ä¼ä¸šå¹´é‡‘æŒè‚¡æ¯”ä¾‹" , "sec_englishname" : "è‚¡ç¥¨è‹±æ–‡ç®€ç§°" , "organizationcode" : "ç»„ç»‡æœºæž„ä»£ç " , "share_totaltradable" : "æµé€šè‚¡åˆè®¡" , "holder_pctbytrustcorp" : "ä¿¡æ‰˜å…¬å¸æŒè‚¡æ¯”ä¾‹" , "holder_liqpct" : "æµé€šè‚¡ä¸œæŒè‚¡æ¯”ä¾‹" , "neeq_level" : "æ‰€å±žåˆ†å±‚" , "holder_pctbyinst" : "æœºæž„æŒè‚¡æ¯”ä¾‹åˆè®¡" , "employee_MS" : "ç¡•å£«äººæ•°" , "exe_startdate" : "èµ·å§‹è¡Œæƒæ—¥æœŸ" , "boardchairmen" : "è‘£äº‹é•¿" , "share_totalrestricted" : "é™å”®è‚¡åˆè®¡" , "share_rtd_domesjur" : "é™å”®è‚¡ä»½(å¢ƒå†…æ³•äººæŒè‚¡)" , "holder_totalbybywmp" : "åˆ¸å•†é›†åˆç†è´¢æŒè‚¡æ•°é‡" , "founddate" : "æˆç«‹æ—¥æœŸ" , "holder_totalbybank" : "é“¶è¡ŒæŒè‚¡æ•°é‡" , "industry_gics" : "æ‰€å±žWindè¡Œä¸šåç§°" , "holder_top10quantity" : "å‰åå¤§è‚¡ä¸œæŒè‚¡æ•°é‡åˆè®¡" , "holder_totalbybysec" : "åˆ¸å•†æŒè‚¡æ•°é‡" , "holder_totalbyinst" : "æœºæž„æŒè‚¡æ•°é‡åˆè®¡" , "total_shares" : "æ€»è‚¡æœ¬" , "concept" : "æ‰€å±žæ¦‚å¿µæ¿å—" , "employee_othdept" : "å…¶ä»–äººå‘˜äººæ•°" , "exe_type" : "è¡Œæƒç±»åž‹" , "employee_coll" : "ä¸“ç§‘äººæ•°" , "employee_othdegree" : "å…¶ä»–å­¦åŽ†äººæ•°" , "industry_HS" : "æ‰€å±žæ’ç”Ÿè¡Œä¸šåç§°" , "lasttradingdate" : "æœ€åŽäº¤æ˜“æ—¥æœŸ" , "employee_pur_pct" : "é‡‡è´­ä»“å‚¨äººå‘˜äººæ•°å æ¯”" , "holder_pctbybank" : "é“¶è¡ŒæŒè‚¡æ¯”ä¾‹" , "us_type" : "æ ‡çš„ç±»åž‹" , "registernumber" : "å·¥å•†ç™»è®°å·" , "holder_pctbyqfii" : "QFIIæŒè‚¡æ¯”ä¾‹" , "holder_pctbyinsur" : "ä¿é™©å…¬å¸æŒè‚¡æ¯”ä¾‹" , "employee_admin_pct" : "ç»¼åˆç®¡ç†äººå‘˜äººæ•°å æ¯”" , "sec_name" : "è¯åˆ¸ç®€ç§°" , "industry2" : "æ‰€å±žè¡Œä¸šåç§°(æ”¯æŒåŽ†å²)" , "marketmakedate" : "åšå¸‚é¦–æ—¥" , "employee_server_pct" : "å®¢æœäººå‘˜äººæ•°å æ¯”" , "share_rtd_state" : "é™å”®è‚¡ä»½(å›½å®¶æŒè‚¡)" , "exch_eng" : "äº¤æ˜“æ‰€è‹±æ–‡ç®€ç§°" , "totaltm" : "æ€»å­˜ç»­æœŸ" , "holder_sharecategory" : "å¤§è‚¡ä¸œæŒè‚¡è‚¡æœ¬æ€§è´¨" , "holder_pct" : "å¤§è‚¡ä¸œæŒè‚¡æ¯”ä¾‹" , "employee_MS_pct" : "ç¡•å£«äººæ•°å æ¯”" , "share_rtd_statejur" : "é™å”®è‚¡ä»½(å›½æœ‰æ³•äººæŒè‚¡)" , "employee_pur" : "é‡‡è´­ä»“å‚¨äººå‘˜äººæ•°" , "share_rtd_domesnp" : "é™å”®è‚¡ä»½(å¢ƒå†…è‡ªç„¶äººæŒè‚¡)" , "share_liqa_pledgedpct" : "æ— é™å”®è‚¡ä»½è´¨æŠ¼æ¯”ä¾‹" , "holder_pctbygeneralcorp" : "ä¸€èˆ¬æ³•äººæŒè‚¡æ¯”ä¾‹" , "exe_price" : "è¡Œæƒä»·æ ¼" , "neeq_listanndate" : "æŒ‚ç‰Œå…¬å‘Šæ—¥" , "holder_totalbytrustcorp" : "ä¿¡æ‰˜å…¬å¸æŒè‚¡æ•°é‡" , "comp_name_eng" : "å…¬å¸è‹±æ–‡åç§°" , "holder_totalbyqfii" : "QFIIæŒè‚¡æ•°é‡" , "employee_BA" : "æœ¬ç§‘äººæ•°" , "holder_quantity" : "å¤§è‚¡ä¸œæŒè‚¡æ•°é‡" , "settlementmethod" : "äº¤å‰²æ–¹å¼" , "holder_pctbyhf" : "é˜³å…‰ç§å‹ŸæŒè‚¡æ¯”ä¾‹" , "share_restrictedb" : "é™å”®Bè‚¡" , "neeq_marketmakeanndate" : "è½¬åšå¸‚å…¬å‘Šæ—¥" , "employee_fin_pct" : "è´¢åŠ¡äººå‘˜äººæ•°å æ¯”" , "share_restricteda" : "é™å”®Aè‚¡" , "listingornot" : "æ˜¯å¦ä¸Šå¸‚å…¬å¸" , "backdoordate" : "å€Ÿå£³ä¸Šå¸‚æ—¥æœŸ" , "discloser" : "ä¿¡æ¯æŠ«éœ²äºº" , "issuecurrencycode" : "å‘è¡Œå¸ç§" , "employee_rc_pct" : "é£ŽæŽ§ç¨½æ ¸äººå‘˜äººæ•°å æ¯”" , "employee_rc" : "é£ŽæŽ§ç¨½æ ¸äººå‘˜äººæ•°" , "fax" : "å…¬å¸ä¼ çœŸ" , "employee_coll_pct" : "ä¸“ç§‘äººæ•°å æ¯”" , "holder_totalbyfinancecorp" : "è´¢åŠ¡å…¬å¸æŒè‚¡æ•°é‡" , "employee_othdegree_pct" : "å…¶ä»–å­¦åŽ†äººæ•°å æ¯”" , "holder_liqquantity" : "æµé€šè‚¡ä¸œæŒè‚¡æ•°é‡" , "holder_pctbyssfund" : "ç¤¾ä¿åŸºé‡‘æŒè‚¡æ¯”ä¾‹" , "industry_neeqgics" : "æ‰€å±žæŒ‚ç‰Œå…¬å¸æŠ•èµ„åž‹è¡Œä¸šåç§°" , "clo" : "æ³•å¾‹é¡¾é—®" , "employee_excu_pct" : "è¡Œæ”¿äººå‘˜äººæ•°å æ¯”" , "industry_gx" : "æ‰€å±žå›½ä¿¡è¡Œä¸šåç§°" , "sec_type" : "è¯åˆ¸ç±»åž‹(ç»†ç±»)" , "phone" : "å…¬å¸ç”µè¯" , "share_nontradable" : "è‚¡æ”¹å‰éžæµé€šè‚¡" , "industrycode" : "æ‰€å±žè¡Œä¸šä»£ç (æ”¯æŒåŽ†å²)" , "holder_totalbycorppension" : "ä¼ä¸šå¹´é‡‘æŒè‚¡æ•°é‡" , "employee_PHD" : "åšå£«äººæ•°" , "SHSC" : "æ˜¯å¦æ²ªæ¸¯é€šä¹°å…¥æ ‡çš„" , "city" : "åŸŽå¸‚" , "holder_pctbyfinancecorp" : "è´¢åŠ¡å…¬å¸æŒè‚¡æ¯”ä¾‹" , "industry_citiccode" : "æ‰€å±žä¸­ä¿¡è¡Œä¸šä»£ç " , "holder_pctbylnfcorp" : "éžé‡‘èžç±»ä¸Šå¸‚å…¬å¸æŒè‚¡æ¯”ä¾‹" , "holder_num" : "è‚¡ä¸œæˆ·æ•°" , "free_float_shares" : "è‡ªç”±æµé€šè‚¡æœ¬" , "employee_othdept_pct" : "å…¶ä»–ä¸“ä¸šäººå‘˜äººæ•°å æ¯”" , "industry_CSRCcode" : "æ‰€å±žè¯ç›‘ä¼šè¡Œä¸šä»£ç (æ—§)" , "share_pledgeda_pct" : "è´¨æŠ¼æ¯”ä¾‹" , "holder_name" : "å¤§è‚¡ä¸œåç§°" , "tunit" : "äº¤æ˜“å•ä½" , "employee_highschool_pct" : "é«˜ä¸­åŠä»¥ä¸‹äººæ•°å æ¯”" , "indexcode_sw" : "æ‰€å±žç”³ä¸‡è¡Œä¸šæŒ‡æ•°ä»£ç " , "backdoor" : "æ˜¯å¦å€Ÿå£³ä¸Šå¸‚" , "holder_top10liqquantity" : "å‰åå¤§æµé€šè‚¡ä¸œæŒè‚¡æ•°é‡åˆè®¡" , "share_rtd_inst" : "é™å”®è‚¡ä»½(æœºæž„é…å”®è‚¡ä»½)" , "us_name" : "æ ‡çš„ç®€ç§°" , "industry_neeqgicscode" : "æ‰€å±žæŒ‚ç‰Œå…¬å¸æŠ•èµ„åž‹è¡Œä¸šä»£ç " , "chairman" : "æ³•å®šä»£è¡¨äºº" , "industry_CSRCcode12" : "æ‰€å±žè¯ç›‘ä¼šè¡Œä¸šä»£ç " , "hsharecode" : "åŒå…¬å¸Hè‚¡Windä»£ç " , "majorproducttype" : "ä¸»è¥äº§å“ç±»åž‹" , "share_restricteda_pledged" : "æœ‰é™å”®è‚¡ä»½è´¨æŠ¼æ•°é‡" , "employee_highschool" : "é«˜ä¸­åŠä»¥ä¸‹äººæ•°" , "parvalue" : "æ¯è‚¡é¢å€¼" , "holder_totalbyinsur" : "ä¿é™©å…¬å¸æŒè‚¡æ•°é‡" , "office" : "åŠžå…¬åœ°å€" , "employee_hr_pct" : "äººäº‹äººå‘˜äººæ•°å æ¯”" , "employee" : "å‘˜å·¥æ€»æ•°" , "ipo_date" : "ä¸Šå¸‚æ—¥æœŸ" , "share_oversea_pct" : "æµ·å¤–ä¸Šå¸‚è‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "report_cur" : "è®°è´¦æœ¬ä½å¸" , "isin_code" : "ISINä»£ç " , "share_restrictedb_pct" : "é™å”®Bè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "share_rtd_subfrgn" : "é™å”®è‚¡ä»½(å¤–èµ„æŒè‚¡åˆè®¡)" , "indexcode_wind" : "æ‰€å±žWindè¡Œä¸šæŒ‡æ•°ä»£ç " , "exe_enddate" : "æœ€åŽè¡Œæƒæ—¥æœŸ" , "zipcode" : "é‚®ç¼–" , "holder_totalbyssfund" : "ç¤¾ä¿åŸºé‡‘æŒè‚¡æ•°é‡" , "ipo_leadundr_n" : "ä¸»åŠžåˆ¸å•†(æŒç»­ç£å¯¼)" , "share_restricted_pct" : "é™å”®è‚¡åˆè®¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "industry_sw" : "æ‰€å±žç”³ä¸‡è¡Œä¸šåç§°" , "holder_totalbygeneralcorp" : "ä¸€èˆ¬æ³•äººæŒè‚¡æ•°é‡" , "industry_citic" : "æ‰€å±žä¸­ä¿¡è¡Œä¸šåç§°" , "share_liqb" : "æµé€šBè‚¡" , "neeq_marketmakernum" : "åšå¸‚å•†å®¶æ•°" , "underlyingwindcode" : "æ ‡çš„Windä»£ç " , "share_nontradable_pct" : "è‚¡æ”¹å‰éžæµé€šè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "share_otca_pct" : "ä¸‰æ¿Aè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "share_issuing" : "å·²å‘è¡Œæ•°é‡" , "holder_pctbybywmp" : "åˆ¸å•†é›†åˆç†è´¢æŒè‚¡æ¯”ä¾‹" , "nature" : "å…¬å¸å±žæ€§" , "share_liqb_pct" : "æµé€šBè‚¡å æ€»è‚¡æœ¬æ¯”ä¾‹" , "holder_pctbysec" : "åˆ¸å•†æŒè‚¡æ¯”ä¾‹" , "parallelcode" : "æ˜¯å¦å¹¶è¡Œä»£ç " , "employee_tech_pct" : "æŠ€æœ¯äººå‘˜äººæ•°å æ¯”" , "transfertype" : "è½¬è®©æ–¹å¼" , "sec_status" : "è¯åˆ¸å­˜ç»­çŠ¶æ€" , "lotsize" : "æ¯æ‰‹è‚¡æ•°" , "bsharecode" : "åŒå…¬å¸Bè‚¡ä»£ç " , "holder_totalbyhf" : "é˜³å…‰ç§å‹ŸæŒè‚¡æ•°é‡" , "frmindpdirector" : "å…¬å¸ç‹¬ç«‹è‘£äº‹(åŽ†ä»»)" , "employee_fin" : "è´¢åŠ¡äººå‘˜äººæ•°" , "share_tradable_pct" : "æµé€šè‚¡åˆè®¡å æ€»è‚¡æœ¬æ¯”ä¾‹"}}
+
+
+
+

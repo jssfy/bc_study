@@ -1,0 +1,489 @@
+
+
+[root@bj-tz8-db001 apes-crawler]# ls
+apes-crawler  crawler.tar.gz  crawler.tar.gz.old
+[root@bj-tz8-db001 apes-crawler]# pwd
+/niub/bj/apes-crawler
+
+------------- 2016-12-21 12:29:59
+to deploy apes_crawler to 120.26.245.253:
+  1) test with local uploading, make sure the process works and the crawler runs well, and also set up the crawler env in the 120.26.245.253 machine
+  2) create a new jenkins job
+
+aliyun server for jy, online test, online apes crawler, etc.
+  ssh ahye@120.26.245.253
+
+crawler mongo save: apes
+  120.26.95.121
+
+120.26.245.253
+[root@bj-tz8-db001 ahye]# lsb_release -a
+LSB Version:  :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID: CentOS
+Description:  CentOS release 6.5 (Final)
+Release:  6.5
+Codename: Final
+
+------------ 2016-12-21 14:14:16
+env setup:
+
+[ahye@bj-tz8-db001 ~]$ python mongo.py
+Traceback (most recent call last):
+  File "mongo.py", line 2, in <module>
+    import pymongo, datetime, time
+ImportError: No module named pymongo
+
+  pip install pymongo
+
+Downloading pymongo-3.4.0.tar.gz (583kB)
+    82% |██████████████████████████▎     | 479kB 230bytes/s eta 0:07:33
+
+
+[root@bj-tz8-db001 ahye]# python mongo.py
+pymongo.errors.ServerSelectionTimeoutError: 120.26.95.121:27017: [Errno 113] No route to host
+
+
+--------- 2016-12-21 14:54:06
+jenkins:
+
+new item:
+  free style
+
+Repository URL
+ssh://jenkins@10.12.6.6:29418/apes-crawler
+
+to ssh remotely without pwd:
+1) cp rsa pub key from the client machine and then append it into the server's ~/.ssh/authorized_keys
+[root@bj-tz8-db001 ahye]# cat .ssh/authorized_keys 
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnxTgF7WefH+OfcGBqOUq8uWyTue4TddRH2tX5WhV8Tw1W+HWi4MNelrI0YO5blCFFOhjBbzZuit2MFI26RLgeE43Vhwm2l1w+3NHbyWP2uIHLlyOKpsBZLOrsXg8dS+t5hM4lZlcfrAFeOFklNhS6+RVGPUwsB/lXz2QZI9Qfe1WDtMlu23EBwb58acP7/uih9WBCE+9owU/Poib2I1RVKQ0NAux+Qd6+y3m7UDvp6IoOJy1Ftnk4JIVmdb8zeBPQjg8jpWRUMi2jqLoMn5TtFgzKb0XgmTF8u1YY2JVTrbBVMV2GtcliHrN0c3GdcBxwXKKmUeHZvqxHO/q9dbEz ahye@baina.com
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDJHcH+FzJmQHzVNHe6YYwtonXIyRUeiB1OBM76zzEw57vOyJzoNCbz5rkS/D+qize/xCrj4nD9tCxkLEQMwGypmxWvcGD4bwgw+iJYd/vyoSkuA1pMhQfzMH0MqhPSmYq7nbGFLWDxXJ6tdm7HcG5Y0xAxqOor3PG77f3SNfH5tLZKCAyVIMpo+EoV55jK2c1elTt2M2VtFy8M6SNXsdDUFMtsvpzOVnWH4L56b5Djmm2zJEC6033GaLQ6hPjeOSZorMHRXgGZDCyH3seMgK9p4q4pcQ6ckjY2Hb8m6Gsd9PGiKViuHTcR5T1ZTpWCxdXq5kGt0bZ/QeNR2zkYGh01 peng
+[root@bj-tz8-db001 ahye]# vim .ssh/authorized_keys
+
+2) and then ssh to it
+scp /tmp/crawler.tar.gz ahye@120.26.245.253:/home/ahye/
+
+notice:
+
+1) be careful with tab/spaces (use spaces, there might be errors like "mv: command not found" when using tab)
+if [ -f "$dir/crawler.tar.gz" ]; then
+  mv "$dir/crawler.tar.gz" "$dir/crawler.tar.gz.old"
+fi
+
+special chars might lead to error:
+dir=/tmp
+echo "creating .tar.gz file ..."
+rm -f $dir/crawler.tar.gz.old
+if [ -f "$dir/crawler.tar.gz" ]; then
+  echo "hello"
+　　mv "/tmp/ttt" "/tmp/ttt1"
+fi
+
+2) 
++ whoami
+jenkins
+
+find out where the main folder is: less /etc/passwd | grep jenkins
+and copy paste the .ssh/xxx.pub
+
+also remember to add the remote host to known_hosts before scp in jenkins' website.
+  automatically add to it be executing "ssh user@ip" locally
+
+
+---------- 2016-12-22 10:28:20
+[ahye@tz8-demo ~]$ lsb_release -a
+LSB Version:  :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID: CentOS
+Description:  CentOS release 6.5 (Final)
+Release:  6.5
+Codename: Final
+
+iptables setup for centos:
+
+[root@tz8-demo ahye]# cat /home/prong/rule.sh
+#!/usr/bin/env bash
+# Cleanup
+sudo iptables -F
+sudo iptables -X
+sudo iptables -Z
+
+# SSH
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -A OUTPUT -p tcp --sport 22 -j ACCEPT
+
+# Allow releated input
+sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow Loopback Access
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A OUTPUT -o lo -j ACCEPT
+
+# Allow Output
+sudo iptables -A OUTPUT -j ACCEPT
+
+# Web
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 9080 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+
+# DNS
+sudo iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+
+# Mongodb
+sudo iptables -A INPUT -s 120.26.58.228 -p tcp --dport 27017 -j ACCEPT
+sudo iptables -A INPUT -s 120.26.245.253 -p tcp --dport 27017 -j ACCEPT
+sudo iptables -A INPUT -s 123.126.24.14 -p tcp --dport 27017 -j ACCEPT
+
+# Spy service
+sudo iptables -A INPUT -s 120.26.58.228 -p tcp --dport 9091 -j ACCEPT
+sudo iptables -A INPUT -s 123.126.24.14 -p tcp --dport 9091 -j ACCEPT
+sudo iptables -A INPUT -s 120.26.168.180 -p tcp --dport 9091 -j ACCEPT
+
+# Reject Others Input
+sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
+
+# Default Chain Policies
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P OUTPUT DROP
+sudo iptables -P FORWARD DROP
+
+# Save
+sudo service iptables save
+
+
+------------- 2016-12-22 10:42:33
+sudo: sorry, you must have a tty to run sudo
+
+pip install gevent
+pip install ws4py
+
+
+安装（以CentOS为例）
+gevent依赖libevent和greenlet： ["pip install gevent" directly without installing libevent and greenlet will fail. refer to "http://www.jb51.net/article/87335.htm"]
+1.安装libevent
+直接yum install libevent
+
+安装greenlet
+（1） yum install python-devel
+
+（2） easy_install greenlet [pip install greenlet]
+
+4. 安装gevent
+pip install cython -e git://github.com/surfly/gevent.git@1.0rc2#egg=gevent
+
+[root@bj-tz8-db001 apes-crawler]# pip install greenlet
+You are using pip version 7.1.0, however version 9.0.1 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.
+Collecting greenlet
+  Downloading http://mirrors.aliyun.com/pypi/packages/03/a6/8842d7215e1c54537eb5d0b8fd3e8562cc869b6d193317b11027ff7d8009/greenlet-0.4.11.tar.gz (58kB)
+    100% |████████████████████████████████| 61kB 5.6MB/s
+Installing collected packages: greenlet
+  Running setup.py install for greenlet
+Successfully installed greenlet-0.4.11
+[root@bj-tz8-db001 apes-crawler]# pip install gevent
+You are using pip version 7.1.0, however version 9.0.1 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.
+Collecting gevent
+  Downloading http://mirrors.aliyun.com/pypi/packages/43/8f/cb3224a0e6ab663547f45c10d0651cfd52633fde4283bf68d627084df8cc/gevent-1.1.2.tar.gz (2.0MB)
+    100% |████████████████████████████████| 2.0MB 32.0MB/s 
+Requirement already satisfied (use --upgrade to upgrade): greenlet>=0.4.9 in /usr/lib64/python2.6/site-packages (from gevent)
+Installing collected packages: gevent
+  Running setup.py install for gevent
+Successfully installed gevent-1.1.2
+
+
+------------- 2016-12-22 11:10:11
+no Connection.py is found for python 2.6/pymongo:
+
+[root@bj-tz8-db001 ahye]# ls /usr/lib64/python2.6/site-packages/pymongo
+auth.py                       network.pyc
+auth.pyc                      operations.py
+bulk.py                       operations.pyc
+bulk.pyc                      periodic_executor.py
+client_options.py             periodic_executor.pyc
+client_options.pyc            pool.py
+collation.py                  pool.pyc
+collation.pyc                 read_concern.py
+collection.py                 read_concern.pyc
+collection.pyc                read_preferences.py
+command_cursor.py             read_preferences.pyc
+command_cursor.pyc            response.py
+common.py                     response.pyc
+common.pyc                    results.py
+cursor_manager.py             results.pyc
+cursor_manager.pyc            server_description.py
+cursor.py                     server_description.pyc
+cursor.pyc                    server.py
+database.py                   server.pyc
+database.pyc                  server_selectors.py
+errors.py                     server_selectors.pyc
+errors.pyc                    server_type.py
+helpers.py                    server_type.pyc
+helpers.pyc                   settings.py
+__init__.py                   settings.pyc
+__init__.pyc                  son_manipulator.py
+ismaster.py                   son_manipulator.pyc
+ismaster.pyc                  ssl_context.py
+max_staleness_selectors.py    ssl_context.pyc
+max_staleness_selectors.pyc   ssl_match_hostname.py
+message.py                    ssl_match_hostname.pyc
+message.pyc                   ssl_support.py
+mongo_client.py               ssl_support.pyc
+mongo_client.pyc              thread_util.py
+mongo_replica_set_client.py   thread_util.pyc
+mongo_replica_set_client.pyc  topology_description.py
+monitoring.py                 topology_description.pyc
+monitoring.pyc                topology.py
+monitor.py                    topology.pyc
+monitor.pyc                   uri_parser.py
+monotonic.py                  uri_parser.pyc
+monotonic.pyc                 write_concern.py
+network.py                    write_concern.pyc
+
+upgrade python from 2.6.6 to 2.7.3:
+http://blog.csdn.net/jcjc918/article/details/11022345
+  wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2
+  tar -jxvf Python-2.7.3.tar.bz2
+  cd Python-2.7.3
+  #./configure  
+  #make all             
+  #make install  
+  mv /usr/bin/python /usr/bin/python2.6.6
+  ln -s /usr/local/bin/python2.7 /usr/bin/python
+  [root@bj-tz8-db001 Python-2.7.3]# python --version
+    Python 2.7.3
+
+解决系统 Python 软链接指向 Python2.7 版本后，因为yum是不兼容 Python 2.7的，所以yum不能正常工作，我们需要指定 yum 的Python版本
+[plain] view plain copy
+print?
+    #vi /usr/bin/yum  
+将文件头部的
+#!/usr/bin/python
+改成
+#!/usr/bin/python2.6.6
+
+9.配置iBus
+分别用 vi 打开下面两个文件，找到 exec python 那一行，把exec python 改为 exec python2.6 保存，退出。iBus在重启后就恢复正常了！是不是很开心？
+[plain] view plain copy
+print?
+    #vi /usr/bin/ibus-setup  
+[plain] view plain copy
+print?
+    #vi/usr/libexec/ibus-ui-gtk  
+
+---------- 2016-12-22 11:59:12 
+problems after upgrading to 2.7:
+
+1) 
+[root@bj-tz8-db001 ahye]# pip install pymongo
+Traceback (most recent call last):
+  File "/usr/bin/pip", line 5, in <module>
+    from pkg_resources import load_entry_point
+ImportError: No module named pkg_resources
+
+2) 
+/home/ahye/Python-2.7.3/./Modules/posixmodule.c:7379: warning: the use of `tempnam' is dangerous, better use `mkstemp'
+running build
+running build_ext
+building dbm using gdbm
+INFO: Can't locate Tcl/Tk libs and/or headers
+
+Python build finished, but the necessary bits to build these modules were not found:
+_curses            _curses_panel      _sqlite3        
+_ssl               _tkinter           bsddb185        
+bz2                dl                 imageop         
+readline           sunaudiodev        zlib            
+To find the necessary bits, look in setup.py in detect_modules() for the module's name.
+
+running build_script
+
+
+yum install openssl-devel
+
+after running the above installation, "make all" for Python 2.7.3 has the remaining warnings:
+Python build finished, but the necessary bits to build these modules were not found:
+_curses            _curses_panel      _sqlite3        
+_tkinter           bsddb185           bz2             
+dl                 imageop            readline        
+sunaudiodev
+
+
+----------- 2016-12-22 13:59:19
+http://blog.csdn.net/iefreer/article/details/8086834
+
+pip也需要升级到配套的版本：
+  wget http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
+
+[root@bj-tz8-db001 Python-2.7.3]# sh /home/ahye/setuptools-0.6c11-py2.7.egg
+/home/ahye/setuptools-0.6c11-py2.7.egg: line 3: exec: python2.7: not found
+[root@bj-tz8-db001 Python-2.7.3]# which python2.7
+/usr/bin/which: no python2.7 in (/sbin:/bin:/usr/sbin:/usr/bin)
+[root@bj-tz8-db001 Python-2.7.3]# ln -s /usr/local/bin/python2.7 /usr/bin/python2.7
+
+[root@bj-tz8-db001 Python-2.7.3]# which python2.7/usr/bin/python2.7
+[root@bj-tz8-db001 Python-2.7.3]# sh /home/ahye/setuptools-0.6c11-py2.7.egg
+Processing setuptools-0.6c11-py2.7.egg
+Copying setuptools-0.6c11-py2.7.egg to /usr/local/lib/python2.7/site-packages
+Adding setuptools 0.6c11 to easy-install.pth file
+Installing easy_install script to /usr/local/bin
+Installing easy_install-2.7 script to /usr/local/bin
+
+Installed /usr/local/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg
+Processing dependencies for setuptools==0.6c11
+Finished processing dependencies for setuptools==0.6c11
+
+[root@bj-tz8-db001 Python-2.7.3]# easy_install pip
+Traceback (most recent call last):
+  File "/usr/bin/easy_install", line 5, in <module>
+    from pkg_resources import load_entry_point
+  File "/usr/local/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg/pkg_resources.py", line 2603, in <module>
+  File "/usr/local/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg/pkg_resources.py", line 666, in require
+  File "/usr/local/lib/python2.7/site-packages/setuptools-0.6c11-py2.7.egg/pkg_resources.py", line 565, in resolve
+pkg_resources.DistributionNotFound: distribute==0.6.10
+
+
+http://blog.163.com/dandanhjj@126/blog/static/162586077201421354722667/
+Easy_install and pip broke: pkg_resources.DistributionNotFound: distribute==0.6.36  
+  Install the distribute package as follows:
+  $ wget http://python-distribute.org/distribute_setup.py
+  $ python distribute_setup.py
+urllib2.URLError: <urlopen error [Errno -2] Name or service not known>
+
+
+https://pypi.python.org/pypi/distribute/0.6.10#installation-instructions
+wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.28.tar.gz
+[root@bj-tz8-db001 ahye]# python distribute_setup.py
+Downloading http://pypi.python.org/packages/source/d/distribute/distribute-0.6.28.tar.gz
+
+if downloading fails or slow enough, download the gz file some other way, and copy-paste to the same folder as distribute_setup.py and re-execute.
+easy_install -U distribute
+
+[root@bj-tz8-db001 ahye]# easy_install pip
+Traceback (most recent call last):
+  File "/usr/bin/easy_install", line 5, in <module>
+    from pkg_resources import load_entry_point
+  File "/usr/local/lib/python2.7/site-packages/distribute-0.6.28-py2.7.egg/pkg_resources.py", line 2819, in <module>
+    parse_requirements(__requires__), Environment()
+  File "/usr/local/lib/python2.7/site-packages/distribute-0.6.28-py2.7.egg/pkg_resources.py", line 588, in resolve
+    raise DistributionNotFound(req)
+pkg_resources.DistributionNotFound: distribute==0.6.10
+[root@bj-tz8-db001 ahye]# vim /usr/bin/easy_install
+[root@bj-tz8-db001 ahye]# cat /usr/bin/easy_install
+#!/usr/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'distribute==0.6.10','console_scripts','easy_install'
+__requires__ = 'distribute==0.6.28'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('distribute==0.6.28', 'console_scripts', 'easy_install')()
+    )
+
+[root@bj-tz8-db001 ahye]# easy_install pymongo
+Searching for pymongo
+Reading http://mirrors.aliyun.com/pypi/simple/pymongo/
+Best match: pymongo 3.4.0
+Downloading http://mirrors.aliyun.com/pypi/packages/82/26/f45f95841de5164c48e2e03aff7f0702e22cef2336238d212d8f93e91ea8/pymongo-3.4.0.tar.gz#md5=aa77f88e51e281c9f328cea701bb6f3e
+Processing pymongo-3.4.0.tar.gz
+Writing /tmp/easy_install-bcg9Zu/pymongo-3.4.0/setup.cfg
+Running pymongo-3.4.0/setup.py -q bdist_egg --dist-dir /tmp/easy_install-bcg9Zu/pymongo-3.4.0/egg-dist-tmp-S61AMA
+zip_safe flag not set; analyzing archive contents...
+Adding pymongo 3.4.0 to easy-install.pth file
+
+Installed /usr/local/lib/python2.7/site-packages/pymongo-3.4.0-py2.7-linux-x86_64.egg
+Processing dependencies for pymongo
+Finished processing dependencies for pymongo
+
+easy_install gevent
+
+[root@bj-tz8-db001 apes-crawler]# ll /usr/local/bin/pip*
+-rwxr-xr-x 1 root root 281 12月 22 14:27 /usr/local/bin/pip
+-rwxr-xr-x 1 root root 283 12月 22 14:27 /usr/local/bin/pip2
+-rwxr-xr-x 1 root root 287 12月 22 14:27 /usr/local/bin/pip2.7
+
+
+[root@bj-tz8-db001 apes-crawler]# ln -s /usr/local/bin/pip2.7 /usr/bin/pip
+[root@bj-tz8-db001 apes-crawler]# vi /usr/bin/pip
+[root@bj-tz8-db001 apes-crawler]# pip install pymongo
+
+[root@bj-tz8-db001 apes-crawler]# cp /home/ahye/connection.py /usr/local/lib/python2.7/site-packages/pymongo-3.4.0-py2.7-linux-x86_64.egg/pymongo/Connection.py
+
+
+not sure why no below modules for pymongo when installing with pip for centos:
+  Connection
+  master_slave_connection
+
+for ubuntu, it seems the module name's capital format does not bother, but for centos, the same module is not recognized.
+
+$ sudo mv /usr/lib/python2.7/dist-packages/pymongo/connection.py /usr/lib/python2.7/dist-packages/pymongo/bak_connection.py
+
+$ sudo mv /usr/lib/python2.7/dist-packages/pymongo/connection.pyc /usr/lib/python2.7/dist-packages/pymongo/bak_connection.pyc
+kidd@kidd-OptiPlex-9020:
+~/workspace/python
+$ python mongo.py 
+Traceback (most recent call last):
+  File "mongo.py", line 2, in <module>
+    import pymongo, datetime, time
+  File "/usr/lib/python2.7/dist-packages/pymongo/__init__.py", line 80, in <module>
+    from pymongo.connection import Connection
+ImportError: No module named connection
+
+[root@bj-tz8-db001 apes-crawler]# cp /home/ahye/master_slave_connection.py /usr/local/lib/python2.7/site-packages/pymongo-3.4.0-py2.7-linux-x86_64.egg/pymongo/
+
+pip install simplejson
+
+do not use Connection, use MongoClient
+
+[root@tz8-demo prong]# cat rule.sh  | grep 245.253
+sudo iptables -A INPUT -s 120.26.245.253 -p tcp --dport 27017 -j ACCEPT
+sudo iptables -A INPUT -s 120.26.245.253 -p tcp --dport 9091 -j ACCEPT
+
+
+----------- 2016-12-22 16:25:45
++ ssh -T root@120.26.245.253
+Traceback (most recent call last):
+  File "/niub/bj/apes-crawler/apes-crawler/runcrawler.py", line 8, in <module>
+    import app
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/app.py", line 47, in <module>
+    Router.autodiscover()
+  File "/niub/bj/apes-crawler/apes-crawler/app.py", line 39, in autodiscover
+    processor_files = os.listdir(base_dir)
+OSError: [Errno 2] No such file or directory: 'pages'
+Build step 'Execute shell' marked build as failure
+Finished: FAILURE
+
+#!/usr/bin/env bash
+dir=/tmp
+echo "creating .tar.gz file ..."
+rm -f $dir/crawler.tar.gz.old
+if [ -f "$dir/crawler.tar.gz" ]; then
+  mv "$dir/crawler.tar.gz" "$dir/crawler.tar.gz.old"
+fi
+tar zcvf $dir/crawler.tar.gz ../apes-crawler
+echo "upload tar.gz..."
+scp $dir/crawler.tar.gz root@120.26.245.253:/niub/bj/apes-crawler/crawler.tar.gz.tmp
+ssh -T root@120.26.245.253 << EOF
+    rm -f /niub/bj/apes-crawler/crawler.tar.gz.old
+    if [ -f "/niub/bj/apes-crawler/crawler.tar.gz" ]; then
+      mv "/niub/bj/apes-crawler/crawler.tar.gz" "/niub/bj/apes-crawler/crawler.tar.gz.old"
+    fi
+    mv "/niub/bj/apes-crawler/crawler.tar.gz.tmp" "/niub/bj/apes-crawler/crawler.tar.gz"
+    tar xzf /niub/bj/apes-crawler/crawler.tar.gz -C /niub/bj/apes-crawler/
+    export CRAWLER_ENV=release
+    # to start the crawler here
+    python /niub/bj/apes-crawler/apes-crawler/runcrawler.py restart
+EOF
+echo "done"
+
+
+> db.wind_analysis.find().count()
+15134
+> db.wind_wsd.find().count()
+38357
+
+----------- 2016-12-22 16:42:18
+finally:
+
+http://10.12.6.6:9000/job/apes-crawler/
