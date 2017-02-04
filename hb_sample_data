@@ -1,0 +1,116 @@
+
+--------------- 2017-01-05 12:01:15
+> show dbs
+apes   0.151GB
+local  0.000GB
+test   3.512GB
+> show collections
+baike
+company
+hb_charts
+hb_files
+hb_files_9
+> db.hb_charts.find().limit(1).pretty()
+{
+  "_id" : "1973000_7_0",
+  "fileId" : 1973000,
+  "filePath" : "2016_12/2016_12_06/2016126111555796.pdf",
+  "pageIndex" : 7,
+  "title" : "图 1：维生素 A 价格（元/千克）",
+  "text" : "400\n350\n300\n250\n200\n150\n100\n50\n0\n2016-07-26\n2016-02-26\n2015-09-26\n2015-04-26\n2014-11-26\n2014-06-26\n2014-01-26\n2013-08-26\n2013-03-26\n2012-10-26\n2012-05-26\n2011-12-26\n2011-07-26\n2011-02-26\n2010-09-26\n2010-04-26\n2009-11-26\n2009-06-26\n2009-01-26\n2008-08-26\n2008-03-26\n2007-10-26",
+  "area" : {
+    "x" : 48.879127502441406,
+    "y" : 213.14678955078125,
+    "w" : 234.44345092773438,
+    "h" : 135.04180908203125
+  },
+  "hAxis" : {
+    "x1" : 71.5599594116211,
+    "y1" : 252.7681884765625,
+    "x2" : 276.81322479248047,
+    "y2" : 252.7681884765625
+  },
+  "lvAxis" : null,
+  "rvAxis" : null,
+  "legends" : [ ]
+}
+
+db.hb_charts.find().limit(1).pretty()
+{
+  "_id" : "1973000_7_0",
+  "fileId" : 1973000,
+  "filePath" : "2016_12/2016_12_06/2016126111555796.pdf",
+  "pageIndex" : 7,
+  "title" : "图 1：维生素 A 价格（元/千克）",
+  "text" : "400\n350\n300\n250\n200\n150\n100\n50\n0\n2016-07-26\n2016-02-26\n2015-09-26\n2015-04-26\n2014-11-26\n2014-06-26\n2014-01-26\n2013-08-26\n2013-03-26\n2012-10-26\n2012-05-26\n2011-12-26\n2011-07-26\n2011-02-26\n2010-09-26\n2010-04-26\n2009-11-26\n2009-06-26\n2009-01-26\n2008-08-26\n2008-03-26\n2007-10-26",
+  "area" : {
+    "x" : 48.879127502441406,
+    "y" : 213.14678955078125,
+    "w" : 234.44345092773438,
+    "h" : 135.04180908203125
+  },
+  "hAxis" : {
+    "x1" : 71.5599594116211,
+    "y1" : 252.7681884765625,
+    "x2" : 276.81322479248047,
+    "y2" : 252.7681884765625
+  },
+  "lvAxis" : null,
+  "rvAxis" : null,
+  "legends" : [ ]
+}
+> db.hb_files.find().limit(1).pretty()
+{
+  "_id" : 1766867,
+  "uploaduser" : "bobyao",
+  "rating" : "",
+  "typetitle" : "期货研究",
+  "stockname" : "",
+  "sharecontent" : "基本金属（锌）周报：货币宽松，锌放量上行 http://www.hibor.com.cn/ios/sharecenter.asp?id=1766867&t=1",
+  "filetype" : ".pdf",
+  "shareurl" : "http://www.hibor.com.cn/ios/sharecenter.asp?id=1766867&t=1",
+  "sharetitle" : "基本金属（锌）周报：货币宽松，锌放量上行",
+  "file_size" : NumberLong(695870),
+  "publish_power" : 0,
+  "id" : 1766867,
+  "publish" : "中财期货",
+  "industryname" : "",
+  "file_pages" : 6,
+  "stockcode" : "",
+  "shareimg" : "http://www.hibor.com.cn/ios/images/share/hibor_yb.jpg",
+  "author" : [
+    "李东凯"
+  ],
+  "file_url" : "http://view.hibor.com.cn//Upfile/2016_2/2016_02_23/2016223171533561.pdf",
+  "summary" : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行情：本周沪锌指数收于12800&nbsp;&nbsp;元/吨，上涨2.11%，持仓351344&nbsp;&nbsp;手，较上周减少16828&nbsp;&nbsp;手；伦锌3&nbsp;&nbsp;收于1511&nbsp;&nbsp;美元/吨，上涨2.41%，&nbsp;&nbsp;持仓265248&nbsp;&nbsp;手，较上周减少19728&nbsp;&nbsp;手；&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;锌：受锌锭价格反弹，国内锌精矿价格也随之调整，精矿加工费在&nbsp;&nbsp;5100-5300&nbsp;&nbsp;元/金属吨，内蒙地区加工费在5700-5800&nbsp;&nbsp;元/&nbsp;&nbsp;金属吨，加工费较上周没有下降，冶炼厂依然比较坚挺，进口锌精矿加工费短单价格贸易商报在&nbsp;&nbsp;120-130&nbsp;&nbsp;美元/吨，冶炼厂接货的底线在&nbsp;&nbsp;140-160&nbsp;&nbsp;美元/吨，整体成交价格在&nbsp;&nbsp;150-160&nbsp;&nbsp;美元/吨，变化不大，进口量持续下降，整体成交非常差，到港的货物也相对下降；&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本周上海市场0#现锌呈现震荡走势，周一至周四持续下跌，&nbsp;&nbsp;但周五大涨&nbsp;&nbsp;325&nbsp;&nbsp;元/吨，下游厂家开工较少，成交清淡；本周广东锌锭价格整体高位震荡，市场成交表现一般；&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本周镀锌价格稳中略有上扬，短期市场信号积极；&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;库存，LME&nbsp;&nbsp;锌较上周五增加40400&nbsp;&nbsp;吨至504375&nbsp;&nbsp;吨，沪锌增加251&nbsp;&nbsp;吨至220996&nbsp;&nbsp;吨；&nbsp;&nbsp;伦锌进口模拟利润较上周五减少482&nbsp;&nbsp;至-899&nbsp;&nbsp;元/吨。&nbsp;&nbsp;操作建议：随着各经济体推出宽松政策，央行跟进预期增加。近期公布的经济数据显示经济有所回暖，&nbsp;&nbsp;市场情绪有所修，&nbsp;&nbsp;投资者对官方方出台更多刺激措施有所期待。宽松氛围使有色反弹成为主题，但是下游企业采购积极性不高，且LME&nbsp;&nbsp;锌库存大增以及社会库存持续增加将对锌价形成打压。料下周两市锌价格高位震荡运行。&nbsp;&nbsp;风险：库存增加&nbsp;&nbsp;下游开工率&nbsp;&nbsp;<br><br>　　（如果觉得此报告不错，请点击右上角分享到朋友圈，支持作者写出更好的文章！）",
+  "time" : ISODate("2016-02-23T17:15:57Z"),
+  "title" : "中财期货-基本金属（锌）周报：货币宽松，锌放量上行-160219",
+  "file_path" : "2016_2/2016_02_23/2016223171533561.pdf"
+}
+> 
+
+> db.hb_files_9.find().limit(1).pretty()
+{
+  "_id" : 4029143,
+  "uploaduser" : "",
+  "rating" : "",
+  "typetitle" : "定期财报",
+  "stockname" : "",
+  "sharecontent" : "禾丰牧业：2016年第三季度报告(修订版) http://www.hibor.com.cn/ios/sharecenter.asp?id=4029143&t=3",
+  "filetype" : ".PDF",
+  "shareurl" : "http://www.hibor.com.cn/ios/sharecenter.asp?id=4029143&t=3",
+  "sharetitle" : "禾丰牧业：2016年第三季度报告(修订版)",
+  "file_size" : NumberLong(580608),
+  "id" : 4029143,
+  "author" : [ ],
+  "publish" : "",
+  "file_pages" : 0,
+  "stockcode" : "",
+  "shareimg" : "http://www.hibor.com.cn/ios/images/share/hibor_dqcb.jpg",
+  "title" : "禾丰牧业：2016年第三季度报告(修订版)",
+  "file_url" : "http://view.hibor.com.cn/UpFile1//201612/201612131757151202872465.PDF",
+  "summary" : "",
+  "time" : ISODate("2016-12-14T17:39:07Z"),
+  "industryname" : "",
+  "file_path" : "201612/201612131757151202872465.PDF"
+}

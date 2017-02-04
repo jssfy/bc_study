@@ -1,6 +1,24 @@
 
 
 
+---------- 2017-01-03 17:44:44
+import tushare as ts
+ts.set_token('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+
+
+
+---------- 2016-12-29 16:11:23
+http://tushare.waditu.com/
+
+if not importable, remember to upgrade:
+  pip install tushare --upgrade
+
+查看当前版本的方法：
+import tushare
+print(tushare.__version__)
+
+
+
 
 ----------- 2016-11-21 10:36:18
 
@@ -112,4 +130,14 @@ Index([u'code', u'name', u'c_name'], dtype='object')
 -------- 2016-11-21 13:40:06
 $ cat /tmp/info_data | sort | uniq | wc -l
 2844
+
+-------------- 2017-01-03 18:16:54
+https://api.wmcloud.com/docs/pages/viewpage.action?pageId=1867791
+Python Example(Linux)
+  dataapiclient.py
+  samplecode(linux).py
+
+$ python test.py
+/data/v1/api/market/getMktEqudJY.json?field=&secID=000001.XSHE&startDate=&endDate=
+{"retCode":1,"retMsg":"Partial Data Returned: the requested data is out of trial data range","data":[{"secID":"000001.XSHE","ticker":"000001","secShortName":"平安银行","exchangeCD":"XSHE","tradeDate":"2017-01-03 00:00:00","preClosePrice":9.1,"openPrice":9.11,"highestPrice":9.18,"lowestPrice":9.09,"closePrice":9.16,"turnoverVol":45984049,"turnovervalue":420595176.46,"dealAmount":13730},{"secID":"000001.XSHE","ticker":"000001","secShortName":"平安银行","exchangeCD":"XSHE","tradeDate":"2016-12-30 00:00:00","preClosePrice":9.08,"openPrice":9.08,"highestPrice":9.1,"lowestPrice":9.06,"closePrice":9.1,"turnoverVol":30260736,"turnovervalue":274882698.47,"dealAmount":10822},{"secID":"000001.XSHE","ticker":"000001","secShortName":"平安银行","exchangeCD":"XSHE","tradeDate":"2016-12-29 00:00:00","preClosePrice":9.06,"openPrice":9.07,"highestPrice":9.09,"lowestPrice":9.05,"closePrice":9.08,"turnoverVol":33875853,"turnovervalue":307183503.28,"dealAmount":9453},{"secID":"000001.XSHE","ticker":"000001","secShortName":"平安银行","exchangeCD":"XSHE","tradeDate":"2016-12-28 00:00:00","preClosePrice":9.08,"openPrice":9.08,"highestPrice":9.11,"lowestPrice":9.04,"closePrice":9.06,"turnoverVol":33605509,"turnovervalue":304898614.02,"dealAmount":10133},
 

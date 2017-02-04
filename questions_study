@@ -1,6 +1,37 @@
 
 
 
+---------- 2017-01-09 14:42:45
+issue: no wind_performance data (quater data)
+-40520007 无数据
+
+ 167 2017-01-06 17:54:55,841 - 25258 - INFO - request measures count: 200
+ 168 2017-01-06 17:54:57,803 - 25258 - ERROR - data request failed: {"cmd":"wsd","param":["000002.SZ","west_netprofit_FY1,west_netprofit_FY2,west_netprofit_FY3,west_netprofit_FTM     ,west_netprofit_YOY,west_avgnp_yoy,west_netprofit_CAGR,west_nproc_1w,west_nproc_4w,west_nproc_13w,west_eps_FY1,west_nproc_26w,west_eps_FY2,west_eps_FTM,west_eps_FY3,west_avg     roe_FY2,west_avgroe_FY1,west_avgroe_FY3,west_avgroe_YOY,west_sales_FY1,west_sales_FY2,west_sales_FY3,west_sales_YOY,west_sales_FTM,west_sales_CAGR,west_avgcps_FY2,west_avgcp     s_FY3,west_avgcps_FY1,west_avgcps_FTM,west_avgdps_FY1,west_avgdps_FY2,west_avgdps_FY3,west_avgbps_FY1,west_avgbps_FY2,west_avgbps_FY3,west_avgebit_FY2,west_avgebit_FY1,west_     avgebit_FTM,west_avgebit_FY3,west_avgebit_YOY,west_avgebitda_FY1,west_avgebit_CAGR,west_avgebitda_FY2,west_avgebitda_FY3,west_avgebitda_FTM,west_avgebitda_CAGR,west_avgebt_F     Y1,west_avgebt_FY2,west_avgebitda_YOY,west_avgebt_FY3,west_avgebt_YOY,west_avgebt_FTM,west_avgebt_CAGR,west_avgoperatingprofit_FY1,west_avgoperatingprofit_FY2,west_avgoperat     ingprofit_FY3,west_avgoperatingprofit_YOY,west_avgoperatingprofit_CAGR,west_avgoperatingprofit_FTM,west_avgoc_FY1,west_avgoc_FY3,west_avgoc_FY2,west_avgoc_YOY,west_avgoc_FTM     ,west_avgoc_CAGR,est_instnum,est_eps,est_maxeps,est_medianeps,est_stdeps,est_mineps,est_sales,est_maxsales,est_minsales,est_stdsales,est_netprofit,est_maxnetprofit,est_minne     tprofit,est_mediansales,est_stdnetprofit,est_mediannetprofit,est_avgcps,est_mincps,est_maxcps,est_stdcps,est_avgdps,est_mediancps,est_maxdps,est_mindps,est_stddps,est_avgebi     t,est_maxebit,est_minebit,est_mediandps,est_medianebit,est_stdebit,est_avgebitda,est_maxebitda,est_medianebitda,est_minebitda,est_stdebitda,est_avgbps,est_maxbps,est_minbps,     est_medianbps,est_stdbps,est_avgebt,est_maxebt,est_medianebt,est_stdebt,est_avgroa,est_maxroa,est_minebt,est_minroa,est_stdroa,est_avgroe,est_maxroe,est_minroe,est_medianroe     ,est_stdroe,est_medianroa,est_avgoperatingprofit,est_minoperatingprofit,est_medianoperatingprofit,est_stdoperatingprofit,est_sales_upgrade,est_sales_downgrade,est_maxoperati     ngprofit,est_sales_maintain,est_netprofit_downgrade,est_netprofit_maintain,est_yoynetprofit,est_yoysales,est_netprofit_upgrade,rating_avg,rating_avgchn,rating_avgeng,rating_     instnum,rating_downgrade,rating_upgrade,rating_maintain,rating_numofbuy,rating_numofoutperform,rating_numofunderperform,rating_numofhold,rating_numofsell,wrating_targetprice     ,west_instnum,west_eps,west_maxeps,west_mineps,west_medianeps,west_sales,west_stdeps,west_maxsales,west_minsales,west_mediansales,west_stdsales,west_netprofit,west_maxnetpro     fit,west_minnetprofit,west_mediannetprofit,west_avgcps,west_maxcps,west_mincps,west_mediancps,west_stdnetprofit,west_stdcps,west_avgdps,west_maxdps,west_mindps,west_stddps,w     est_avgebit,west_mediandps,west_maxebit,west_minebit,west_medianebit,west_stdebit,west_avgebitda,west_maxebitda,west_minebitda,west_medianebitda,west_stdebitda,west_avgbps,w     est_maxbps,west_minbps,west_medianbps,west_stdbps,west_avgebt,west_maxebt,west_minebt,west_medianebt,west_stdebt,west_avgroa,west_maxroa,west_minroa,west_medianroa,west_stdr     oa,west_avgroe,west_maxroe","2016-12-31","2016-12-31","Period=Q"],"id":489,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"tim     eList\":[\"2017-01-06T17:54:58\"],\"data\":[\"CWSDService: No data.\"],\"errorCode\":-40520007}"}
+
+2017-01-09 18:39:08,332 - 31881 - ERROR - data request failed: {"cmd":"wsd","param":["000541.SZ","west_sales_FY1,west_sales_FY1","2016-12-31","2016-12-31","Period=Q"],"id":23082,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-01-09T18:39:08\"],\"data\":[\"CWSDService: No data.\"],\"errorCode\":-40520007}"}
+2017-01-09 18:39:08,333 - 31881 - INFO - request cmd: {"cmd": "wsd", "type": "cmd", "param": ["000543.SZ", "west_sales_FY1,west_sales_FY1", "2016-12-31", "2016-12-31", "Period=Q"]}
+
+----------- 2017-01-09 14:56:06
+pymongo 3.4.0 does not support master_slave_connection, copied over the .py file, but not used. not verified what will happen if this is used.
+
+[ahye@bj-tz8-db001 ~]$ ls /usr/local/lib/python2.7/site-packages/pymongo-3.4.0-py2.7-linux-x86_64.egg/pymongo
+auth.py             command_cursor.pyc  errors.pyc                   mongo_client.pyc              periodic_executor.pyc   server.pyc              ssl_support.pyc
+auth.pyc            common.py           helpers.py                   mongo_replica_set_client.py   pool.py                 server_selectors.py     thread_util.py
+bulk.py             common.pyc          helpers.pyc                  mongo_replica_set_client.pyc  pool.pyc                server_selectors.pyc    thread_util.pyc
+bulk.pyc            connection.py       __init__.py                  monitoring.py                 read_concern.py         server_type.py          topology_description.py
+client_options.py   Connection.py       __init__.pyc                 monitoring.pyc                read_concern.pyc        server_type.pyc         topology_description.pyc
+client_options.pyc  connection.pyc      ismaster.py                  monitor.py                    read_preferences.py     settings.py             topology.py
+_cmessage.py        Connection.pyc      ismaster.pyc                 monitor.pyc                   read_preferences.pyc    settings.pyc            topology.pyc
+_cmessage.pyc       cursor_manager.py   master_slave_connection.py   monotonic.py                  response.py             son_manipulator.py      uri_parser.py
+_cmessage.so        cursor_manager.pyc  master_slave_connection.pyc  monotonic.pyc                 response.pyc            son_manipulator.pyc     uri_parser.pyc
+collation.py        cursor.py           max_staleness_selectors.py   network.py                    results.py              ssl_context.py          write_concern.py
+collation.pyc       cursor.pyc          max_staleness_selectors.pyc  network.pyc                   results.pyc             ssl_context.pyc         write_concern.pyc
+collection.py       database.py         message.py                   operations.py                 server_description.py   ssl_match_hostname.py
+collection.pyc      database.pyc        message.pyc                  operations.pyc                server_description.pyc  ssl_match_hostname.pyc
+command_cursor.py   errors.py           mongo_client.py              periodic_executor.py          server.py               ssl_support.py
+
+
+
 ------------- 2016-11-26 20:29:19
 /home/kidd/workspace/bc/advanced/MissionImpossible/frontend/config/main.php
     'components' => [

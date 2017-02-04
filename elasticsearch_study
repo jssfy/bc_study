@@ -1,0 +1,1036 @@
+
+
+ubuntu 14.04
+
+安装ElasticSearch
+
+wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb http://packages.elastic.co/elasticsearch/1.6/debian stable main" | sudo tee -a /etc/apt/sources.list
+sudo apt-get update
+sudo apt-get install elasticsearch
+sudo update-rc.d elasticsearch defaults 95 10
+
+sudo apt-get --purge remove elasticsearch
+
+
+2) https://www.elastic.co/downloads/elasticsearch
+  Elasticsearch can also be installed from our package repositories using apt or yum. See Repositories in the Guide [https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html]. 
+
+Run bin/elasticsearch (or bin\elasticsearch.bat on Windows) 
+
+Run curl http://localhost:9200/
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html
+
+tools:
+  http://www.json-generator.com/
+
+$ ./bin/elasticsearch --version
+Version: 5.1.1, Build: 5395e21/2016-12-06T12:36:15.409Z, JVM: 1.8.0_111
+
+cmds:
+curl http://localhost:9200/_cat/indices?v
+
+
+$ mongo-connector -m 10.12.6.43:27017 -t localhost:9200 -d elastic2_doc_manager
+Logging to /home/kidd/software/elastic2-doc-manager/mongo-connector.log.
+  it seems this cmd will not begin to work until a first mongo insert is conducted.
+
+remaining issues:
+1) mongo-connector might crash due to some reason during synchronization
+$ tail -f /home/kidd/software/elastic2-doc-manager/mongo-connector.log
+
+git clone ssh://ahye@10.12.6.6:29418/yanbao
+
+
+
+---------- 2017-01-09 10:15:49
+http://10.12.6.6/charts/2016_3/2016_03_03/20163394745525.pdf/1773266/chart_0_0.png
+
+
+------------ 2017-01-05 17:02:26
+samples:
+$ curl localhost:9200/apes/wind_information/_search?pretty --data '
+{
+  "query": { "match_phrase": { "comp_name_eng": "Shenzhen Universe" } }
+}'
+
+fuzzy query: [https://www.elastic.co/blog/found-fuzzy-search]
+$ curl localhost:9200/hb/hb_charts/_search?pretty --data '
+{
+  "query": { "match": { "title": "金属指数不是" } }
+}'
+
+
+------------ 2017-01-05 15:48:56
+ES去同步存储在mongodb中数据
+$ sudo mongod --config /etc/mongodb.conf --replSet rs0
+all output going to: /var/log/mongodb/mongodb.log
+
+MongoDB副本集设置
+在本教程中我们使用同一个MongoDB来做MongoDB主从的实验， 操作步骤如下：
+1、关闭正在运行的MongoDB服务器。
+现在我们通过指定 --replSet 选项来启动mongoDB。--replSet 基本语法格式如下：
+mongod --port "PORT" --dbpath "YOUR_DB_DATA_PATH" --replSet "REPLICA_SET_INSTANCE_NAME"
+实例
+mongod --port 27017 --dbpath "D:\set up\mongodb\data" --replSet rs0
+以上实例会启动一个名为rs0的MongoDB实例，其端口号为27017。
+启动后打开命令提示框并连接上mongoDB服务。
+在Mongo客户端使用命令rs.initiate()来启动一个新的副本集。
+我们可以使用rs.conf()来查看副本集的配置
+查看副本集状态使用 rs.status() 命令
+
+$ sudo pip install mongo-connector
+......
+Installing collected packages: pymongo, mongo-connector
+  Found existing installation: pymongo 2.6.3
+    Uninstalling pymongo-2.6.3:
+      Successfully uninstalled pymongo-2.6.3
+Successfully installed mongo-connector-2.5.0 pymongo-3.4.0
+
+git clone https://github.com/mongodb-labs/elastic2-doc-manager.git
+
+
+pip install 'elastic2-doc-manager[elastic5]'
+......
+Installing collected packages: urllib3, elasticsearch, elastic2-doc-manager
+  Found existing installation: urllib3 1.7.1
+    DEPRECATION: Uninstalling a distutils installed project (urllib3) has been deprecated and will be removed in a future version. This is due to the fact that uninstalling a distutils project will only partially uninstall the project.
+    Uninstalling urllib3-1.7.1:
+      Successfully uninstalled urllib3-1.7.1
+Successfully installed elastic2-doc-manager-0.3.0 elasticsearch-5.0.1 urllib3-1.19.1
+
+https://github.com/mongodb-labs/mongo-connector/wiki/Usage%20with%20ElasticSearch
+Mongo Connector can replicate to Elasticsearch using the Elastic DocManager. The most basic usage is the following:
+  mongo-connector -m localhost:27017 -t localhost:9200 -d elastic_doc_manager
+Or, if you are using the Elastic2 DocManager:
+  mongo-connector -m 10.12.6.43:27017 -t localhost:9200 -d elastic2_doc_manager
+
+$ sudo pip install elasticsearch
+The directory '/home/kidd/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+The directory '/home/kidd/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+Requirement already satisfied: elasticsearch in /usr/local/lib/python2.7/dist-packages
+Requirement already satisfied: urllib3<2.0,>=1.8 in /usr/local/lib/python2.7/dist-packages (from elasticsearch)
+/usr/local/lib/python2.7/dist-packages/pip/_vendor/requests/packages/urllib3/util/ssl_.py:318: SNIMissingWarning: An HTTPS request has been made, but the SNI (Subject Name Indication) extension to TLS is not available on this platform. This may cause the server to present an incorrect TLS certificate, which can cause validation failures. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.io/en/latest/security.html#snimissingwarning.
+  SNIMissingWarning
+/usr/local/lib/python2.7/dist-packages/pip/_vendor/requests/packages/urllib3/util/ssl_.py:122: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning.
+  InsecurePlatformWarning
+
+
+---------- 2017-01-05 15:22:02
+完全用elasticsearch作为存储+搜索的后台方案是否可行，它会存在哪些问题，有没有一些初步的解决方案？es作为数据存储方案相对一般的nosql有哪些问题，安全性，读写性能方面有哪些劣势，如果加上mongodb作为存储，es只做搜索，总感觉太占空间了。
+
+让搜索，去做数据库的事情，会降低性能
+
+
+---------- 2017-01-04 10:53:41
+$ ls /etc/elasticsearch/
+elasticsearch.yml  logging.yml
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/wsservice
+$ ls /etc/default/elasticsearch 
+/etc/default/elasticsearch
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/wsservice
+$ ls /var/lib/elasticsearch/
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/wsservice
+$ ls /var/log/elasticsearch/
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/wsservice
+$ ls /usr/share/elasticsearch/
+bin  lib  NOTICE.txt  plugins  README.textile
+
+ElasticSearch各个目录说明
+type  description   location
+home  Home of elasticsearch installation  /usr/share/elasticsearch
+bin   Binary scripts including elasticsearch to start a node  /usr/share/elasticsearch/bin
+conf  Configuration files elasticsearch.yml and logging.yml   /etc/elasticsearch
+conf  Environment variables including heap size,file descriptors  /etc/default/elasticsearch
+data  The location of the data files  /var/lib/elasticsearch/
+logs  Log files location  /var/log/elasticsearch
+plugins   Plugin files location   /usr/share/elasticsearch/plugins
+
+------------- 2017-01-04 12:31:33
+https://github.com/elastic/ansible-elasticsearch/issues/58
+
+root@node1:~# /usr/share/elasticsearch/bin/elasticsearch
+Failed to configure logging...
+ElasticsearchException[Failed to load logging configuration]; nested: NoSuchFileException[/usr/share/elasticsearch/config];
+    at org.elasticsearch.common.logging.log4j.LogConfigurator.resolveConfig(LogConfigurator.java:158)
+    at org.elasticsearch.common.logging.log4j.LogConfigurator.configure(LogConfigurator.java:103)
+    at org.elasticsearch.bootstrap.Bootstrap.setupLogging(Bootstrap.java:204)
+    at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:258)
+    at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:35)
+Caused by: java.nio.file.NoSuchFileException: /usr/share/elasticsearch/config
+
+I ran into the same error as well after a new install of elasticsearch-2.3.3.rpm. For some reason it's looking for the config file in /usr/share/elasticsearch/config instead of /etc/elasticsearch.
+
+As a quick fix I simply created a symbolic link to solve the issue.
+ln -s /etc/elasticsearch/ /usr/share/elasticsearch/config
+
+
+-------------- 2017-01-04 13:11:47
+
+$ sudo /usr/share/elasticsearch/bin/elasticsearch
+[2017-01-04 12:31:17,519][INFO ][node                     ] [jssfy] version[1.6.2], pid[31332], build[6220391/2015-07-29T09:24:47Z]
+[2017-01-04 12:31:17,519][INFO ][node                     ] [jssfy] initializing ...
+[2017-01-04 12:31:17,562][INFO ][plugins                  ] [jssfy] loaded [], sites []
+[2017-01-04 12:31:17,586][INFO ][env                      ] [jssfy] using [2] data paths, mounts [[/ (/dev/sda1)]], net usable_space [8gb], net total_space [109.4gb], types [ext4]
+[2017-01-04 12:31:19,324][INFO ][node                     ] [jssfy] initialized
+[2017-01-04 12:31:19,324][INFO ][node                     ] [jssfy] starting ...
+[2017-01-04 12:31:19,513][INFO ][transport                ] [jssfy] bound_address {inet[/0:0:0:0:0:0:0:0:9300]}, publish_address {inet[/10.12.6.43:9300]}
+[2017-01-04 12:31:19,521][INFO ][discovery                ] [jssfy] elasticsearch_jssfy_test/BCGUX974T6WpKvj2D4KiZg
+[2017-01-04 12:31:49,521][WARN ][discovery                ] [jssfy] waited for 30s and no initial state was set by the discovery
+[2017-01-04 12:31:49,526][INFO ][http                     ] [jssfy] bound_address {inet[/0:0:0:0:0:0:0:0:9200]}, publish_address {inet[/10.12.6.43:9200]}
+[2017-01-04 12:31:49,526][INFO ][node                     ] [jssfy] started
+^C[2017-01-04 13:11:39,646][INFO ][node                     ] [jssfy] stopping ...
+[2017-01-04 13:11:39,659][INFO ][node                     ] [jssfy] stopped
+[2017-01-04 13:11:39,659][INFO ][node                     ] [jssfy] closing ...
+[2017-01-04 13:11:39,663][INFO ][node                     ] [jssfy] closed
+
+$ curl localhost:9200/_nodes/process?pretty
+{
+  "cluster_name" : "elasticsearch_jssfy_test",
+  "nodes" : {
+    "k1dYSR1aT3iMHEmMCaKkBQ" : {
+      "name" : "jssfy",
+      "transport_address" : "inet[/10.12.6.43:9300]",
+      "host" : "kidd-OptiPlex-9020",
+      "ip" : "127.0.1.1",
+      "version" : "1.6.2",
+      "build" : "6220391",
+      "http_address" : "inet[/10.12.6.43:9200]",
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 27810,
+        "max_file_descriptors" : 4096,
+        "mlockall" : true
+      }
+    }
+  }
+}
+kidd@kidd-OptiPlex-9020:
+~/tmp
+$ curl localhost:9200/_cat/health?v
+{"error":"MasterNotDiscoveredException[waited for [30s]]","status":503}
+
+---------------- 2017-01-04 14:30:58
+unzipped version:
+
+~/software/elasticsearch-5.1.1
+$ ./bin/elasticsearch
+[2017-01-04T14:28:05,660][INFO ][o.e.n.Node               ] [] initializing ...
+[2017-01-04T14:28:05,769][INFO ][o.e.e.NodeEnvironment    ] [JKAt1vB] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [8gb], net total_space [109.4gb], spins? [no], types [ext4]
+[2017-01-04T14:28:05,770][INFO ][o.e.e.NodeEnvironment    ] [JKAt1vB] heap size [1.9gb], compressed ordinary object pointers [true]
+[2017-01-04T14:28:05,771][INFO ][o.e.n.Node               ] node name [JKAt1vB] derived from node ID [JKAt1vBfTIK_1byCPZ5vDg]; set [node.name] to override
+[2017-01-04T14:28:05,774][INFO ][o.e.n.Node               ] version[5.1.1], pid[12437], build[5395e21/2016-12-06T12:36:15.409Z], OS[Linux/3.13.11-ckt363.13.0_kidd/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_111/25.111-b14]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [aggs-matrix-stats]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [ingest-common]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [lang-expression]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [lang-groovy]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [lang-mustache]
+[2017-01-04T14:28:07,143][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [lang-painless]
+[2017-01-04T14:28:07,144][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [percolator]
+[2017-01-04T14:28:07,144][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [reindex]
+[2017-01-04T14:28:07,144][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [transport-netty3]
+[2017-01-04T14:28:07,144][INFO ][o.e.p.PluginsService     ] [JKAt1vB] loaded module [transport-netty4]
+[2017-01-04T14:28:07,144][INFO ][o.e.p.PluginsService     ] [JKAt1vB] no plugins loaded
+[2017-01-04T14:28:09,666][INFO ][o.e.n.Node               ] initialized
+[2017-01-04T14:28:09,666][INFO ][o.e.n.Node               ] [JKAt1vB] starting ...
+[2017-01-04T14:28:09,820][INFO ][o.e.t.TransportService   ] [JKAt1vB] publish_address {127.0.0.1:9300}, bound_addresses {[::1]:9300}, {127.0.0.1:9300}
+[2017-01-04T14:28:09,824][WARN ][o.e.b.BootstrapCheck     ] [JKAt1vB] max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
+[2017-01-04T14:28:12,917][INFO ][o.e.c.s.ClusterService   ] [JKAt1vB] new_master {JKAt1vB}{JKAt1vBfTIK_1byCPZ5vDg}{9CtbM7OoS7aMvMovW5gkYA}{127.0.0.1}{127.0.0.1:9300}, reason: zen-disco-elected-as-master ([0] nodes joined)
+[2017-01-04T14:28:12,958][INFO ][o.e.h.HttpServer         ] [JKAt1vB] publish_address {127.0.0.1:9200}, bound_addresses {[::1]:9200}, {127.0.0.1:9200}
+[2017-01-04T14:28:12,958][INFO ][o.e.n.Node               ] [JKAt1vB] started
+[2017-01-04T14:28:12,963][INFO ][o.e.g.GatewayService     ] [JKAt1vB] recovered [0] indices into cluster_state
+[2017-01-04T14:28:42,950][WARN ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][JKAt1vB][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 8gb[7.3%], shards will be relocated away from this node
+[2017-01-04T14:28:42,951][INFO ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] rerouting shards: [high disk watermark exceeded on one or more nodes]
+[2017-01-04T14:29:12,961][WARN ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][JKAt1vB][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 8gb[7.3%], shards will be relocated away from this node
+[2017-01-04T14:29:42,962][WARN ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][JKAt1vB][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 8gb[7.3%], shards will be relocated away from this node
+[2017-01-04T14:29:42,963][INFO ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] rerouting shards: [high disk watermark exceeded on one or more nodes]
+[2017-01-04T14:30:12,965][WARN ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][JKAt1vB][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 8gb[7.3%], shards will be relocated away from this node
+[2017-01-04T14:30:42,967][WARN ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][JKAt1vB][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 8gb[7.3%], shards will be relocated away from this node
+[2017-01-04T14:30:42,967][INFO ][o.e.c.r.a.DiskThresholdMonitor] [JKAt1vB] rerouting shards: [high disk watermark exceeded on one or more nodes]
+
+~/tmp
+$ curl localhost:9200/_nodes/process?pretty
+{
+  "_nodes" : {
+    "total" : 1,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "cluster_name" : "elasticsearch",
+  "nodes" : {
+    "JKAt1vBfTIK_1byCPZ5vDg" : {
+      "name" : "JKAt1vB",
+      "transport_address" : "127.0.0.1:9300",
+      "host" : "127.0.0.1",
+      "ip" : "127.0.0.1",
+      "version" : "5.1.1",
+      "build_hash" : "5395e21",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 12437,
+        "mlockall" : false
+      }
+    }
+  }
+}
+
+http://localhost:9200/
+
+{
+  "name" : "JKAt1vB",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "8HSUu93NSGO_veAIjmC0kQ",
+  "version" : {
+    "number" : "5.1.1",
+    "build_hash" : "5395e21",
+    "build_date" : "2016-12-06T12:36:15.409Z",
+    "build_snapshot" : false,
+    "lucene_version" : "6.3.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+
+~/software/elasticsearch-5.1.1
+$ ./bin/elasticsearch -Ecluster.name=kidd_cluster_name -Enode.name=kidd_node_name
+[2017-01-04T15:39:17,819][INFO ][o.e.n.Node               ] [kidd_node_name] initializing ...
+[2017-01-04T15:39:17,902][INFO ][o.e.e.NodeEnvironment    ] [kidd_node_name] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [7.9gb], net total_space [109.4gb], spins? [no], types [ext4]
+[2017-01-04T15:39:17,903][INFO ][o.e.e.NodeEnvironment    ] [kidd_node_name] heap size [1.9gb], compressed ordinary object pointers [true]
+[2017-01-04T15:39:17,903][INFO ][o.e.n.Node               ] [kidd_node_name] node name [kidd_node_name], node ID [JKAt1vBfTIK_1byCPZ5vDg]
+[2017-01-04T15:39:17,906][INFO ][o.e.n.Node               ] [kidd_node_name] version[5.1.1], pid[5921], build[5395e21/2016-12-06T12:36:15.409Z], OS[Linux/3.13.11-ckt363.13.0_kidd/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_111/25.111-b14]
+[2017-01-04T15:39:18,550][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [aggs-matrix-stats]
+[2017-01-04T15:39:18,550][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [ingest-common]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [lang-expression]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [lang-groovy]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [lang-mustache]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [lang-painless]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [percolator]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [reindex]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [transport-netty3]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] loaded module [transport-netty4]
+[2017-01-04T15:39:18,551][INFO ][o.e.p.PluginsService     ] [kidd_node_name] no plugins loaded
+[2017-01-04T15:39:20,186][INFO ][o.e.n.Node               ] [kidd_node_name] initialized
+[2017-01-04T15:39:20,186][INFO ][o.e.n.Node               ] [kidd_node_name] starting ...
+[2017-01-04T15:39:20,355][INFO ][o.e.t.TransportService   ] [kidd_node_name] publish_address {127.0.0.1:9300}, bound_addresses {[::1]:9300}, {127.0.0.1:9300}
+[2017-01-04T15:39:20,359][WARN ][o.e.b.BootstrapCheck     ] [kidd_node_name] max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
+[2017-01-04T15:39:23,440][INFO ][o.e.c.s.ClusterService   ] [kidd_node_name] new_master {kidd_node_name}{JKAt1vBfTIK_1byCPZ5vDg}{7eawjdPCQcSg_EnQolhiWA}{127.0.0.1}{127.0.0.1:9300}, reason: zen-disco-elected-as-master ([0] nodes joined)
+[2017-01-04T15:39:23,480][INFO ][o.e.h.HttpServer         ] [kidd_node_name] publish_address {127.0.0.1:9200}, bound_addresses {[::1]:9200}, {127.0.0.1:9200}
+[2017-01-04T15:39:23,480][INFO ][o.e.n.Node               ] [kidd_node_name] started
+[2017-01-04T15:39:23,483][INFO ][o.e.g.GatewayService     ] [kidd_node_name] recovered [0] indices into cluster_state
+[2017-01-04T15:39:53,455][WARN ][o.e.c.r.a.DiskThresholdMonitor] [kidd_node_name] high disk watermark [90%] exceeded on [JKAt1vBfTIK_1byCPZ5vDg][kidd_node_name][/home/kidd/software/elasticsearch-5.1.1/data/nodes/0] free: 7.9gb[7.2%], shards will be relocated away from this node
+[2017-01-04T15:39:53,455][INFO ][o.e.c.r.a.DiskThresholdMonitor] [kidd_node_name] rerouting shards: [high disk watermark exceeded on one or more nodes]
+
+----------- 2017-01-04 14:23:24
+https://www.elastic.co/guide/en/elasticsearch/reference/current/_basic_concepts.html
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html
+  Elasticsearch requires at least Java 8.
+
+
+As mentioned previously, we can override either the cluster or node name. This can be done from the command line when starting Elasticsearch as follows:
+
+./elasticsearch -Ecluster.name=my_cluster_name -Enode.name=my_node_name
+
+Also note the line marked http with information about the HTTP address (192.168.8.112) and port (9200) that our node is reachable from. By default, Elasticsearch uses port 9200 to provide access to its REST API. This port is configurable if necessary.
+
+cluster health:
+  http://localhost:9200/_cat/health?v
+  Whenever we ask for the cluster health, we either get green, yellow, or red. Green means everything is good (cluster is fully functional), yellow means all data is available but some replicas are not yet allocated (cluster is fully functional), and red means some data is not available for whatever reason.
+
+node list:
+  http://localhost:9200/_cat/nodes?v
+ip        heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
+127.0.0.1            6          97  46    3.72    2.83     2.40 mdi       *      kidd_node_name
+
+list all indices:
+  http://localhost:9200/_cat/indices?v
+
+create an index:
+$ curl -XPUT http://localhost:9200/customer?pretty
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true
+}
+This command creates the index named "customer" using the PUT verb. We simply append pretty to the end of the call to tell it to pretty-print the JSON response (if any).
+
+curl -XPUT http://localhost:9200/customer/external/1?pretty { "name": "John Doe" }
+
+thanks to: https://my.oschina.net/code33/blog/417424 [curl -H "Content-Type: application/json" -X POST  --data '{"data":"1"}'  http://127.0.0.1/]
+Let’s index a simple customer document into the customer index, "external" type, with an ID of 1 as follows:
+$ curl -XPUT http://localhost:9200/customer/external/1?pretty --data '{ "name": "John Doe" }'
+{
+  "_index" : "customer",
+  "_type" : "external",
+  "_id" : "1",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : true
+}
+
+Let’s now retrieve that document that we just indexed:
+http://localhost:9200/customer/external/1?pretty
+{
+  "_index" : "customer",
+  "_type" : "external",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "name" : "John Doe"
+  }
+}
+
+Now let’s delete the index that we just created and then list all the indexes again:
+$ curl -X DELETE http://localhost:9200/customer?pretty
+{
+  "acknowledged" : true
+}
+
+If we study the above commands carefully, we can actually see a pattern of how we access data in Elasticsearch. That pattern can be summarized as follows:
+
+<REST Verb> /<Index>/<Type>/<ID>
+
+This REST access pattern is pervasive throughout all the API commands that if you can simply remember it, you will have a good head start at mastering Elasticsearch.
+
+When indexing, the ID part is optional. If not specified, Elasticsearch will generate a random ID and then use it to index the document. The actual ID Elasticsearch generates (or whatever we specified explicitly in the previous examples) is returned as part of the index API call.
+This example shows how to index a document without an explicit ID:
+POST /customer/external?pretty
+{
+  "name": "Jane Doe"
+}
+Note that in the above case, we are using the POST verb instead of PUT since we didn’t specify an ID.
+
+update:
+  curl -X POST http://localhost:9200/customer/external/1/_update?pretty --data '{"doc": { "name": "Doe" }}'
+
+  Updates can also be performed by using simple scripts. This example uses a script to increment the age by 5:
+  curl -X POST http://localhost:9200/customer/external/1/_update?pretty --data '{"script" : "ctx._source.age += 5"}'
+    In the above example, ctx._source refers to the current source document that is about to be updated.
+    Note that as of this writing, updates can only be performed on a single document at a time. [https://www.elastic.co/guide/en/elasticsearch/reference/current/_updating_documents.html]
+
+DELETE /customer/external/2?pretty
+  It is worth noting that it is much more efficient to delete a whole index instead of deleting all documents with the Delete By Query API.
+
+Batch processing
+As a quick example, the following call indexes two documents (ID 1 - John Doe and ID 2 - Jane Doe) in one bulk operation:
+
+POST /customer/external/_bulk?pretty
+{"index":{"_id":"1"}}
+{"name": "John Doe" }
+{"index":{"_id":"2"}}
+{"name": "Jane Doe" }
+
+This example updates the first document (ID of 1) and then deletes the second document (ID of 2) in one bulk operation:
+
+POST /customer/external/_bulk?pretty
+{"update":{"_id":"1"}}
+{"doc": { "name": "John Doe becomes Jane Doe" } }
+{"delete":{"_id":"2"}}
+
+Note above that for the delete action, there is no corresponding source document after it since deletes only require the ID of the document to be deleted.
+
+The bulk API executes all the actions sequentially and in order. If a single action fails for whatever reason, it will continue to process the remainder of the actions after it. When the bulk API returns, it will provide a status for each action (in the same order it was sent in) so that you can check if a specific action failed or not.
+
+$ curl -X POST http://localhost:9200/customer/external?pretty --data '
+> {    
+>     "account_number": 0,
+>     "balance": 16623,
+>     "firstname": "Bradshaw",
+>     "lastname": "Mckenzie",
+>     "age": 29,
+>     "gender": "F",
+>     "address": "244 Columbus Place",
+>     "employer": "Euron",
+>     "email": "bradshawmckenzie@euron.com",
+>     "city": "Hobucken",
+>     "state": "CO"
+> }'
+{
+  "_index" : "customer",
+  "_type" : "external",
+  "_id" : "AVlshy_MAp92EZ9avJWX",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : true
+}
+kidd@kidd-OptiPlex-9020:
+~/software/elasticsearch-5.1.1
+$ curl http://localhost:9200/customer/external/AVlshy_MAp92EZ9avJWX?pretty
+{
+  "_index" : "customer",
+  "_type" : "external",
+  "_id" : "AVlshy_MAp92EZ9avJWX",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "account_number" : 0,
+    "balance" : 16623,
+    "firstname" : "Bradshaw",
+    "lastname" : "Mckenzie",
+    "age" : 29,
+    "gender" : "F",
+    "address" : "244 Columbus Place",
+    "employer" : "Euron",
+    "email" : "bradshawmckenzie@euron.com",
+    "city" : "Hobucken",
+    "state" : "CO"
+  }
+}
+
+load data from file:
+$ curl -XPOST 'localhost:9200/bank/account/_bulk?pretty&refresh' --data-binary "@tmp/accounts.json"
+$ curl 'localhost:9200/_cat/indices?v'
+And the response:
+health status index    uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   .kibana  gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   bank     9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    128.8kb        128.8kb
+yellow open   customer yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+
+  Which means that we just successfully bulk indexed 1000 documents into the bank index (under the account type).
+
+what is in accounts.json?
+  {"index":{"_id":"1"}}
+  {"account_number":1,"balance":39225,"firstname":"Amber","lastname":"Duke","age":32,"gender":"M","address":"880 Holmes aane","employer":"Pyrami","email":"amberduke@pyrami.com","city":"Brogan","state":"IL"}
+  ......
+
+
+The Search API
+  Now let’s start with some simple searches. There are two basic ways to run searches: one is by sending search parameters through the REST request URI and the other by sending them through the REST request body. The request body method allows you to be more expressive and also to define your searches in a more readable JSON format. We’ll try one example of the request URI method but for the remainder of this tutorial, we will exclusively be using the request body method.
+This example returns all documents in the bank index:
+  GET /bank/_search?q=*&sort=account_number:asc&pretty
+  Let’s first dissect the search call. We are searching (_search endpoint) in the bank index, and the q=* parameter instructs Elasticsearch to match all documents in the index. The sort=account_number:asc parameter indicates to sort the results using the account_number field of each document in an ascending order. The pretty parameter, again, just tells Elasticsearch to return pretty-printed JSON results.
+  As for the response, we see the following parts:
+    took – time in milliseconds for Elasticsearch to execute the search
+    timed_out – tells us if the search timed out or not
+    _shards – tells us how many shards were searched, as well as a count of the successful/failed searched shards
+    hits – search results
+    hits.total – total number of documents matching our search criteria
+    hits.hits – actual array of search results (defaults to first 10 documents)
+    sort - sort key for results (missing if sorting by score)
+    _score and max_score - ignore these fields for now 
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html
+curl localhost:9200/apes/wind_wset/_search?q=windcode:200056.SZ
+  "q=" does a fuzzy search. e.g., 200505.SZ will be searched out as of the above request, but with a lower _score.
+
+search across all indices and all types:
+  GET /_search?q=tag:wow
+
+$ curl 'localhost:9200/bank/_search?q=*&sort=account_number:asc&pretty'
+{
+  "took" : 23,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 1000,
+    "max_score" : null,
+    "hits" : [
+......
+
+Here is the same exact search above using the alternative request body method:
+  GET /bank/_search
+  {
+    "query": { "match_all": {} },
+    "sort": [
+      { "account_number": "asc" }
+    ]
+  }
+  It is important to understand that once you get your search results back, Elasticsearch is completely done with the request and does not maintain any kind of server-side resources or open cursors into your results. This is in stark contrast to many other platforms such as SQL wherein you may initially get a partial subset of your query results up-front and then you have to continuously go back to the server if you want to fetch (or page through) the rest of the results using some kind of stateful server-side cursor.
+
+curl localhost:9200/bank/_search --data '
+{
+  "query": { "match_all": {} },
+  "sort": [
+    { "account_number": "asc" }
+  ]
+}'
+
+only 10 returned instead of all 1000 docs. ??
+  Note that if size is not specified, it defaults to 10. [https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html]
+
+In addition to the query parameter, we also can pass other parameters to influence the search results.
+
+This example does a match_all and returns documents 11 through 20:
+GET /bank/_search
+{
+  "query": { "match_all": {} },
+  "from": 10,
+  "size": 10
+}
+The from parameter (0-based) specifies which document index to start from and the size parameter specifies how many documents to return starting at the from parameter. This feature is useful when implementing paging of search results. Note that if from is not specified, it defaults to 0.
+
+curl localhost:9200/bank/_search?pretty --data '
+{
+  "query": { "match_all": {} },
+  "size" : 5,
+  "sort":
+    { "age": {"order" : "desc" }, "balance" : {"order" : "desc"} }
+}'
+
+the former in the "sort" is the primary sorting index.
+
+
+By default, the full JSON document is returned as part of all searches. This is referred to as the source (_source field in the search hits). If we don’t want the entire source document returned, we have the ability to request only a few fields from within source to be returned.
+  GET /bank/_search
+  {
+    "query": { "match_all": {} },
+    "_source": ["account_number", "balance"]
+  }
+
+This example returns the account numbered 20:
+GET /bank/_search
+{
+  "query": { "match": { "account_number": 20 } }
+}
+
+This example returns all accounts containing the term "mill" in the address:
+GET /bank/_search
+{
+  "query": { "match": { "address": "mill" } }
+}
+
+This example returns all accounts containing the term "mill" or "lane" in the address:
+GET /bank/_search
+{
+  "query": { "match": { "address": "mill lane" } }
+}
+
+This example is a variant of match (match_phrase) that returns all accounts containing the phrase "mill lane" in the address:
+
+GET /bank/_search
+{
+  "query": { "match_phrase": { "address": "mill lane" } }
+}
+
+the bool must clause specifies all the queries that must be true for a document to be considered a match.
+the bool should clause specifies a list of queries either of which must be true for a document to be considered a match.
+the bool must_not clause specifies a list of queries none of which must be true for a document to be considered a match.
+
+We can combine must, should, and must_not clauses simultaneously inside a bool query. Furthermore, we can compose bool queries inside any of these bool clauses to mimic any complex multi-level boolean logic.
+This example returns all accounts of anybody who is 40 years old but don’t live in ID(aho):
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "age": "40" } }
+      ],
+      "must_not": [
+        { "match": { "state": "ID" } }
+      ]
+    }
+  }
+}
+
+executing filters:
+  The score is a numeric value that is a relative measure of how well the document matches the search query that we specified. The higher the score, the more relevant the document is, the lower the score, the less relevant the document is.
+  But queries do not always need to produce scores, in particular when they are only used for "filtering" the document set. Elasticsearch detects these situations and automatically optimizes query execution in order not to compute useless scores.
+  GET /bank/_search
+  {
+    "query": {
+      "bool": {
+        "must": { "match_all": {} },
+        "filter": {
+          "range": {
+            "balance": {
+              "gte": 20000,
+              "lte": 30000
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+aggregations:
+Building on the previous aggregation, let’s now sort on the average balance in descending order:
+curl localhost:9200/bank/_search?pretty --data '
+{
+  "size": 0,
+  "aggs": {
+    "group_by_state": {
+      "terms": {
+        "field": "state.keyword",
+        "order": {
+          "average_balance": "desc"
+        }
+      },
+      "aggs": {
+        "average_balance": {
+          "avg": {
+            "field": "balance"
+          }
+        }
+      }
+    }
+  }
+}'
+
+This example demonstrates how we can group by age brackets (ages 20-29, 30-39, and 40-49), then by gender, and then finally get the average account balance, per age bracket, per gender:
+curl localhost:9200/bank/_search?pretty --data '
+{
+  "size": 0,
+  "aggs": {
+    "group_by_age": {
+      "range": {
+        "field": "age",
+        "ranges": [
+          {
+            "from": 20,
+            "to": 30
+          },
+          {
+            "from": 30,
+            "to": 40
+          },
+          {
+            "from": 40,
+            "to": 50
+          }
+        ]
+      },
+      "aggs": {
+        "group_by_gender": {
+          "terms": {
+            "field": "gender.keyword"
+          },
+          "aggs": {
+            "average_balance": {
+              "avg": {
+                "field": "balance"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}'
+{
+  "took" : 13,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 1000,
+    "max_score" : 0.0,
+    "hits" : [ ]
+  },
+  "aggregations" : {
+    "group_by_age" : {
+      "buckets" : [
+        {
+          "key" : "20.0-30.0",
+          "from" : 20.0,
+          "to" : 30.0,
+          "doc_count" : 451,
+          "group_by_gender" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "M",
+                "doc_count" : 232,
+                "average_balance" : {
+                  "value" : 27374.05172413793
+                }
+              },
+              {
+                "key" : "F",
+                "doc_count" : 219,
+                "average_balance" : {
+                  "value" : 25341.260273972603
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "30.0-40.0",
+          "from" : 30.0,
+          "to" : 40.0,
+          "doc_count" : 504,
+          "group_by_gender" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "F",
+                "doc_count" : 253,
+                "average_balance" : {
+                  "value" : 25670.869565217392
+                }
+              },
+              {
+                "key" : "M",
+                "doc_count" : 251,
+                "average_balance" : {
+                  "value" : 24288.239043824702
+                }
+              }
+            ]
+          }
+        },
+        {
+          "key" : "40.0-50.0",
+          "from" : 40.0,
+          "to" : 50.0,
+          "doc_count" : 45,
+          "group_by_gender" : {
+            "doc_count_error_upper_bound" : 0,
+            "sum_other_doc_count" : 0,
+            "buckets" : [
+              {
+                "key" : "M",
+                "doc_count" : 24,
+                "average_balance" : {
+                  "value" : 26474.958333333332
+                }
+              },
+              {
+                "key" : "F",
+                "doc_count" : 21,
+                "average_balance" : {
+                  "value" : 27992.571428571428
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+-------------- 2017-01-04 20:27:38
+http://www.cnblogs.com/jamespei/p/5694495.html
+搭建ElasticSearch+MongoDB检索系统
+
+
+
+------------ 2017-01-05 16:27:20
+$ curl http://localhost:9200/_cat/indices?v
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   .kibana      gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   bank         9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    640.7kb        640.7kb
+yellow open   customer     yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+yellow open   apes         S7xxzH7ORvSP8GYGio36hQ   5   1     184211            0    107.8mb        107.8mb
+yellow open   mongodb_meta 1FTR8HyxRUu5KuqXfEsU0A   5   1     184214            0      3.2mb          3.2mb
+yellow open   test         tJAQWi5XTp6G3sQGfFqMHA   5   1          2            0      7.5kb          7.5kb
+
+$ curl http://localhost:9200/_cat/indices?v
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   .kibana      gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   bank         9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    640.7kb        640.7kb
+yellow open   customer     yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+yellow open   apes         S7xxzH7ORvSP8GYGio36hQ   5   1     184211        12832    254.1mb        254.1mb
+yellow open   mongodb_meta 1FTR8HyxRUu5KuqXfEsU0A   5   1     184215         5333      8.3mb          8.3mb
+yellow open   test         tJAQWi5XTp6G3sQGfFqMHA   5   1          3            0      7.5kb          7.5kb
+kidd@kidd-OptiPlex-9020:
+~/software/elasticsearch-5.1.1
+$ curl http://localhost:9200/test/foo/_search?pretty
+{
+  "took" : 2,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 3,
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "test",
+        "_type" : "foo",
+        "_id" : "586e012c548e7fcd0cb6d756",
+        "_score" : 1.0,
+        "_source" : {
+          "from" : "BJ",
+          "name" : "anhua"
+        }
+      },
+      {
+        "_index" : "test",
+        "_type" : "foo",
+        "_id" : "586e04ce548e7fcd0cb6d757",
+        "_score" : 1.0,
+        "_source" : {
+          "from" : "XA",
+          "name" : "jssfy"
+        }
+      },
+      {
+        "_index" : "test",
+        "_type" : "foo",
+        "_id" : "5822a1589e54c21d76fe1046",
+        "_score" : 1.0,
+        "_source" : {
+          "a" : 1.0
+        }
+      }
+    ]
+  }
+}
+
+-----------2017-01-05 16:38:53
+1) mongo-connector might crash due to some reason during synchronization
+mongo connector issue:
+
+2017-01-05 16:34:21,410 [ALWAYS] mongo_connector.connector:52 - Starting mongo-connector version: 2.5.0
+2017-01-05 16:34:21,411 [ALWAYS] mongo_connector.connector:52 - Python version: 2.7.6 (default, Jun 22 2015, 17:58:13) 
+[GCC 4.8.2]
+2017-01-05 16:34:21,411 [ALWAYS] mongo_connector.connector:52 - Platform: Linux-3.13.11-ckt363.13.0_kidd-x86_64-with-Ubuntu-14.04-trusty
+2017-01-05 16:34:21,411 [ALWAYS] mongo_connector.connector:52 - pymongo version: 3.4.0
+2017-01-05 16:34:21,413 [ALWAYS] mongo_connector.connector:52 - Source MongoDB version: 2.4.9
+2017-01-05 16:34:21,414 [ALWAYS] mongo_connector.connector:52 - Target DocManager: mongo_connector.doc_managers.elastic2_doc_manager version: 0.3.0
+2017-01-05 16:35:50,164 [CRITICAL] mongo_connector.oplog_manager:666 - Exception during collection dump
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/mongo_connector/oplog_manager.py", line 621, in do_dump
+    upsert_all(dm)
+  File "/usr/local/lib/python2.7/dist-packages/mongo_connector/oplog_manager.py", line 607, in upsert_all
+    mapped_ns, long_ts)
+  File "/usr/local/lib/python2.7/dist-packages/mongo_connector/util.py", line 44, in wrapped
+    reraise(new_type, exc_value, exc_tb)
+  File "/usr/local/lib/python2.7/dist-packages/mongo_connector/util.py", line 33, in wrapped
+    return f(*args, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/mongo_connector/doc_managers/elastic2_doc_manager.py", line 367, in bulk_upsert
+    for ok, resp in responses:
+  File "/usr/local/lib/python2.7/dist-packages/elasticsearch/helpers/__init__.py", line 162, in streaming_bulk
+    for result in _process_bulk_chunk(client, bulk_actions, raise_on_exception, raise_on_error, **kwargs):
+  File "/usr/local/lib/python2.7/dist-packages/elasticsearch/helpers/__init__.py", line 134, in _process_bulk_chunk
+    raise BulkIndexError('%i document(s) failed to index.' % len(errors), errors)
+OperationFailed: (u'1 document(s) failed to index.', [{u'index': {u'status': 400, u'_type': u'foo', u'_id': u'5822a1709e54c21d76fe1047', u'error': {u'caused_by': {u'reason': u'For input string: "1a"', u'type': u'number_format_exception'}, u'reason': u'failed to parse [a]', u'type': u'mapper_parsing_exception'}, u'_index': u'test'}}])
+2017-01-05 16:35:50,165 [ERROR] mongo_connector.oplog_manager:674 - OplogThread: Failed during dump collection cannot recover! Collection(Database(MongoClient(host=['10.12.6.43:27017'], document_class=dict, tz_aware=False, connect=True, replicaset=u'rs0'), u'local'), u'oplog.rs')
+2017-01-05 16:35:50,773 [ERROR] mongo_connector.connector:357 - MongoConnector: OplogThread <OplogThread(Thread-3, started 140171055970048)> unexpectedly stopped! Shutting down
+
+----------- 2017-01-06 14:31:20
+fuzziness
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+
+GET /_search
+{
+    "query": {
+        "match" : {
+            "message" : {
+                "query" : "this is a test",
+                "operator" : "and"
+            }
+        }
+    }
+}
+[note: message is the field name]
+The operator flag can be set to or or and to control the boolean clauses (defaults to or).
+
+------------- 2017-01-06 15:16:12
+python client:
+http://elasticsearch-py.readthedocs.io/en/master/
+pip install elasticsearch
+http://www.cnblogs.com/jamespei/p/5694495.html
+
+from datetime import datetime
+from elasticsearch import Elasticsearch
+es = Elasticsearch('http://localhost:9200')
+
+# doc = {
+#     'author': 'kimchy',
+#     'text': 'Elasticsearch: cool. bonsai cool.',
+#     'timestamp': datetime.now(),
+# }
+# res = es.index(index="test-index", doc_type='tweet', id=1, body=doc)
+# print(res['created'])
+
+# res = es.get(index="test-index", doc_type='tweet', id=1)
+# print(res['_source'])
+
+# es.indices.refresh(index="test-index")
+
+# res = es.search(index="hb", doc_type='hb_charts', body={"query": {"match_all": {}}})
+res = es.search(index="hb", doc_type='hb_charts', body={"query": {"match": {"title" : "金属指数12345"}}})
+print("Got %d Hits:" % res['hits']['total'])
+
+print type(res['hits']['hits'][0])
+
+http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch
+
+
+-------- 2017-01-06 18:45:20
+[2017-01-06T18:42:57,405][INFO ][o.e.h.HttpServer         ] [JKAt1vB] publish_address {127.0.0.1:9200}, bound_addresses {[::1]:9200}, {127.0.0.1:9200}
+[2017-01-06T18:42:57,405][INFO ][o.e.n.Node               ] [JKAt1vB] started
+
+/home/kidd/software/elasticsearch-5.1.1/config/elasticsearch.yml
+http.host: 10.12.6.43
+  [https://discuss.elastic.co/t/bootstrap-error/64426/8]
+
+$ curl http://10.12.6.43:9200/_cat/indices?v
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   customer     yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+yellow open   test         tJAQWi5XTp6G3sQGfFqMHA   5   1          4            0     14.5kb         14.5kb
+yellow open   mongodb_meta 1FTR8HyxRUu5KuqXfEsU0A   5   1     194762          323      3.6mb          3.6mb
+yellow open   .kibana      gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   hb           EEDHplRzRimTd8JYYc22BA   5   1      10546            0     25.9mb         25.9mb
+yellow open   bank         9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    640.7kb        640.7kb
+yellow open   apes         S7xxzH7ORvSP8GYGio36hQ   5   1     184211        54172    193.1mb        193.1mb
+
+changing to 0.0.0.0: [then both worked]
+  http.host: 0.0.0.0
+kidd@kidd-OptiPlex-9020:
+~/software/elasticsearch-5.1.1
+$ curl http://localhost:9200/_cat/indices?v
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   customer     yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+yellow open   test         tJAQWi5XTp6G3sQGfFqMHA   5   1          4            0     14.5kb         14.5kb
+yellow open   mongodb_meta 1FTR8HyxRUu5KuqXfEsU0A   5   1     194762          323      3.6mb          3.6mb
+yellow open   .kibana      gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   hb           EEDHplRzRimTd8JYYc22BA   5   1      10546            0     25.9mb         25.9mb
+yellow open   bank         9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    640.7kb        640.7kb
+yellow open   apes         S7xxzH7ORvSP8GYGio36hQ   5   1     184211        54172    193.1mb        193.1mb
+kidd@kidd-OptiPlex-9020:
+~/software/elasticsearch-5.1.1
+$ curl http://10.12.6.43:9200/_cat/indices?v
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   customer     yetkmLKyRR2cOnC3vTFxUw   5   1          4            0     19.2kb         19.2kb
+yellow open   test         tJAQWi5XTp6G3sQGfFqMHA   5   1          4            0     14.5kb         14.5kb
+yellow open   mongodb_meta 1FTR8HyxRUu5KuqXfEsU0A   5   1     194762          323      3.6mb          3.6mb
+yellow open   .kibana      gyJAHTRnSWGMx95oDo7rIg   1   1          1            0      3.1kb          3.1kb
+yellow open   hb           EEDHplRzRimTd8JYYc22BA   5   1      10546            0     25.9mb         25.9mb
+yellow open   bank         9zviakOHR6KIFl8tp1uYkw   5   1       1000            0    640.7kb        640.7kb
+yellow open   apes         S7xxzH7ORvSP8GYGio36hQ   5   1     184211        54172    193.1mb        193.1mb
+
+
+
+
+
+
+
+
+

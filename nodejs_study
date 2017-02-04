@@ -1,0 +1,23 @@
+
+
+
+---------- 2016-12-26 11:53:02
+
+Node.js 的模块分为两类,一类为原生(核心)模块,一类为文件模块。原生模块在 Node.js 源代码编译的时候编译进了
+二进制执行文件,加载的速度最快。另一类文件模块是动态加载的,加载速度比原生模块慢。但是 Node.js 对原生模块
+和文件模块都进行了缓存,于是在第二次 require 时,是不会有重复开销的。其中原生模块都被定义在 lib 这个目录下面,
+文件模块则不定性。
+
+下面是circle.js
+    var PI = Math.PI;
+    exports.area = function (r) {
+    return PI * r * r;
+    };
+    exports.circumference = function (r) {  
+    return 2 * PI * r;  
+    };
+
+
+
+
+

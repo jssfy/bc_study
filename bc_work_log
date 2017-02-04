@@ -9,12 +9,16 @@ anhye@niuba.la/K...
 local test: "can not create below folder"
 ~/workspace/bc/MissionImpossible/runtime/logs
 
+DNS:
+  10.11.255.253,10.12.255.253
+  8.8.8.8
 
 TBD:
   qr code scan handlers are called in multiple threads. db updating should be protected.
 
 
 online wind: apes
+  wsservice: /niub/bj/app/wsservice/, logs/apes-wsservice.log
   120.26.95.121
 
 tz8
@@ -68,14 +72,29 @@ chmod -R 755 /niub/www/sourcecode/vote-dev.yqtz8.com
 [LV]
 如果能在目录后面能接runtime这个目录更好。
 
-aliyun server for jy, online test, online apes crawler, etc.
+aliyun server for jy, online test, online apes crawler, rdf mysql, etc.
   ssh ahye@120.26.245.253
 
 crawler mongo save: apes
-  120.26.95.121
+  120.26.95.121 (10.51.3.146)
 
 ssh -v ahye@120.26.245.253 
   -v to show debugging info
+
+jumper:
+ssh ahye@120.26.195.205 -p 9527
+  nb-ssh bj-tz8-db001 (crawler, 120.26.245.253)
+  nb-ssh bj-tz8-demo (apes server, 120.26.95.121)
+  nb-ssh bj-HyperLedger001 (10.26.103.174, backup crawler & mongo machine)
+
+scp -i /etc/nbrsa/id_rsa <<file>> 10.51.3.146:~/
+$ scp -P 9527 ../apes-crawler.tgz ahye@120.26.195.205:~/
+scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.26.103.174:~/
+
+--------- 2017-02-03 10:12:33
+1. 整理下爬虫接下来的主要工作项
+2. 熟悉下核心业务工作流程和相关代码
+3. 研究一下其它数据源
 
 ---------- 2016-12-05 13:28:37
 > db.measures.find({type : {$ne : 0}, datasetId : "wind_information"}).count()
@@ -285,4 +304,5 @@ controllers/TestController.php:37
 服务器端基于yii。
 
 后期计划：自动回复以及自定义菜单服务器端替代方案，时间安排根据微信公众平台开发的熟悉度待定。
+
 

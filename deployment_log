@@ -38,10 +38,8 @@ ImportError: No module named pymongo
 Downloading pymongo-3.4.0.tar.gz (583kB)
     82% |██████████████████████████▎     | 479kB 230bytes/s eta 0:07:33
 
-
 [root@bj-tz8-db001 ahye]# python mongo.py
 pymongo.errors.ServerSelectionTimeoutError: 120.26.95.121:27017: [Errno 113] No route to host
-
 
 --------- 2016-12-21 14:54:06
 jenkins:

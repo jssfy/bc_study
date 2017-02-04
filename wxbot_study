@@ -1,0 +1,16 @@
+
+
+------------2017-01-03 19:31:47
+https://github.com/liuwons/wxBot
+
+
+
+~/workspace/python/wxBot
+$ python test.py
+Traceback (most recent call last):
+  File "test.py", line 4, in <module>
+    from wxbot import *
+  File "/home/kidd/workspace/python/wxBot/wxbot.py", line 18, in <module>
+    from requests.exceptions import ConnectionError, ReadTimeout
+ImportError: cannot import name ReadTimeout
+

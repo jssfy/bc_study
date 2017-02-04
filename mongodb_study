@@ -4,6 +4,201 @@ shell cmds:
   use db_name
   db.stats()
 
+---------- 2017-02-04 12:00:49
+ISODate
+
+> db.kidd.insert({mydate:ISODate("2012-11-02T07:58:51.718Z")})
+> db.kidd.find()
+{ "_id" : ObjectId("589551d97e5942429ca79d0c"), "mydate" : ISODate("2012-11-02T07:58:51.718Z") }
+
+日期字符串也支持多种格式
+neu:PRIMARY> db.t2.insert({mydate:ISODate("2012-11-02 07:58:51")})
+neu:PRIMARY> db.t2.insert({mydate:ISODate("20121102 07:58:51")})
+neu:PRIMARY> db.t2.insert({mydate:ISODate("20121102")}) 
+
+我们比较一下mongo中的当前时间与系统当前时间：
+> new Date()
+ISODate("2017-02-04T04:05:02.471Z")
+$ date
+2017年 02月 04日 星期六 12:05:31 CST
+这是因为mongo中的date类型以UTC（Coordinated Universal Time）存储，就等于GMT（格林尼治标准时）时间。而系统时间使用的是GMT+0800时间，两者正好相差8个小时。
+在python中，与之对应的日期是 datetime.datetime.utcnow()，而不是now()，两者正好差8个小时：
+>>> import datetime 
+ >>> datetime.datetime.utcnow()
+datetime.datetime(2012, 11, 2, 8, 22, 52, 953000)
+>>> datetime.datetime.now()
+datetime.datetime(2012, 11, 2, 16, 22, 58, 218000) 
+
+
+def isodate_test():
+  # info_connection=pymongo.MongoClient('10.12.6.43', 27017)
+  info_connection=pymongo.MongoClient('10.12.0.11', 27017)
+  info_db=info_connection.test
+  info_col=info_db.kidd
+  ts = time.time()
+  t = datetime.datetime.fromtimestamp(ts)
+  doc = {'date' : t, 'windcode' : '000001.SZ'}
+  info_col.update({'windcode': doc['windcode'], 'date' : doc['date']}, {'$set': doc}, upsert=True)
+
+{ "_id" : ObjectId("589554e6485833dfc31cacc4"), "date" : ISODate("2017-02-04T12:13:26.255Z"), "windcode" : "000001.SZ" }
+
+in edbspider:
+  row['dateObj'] = datetime.fromtimestamp(row['date'] / 1000)
+> db.wind_edb.find({date : 1485100800000})
+{ "_id" : ObjectId("58870383878544f6a1e5311e"), "date" : NumberLong("1485100800000"), "M0061577" : 3.95, "S2703478" : 68.39, "S2703479" : 33.69, "M0061614" : "NaN", "S2707388" : "NaN", "S2707387" : "NaN", "S2703476" : 65.29, "S2703477" : 47.37, "S2703480" : 50.19, "S2703481" : 71.65, "M0062611" : 1867.03, "dateObj" : ISODate("2017-01-23T00:00:00Z") }
+
+
+
+--------- 2017-02-03 18:06:48
+db.wind_edb.find().sort({date : -1}).limit(1).pretty()
+
+如果有多个字段,按姓名降序，年龄升序
+db.user.find().sort({"name":-1,"age":1})
+limit和skip一起用，相当于mysql里的limit:
+b.user.find().skip(1).limit(1)
+相当于mysql里的limit(1,1)，即跳过第0条，从第1条开始返回，只返回1条
+
+--------- 2017-02-03 15:43:27
+使用第二个参数，指定显示的列
+  db.measures.find({'datasetId': 'wind_edb'}, {id : 1});
+
+------------- 2017-01-14 12:10:07
+
+
+db.wind_wsd.find({date : {$gte : 1480262400000, $lte : 1484150400000}, "windcode":{"$in":['000001.SH',"000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}).count()
+414
+
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q '{date : {$gte : 1480262400000, $lte : 1484150400000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsd_02.dat
+connected to: 10.12.6.6
+exported 414 records
+
+
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q "{date : 1451577600000}" -o ~/tmp/wind_wsd.dat
+connected to: 10.12.6.6
+exported 9 records
+
+
+--------- 2017-01-14 11:37:23
+$ mongoimport -h 10.12.6.43 -d apes -c wind_wsd ~/tmp/wind_wsd.dat 
+connected to: 10.12.6.43
+Sat Jan 14 11:34:12.543 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b67d878544f6a1e4739c') }
+Sat Jan 14 11:34:12.543 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b696878544f6a1e4739d') }
+Sat Jan 14 11:34:12.543 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b696878544f6a1e4739e') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b696878544f6a1e4739f') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b697878544f6a1e473a0') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b697878544f6a1e473a1') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b698878544f6a1e473a2') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b698878544f6a1e473a3') }
+Sat Jan 14 11:34:12.544 E11000 duplicate key error index: apes.wind_wsd.$_id_  dup key: { : ObjectId('5878b698878544f6a1e473a4') }
+Sat Jan 14 11:34:12.545 imported 9 objects
+
+$ mongoimport -h 10.12.6.43 -d apes -c wind_wsd --upsert ~/tmp/wind_wsd.dat 
+connected to: 10.12.6.43
+Sat Jan 14 11:34:41.520 imported 9 objects
+
+
+----------- 2017-01-13 17:44:47
+> db.kidd.find({"abc.aggs.0.start":0})
+{ "_id" : ObjectId("58789f9b70355120fa0f03b0"), "abc" : { "aggs" : [  {  "start" : 0,  "end" : 1 } ] } }
+
+
+
+-------------- 2017-01-13 17:25:37
+> db.kidd.insert({'abc' : {'name' : 'kidd', 'age' : 2}})
+> db.kidd.find().pretty()
+{ "_id" : ObjectId("586e1a069a6a2a8a39d41fbe"), "name" : "kidd" }
+{
+  "_id" : ObjectId("58789ce770355120fa0f03af"),
+  "abc" : {
+    "name" : "kidd",
+    "age" : 2
+  }
+}
+> db.kidd.find({'abc.name' : 'kidd' }).pretty()
+{
+  "_id" : ObjectId("58789ce770355120fa0f03af"),
+  "abc" : {
+    "name" : "kidd",
+    "age" : 2
+  }
+}
+
+http://blog.csdn.net/shellching/article/details/7651721
+db.kidd.update({}, {$rename : {"abc.name" : "abc.modified_name"}}, false, true)
+db.kidd.update({}, {$rename : {"abc.modified_name" : "abc.:name"}}, false, true)
+
+------------ 2017-01-13 16:13:49
+默认情况下，find方法会返回所有的键，类似于SQL中的select *,如果要指定返回的字段，需要用到find的第二个参数：
+
+上面的命令是查询user集合(表),在返回的结果中，不返回_id键，第二个参数是需要过滤的键，而不是要显示的键。
+如果同时要过滤age键:
+
+db.user.find({},{"_id":0,"age":0})
+
+
+----------- 2017-01-13 15:36:09
+Fri Jan 13 15:34:18.168 ERROR: Error creating index apes.charts: 16633 err: "text search not enabled"
+Aborted (core dumped)
+
+FIX:
+  add
+    setParameter=textSearchEnabled=true
+
+  to /etc/mongodb.conf
+
+  sudo mongod --config /etc/mongodb.conf
+
+failed with another error: 
+  Fri Jan 13 15:38:50.806   Creating index: { key: { _id: 1 }, name: "_id_", ns: "apes.charts" }
+  Fri Jan 13 15:38:50.853   Creating index: { key: { _fts: "text", _ftsx: 1 }, name: "title_text", default_language: "english", language_override: "language", ns: "apes.charts", weights: { title: 1 }, textIndexVersion: 3 }
+  Fri Jan 13 15:38:50.905 ERROR: Error creating index apes.charts: 16633 err: "text search not enabled"
+  Aborted (core dumped)
+
+
+
+------ 2017-01-11 11:42:27
+for upsert in python, the comparison fields will be inserted automatically even the doc does not include it.
+
+def upsert_information(windcode, doc):
+  info_connection=pymongo.MongoClient('10.12.6.6', 27017)
+  info_db=info_connection.test
+  info_col=info_db.kidd
+  info_col.update({'windcode': windcode, 'age' : 30}, {'$set': doc}, upsert=True)
+
+
+if __name__ == "__main__":
+  # print get_information_measurements()
+  doc = {
+    'name' : 'kidd',
+          }
+  upsert_information('000001.SZ', doc)
+
+> db.wind_wsd.update({_id : ObjectId("5878b698878544f6a1e473a4")}, {$set : {'close' : 111.111}})
+> db.wind_wsd.find({'_id' : ObjectId("5878b698878544f6a1e473a4")}).pretty()
+{
+  "_id" : ObjectId("5878b698878544f6a1e473a4"),
+  "date" : NumberLong("1451577600000"),
+  "windcode" : "399006.SZ",
+  "close" : 111.111
+}
+
+------- 2017-01-10 11:23:44
+db.wind_performance.find({ "west_sales_downgrade" : {$exists : true}}).pretty()
+
+------------ 2017-01-09 16:08:58
+db.course.find( { "lectures.lectures_count": { $exists: true } } )
+查询course表中，存在lectures_count字段的记录信息
+删除course表中，所有的lectures.lectures_count字段
+db.course.update({},{$unset:{"lectures.lectures_count":""}},{multi:true})
+根据条件往表里插入一个字段
+db.lecture.update({"course_id":"5352d5ab92fc7705666ae8c9"},{$set:{"file_type":"PDF"}},{multi:true})
+
+--------- 2016-12-30 15:14:00
+模糊查询：tname包含某个关键字测试'
+cd /opt/soft/mongodb/bin
+./mongo --host 192.168.0.1  --port 17017  test
+db.test_info.find({"tname": {$regex: '测试', $options:'i'}}) 
+db.test_info.find({"tname": {$regex:/测试.*/i}})  
 
 ----------- 2016-11-29 20:31:04
 BSON是由10gen开发的一个数据格式，目前主要用于MongoDB中，是MongoDB的数据存储格式。BSON基于JSON格式，选择JSON进行改造的原因主要是JSON的通用性及JSON的schemaless的特性。
@@ -137,11 +332,39 @@ $ mongoexport -h 10.12.6.6 -d apes -c measurements -o ~/tmp/measurements.dat
 connected to: 10.12.6.6
 exported 202 records
 
+-q:指明导出数据的过滤条件
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -q "{date : 1451577600000}" -o ~/tmp/wind_wsd.dat
+connected to: 10.12.6.6
+exported 9 records
+
+
+
 $ mongoimport -h 10.12.0.36 -d apes -c measurements ~/tmp/measurements.dat 
 connected to: 10.12.0.36
 Thu Nov 17 12:56:08.134 check 9 202
 Thu Nov 17 12:56:08.137 imported 202 objects
 
+-d    指定把数据导入到哪一个数据库中
+-c    指定把数据导入到哪一个集合中
+--type    指定导入的数据类型
+--file       指定从哪一个文件中导入数据
+--headerline    仅适用于导入csv,tsv格式的数据，表示文件中的第一行作为数据头
+--upsert  以新增或者更新的方式来导入数据
+
+mongodb数据备份和还原主要分为二种，一种是针对于库的mongodump和mongorestore，一种是针对库中表的mongoexport和mongoimport。 
+mongodump -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -o 文件存在路径 
+mongodump -h 10.12.6.43 -d hb -o /tmp/hb.dump
+mongodump -h 10.51.3.146 --port 3017 -d apes -o apes.dump
+
+$ tree /tmp/hb.dump/
+/tmp/hb.dump/
+└── hb
+    ├── hb_charts.bson
+    ├── hb_charts.metadata.json
+    └── system.indexes.bson
+
+mongorestore -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 --drop 文件存在路径
+mongorestore -h 10.12.6.43 --drop apes.dump
 
 -------------- 2016-11-16 11:03:44
 search
@@ -172,6 +395,10 @@ $addToSet 如果数组中没有该数据，向数组中添加数据，如果该�
      );  
       
     db.test3.update( { _id: 6 }, { $addToSet: { grades: "ddd"  } });  
+
+---------- 2017-01-09 13:25:29
+print pymongo.__version__
+3.4.0
 
 --------- 2016-11-15 11:55:04
 keep a counter:
@@ -596,5 +823,215 @@ java
         return true;
     }
 
+--------------- 2017-01-05 15:46:02
+http://www.runoob.com/mongodb/mongodb-replication.html
+
+$ mongo -host 10.12.6.43
+MongoDB shell version: 2.4.9
+connecting to: 10.12.6.43:27017/test
+> show dbs
+apes  0.953125GB
+kidd  0.203125GB
+local 0.078125GB
+microblog 0.203125GB
+test  0.203125GB
+> rs.conf()
+null
+> rs.initiate()
+{
+  "info2" : "no configuration explicitly specified -- making one",
+  "me" : "10.12.6.43:27017",
+  "info" : "Config now saved locally.  Should come online in about a minute.",
+  "ok" : 1
+}
+> rs.conf()
+{
+  "_id" : "rs0",
+  "version" : 1,
+  "members" : [
+    {
+      "_id" : 0,
+      "host" : "10.12.6.43:27017"
+    }
+  ]
+}
+rs0:SECONDARY> rs.status()
+{
+  "set" : "rs0",
+  "date" : ISODate("2017-01-05T07:44:35Z"),
+  "myState" : 1,
+  "members" : [
+    {
+      "_id" : 0,
+      "name" : "10.12.6.43:27017",
+      "health" : 1,
+      "state" : 1,
+      "stateStr" : "PRIMARY",
+      "uptime" : 117,
+      "optime" : Timestamp(1483602245, 1),
+      "optimeDate" : ISODate("2017-01-05T07:44:05Z"),
+      "self" : true
+    }
+  ],
+  "ok" : 1
+}
+rs0:PRIMARY> db.isMaster()
+{
+  "setName" : "rs0",
+  "ismaster" : true,
+  "secondary" : false,
+  "hosts" : [
+    "10.12.6.43:27017"
+  ],
+  "primary" : "10.12.6.43:27017",
+  "me" : "10.12.6.43:27017",
+  "maxBsonObjectSize" : 16777216,
+  "maxMessageSizeBytes" : 48000000,
+  "localTime" : ISODate("2017-01-05T07:45:21.571Z"),
+  "ok" : 1
+}
 
 
+------------- 2017-02-04 12:08:31 mongo.py
+#!encoding=utf-8
+
+import pymongo, datetime, time
+import os
+from pymongo import MongoClient
+import sys
+import simplejson
+
+# print os.getenv('ENVIRONMENT', 'dev')
+# connection=pymongo.MongoClient('10.12.6.6', 27017)
+# # connection=pymongo.MongoClient('120.26.95.121', 27017)
+# # connection=pymongo.MongoClient('10.12.0.61', 27017)
+# # db=connection.apes
+# db=connection.kidd
+# col=db.wind_wsi
+
+def get_information_measurements():
+  info_connection=pymongo.MongoClient('10.12.6.6', 27017)
+  info_db=info_connection.apes
+  info_col=info_db.measures
+  bak_infos = info_col.find({'type':{'$ne':0}, 'datasetId' : 'wind_information'})
+  indexes = []
+  for info in bak_infos:
+    indexes.append(info['id'])
+  return indexes
+
+def upsert_information(windcode, doc):
+  info_connection=pymongo.MongoClient('10.12.6.6', 27017)
+  info_db=info_connection.test
+  info_col=info_db.kidd
+  info_col.update({'windcode': windcode, 'age' : 30}, {'$set': doc}, upsert=True)
+
+def upsert_last_fail_point(spider, start, end, code):
+  info_connection=pymongo.MongoClient('10.12.6.6', 27017)
+  info_db=info_connection.apes
+  col=info_db.last_fail_point
+  doc = {
+    'spider': spider,
+    'start': start,
+    'end': end,
+    'code': code,
+  }
+  col.update({'spider': spider}, {'$set': doc}, upsert=True)
+
+# 指数/股票指数类/中金指数/中金A股指数
+def get_16588_codes(start_from=""):
+  info_connection=pymongo.MongoClient('120.26.95.121', 3017)
+  info_db=info_connection.apes
+  info_col=info_db.wind_wset
+  bak_infos = info_col.find({'sectors':16588})
+  codes = []
+  # start_from = "600640.SH"
+  if start_from != "":
+    flag = False
+  else:
+    flag = True
+  for info in bak_infos:
+    if not flag:
+      if info['windcode'] == start_from:
+        flag = True
+        codes.append(info['windcode'])
+      continue
+    codes.append(info['windcode'])
+  return codes
+
+def upsert_wind_wsd_close(doc):
+  # info_connection=pymongo.MongoClient('10.12.6.43', 27017)
+  info_connection=pymongo.MongoClient('10.51.3.146', 3017)
+  info_db=info_connection.apes
+  info_col=info_db.wind_wsd
+  time = datetime.datetime.fromtimestamp(doc['date'] / 1000)
+  print 'updating ' + doc['windcode'] + 'data on ' + str(time)
+  # print doc['date']
+  del doc['_id']
+  info_col.update({'windcode': doc['windcode'], 'date' : doc['date']}, {'$set': doc}, upsert=True)
+
+
+def upsert_wind_wsi_close(doc):
+  # info_connection=pymongo.MongoClient('10.12.6.43', 27017)
+  info_connection=pymongo.MongoClient('10.51.3.146', 3017)
+  info_db=info_connection.apes
+  info_col=info_db.wind_wsi
+  time = datetime.datetime.fromtimestamp(doc['date'] / 1000)
+  print 'updating ' + doc['windcode'] + 'data on ' + str(time)
+  # print doc['date']
+  del doc['_id']
+  info_col.update({'windcode': doc['windcode'], 'date' : doc['date']}, {'$set': doc}, upsert=True)
+
+def isodate_test():
+  # info_connection=pymongo.MongoClient('10.12.6.43', 27017)
+  info_connection=pymongo.MongoClient('10.12.0.11', 27017)
+  info_db=info_connection.test
+  info_col=info_db.kidd
+  ts = time.time()
+  t = datetime.datetime.fromtimestamp(ts)
+  doc = {'date' : t, 'windcode' : '000001.SZ'}
+  info_col.update({'windcode': doc['windcode'], 'date' : doc['date']}, {'$set': doc}, upsert=True)
+
+if __name__ == "__main__":
+  # file = open("wind_wsi.dat")
+  # try:
+  #     # content = file.read()
+  #     docs = file.readlines()
+  #     print 'got ' + str(len(docs)) + ' lines'
+  #     for doc in docs:
+  #       upsert_wind_wsi_close(simplejson.loads(doc.replace('\n', '')))
+  #       # upsert_wind_wsd_close(simplejson.loads(doc.replace('\n', '')))
+  # finally:
+  #     file.close()
+
+  # file = open("wind_wsi_earlier.dat")
+  # try:
+  #     # content = file.read()
+  #     docs = file.readlines()
+  #     print 'got ' + str(len(docs)) + ' lines'
+  #     for doc in docs:
+  #       upsert_wind_wsi_close(simplejson.loads(doc.replace('\n', '')))
+  #       # upsert_wind_wsd_close(simplejson.loads(doc.replace('\n', '')))
+  # finally:
+  #     file.close()
+
+  # file = open("wind_wsd.dat")
+  # try:
+  #     # content = file.read()
+  #     docs = file.readlines()
+  #     print 'got ' + str(len(docs)) + ' lines'
+  #     for doc in docs:
+  #       # upsert_wind_wsi_close(simplejson.loads(doc.replace('\n', '')))
+  #       upsert_wind_wsd_close(simplejson.loads(doc.replace('\n', '')))
+  # finally:
+  #     file.close()
+
+  # file = open("wind_wsd_earlier.dat")
+  # try:
+  #     # content = file.read()
+  #     docs = file.readlines()
+  #     print 'got ' + str(len(docs)) + ' lines'
+  #     for doc in docs:
+  #       # upsert_wind_wsi_close(simplejson.loads(doc.replace('\n', '')))
+  #       upsert_wind_wsd_close(simplejson.loads(doc.replace('\n', '')))
+  # finally:
+  #     file.close()

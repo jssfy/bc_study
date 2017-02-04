@@ -1,0 +1,657 @@
+
+sample cmds:
+  sudo python runcrawler.py offline "Daily Market Spider"
+  export CRAWLER_ENV=release
+  echo "2017 1 13 2017 1 13" > /tmp/spider.ranges
+
+
+to modify charts:
+  http://localhost:9080/views/test/charts.html#33
+
+db.charts.update({"_id" : 419}, {$rename : {"dataSource.parameters.:reportDate" : "dataSource.parameters.:endDate"}}, false, true)
+db.charts.update({"_id" : 419}, {$rename : {"dataSource.parameters.:compareDate" : "dataSource.parameters.:startDate"}}, false, true)
+
+419 风格指数表现1W, 32 风格指数表现YTD在6.6上的已经可以动态变化了, 11月4日前几天有数据, 缺失的我晚些再导进来
+
+33  A股行业表现1W
+
+add:
+        'extraParams': 'Days=Alldays;Fill=Previous',
+to config.py for daily_market spider temporarily
+
+$ cat /tmp/spider.ranges
+2 016 1 1 2016 1 1
+
+echo "2016 11 28 2017 1 14" > /tmp/spider.ranges
+
+
+25  上证综指一周表现
+
+sudo python runcrawler.py offline "Wsi Spider"
+
+2016-12-16: 1481817600
+2016-12-17: 1481904000
+2017-01-15: 1484409600
+
+db.wind_wsi.find({date : {$gte : 1481817600000, $lte : 1484409600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}).count()
+4837
+  000001.SH [2016-12-16 => 2017-01-13]
+
+[2016-12-16 => 2017-01-15]
+db.wind_wsi.find({date : {$gte : 1481817600000, $lte : 1484409600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}).count()
+43533
+[2016-12-16 => 2017-01-14]
+db.wind_wsi.find({date : {$gte : 1481817600000, $lte : 1484323200000}}).count()
+43533
+
+/tmp/spider.ranges -> 2016 12 16 2017 1 14
+sudo python runcrawler.py offline "Wsi Spider"
+[2016-12-16, 2017-1-15]
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsi -f "close,date,windcode" -q '{date : {$gte : 1481817600000, $lte : 1484409600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsi.dat
+connected to: 10.12.6.6
+exported 43544 records
+
+echo "2016 11 28 2017 1 14" > /tmp/spider.ranges
+[2016-11-28, 2017-01-15]
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q '{date : {$gte : 1480262400000, $lte : 1484409600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsd.dat
+connected to: 10.12.6.6
+exported 414 records
+
+if nothing is updated: db.last_fail_point.remove({})
+
+make sure data is valid:
+[2016-11-28, 2017-01-15]
+db.wind_wsd.find({date : {$gte : 1480262400000, $lte : 1484409600000}, "windcode":{"$in":['000001.SH']}}, {"date" : 1, "close" : 1})
+{ "_id" : ObjectId("583e390dc3f6af591d8401c4"), "date" : NumberLong("1480262400000"), "close" : 3277 }
+{ "_id" : ObjectId("583e390dc3f6af591d8401c5"), "date" : NumberLong("1480348800000"), "close" : 3282.924 }
+{ "_id" : ObjectId("584a1f7f2ff148e73f467440"), "date" : NumberLong("1481126400000"), "close" : 3215.366 }
+{ "_id" : ObjectId("584ad51c2ff148e73f4680b5"), "date" : NumberLong("1481212800000"), "close" : 3232.883 }
+{ "_id" : ObjectId("584f65972ff148e73f469860"), "date" : NumberLong("1481472000000"), "close" : 3152.97 }
+{ "_id" : ObjectId("585293292ff148e73f46b390"), "date" : NumberLong("1481644800000"), "close" : 3140.531 }
+{ "_id" : ObjectId("5852be122ff148e73f46b3c3"), "date" : NumberLong("1481731200000"), "close" : 3117.677 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473ae"), "date" : NumberLong("1480435200000"), "close" : 3250.034 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473af"), "date" : NumberLong("1480521600000"), "close" : 3273.309 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b0"), "date" : NumberLong("1480608000000"), "close" : 3243.843 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b1"), "date" : NumberLong("1480694400000"), "close" : 3243.843 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b2"), "date" : NumberLong("1480780800000"), "close" : 3243.843 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b3"), "date" : NumberLong("1480867200000"), "close" : 3204.709 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b4"), "date" : NumberLong("1480953600000"), "close" : 3199.647 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b5"), "date" : NumberLong("1481040000000"), "close" : 3222.242 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b6"), "date" : NumberLong("1481299200000"), "close" : 3232.883 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b7"), "date" : NumberLong("1481385600000"), "close" : 3232.883 }
+{ "_id" : ObjectId("5878b8b7878544f6a1e473b8"), "date" : NumberLong("1481558400000"), "close" : 3155.037 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473b9"), "date" : NumberLong("1481817600000"), "close" : 3122.982 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473ba"), "date" : NumberLong("1481904000000"), "close" : 3122.982 }
+
+also copy test machine's [2016-10-14, 2016-11-6] wind_wsd data to online machine
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q '{date : {$gte : 1476374400000, $lte : 1478361600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsd_earlier.dat
+connected to: 10.12.6.6
+exported 153 records
+
+also copy test machine's [2016-10-14, 2016-11-6] wind_wsi data to online machine
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsi -f "close,date,windcode" -q '{date : {$gte : 1476374400000, $lte : 1478361600000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsi_earlier.dat
+connected to: 10.12.6.6
+exported 11616 records
+
+scp /home/kidd/tmp/wind_wsd.dat ahye@120.26.95.121:/home/ahye/
+scp /home/kidd/tmp/wind_wsd_earlier.dat ahye@120.26.95.121:/home/ahye/
+scp /home/kidd/tmp/wind_wsi.dat ahye@120.26.95.121:/home/ahye/
+scp /home/kidd/tmp/wind_wsi_earlier.dat ahye@120.26.95.121:/home/ahye/
+
+风格指数表现:
+  2016-10-24 => 2017-01-12
+
+MongoDB shell version: 3.2.10
+connecting to: 10.51.3.146:3017/test
+Server has startup warnings: 
+2017-01-03T14:08:23.772+0800 I CONTROL  [initandlisten] ** WARNING: You are running this process as the root user, which is not recommended.
+2017-01-03T14:08:23.772+0800 I CONTROL  [initandlisten] 
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] 
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] 
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] 
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] ** WARNING: soft rlimits too low. rlimits set to 15229 processes, 65535 files. Number of processes should be at least 32767.5 : 0.5 times number of files.
+2017-01-03T14:08:23.773+0800 I CONTROL  [initandlisten] 
+> use apes
+switched to db apes
+> db.wind_wsi.find({date : {$gte : 1476374400000, $lte : 1478361600000}, "windcode":{"$in":['000001.SH',"000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}).count()
+11616
+
+风格指数已有数据:
+  [2016-10-24, 2017-01-12]
+
+上证综指已有数据:
+  [2016-10-24, 2016-11-06]
+  [2016-12-16, 2017-1-13]
+
+-------- 2017-02-04 12:36:04
+switch ip/port to 10.51.3.146/3017 in the code before execution
+[root@HyperLedger001 ahye]# python /niub/bj/apes-crawler/tools/import_edb_measurements.py
+
+after exec: 
+  > db.measures.find({datasetId : 'wind_edb'}).count()
+  643
+
+db.wind_edb.find().count()
+5778
+
+backup hyperledger server:
+  db.wind_edb.find().count()
+  5777
+
+> db.last_crawl.find({code : 'M0061614'})
+{ "_id" : ObjectId("58956db3f8296a252d5788a9"), "code" : "M0061614", "key" : "edb_data", "date" : "2017-01-29", "finished" : true, "crawl_time" : ISODate("2017-02-04T13:59:15.368Z") }
+
+$ sudo python runcrawler.py restart
+['anhye@abcft.com']
+Stopping...
+Stopped
+Starting...
+Started
+/usr/local/lib/python2.7/dist-packages/pymongo/topology.py:145: UserWarning: MongoClient opened before fork. Create MongoClient with connect=False, or create client after forking. See PyMongo's documentation for details: http://api.mongodb.org/python/current/faq.html#pymongo-fork-safe>
+  "MongoClient opened before fork. Create MongoClient "
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ netstat -apn | grep 8765
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp        0      0 0.0.0.0:8765            0.0.0.0:*               LISTEN      - 
+
+---------- 2017-01-24 16:39:10
+the return fields in the data is in capital format!!!
+
+---------- 2017-01-24 14:31:07
+[root@bj-tz8-db001 ~]# ps -ef | grep python
+root       344     1  0 13:03 ?        00:00:01 python runcrawler.py restart
+root       346   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       347   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       349   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       351   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       352   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       354   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       358   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       362   344  0 13:03 ?        00:00:00 python runcrawler.py restart
+root       394 31316  0 13:08 pts/0    00:00:00 grep python
+
+
+------------ 2017-01-23 15:18:25
+http://120.26.95.121/views/test/charts.html#14
+
+11 单条曲线图 "指数" close X
+12  风格指数一周表现 close [中证100, 中证500] X
+13  二元曲线图 close
+  ":label1" : { "default" : "中证100" }, ":label2" : { "default" : "中证500" }
+14  2行表格
+15  三季报业绩预警情况
+16  不同板块的业绩预警向好比例
+25  上证综指一周表现
+26  二元曲线
+27  New template
+28  行业业绩预警向好比例
+29  已经披露3季报业绩公司可比业绩增速
+30  已经披露3季报业绩公司业绩增速分行业情况
+31  风格指数表现1W
+32  风格指数表现YTD
+33  A股行业表现1W
+34  A股行业表现YTD
+35  市场换手率
+36  票据直贴利率
+37  公开市场操作：货币净投放
+38  10年到期国债收益率
+39  M1/M2同比
+40  实际利率变化
+41  融资余额
+42  融资余额增加
+47  风格指数TTM市盈率
+59  相对股价
+60  财务报表 - 利润表
+61  业绩回顾
+62  财务报表 - 资产负债表
+63  财务报表 - 现金流量表
+72  业绩回顾2
+73  主要财务比率 - 成长能力
+79  主要财务比率 - 盈利能力
+100 主要财务比率 - 偿债能力
+101 主要财务比率 - 回报率分析
+102 主要财务比率 - 每股指标
+103 主要财务比率 - 估值分析
+120 单季度利润表分析
+137 单季度利润表分析 - 财务指标
+144 前三季度业绩概览
+189 非银行板块TTM市盈率
+190 沪股通累计净买入(十亿元)
+197 上周新投资者数量
+419 风格指数表现1W
+
+
+
+------------ 2017-01-22 18:11:20
+US treasury holdings - 美国:外国投资者持有美国国债
+  cannot found:
+    持有美债单月变化
+
+
+--------- 2017-01-22 14:33:31
+> db.last_fail_point.find()
+{ "_id" : ObjectId("58845032b14e9901adf62c27"), "spider" : "offline_daily_analysis", "start" : "2017-01-20", "code" : "002069.SZ", "end" : "2017-01-20" }
+
+
+----------- 2017-01-20 10:28:48
+rdf:
+  C:\Users\Administrator\Downloads\wind\fileSync.windows\filesync.windows
+
+
+---------- 2017-01-19 18:23:05
+120.55.112.51 can visit 120.26.95.121 via 10.x.x.x (intranet) while 120.26.168.180 could not.
+  but 120.26.168.180 is allowed via iptables with public ip 120.26.95.121 directly.
+
+[root@tz8-demo wsservice]# sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     all  --  anywhere             anywhere            state RELATED,ESTABLISHED 
+ACCEPT     icmp --  anywhere             anywhere            
+ACCEPT     tcp  --  113.57.168.243       anywhere            tcp dpt:ssh 
+ACCEPT     tcp  --  123.126.24.14        anywhere            tcp dpt:ssh 
+ACCEPT     tcp  --  120.26.245.253       anywhere            tcp dpt:xmltec-xmlmail 
+ACCEPT     tcp  --  123.126.24.14        anywhere            tcp dpt:xmltec-xmlmail 
+ACCEPT     tcp  --  120.26.168.180       anywhere            tcp dpt:xmltec-xmlmail 
+ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:http 
+ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:https 
+ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:glrpc 
+ACCEPT     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+REJECT     all  --  anywhere             anywhere            reject-with icmp-host-prohibited 
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination 
+
+----------- 2017-01-18 14:14:20
+sudo python runcrawler.py offline "Daily Market Spider"
+
+csharp:
+if (wd != null)
+  {
+      if (wd.errorCode == 0)
+      {
+          Console.WriteLine("data size: " + wd.data);
+      }
+                        
+Message: {"cmd":"wsd","type":"cmd","param":["000903.SH","close,sec_name","2017-01-13","2017-01-14"],"id":1}
+data size: System.Object[]
+
+
+------------ 2017-01-14 16:42:29
+there was a big bug in the code, which will lead to all times having same data:
+fix:
+        field_size = len(fields)
+        for i in range(len(time_list)):
+            date = int(time.mktime(time.strptime(time_list[i],"%Y-%m-%dT%H:%M:%S")) * 1000)
+            doc = {
+              'date': date
+            }
+            for j in range(field_size):
+                data_index = field_size * i + j
+                if isinstance(d1[data_index], datetime):
+                    doc[fields[j].lower()] = int(time.mktime(d1[data_index].timetuple()) * 1000)
+                else:
+                    doc[fields[j].lower()] = getNoneOnNan(d1[data_index])
+
+need to update today's close data for both: 风格指数表现 & 上证综指一周表现
+  also need to re-crawl this week's history data crawl
+
+----------- 2017-01-14 12:09:50
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q '{date : {$gte : 1480262400000, $lte : 1484150400000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' -o ~/tmp/wind_wsd_02.dat
+connected to: 10.12.6.6
+exported 414 records
+
+db.wind_wsd.find({date : {$gte : 1480262400000, $lte : 1484150400000}}).count()
+414
+
+def upsert_wind_wsd_close(doc):
+  info_connection=pymongo.MongoClient('10.12.6.43', 27017)
+  info_db=info_connection.apes
+  info_col=info_db.wind_wsd
+  time = datetime.datetime.fromtimestamp(doc['date'] / 1000)
+  print 'updating ' + doc['windcode'] + 'data on ' + str(time)
+  # print doc['date']
+  del doc['_id']
+  info_col.update({'windcode': doc['windcode'], 'date' : doc['date']}, {'$set': doc}, upsert=True)
+
+if __name__ == "__main__":
+  file = open("/home/kidd/tmp/wind_wsd_02.dat")
+  try:
+      # content = file.read()
+      docs = file.readlines()
+      print 'got ' + str(len(docs)) + ' lines'
+      for doc in docs:
+        upsert_wind_wsd_close(simplejson.loads(doc.replace('\n', '')))
+  finally:
+      file.close()
+
+$ mongoexport -h 10.12.6.6 -d apes -c wind_wsd -f "close,date,windcode" -q "{date : 1451577600000}" -o ~/tmp/wind_wsd.dat
+connected to: 10.12.6.6
+exported 9 records
+
+> db.wind_wsd.find({date : 1451577600000}).count()
+9
+
+
+-------- 2017-01-14 10:09:24
+
+the 2nd account has run out of quota:
+[ahye@bj-tz8-db001 ~]$ tail /tmp/spider_Daily_Analysis_Spider.log
+2017-01-14 00:11:49,448 - 10213 - INFO - reset connection
+2017-01-14 00:11:49,449 - 10213 - INFO - close websocket
+2017-01-14 00:11:49,449 - 10213 - INFO - connect websocket
+2017-01-14 00:11:49,452 - 10213 - INFO - connect finished
+2017-01-14 00:11:49,452 - 10213 - INFO - reset connection finished
+2017-01-14 00:11:49,452 - 10213 - INFO - crawl for DailyAnalysisSpider
+2017-01-14 00:11:49,508 - 10213 - INFO - send websocket request: 6374
+2017-01-14 00:11:49,709 - 10213 - INFO - errorCode -40522017 for 000960.SZ
+2017-01-14 00:11:49,709 - 10213 - INFO - crawl finished: 6374 for code 000960.SZ
+2017-01-14 00:11:51,711 - 10213 - INFO - retries exceeding limit, exitting ......
+
+try the local test account to crawl demo data:
+
+
+
+------------- 2017-01-12 16:52:48
+[ahye@bj-tz8-db001 ~]$ tail /tmp/spider_Daily_Market_Spider.log
+2017-01-12 12:02:09,499 - 9690 - INFO - reset connection
+2017-01-12 12:02:09,499 - 9690 - INFO - close websocket
+2017-01-12 12:02:09,500 - 9690 - INFO - connect websocket
+2017-01-12 12:02:09,504 - 9690 - INFO - connect finished
+2017-01-12 12:02:09,504 - 9690 - INFO - reset connection finished
+2017-01-12 12:02:09,504 - 9690 - INFO - crawl for DailyMarketSpider
+2017-01-12 12:02:09,563 - 9690 - INFO - send websocket request: 2066
+2017-01-12 12:02:09,647 - 9690 - INFO - errorCode -40522007 for 600219.SH
+2017-01-12 12:02:09,648 - 9690 - INFO - crawl finished: 2066 for code 600219.SH
+2017-01-12 12:02:11,649 - 9690 - INFO - retries exceeding limit, exitting ......
+[ahye@bj-tz8-db001 ~]$ tail /tmp/spider_Daily_Analysis_Spider.log
+2017-01-12 12:13:50,597 - 9691 - INFO - reset connection
+2017-01-12 12:13:50,597 - 9691 - INFO - close websocket
+2017-01-12 12:13:50,598 - 9691 - INFO - connect websocket
+2017-01-12 12:13:50,600 - 9691 - INFO - connect finished
+2017-01-12 12:13:50,600 - 9691 - INFO - reset connection finished
+2017-01-12 12:13:50,601 - 9691 - INFO - crawl for DailyAnalysisSpider
+2017-01-12 12:13:50,667 - 9691 - INFO - send websocket request: 2098
+2017-01-12 12:13:51,054 - 9691 - INFO - errorCode -40522007 for 600241.SH
+2017-01-12 12:13:51,054 - 9691 - INFO - crawl finished: 2098 for code 600241.SH
+2017-01-12 12:13:51,055 - 9691 - INFO - retries exceeding limit, exitting ......
+
+-40522007 不支持的指标
+
+export CRAWLER_ENV=release
+python db/cmds.py upsert_last_fail_point daily_market 2017-01-11 2017-01-11 600219.SH
+python db/cmds.py upsert_last_fail_point daily_analysis 2017-01-11 2017-01-11 600241.SH
+
+
+------------- 2017-01-12 10:20:03
+[ahye@bj-tz8-db001 ~]$ tail -f /tmp/spider_Daily_Market_Spider.log
+2017-01-11 11:41:24,817 - 3681 - INFO - need to upsert daily market for 603998.SH
+2017-01-11 11:41:24,817 - 3681 - INFO - crawl finished: 2968 for code 603998.SH
+2017-01-11 11:41:24,817 - 3681 - INFO - send websocket request: 2969
+2017-01-11 11:41:25,741 - 3681 - INFO - data size: 105 for 603999.SH
+2017-01-11 11:41:25,799 - 3681 - INFO - need to upsert daily market for 603999.SH
+2017-01-11 11:41:25,799 - 3681 - INFO - crawl finished: 2969 for code 603999.SH
+2017-01-11 11:41:25,800 - 3681 - INFO - finished crawling
+2017-01-12 00:00:01,271 - 3681 - INFO - crawl for DailyMarketSpider
+2017-01-12 00:00:06,280 - 3681 - INFO - send websocket request error: 10.51.3.146:3017: [Errno 104] Connection reset by peer
+2017-01-12 00:00:06,281 - 3681 - INFO - code exception, to exit
+
+2017-01-12 10:23:34
+restarted the crawler.
+
+quota left for this week:
+600 - 230 - 75 = 295
+3 days left to crawl for daily data, which is around 225w
+
+-------------- 2017-01-11 12:12:39
+
+crawler_log
+
+2017-01-11 12:11:21
+  started to crawl daily analysis for "2016 12 19 2016 12 29". failed yesterday due to quota limit. daily market crawled yesterday. switched account this morning
+  [root@bj-tz8-db001 apes-crawler]# sh runoffline.sh
+
+> use apes
+switched to db apes
+> db.wind_analysis.find().count()
+37559
+> db.wind_analysis.find().count()
+37566
+> db.wind_analysis.find().count()
+37580
+> db.wind_analysis.find().count()
+37594
+> db.wind_analysis.find().count()
+39141
+> db.wind_analysis.find().count()
+53722
+
+around 230w
+
+[root@bj-tz8-db001 apes-crawler]# tail nohup.out 
+2017-01-11 12:39:03,191 - 5764 - INFO - send websocket request: 2449
+2017-01-11 12:39:03,380 - 5764 - INFO - data size: 1296 for 603998.SH
+2017-01-11 12:39:03,702 - 5764 - INFO - need to upsert daily analysis for 603998.SH
+2017-01-11 12:39:03,703 - 5764 - INFO - crawl finished: 2449 for code 603998.SH
+2017-01-11 12:39:03,703 - 5764 - INFO - send websocket request: 2450
+2017-01-11 12:39:04,254 - 5764 - INFO - data size: 1296 for 603999.SH
+2017-01-11 12:39:04,588 - 5764 - INFO - need to upsert daily analysis for 603999.SH
+2017-01-11 12:39:04,588 - 5764 - INFO - crawl finished: 2450 for code 603999.SH
+2017-01-11 12:39:04,588 - 5764 - INFO - close websocket
+run offline spider "Daily Analysis Spider" finished
+[root@bj-tz8-db001 apes-crawler]# pwd
+/niub/bj/apes-crawler/apes-crawler
+
+-------------- 2017-01-10 20:20:03
+> db.wind_wsd.find().count()
+53523
+> db.wind_wsd.find().count()
+53523
+> db.wind_wsd.find().count()
+53577
+> db.wind_wsd.find().count()
+53577
+> db.wind_wsd.find().count()
+53577
+> db.wind_wsd.find().count()
+53577
+> db.wind_wsd.find().count()
+53608
+> db.wind_wsd.find().count()
+53650
+> db.wind_wsd.find().count()
+53771
+> db.wind_wsd.find().count()
+74286
+
+105 indexes for daily market
+
+144 indexes for daily analysis
+
+> db.wind_analysis.find().count()
+30299
+wind_analysis
+
+> db.last_fail_point.find().pretty()
+{
+  "_id" : ObjectId("5874d836b14e9901adf4b03b"),
+  "spider" : "offline_daily_analysis",
+  "start" : "2016-12-19",
+  "code" : "002054.SZ",
+  "end" : "2016-12-29"
+}
+
+-40522017 数据提取量超限
+[root@bj-tz8-db001 apes-crawler]# tail nohup.out 
+2017-01-10 20:48:52,965 - 2171 - INFO - crawl finished: 518 for code 002051.SZ
+2017-01-10 20:48:52,965 - 2171 - INFO - send websocket request: 519
+2017-01-10 20:48:53,483 - 2171 - INFO - data size: 1296 for 002052.SZ
+2017-01-10 20:48:53,691 - 2171 - INFO - need to upsert daily analysis for 002052.SZ
+2017-01-10 20:48:53,691 - 2171 - INFO - crawl finished: 519 for code 002052.SZ
+2017-01-10 20:48:53,691 - 2171 - INFO - send websocket request: 520
+2017-01-10 20:48:53,985 - 2171 - INFO - errorCode -40522017 for 002054.SZ
+2017-01-10 20:48:53,985 - 2171 - INFO - crawl finished: 520 for code 002054.SZ
+2017-01-10 20:48:54,014 - 2171 - INFO - close websocket
+
+switched account on: 2017-01-11 10:40:38
+  and re-deployed the crawler to restart the spiders, which will exit in case of errors like -40522017
+  need to restart history data crawler for daily analysis
+
+
+------------- 2017-01-11 15:57:18
+
+def _generate_date_range(self, months)
+months = 30 => (2017-01-11 15:57:55)
+  2014-03-31, 2016-12-31
+
+--------- 
+
+1) 市场行情/证券分析 (每日数据)
+
+全部a股每天：(107（市场行情指标数量）+ 146（证券分析指标数量）) * 2969（A股股票数量）= 751157
+        每周：751157 * 5 = 3755785 = 376w / 周, 1504w / 4周
+全部股票每天：(107（市场行情指标数量）+ 146（证券分析指标数量）) * 4478（全部股票数量）= 1132924
+      每周：1132924 * 5 = 5664670 = 567w / 周, 2268w / 4周
+
+2) 预测评级/财务数据/权益事件 (季度数据)
+全部a股: 每次抓取完整数据需使用配额：(281（预测评级指标数量）+ 1435（财务数据指标数量）+ 235（权益事件指标数量）) * 2969（A股股票数量）= 5792519 = 580w / 季度, 6960w / 3年
+全部股票: 每次抓取完整数据需使用配额：(281（预测评级指标数量）+ 1435（财务数据指标数量）+ 235（权益事件指标数量）) * 4478（A股股票数量）= 8736578 = 874w / 季度, 10488w / 3年
+
+
+---------- 2017-02-03 15:09:53
+[2017-02-03 15:08:33.028] [INFO] app - send to agent:  { cmd: 'wsd',
+  type: 'cmd',
+  param: [ '000001.SH', 'close,sec_name', '2017-01-13', '2017-01-13' ],
+  id: 6410 }
+[2017-02-03 15:08:33.030] [ERROR] app - Error  { [Error: read ECONNRESET] code: 'ECONNRESET', errno: 'ECONNRESET', syscall: 'read' }
+Error: read ECONNRESET
+    at exports._errnoException (util.js:907:11)
+    at TCP.onread (net.js:557:26)
+[2017-02-03 15:08:33.032] [INFO] app - connection closed  1FvjrufgZHOp1Xjxh7i8rQ==
+
+[2017-02-03 16:39:25.318] [ERROR] app - Error  { [Error: read ECONNRESET] code: 'ECONNRESET', errno: 'ECONNRESET', syscall: 'read' }
+Error: read ECONNRESET
+    at exports._errnoException (util.js:907:11)
+    at TCP.onread (net.js:557:26)
+[2017-02-03 16:39:25.319] [INFO] app - connection closed  JMZiZipq5GHgHxdL+GuO1g==
+
+
+---------- 2017-02-03 19:58:36
+weird edb return data:
+  the requesting date is 2017-02-02, while the returned dates are ['2015-09-24T00:00:00', '2015-10-24T00:00:00', '2016-01-29T00:00:00', '2016-08-20T00:00:00', '2016-10-06T00:00:00', '2016-12-30T00:00:00', '2017-01-24T00:00:00', '2017-02-02T00:00:00', '2017-02-03T00:00:00']
+
+2017-02-03 19:57:33,025 - 535 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0061577,M0043757,M0009808,M0060448,M0060450,M1004136,M1004677,M1004829,S0059741,S0059742,S0059743,S0059744,S0059745,S0059746,M0057946,S0059747,M0057947,S0059748,M1000165,M1004678,S0059749,S0059750,S0059751,S0059752,M1004711,M1000170,M0061578,M0061575,M0061576,M0061579,M0067160,G0005431,G0005432,G0001672,G0001667,S0000192,S0000193,M0017138,M0017139,M0017140,M0017141,M0017142,M0017143,M0017144,M0017145,M1004135,M0043761,M0043764,M0043797,M0043758,M0043773,M0043762,M0057944,M0043763,M0057945,M0043774,M1000149,M0043796,M0043759,M0043760,M1000154,G0008386,M0000185,M0000206,M0000199,M0000200,M0000201,M0000204,M0000271,S5116608,S5116609,S5116610,S5116611,S5116612,S5116613,S5116614,S5103920,S5113501,S5113516,S5113517,M0020188", "2017-02-02", "2017-02-02", "Fill=Previous"]}
+
+$ {'errorCode': 0, 'codeList': ['M0061577', 'M0043757', 'M0009808', 'M0060448', 'M0060450', 'M1004136', 'M1004677', 'M1004829', 'S0059741', 'S0059742', 'S0059743', 'S0059744', 'S0059745', 'S0059746', 'M0057946', 'S0059747', 'M0057947', 'S0059748', 'M1000165', 'M1004678', 'S0059749', 'S0059750', 'S0059751', 'S0059752', 'M1004711', 'M1000170', 'M0061578', 'M0061575', 'M0061576', 'M0061579', 'M0067160', 'G0005431', 'G0005432', 'G0001672', 'G0001667', 'S0000192', 'S0000193', 'M0017138', 'M0017139', 'M0017140', 'M0017141', 'M0017142', 'M0017143', 'M0017144', 'M0017145', 'M1004135', 'M0043761', 'M0043764', 'M0043797', 'M0043758', 'M0043773', 'M0043762', 'M0057944', 'M0043763', 'M0057945', 'M0043774', 'M1000149', 'M0043796', 'M0043759', 'M0043760', 'M1000154', 'G0008386', 'M0000185', 'M0000206', 'M0000199', 'M0000200', 'M0000201', 'M0000204', 'M0000271', 'S5116608', 'S5116609', 'S5116610', 'S5116611', 'S5116612', 'S5116613', 'S5116614', 'S5103920', 'S5113501', 'S5113516', 'S5113517', 'M0020188'], 'data': [......], 'fieldList': ['CLOSE'], 'timeList': ['2015-09-24T00:00:00', '2015-10-24T00:00:00', '2016-01-29T00:00:00', '2016-08-20T00:00:00', '2016-10-06T00:00:00', '2016-12-30T00:00:00', '2017-01-24T00:00:00', '2017-02-02T00:00:00', '2017-02-03T00:00:00']}
+
+------------ 2017-02-04 10:44:46
+> db.wind_edb.find().sort({date : -1}).limit(10).pretty()
+{
+  "_id" : ObjectId("5893fe06ca6d38f77b4f1ff9"),
+  "date" : "2017-01-24T00:00:00",
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : 2.8419,
+  "M0060448" : 600,
+  "M0061577" : 4.05
+}
+{
+  "_id" : ObjectId("5893fe07ca6d38f77b4f1ffa"),
+  "date" : "2016-12-31T00:00:00",
+  "M0000612" : 2.1,
+  "M0009973" : 10400,
+  "M0001385" : 11.3,
+  "M0010049" : 30105.17,
+  "M0001383" : 21.4
+}
+{
+  "_id" : ObjectId("5893fe06ca6d38f77b4f1ff8"),
+  "date" : "2016-01-29T00:00:00",
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : 2.8419,
+  "M0060448" : 600,
+  "M0061577" : "NaN"
+}
+{
+  "_id" : ObjectId("5893fe06ca6d38f77b4f1ff7"),
+  "date" : "2015-10-24T00:00:00",
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : "NaN",
+  "M0060448" : 600,
+  "M0061577" : "NaN"
+}
+{
+  "_id" : ObjectId("5893fe06ca6d38f77b4f1ff6"),
+  "date" : "2015-09-24T00:00:00",
+  "M0009808" : "NaN",
+  "M0060450" : 3.4,
+  "M0043757" : "NaN",
+  "M0060448" : 600,
+  "M0061577" : "NaN"
+}
+{
+  "_id" : ObjectId("58870383878544f6a1e5311e"),
+  "date" : NumberLong("1485100800000"),
+  "M0061577" : 3.95
+}
+{
+  "_id" : ObjectId("58731fd2878544f6a1e470df"),
+  "date" : NumberLong("1483632000000"),
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : 2.8419,
+  "M0060448" : 600,
+  "M0061577" : 3.5,
+  "dateObj" : ISODate("2017-01-06T00:00:00Z")
+}
+{
+  "_id" : ObjectId("58731fd2878544f6a1e470de"),
+  "date" : NumberLong("1483459200000"),
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : 2.8419,
+  "M0060448" : 600,
+  "M0061577" : 3.75,
+  "dateObj" : ISODate("2017-01-04T00:00:00Z")
+}
+{
+  "_id" : ObjectId("58731fd2878544f6a1e470dd"),
+  "date" : NumberLong("1483372800000"),
+  "M0009808" : 1.5,
+  "M0060450" : 3.4,
+  "M0043757" : 2.8419,
+  "M0060448" : 600,
+  "M0061577" : 2.85,
+  "dateObj" : ISODate("2017-01-03T00:00:00Z")
+}
+{
+  "_id" : ObjectId("58731fd2878544f6a1e470e0"),
+  "date" : NumberLong("1483113600000"),
+  "M0000612" : 2.3,
+  "M0009973" : 7946,
+  "M0001385" : 11.4,
+  "M0010049" : 30105.17,
+  "M0001383" : 21.4,
+  "G1500013" : 55.6,
+  "G0002299" : 54.9,
+  "G0002322" : 52.4,
+  "G0006318" : 56.1,
+  "G1400007" : 53.5,
+  "G0002323" : 54.7,
+  "dateObj" : ISODate("2016-12-31T00:00:00Z")
+}
+
+> db.wind_edb.find().count()
+5778
+

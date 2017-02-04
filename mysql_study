@@ -3,7 +3,352 @@ mysql manual:
 
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
+----------- 2017-01-20 17:43:28
+mysql> status
+--------------
+mysql  Ver 14.14 Distrib 5.6.34, for Linux (x86_64) using  EditLine wrapper
 
+Connection id:    3
+Current database: one_db
+Current user:   root@10.12.6.43
+SSL:      Not in use
+Current pager:    stdout
+Using outfile:    ''
+Using delimiter:  ;
+Server version:   5.6.34 MySQL Community Server (GPL)
+Protocol version: 10
+Connection:   10.12.6.43 via TCP/IP
+Server characterset:  latin1
+Db     characterset:  latin1
+Client characterset:  gbk
+Conn.  characterset:  gbk
+TCP port:   3306
+Uptime:     1 day 5 hours 30 min 40 sec
+
+Threads: 1  Questions: 416  Slow queries: 0  Opens: 319  Flush tables: 1  Open tables: 299  Queries per second avg: 0.003
+--------------
+
+查看数据表中字符集设置：
+show full columns from tablename;
+
+查看数据库编码：
+show create database dbname;
+
+--------------2017-01-20 18:24:09
+MySQL 有六处使用了字符集，分别为：client 、connection、database、results、server 、system。其中与服务器端相关：database、server、system（永远无法修改，就是utf-8）；与客户端相关：connection、client、results 。
+ 
+client  为客户端使用的字符集。
+connection  为连接数据库的字符集设置类型，如果程序没有指明连接数据库使用的字符集类型则按照服务器端默认的字符集设置。
+database  为数据库服务器中某个库使用的字符集设定，如果建库时没有指明，将使用服务器安装时指定的字符集设置。
+results   为数据库给客户端返回时使用的字符集设定，如果没有指明，使用服务器默认的字符集。
+server  为服务器安装时指定的默认字符集设定。
+system  为数据库系统使用的字符集设定。
+ 
+了解了上面的信息我们来分析下乱码的原因，问题出在了当前的 CMD 客户端窗口，因为当前的 CMD 客户端输入采用 GBK 编码，而数据库的编码格式为 UTF-8，编码不一致导致了乱码产生。而当前 CMD 客户端的编码格式无法修改，所以只能修改 connection、 client、results 的编码集来告知服务器端当前插入的数据采用 GBK 编码，而服务器的数据库虽然是采用 UTF-8 编码，但却可以识别通知服务器端的 GBK 编码数据并将其自动转换为 UTF-8 进行存储。可以使用如下语句来快速设置与客户端相关的编码集：
+    set names gbk;
+设置完成后即可解决客户端插入数据或显示数据的乱码问题了，但我们马上会发现这种形式的设置只会在当前窗口有效，当窗口关闭后重新打开 CMD 客户端的时候又会出现乱码问题；那么，如何进行一个一劳永逸的设置呢？在 MySQL 的安装目录下有一个 my.ini 配置文件，通过修改这个配置文件可以一劳永逸的解决乱码问题。在这个配置文件中 [mysql] 与客户端配置相关，[mysqld] 与服务器配置相关。默认配置如下：
+    [mysql]
+    default-character-set=utf8
+    [mysqld]
+    character-set-server=utf8
+这时只需要将下的默认编码 default-character-set=utf8 改为 default-character-set=gbk ，重新启动 MySQL 服务即可。
+
+http://blog.csdn.net/u010189918/article/details/50378228
+看看这3个变量的作用：
+信息输入路径：client→connection→server；
+信息输出路径：server→connection→results。
+换句话说，每个路径要经过3次改变字符集编码。以出现乱码的输出为例，server里utf8的数据，传入connection转为latin1，传入results转为latin1，utf-8页面又把results转过来。如果两种字符集不兼容，比如latin1和utf8，转化过程就为不可逆的，破坏性的。
+但这里要声明一点，“SET NAMES UTF8”作用只是临时的，MySQL重启后就恢复默认了。
+修改配置文件可以永久生效，记得要重启服务
+
+--------- 2017-01-20 17:28:43
+c insert:
+  mysql_select_db(&mysql_conn, "one_db");
+  mysql_query(&mysql_conn, "set names utf8"); // must
+  sprintf(execsql,"insert into girls values('%s', %d)", "红帽子", 20);
+  printf("%s \n", execsql);
+  mysql_query(&mysql_conn, execsql);
+
+
+for the gbk version to work:
+
+      // test insert
+      mysql_select_db(&mysql_conn, "one_db");
+      mysql_query(&mysql_conn, "set names gbk");
+      sprintf(execsql,"insert into girls values('%s', %d)", "红帽", 20);
+      printf("%s \n", execsql);
+      mysql_query(&mysql_conn, execsql);
+
+mysql> ALTER TABLE girls CONVERT TO CHARACTER SET gbk;
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> select * from girls;
++-----------+------+
+| name      | age  |
++-----------+------+
+| 绾㈠附 |   20 |
++-----------+------+
+1 row in set (0.00 sec)
+
+mysql> set names gbk;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from girls;
++--------+------+
+| name   | age  |
++--------+------+
+| 红帽 |   20 |
++--------+------+
+1 row in set (0.00 sec)
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | gbk                        |
+| character_set_connection | gbk                        |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | gbk                        |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+--------- 2017-01-20 17:04:57
+ALTER TABLE girls CONVERT TO CHARACTER SET GBK
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | gbk                        |
+| character_set_connection | gbk                        |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | gbk                        |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+mysql> show create table girls;
++-------+-----------------------------------------------------------------------------------------------------------------------------+
+| Table | Create Table                                                                                                                |
++-------+-----------------------------------------------------------------------------------------------------------------------------+
+| girls | CREATE TABLE `girls` (
+  `name` varchar(100) DEFAULT NULL,
+  `age` int(8) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
++-------+-----------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> insert into girls set name='你', age='10';
+ERROR 1406 (22001): Data too long for column 'name' at row 1
+mysql> set names utf8;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables like "%character%";
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | latin1                     |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+
+mysql> insert into girls set name='你', age='10';
+Query OK, 1 row affected (0.00 sec)
+
+http://www.cnblogs.com/ovliverlin/archive/2007/11/26/972549.html
+
+
+------------ 2017-01-20 16:00:20
+C:
+$ gcc -I/usr/include/mysql test_mysql.c  -lmysqlclient
+
+#include <stdio.h>
+#include <mysql.h>
+#include <string.h>
+
+int
+createDb ()
+{
+  int i;
+ char *names[3];
+ names[0] = "haha";
+ names[1] = "xixi";
+ names[2] = "wuwu";
+
+ char execsql[1024];
+
+ MYSQL mysql_conn;
+
+ if(mysql_init(&mysql_conn) != NULL){
+  if(mysql_real_connect(&mysql_conn, "10.12.6.43", "root", "kidd", "jydb", MYSQL_PORT, NULL, 0) != NULL)
+  {
+   printf("Good connection!\n");
+   sprintf(execsql, "create database one_db");
+   mysql_real_query(&mysql_conn, execsql, strlen(execsql));
+
+//   if (!mysql_create_db(&mysql_conn, "one_db")){
+   i = mysql_affected_rows(&mysql_conn);
+   if (i<=0){
+    printf("Can not create database one_db \n");
+   }
+   else{
+    mysql_select_db(&mysql_conn, "one_db");
+    sprintf(execsql, "create table girls(name char(10), age int(8))");
+    mysql_real_query(&mysql_conn, execsql, strlen(execsql));
+    mysql_select_db(&mysql_conn, "one_db");
+    for(i=0; i<3; i++){
+     sprintf(execsql,"insert into girls values('%s', %d)", names[i], 19+i);
+     printf("%s \n", execsql);
+     mysql_query(&mysql_conn, execsql);
+    }
+   }
+  }else{
+   printf("Connection Failed!\n");
+  }
+ }else{
+  printf("Initialization Failed.\n");
+  return -1;
+ }
+
+ mysql_close(&mysql_conn);
+  return 0;
+}
+
+int
+main (int argc, char *argv[])
+{
+
+  MYSQL mysql_conn;
+  char execsql[1024];
+
+  if (mysql_init (&mysql_conn) != NULL) {
+    // if (mysql_real_connect(&mysql_conn, "10.12.6.43", "root", "kidd", "jydb", MYSQL_PORT,
+    if (mysql_real_connect(&mysql_conn, "10.117.84.60", "root", "", "windb", MYSQL_PORT,
+     NULL, 0) != NULL) {
+      printf ("Good connection!\n");
+      mysql_select_db (&mysql_conn, "one_db");
+      sprintf (execsql,
+         "select * from ASHAREINTRODUCTION limit 4");
+      int flag = mysql_real_query (&mysql_conn, execsql, strlen (execsql));
+      if (flag == 0) {
+        MYSQL_RES * result = mysql_use_result(&mysql_conn);
+        MYSQL_ROW row = NULL;
+        unsigned colunm_size = mysql_num_fields(result);
+        printf("column size: %u\n", colunm_size);
+        while ((row = mysql_fetch_row(result)) != NULL) {
+          int j = 0;
+          for (; j < colunm_size; ++j) {
+            printf("%s ", row[j]);
+          }
+          printf ("\n");
+        }
+      }
+      else {
+        printf ("Connection Failed!\n");
+      }
+    }
+  }
+
+  mysql_close (&mysql_conn);
+
+  return 0;
+}
+
+
+----------- 2017-01-20 15:53:02
+原因其实很简单了，昨天我只装了server和client两个包，对于平常的使用，这已经足够了，但对于要在Linux下进行数据库的开发，则还需要安装devel开发包，并且该开发包的版本应该和我之前所安装的server和client包版本一致，否则会发生冲突而导致无法安装。
+
+check version:
+  /usr/include/mysql/mysql_version.h
+
+----------- 2017-01-20 14:09:52
+mysql> show variables like "%character%";
++--------------------------+----------------------------------+
+| Variable_name            | Value                            |
++--------------------------+----------------------------------+
+| character_set_client     | utf8                             |
+| character_set_connection | utf8                             |
+| character_set_database   | utf8mb4                          |
+| character_set_filesystem | binary                           |
+| character_set_results    | utf8                             |
+| character_set_server     | utf8                             |
+| character_set_system     | utf8                             |
+| character_sets_dir       | /usr/local/mysql/share/charsets/ |
++--------------------------+----------------------------------+
+8 rows in set (0.00 sec)
+
+ALTER TABLE ASHAREREGIONAL CONVERT TO CHARACTER SET GBK; COLLATE utf8_general_ci;
+
+ALTER TABLE ASHAREREGIONAL CONVERT TO CHARACTER SET GBK;
+ALTER TABLE ASHAREINTRODUCTION CONVERT TO CHARACTER SET GBK;
+
+| ASHAREREGIONAL | CREATE TABLE `ASHAREREGIONAL` (
+  `OBJECT_ID` varchar(100) NOT NULL DEFAULT '' COMMENT '对象ID',
+  `S_INFO_COMPCODE` varchar(60) DEFAULT NULL COMMENT '公司id',
+  `S_INFO_COMPNAME` varchar(300) DEFAULT NULL COMMENT '公司名称',
+  `WIND_SEC_CODE` varchar(15) DEFAULT NULL COMMENT '板块代码',
+  `ENTRY_DT` varchar(12) DEFAULT NULL COMMENT '纳入日期',
+  `REMOVE_DT` varchar(12) DEFAULT NULL COMMENT '剔除日期',
+  `CUR_SIGN` decimal(1,0) DEFAULT NULL COMMENT '最新标志',
+  `OPDATE` datetime DEFAULT NULL,
+  `OPMODE` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`OBJECT_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=gbk 
+
+| ASHAREINTRODUCTION | CREATE TABLE `ASHAREINTRODUCTION` (
+  `OBJECT_ID` varchar(100) NOT NULL DEFAULT '' COMMENT '对象ID',
+  `S_INFO_WINDCODE` varchar(60) DEFAULT NULL COMMENT 'Wind代码',
+  `S_INFO_PROVINCE` varchar(30) DEFAULT NULL COMMENT '省份',
+  `S_INFO_CITY` varchar(30) DEFAULT NULL COMMENT '城市',
+  `S_INFO_CHAIRMAN` varchar(57) DEFAULT NULL COMMENT '法人代表',
+  `S_INFO_PRESIDENT` varchar(57) DEFAULT NULL COMMENT '总经理',
+  `S_INFO_BDSECRETARY` varchar(750) DEFAULT NULL COMMENT '董事会秘书',
+  `S_INFO_REGCAPITAL` decimal(20,4) DEFAULT NULL COMMENT '注册资本(万元)',
+  `S_INFO_FOUNDDATE` varchar(12) DEFAULT NULL COMMENT '成立日期',
+  `S_INFO_CHINESEINTRODUCTION` varchar(3000) DEFAULT NULL COMMENT '公司中文简介',
+  `S_INFO_COMPTYPE` varchar(30) DEFAULT NULL COMMENT '公司类型',
+  `S_INFO_WEBSITE` varchar(120) DEFAULT NULL COMMENT '主页',
+  `S_INFO_EMAIL` varchar(120) DEFAULT NULL COMMENT '电子邮箱',
+  `S_INFO_OFFICE` varchar(120) DEFAULT NULL COMMENT '办公地址',
+  `ANN_DT` varchar(12) DEFAULT NULL COMMENT '公告日期',
+  `S_INFO_COUNTRY` varchar(30) DEFAULT NULL COMMENT '国籍',
+  `S_INFO_BUSINESSSCOPE` varchar(3000) DEFAULT NULL COMMENT '经营范围',
+  `S_INFO_COMPANY_TYPE` varchar(15) DEFAULT NULL COMMENT '公司类别',
+  `S_INFO_TOTALEMPLOYEES` decimal(20,0) DEFAULT NULL COMMENT '员工总数(人)',
+  `S_INFO_MAIN_BUSINESS` varchar(1500) DEFAULT NULL COMMENT '主要产品及业务',
+  `OPDATE` datetime DEFAULT NULL,
+  `OPMODE` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`OBJECT_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=gbk |
+
+------------ 2017-01-20 13:02:26
+    MySQL 1366错误大致描述如下  
+       1. SQL Error: 1366: Incorrect string value: "\xE8\xAF\xA6\xE7\xBB\x86…" for column "address" at row 1  
+    解决办法：检查数据库此字段的字符集与整理字符集是否与SQL语句传递数据的字符集相同；不相同则会引发MySQL1366错误。
+    修改MySQL该字段的字符集与整理规则即可。假设数据表为phplamp, SQL语句的字符集为utf8，出错的字段为address：  
+    MySQL 1366 错误解决办法  
+       1. #检查数据表所有字段的状态  
+       2. ->show full columns from phplamp;  
+       3. #发现address字段的Collation项非utf8，修改它！  
+       4. ->alter table phplamp change name name varchar(100) character set utf8 collate utf8_unicode_ci not null default ''; 
+    修改完字段的字符集后可以再使用show full columns from table_name命令检查一下，以确保万无一失。假如您的SQL字符集为GBK或是GB2312或是其它的话，只需要将数据表字段的字符集更改为其相应的编码即可。  
+    再送上一个MySQL的命令：  
+    修改数据表的字符集与整理 
+       1. ->show full columns from table_name;  
 
 ----------- 2016-11-30 15:45:20
 use information_schema;
@@ -681,9 +1026,9 @@ http://blog.sina.com.cn/s/blog_52d20fbf0100ofd5.html
 
 CREATE TABLE `test_test` (
   `id` int(11) NOT NULL auto_increment,
-  `num` int(11) NOT NULL default '0',
+  `desc` varchar(3000) NOT NULL default '0',
   PRIMARY KEY  (`id`)
- ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+ ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 DELIMITER //
 create procedure p_test_02(pa int(11)) 

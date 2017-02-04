@@ -1,0 +1,299 @@
+
+
+fix:
+
+1) downloaded code from https://www.codeproject.com/articles/35773/subverting-vista-uac-in-both-32-and-64-bit-archite
+2) reused the code from ApplicationLoader.cs, and triggered the 
+
+
+exe:
+1) agent.exe - c:\apes\agent.exe (debug/onlinedebug app, set output type to windows application and rebuild the app in vs in order to hide the console)
+2) setup.exe - setup service via nsis from the release version.
+
+how to make setup.exe:
+  use "agent-installer-quickstart.nsi" which will copy agent.exe and related dlls to .exe file.
+  how to make agent.exe, use debug mode in vs to build the apes-agent project, which will generate apes-agent.exe.
+
+------- 2017-01-22 11:16:04
+windows批处理bat脚本：退出进程或者杀死进程 taskkill or  ntsd
+
+taskkill /F /IM notepad.exe
+ /F 指定要强行终止进程。
+ /IM   image name       指定要终止的进程的图像名。通配符 '*'
+
+----------- 2017-01-22 11:05:49
+今天不知道为什么调试VS2010的时候，生成的.vshost.exe不能自动杀掉，而且也不能通过任务管理器终止。导致我不能调试了。
+VS关掉再打开
+一般这个确实是一直运行的，只要VS debug开着。
+试了，把解决方案关了就没了，但是打开解决方案后就有产生了
+删除引用重新引用就ok了 
+不是病毒。vshost.exe那是调试时的虚拟机
+
+----------- 2017-01-18 16:17:41
+to record quota uasge:
+
+Dictionary<string, int> dict = new Dictionary<string, int>();
+dict.Add("K1", 123);
+dict.Add("K3", 789);
+dict["K2"] = 456;
+
+string str = "";
+foreach (KeyValuePair<string, int> k in dict)
+{
+    str += string.Format("{0}-{1}; ", k.Key, k.Value); //K1-123; K2-456; K3-789;
+}
+Console.WriteLine(str);
+
+Dictionary is not sorted by key by default.
+
+output:
+    K1-123; K3-789; K2-456; 
+
+to use SortedDictionary:
+    SortedDictionary<string, int> dict = new SortedDictionary<string, int>();
+    dict.Add("K3", 333);
+    dict["K1"] = 111;
+    dict.Add("K2", 222);
+
+    SortedDictionary<string, int>.KeyCollection ks = dict.Keys;
+    SortedDictionary<string, int>.ValueCollection vs = dict.Values;
+
+    string s1, s2, s3;
+    s1 = s2 = s3 = "";
+    foreach (KeyValuePair<string, int> k in dict)
+    {
+        s1 += string.Format("{0}-{1}; ", k.Key, k.Value); //K1-111; K2-222; K3-333;
+    }
+    foreach (string s in ks) { s2 += s + "; "; }          //K1; K2; K3;
+    foreach (int n in vs) { s3 += n.ToString() + "; "; }  //111; 222; 333; 
+    Console.WriteLine(s1);
+
+Console.WriteLine(s1 + ", with size: " + s1.Count() + " on: " + DateTime.Now.ToString("yyyy-MM-dd"));
+
+An unhandled exception of type 'System.ArgumentException' occurred in mscorlib.dll
+    System.IO.FileStream fs = new System.IO.FileStream("c:\\tmp.txt", System.IO.FileMode.Create);
+    System.IO.StreamWriter sw = new System.IO.StreamWriter(fs);
+
+    foreach (KeyValuePair<string, int> k in dict)
+    {
+    s1 += string.Format("{0},{1}\n", k.Key, k.Value); //K1-111; K2-222; K3-333;
+    sw.Write(s1);
+    }
+
+    sw.Flush();
+    //关闭流
+    sw.Close();
+    fs.Close();
+
+往当前用户的用户文件夹写或者临时文件夹写，win7下不允许随便访问系统目录
+展翅飞 | 园豆：167 (初学一级) | 2011-11-19 16:32
+其他目录也不行，从C盘到E盘都试了
+
+write file in the relative folder:
+    System.IO.FileStream fs = new System.IO.FileStream("statistics.txt", System.IO.FileMode.Create);
+    System.IO.StreamWriter sw = new System.IO.StreamWriter(fs);
+
+    foreach (KeyValuePair<string, int> k in dict)
+    {
+        s1 += string.Format("{0},{1}\r\n", k.Key, k.Value); //K1-111; K2-222; K3-333;
+    }
+
+    sw.Write(s1);
+    sw.Flush();
+    //关闭流
+    sw.Close();
+    fs.Close();
+
+
+---------- 2016-12-26 20:05:01
+http://www.itnose.net/news/184/6380721
+
+installutil.exe
+
+
+------- 2016-12-29 10:47:41
+如何让程序在WINDOWS启动时自动运行
+
+点击“开始”选择“所有程序”，鼠标右击“启动”文件夹。
+
+如何让程序在WINDOWS启动时自动运行
+2在弹出的快捷菜单中点击“打开”
+如何让程序在WINDOWS启动时自动运行
+3接下来会在资源管理器中打开“启动”文件夹，如下图所示。
+如何让程序在WINDOWS启动时自动运行
+4在桌面上或开始菜单中，找到希望同WINDOWS自动启动的项目，此处把桌面上的“360免费WIFI”程序快捷方式，拖动到“启动”文件夹中
+如何让程序在WINDOWS启动时自动运行
+5这样拖动操作后，在“启动”文件夹中有了一个“360免费WIFI”程序快捷方式。
+如何让程序在WINDOWS启动时自动运行
+6点击“开始”选择“所有程序”，点击“启动”文件夹，在“启动”文件夹中有了一个“360免费WIFI”程序快捷方式，整个操作完毕，下次电脑重启或开机后，会自动启动“360免费WIFI”程序
+
+A service is a true-blooded Windows process, no difference there. The only thing that's special about a service is that it is started by the operating system and runs in a separate session. An isolated one that keeps it from interfering with the desktop session. Traditionally named a daemon
+作者：张雄飞
+链接：https://www.zhihu.com/question/23116273/answer/47531225
+来源：知乎
+著作权归作者所有，转载请联系作者获得授权。
+
+进程和服务处于不同的 Session。服务位于 Session 0，跟登录的用户无关；进程处于登录用户的Session。
+
+
+------------ 2016-12-26 20:44:23
+An exception occurred during the Install phase.
+System.Security.SecurityException The source was not found, but some or all event logs could not be searched.Inaccessible logs Security.
+解决方法：使用管理员权限再次运行程序即可。
+
+check services.msc and see if KiddTest exists:
+
+http://www.itnose.net/news/184/6380721
+
+VS2013创建Windows服务
+2015-09-30 14:57
+
+一、创建服务
+1、文件-》新建-》项目-》windows桌面-》windows服务，修改你要的项目名称。我这不改名，仍叫WindowsService1，确定。
+VS2013创建Windows服务0
+2、其中的Program.cs文件是入口，Service1.cs是服务文件，所有的逻辑都在这。Service1.cs包含两部分，一部分是Designer，可以在这里面添加各种组件。一部分是后台文件，里面可以写一些逻辑，默认包含3个方法：构造函数、OnStart和OnStop，还可以添加OnPause和OnContinue方法。
+3、修改Service1.cs文件如下（可以自行添加一些逻辑代码）
+namespace WindowsService1
+{
+    public partial class Service1 : ServiceBase
+    {
+        public Service1()
+        {
+            InitializeComponent();
+            base.ServiceName = "KangryTest"; //设置服务名称，与后面的安装服务名称要一致 
+        }
+        protected override void OnStart(string[] args)
+        {
+            //服务启动时相关代码。
+        }
+        protected override void OnStop()
+        {
+            //服务关闭时相关代码。
+        }
+    }
+}
+4、双击Service1.cs文件，进入设计页面，对着空白处右键-》添加安装器。
+VS2013创建Windows服务1
+5、在安装器的设计界面，出现两个组件。点击serviceProcessInstaller1，在右下角的属性栏中，将Account修改为LocalSystem
+VS2013创建Windows服务2
+6、选中ServiceInstaller1，右下角的属性框中，将ServiceName修改成第3步的ServiceName，其他自行选择。DelayedAutoStart表示开机后是否延迟启动。Description表示服务的描述，DisplayName表示服务显示名称。ServicesDependedOn表示依赖的服务项。StartType表示启动类型，分为自动启动，手动启动和禁用。
+VS2013创建Windows服务3
+二、安装服务
+选中项目右键选择“生成”，生成exe文件；
+然后将从C:\Windows\Microsoft.NET\Framework\v4.0.30319中拷贝installutil.exe文件到生成目录（bin/Debug目的使installutil.exe和dp0WindowsService1.exe在同一级目录）下。在该目录新建“安装.bat”文件，使用记事本打开，输入如下命令：
+%~dp0InstallUtil.exe %~dp0WindowsService1.exe
+pause
+注意前每个命令前要加一个%~dp0，表示将目录更改为当前目录。倘若不加，可能会出错。pause 一定要换行，否则报错。
+最后双击安装.bat文件，就完成服务注册了。
+在我的电脑上右键选择“管理”，打开“服务和应用程序”下的“服务”，就能看到我们注册的服务了。
+VS2013创建Windows服务4
+VS2013创建Windows服务5
+三、卸载服务
+在该目录新建“卸载.bat”文件，使用记事本打开，输入如下命令：
+%~dp0InstallUtil /u %~dp0WindowsService1.exe
+pause
+同样pause也要换行。
+
+
+---------- 2016-12-26 20:54:37
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.ServiceProcess;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KiddWindowsService
+{
+    public partial class Service1 : ServiceBase
+    {
+        public Service1()
+        {
+            InitializeComponent();
+        }
+
+        protected override void OnStart(string[] args)
+        {
+            using (System.IO.StreamWriter sw = new System.IO.StreamWriter("C:\\log.txt", true))
+            {
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") + "Start.");
+            }
+        }
+
+        protected override void OnStop()
+        {
+            using (System.IO.StreamWriter sw = new System.IO.StreamWriter("C:\\log.txt", true))
+            {
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") + "Stop.");
+            }
+        }
+    }
+}
+
+adding below lines will lead to service start failure: [not knowing where to find log]
+  using (System.IO.StreamWriter sw = new System.IO.StreamWriter("C:\\log.txt", true))
+            {
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ") + "Start.");
+            }
+
+
+
+------------ 2016-12-27 13:27:21
+http://blog.sina.com.cn/s/blog_a0f5da7001010b3h.html
+C# 调用可执行程序 Process类的用法
+
+namespace ConsoleApplication1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("hello world");
+
+
+            // the name of the application to launch;
+            // to launch an application using the full command path simply escape
+            // the path with quotes, for example to launch firefox.exe:
+            //      String applicationName = "\"C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe\"";
+            // String applicationName = "cmd.exe";
+
+            Process myProcess = new Process();
+            try {
+                myProcess.StartInfo.UseShellExecute = false;
+                // You can start any process, HelloWorld is a do-nothing example.
+                myProcess.StartInfo.FileName = "C:\\Windows\\System32\\notepad.exe";
+                myProcess.StartInfo.CreateNoWindow = true;
+                myProcess.Start();
+                // This code assumes the process you are starting will terminate itself.
+                // Given that is is started without a window so you cannot terminate it
+                // on the desktop, it must terminate itself or you can do it programmatically
+                // from this application using the Kill method.
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+            }
+            // launch the application
+            // ApplicationLoader.PROCESS_INFORMATION procInfo;
+            // ApplicationLoader.StartProcessAndBypassUAC(applicationName, out procInfo);
+
+
+            Console.Read();
+            Console.WriteLine("main end");
+        }
+
+
+
+--------- 2016-12-27 16:32:09
+sc delete ApesAgent
+使用 "sc delete 服务器名称" 命令删除服务就出现“指定的服务已经标记为删除”的异常。
+  在一次偶然情况，我关闭了服务管理窗口，问题自然解决了。
+  因此，出现上述原因是运行删除服务项命令的时候，服务管理窗口未关闭引起的。
+  关闭服务管理窗口，重新删除、安装服务项即可。
+
+
+---------- 2016-12-27 16:38:19
+vshost顾名思义，是visual studio宿主应用程序，vs运行调试时是打开的其实是这个文件，这个程序可以让vs跟踪调试信息。而exe则可以直接打开，vs不会跟踪任何这个文件的运行情况。只要引用的程序集完整，可直接运行。
+***.vshost.exe是项目debug调试文件 发布的时候不需要 ****.exe是项目窗体启动文件也就是要的程序文件
+

@@ -1,5 +1,21 @@
 
 
+
+----------- 2017-01-03 14:20:43
+$ telnet 10.12.6.43 27017
+Trying 10.12.6.43...
+Connected to 10.12.6.43.
+Escape character is '^]'.
+
+
+Connection closed by foreign host.
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ telnet 10.12.6.43 27018
+Trying 10.12.6.43...
+telnet: Unable to connect to remote host: Connection refused
+
+
 ----------- 2016-08-10 11:30:48
 http://www.cnblogs.com/misoag/archive/2013/02/04/2891636.html
 $ sudo apt-get install squid3 squid3-common

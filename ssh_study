@@ -1,0 +1,114 @@
+
+
+------------- 2017-01-24 11:49:24
+http://www.2cto.com/os/201306/216238.html
+
+$ ssh -t jenkins@120.26.245.253 << EOF
+sudo -s
+ls /root
+EOF
+
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+sudo: sorry, you must have a tty to run sudo
+ls: cannot open directory /root: Permission denied
+
+
+编辑 /etc/sudoers
+其实只要注释掉）Defaults    requiretty 那个就可以了。表示在执行的时候不打开终端。但是，有的shell必须要有终端才可以执行。这样显然是不行的。后来，又找到一片文章才搞定。下面为抄录的，仅为记录以后使用。
+
+
+------------ 2017-01-24 11:01:15
+[jetty@bj-tz8-db001 ~]$ sudo -s
+[sudo] password for jetty: 
+jetty is not in the sudoers file.  This incident will be reported.
+
+$ id kidd
+uid=1000(kidd) gid=1000(kidd) groups=1000(kidd),4(adm),20(dialout),24(cdrom),27(sudo),30(dip),46(plugdev),108(lpadmin),124(sambashare)
+
+~/workspace/python/file
+$ sudo adduser test sudo
+Adding user `test' to group `sudo' ...
+Adding user test to group sudo
+Done.
+
+usermod 示例 – 将一个已有用户增加到一个已有用户组中
+将一个已有用户 cnzhx 增加到一个已有用户组 apache 中，使此用户组成为该用户的附加用户组，可以使用带 -a 参数的 usermod  指令。-a 代表 append， 也就是将用户添加到新用户组中而不必离开原有的其他用户组。不过需要与 -G 选项配合使用：
+# usermod -a -G apache cnzhx
+
+[root@bj-tz8-db001 .ssh]# usermod -a -G adm jetty
+[root@bj-tz8-db001 .ssh]# id jetty
+uid=505(jetty) gid=506(jetty) groups=506(jetty),4(adm)
+
+[jetty@bj-tz8-db001 ~]$ sudo -s
+[sudo] password for jetty: 
+jetty is not in the sudoers file.  This incident will be reported.
+[root@bj-tz8-db001 .ssh]# vi /etc/sudoers
+
+jenkins:
+dir=/tmp
+echo "creating .tar.gz file ..."
+rm -f $dir/crawler.tar.gz.old
+if [ -f "$dir/crawler.tar.gz" ]; then
+  mv "$dir/crawler.tar.gz" "$dir/crawler.tar.gz.old"
+fi
+tar zcvf $dir/crawler.tar.gz ../apes-crawler
+echo "upload tar.gz..."
+scp $dir/crawler.tar.gz jenkins@120.26.245.253:/home/jenkins/crawler.tar.gz.tmp
+ssh -T jenkins@120.26.245.253 << EOF
+  sudo -s
+  cp /home/jenkins/crawler.tar.gz /niub/bj/apes-crawler/crawler.tar.gz.tmp
+    rm -f /niub/bj/apes-crawler/crawler.tar.gz.old
+    if [ -f "/niub/bj/apes-crawler/crawler.tar.gz" ]; then
+      mv "/niub/bj/apes-crawler/crawler.tar.gz" "/niub/bj/apes-crawler/crawler.tar.gz.old"
+    fi
+    mv "/niub/bj/apes-crawler/crawler.tar.gz.tmp" "/niub/bj/apes-crawler/crawler.tar.gz"
+    tar xzf /niub/bj/apes-crawler/crawler.tar.gz -C /niub/bj/apes-crawler/
+    export CRAWLER_ENV=release
+    # to start the crawler here
+    cd /niub/bj/apes-crawler/apes-crawler/
+    python runcrawler.py restart
+EOF
+echo "done"
+
+------------ 2017-01-24 10:41:21
+ssh
+修改/etc/ssh/sshd_config文件，将
+[plain]view plaincopy在CODE上查看代码片派生到我的代码片
+    #PermitRootLoginyes 
+修改为[plain]view plaincopy在CODE上查看代码片派生到我的代码片
+    PermitRootLoginno
+注意去掉＃符号。禁止以后，可以使用普通用户登录，登录后若需要root权限，可以使用“su”切换到root用户。或者配置sudo使普通用户使用某些root权限。这样可以在一定程度上增加系统的安全性。
+
+
+[root@bj-tz8-db001 ~]# tail /etc/ssh/sshd_config
+#Match User anoncvs
+# X11Forwarding no
+# AllowTcpForwarding no
+# ForceCommand cvs server
+UseDNS no
+AddressFamily inet
+# PermitRootLogin yes
+PermitRootLogin no
+SyslogFacility AUTHPRIV
+PasswordAuthentication no
+[root@bj-tz8-db001 ~]# /etc/init.d/sshd restart
+Stopping sshd:                                             [  OK  ]
+Starting sshd:                                             [  OK  ]
+
+----------- 2017-01-24 10:47:06
+
+服务器配置
+输入命令：vim /etc/ssh/sshd_config
+#禁用root账户登录，如果是用root用户登录请开启
+PermitRootLogin yes
+# 是否让 sshd 去检查用户家目录或相关档案的权限数据，
+# 这是为了担心使用者将某些重要档案的权限设错，可能会导致一些问题所致。
+# 例如使用者的 ~.ssh/ 权限设错时，某些特殊情况下会不许用户登入
+StrictModes no
+# 是否允许用户自行使用成对的密钥系统进行登入行为，仅针对 version 2。
+# 至于自制的公钥数据就放置于用户家目录下的 .ssh/authorized_keys 内
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile      .ssh/authorized_keys
+# 有了证书登录了，就禁用密码登录吧，安全要紧
+PasswordAuthentication no

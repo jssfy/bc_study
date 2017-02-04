@@ -1,14 +1,10 @@
 
 
 
----------- 2017-01-19 11:26:34
-to get client address:
+---------- 2017-01-11 12:09:47
+errorCode -40521009 for 002054.SZ
 
-
-server.on("connection", function(conn) {
-    logger.info("addr: ", conn.socket.remoteAddress);
-[2017-01-19 11:25:14.169] [INFO] app - addr:  ::ffff:10.12.6.52
-
+restart the cs agent
 
 ------- 2017-01-06 16:24:48
 

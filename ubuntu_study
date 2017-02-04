@@ -1,6 +1,125 @@
 
 
 
+
+------------ 2017-01-12 20:45:49
+$ nm-tool
+
+NetworkManager Tool
+
+State: connected (global)
+
+- Device: eth1  [Wired connection 2] -------------------------------------------
+  Type:              Wired
+  Driver:            e1000e
+  State:             connected
+  Default:           yes
+  HW Address:        98:90:96:B8:5D:12
+
+  Capabilities:
+    Carrier Detect:  yes
+    Speed:           100 Mb/s
+
+  Wired Properties
+    Carrier:         on
+
+  IPv4 Settings:
+    Address:         10.12.6.43
+    Prefix:          16 (255.255.0.0)
+    Gateway:         10.12.255.1
+
+    DNS:             10.12.255.254
+    DNS:             10.12.255.253
+    DNS:             10.11.255.253
+    DNS:             8.8.8.8
+
+
+
+
+----------- 2017-01-11 11:10:18
+nohup python test.py
+  ctrl + c will stop the python process, while closing the terminal does not.
+
+
+------- 2017-01-05 17:11:54
+$ du -sh share
+4.0G  share
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh s*
+du: cannot read directory ‘sdb1/lost+found’: Permission denied
+^C
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh software/
+26G software/
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh T*
+4.0K  Templates
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh tmp
+1.3G  tmp
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh Videos/
+4.0K  Videos/
+kidd@kidd-OptiPlex-9020:
+~
+$ du -sh workspace/
+19G workspace/
+
+
+
+
+------------ 2017-01-03 14:29:01
+修改只允许证书登陆 
+  www.2cto.com  
+Java代码  
+1. 修改/etc/ssh/sshd.conf or /etc/ssh/sshd_config
+2. 设置 PermitRootLogin without-password#这样root用户就不能
+从没有秘钥的计算机登陆  
+3. 把PermitRootLogin设置为no将禁止root用户登陆  yes/allow
+
+
+ssh默认端口号是22，要更改端口号为9688，需要编辑/etc/ssh/ssh_config和/etc/ssh/sshd_config两个文件即可；
+禁止root远程登录，则需要编辑/etc/ssh/sshd_config。（可能部分Linux目录为/etc/sshd，请根据实际情况修改）
+重启ssh：
+#/etc/init.d/ssh restart
+  or sudo service ssh restart [not works in my machines, the old process remained alive]
+
+or "sudo kill pid" (sshd will auto-restart)
+
+
+----- 2017-01-03 11:45:01
+新安装的ubuntu默认不能使用root，需要我们手动开启
+sudo passwd root
+Enter new UNIX password: (在这输入你的密码）
+Retype new UNIX password: (确定你输入的密码）
+passwd: password updated successfully
+
+以后，如果再想获得root权限，只需进行如下的操作：
+代码如下:
+su root
+Password: (在此输入你上面设置的密码）
+如果要再次禁用root帐号，
+那么可以执行
+代码如下:
+sudo passwd -l root
+
+by default, root does not support ssh
+
+
+ubuntu的默认sudoers
+admin用户组
+
+
+---------- 2017-01-03 11:37:45
+ubuntu中查看所有的用户信息
+  awk -F':' '{ print $1}' /etc/passwd
+
+
 ---------- 2016-12-21 12:26:36
 使用id 命令可以很轻松的通过用户名查看UID、GID
 

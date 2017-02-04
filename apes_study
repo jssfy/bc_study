@@ -3,3 +3,21 @@
 ------- 2016-11-28 11:37:03
 can not open:
   http://120.26.95.121/api/v1/word/export?id=
+
+
+---------- 2017-01-06 17:29:48
+Project apes-crawler
+jenkins: 
+  http://10.12.6.6:9000/job/apes-crawler/
+
+aliyun server for jy, online test, online apes crawler, etc.
+   72:   ssh ahye@120.26.245.253
+
+crawler log: [build from jenkins to restart the crawler]
+[root@bj-tz8-db001 apes-crawler]# ls -ltr /tmp
+
+remember to restart c:\apes\agent.exe at 120.55.112.51 after switching the wind account.
+  make sure the node server sees a new connection from "tail -f /niub/bj/app/wsservice/logs/apes-wsservice.log" [ssh ahye@120.26.95.121]
+
+node server:
+  ssh ahye@120.26.95.121
