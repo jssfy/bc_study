@@ -1,5 +1,19 @@
 
 
+
+------------ 2017-02-09 17:03:14
+
+$ tree ~/tmp/javaweb_demo/
+/home/kidd/tmp/javaweb_demo/
+├── javaweb_demo.iml
+├── src
+└── web
+    ├── index.jsp
+    └── WEB-INF
+        └── web.xml
+
+3 directories, 3 files
+
 ---------- 2016-11-28 16:59:40
 
 

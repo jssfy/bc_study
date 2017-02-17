@@ -1,6 +1,42 @@
 
 
 
+[root@bj-tz8-db001 apes-crawler]# python runcrawler.py restart
+\Traceback (most recent call last):
+  File "runcrawler.py", line 8, in <module>
+    import app
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/app.py", line 47, in <module>
+    Router.autodiscover()
+  File "/niub/bj/apes-crawler/apes-crawler/app.py", line 44, in autodiscover
+    __import__('%s' % pymodule)
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "pages/index.py", line 11, in <module>
+    from crawler import Crawler
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/crawler.py", line 17, in <module>
+    from spiders.adhocspider import AdhocSpider
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/spiders/adhocspider.py", line 15, in <module>
+    import config as global_config
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/config.py", line 9, in <module>
+    from db import config, sourcedb, statsdb, querydb, fjdb
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+  File "/niub/bj/apes-crawler/apes-crawler/db/fjdb.py", line 13, in <module>
+    from dateutil import relativedelta
+  File "/usr/local/lib/python2.7/site-packages/gevent-1.2a2-py2.7-linux-x86_64.egg/gevent/builtins.py", line 93, in __import__
+    result = _import(*args, **kwargs)
+ImportError: No module named dateutil
+
+
+
 ---------- 2017-01-09 14:42:45
 issue: no wind_performance data (quater data)
 -40520007 无数据

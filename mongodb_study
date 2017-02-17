@@ -4,6 +4,55 @@ shell cmds:
   use db_name
   db.stats()
 
+----------- 2017-02-15 17:47:28
+ db.temp_wind_edb.find({date : {$in : [1451491200000, 1467216000000]}})
+{ "_id" : ObjectId("58a42040cbc889b49579427f"), "date" : NumberLong("1451491200000"), "dateObj" : ISODate("2015-12-31T00:00:00Z"), "M0017126" : 49.7 }
+{ "_id" : ObjectId("58a42040cbc889b495794280"), "date" : NumberLong("1467216000000"), "dateObj" : ISODate("2016-06-30T00:00:00Z"), "M0017126" : 50 }
+
+---------- 2017-02-15 12:20:01
+> db.measures.find({datasetId : 'wind_edb', 'frequency' : '年'}).count()
+6
+> db.measures.find({datasetId : 'wind_edb', 'frequency' : '季'}).count()
+17
+
+below updates only one row:
+  db.measures.update({datasetId : 'wind_edb', 'frequency' : '季'}, {$set : {'frequency' : 'quarter'}})
+
+MongoDB更新多个文档
+> db.measures.update({datasetId : 'wind_edb', 'frequency' : '季'}, {$set : {'frequency' : 'quarter'}}, false, true)
+  db.foo.update function (query, obj, upsert, multi)
+
+> db.measures.update({datasetId : 'wind_edb', 'frequency' : '年'}, {$set : {'frequency' : 'year'}}, false, true)
+WriteResult({ "nMatched" : 6, "nUpserted" : 0, "nModified" : 6 })
+
+------- 2017-02-13 13:38:45
+> db.films.find({'box_unit' : {$exists : true}}).count()
+1073
+> db.films.update({},{$unset:{'box_unit':''}},false, true)
+WriteResult({ "nMatched" : 40781, "nUpserted" : 0, "nModified" : 1073 })
+> db.films.find({'box_unit' : {$exists : true}}).count()
+0
+
+----------- 2017-02-08 11:28:05
+pymongo
+
+pymongo中使用大于、小于、大于等于、小于等于的查询方法
+
+import pymongo
+from bson.objectid import ObjectId
+_con = pymongo.MongoClient('10.12.6.6')
+_db = _con['films']
+count = _db.films.find({'_id' : {'$gt' : ObjectId('589803d1c189e5c954bb7e04')}}).count()
+
+---- 2017-02-04 18:31:59
+db.wind_edb.find({"S2700237" : {$exists : true}},{S2700237 : 1, date : 1})
+
+{ "_id" : ObjectId("583e8e8ec3f6af591d841058"), "date" : NumberLong("1357228800000") }
+<class 'bson.int64.Int64'>
+
+{ "_id" : ObjectId("589442b7c189e5c954bb7528"), "date" : "2005-12-31T00:00:00", "S2700237" : "NaN" }
+<type 'unicode'>
+
 ---------- 2017-02-04 12:00:49
 ISODate
 

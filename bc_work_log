@@ -90,6 +90,31 @@ ssh ahye@120.26.195.205 -p 9527
 scp -i /etc/nbrsa/id_rsa <<file>> 10.51.3.146:~/
 $ scp -P 9527 ../apes-crawler.tgz ahye@120.26.195.205:~/
 scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.26.103.174:~/
+scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.51.3.146:~/
+
+----------- 2017-02-14 10:09:31
+代理　另一个页面的代理爬虫
+bs和lxml对比
+cs agent crash研究
+edb年季数据
+edb数据是否已爬检测
+
+----------- 2017-02-10 10:44:44
+fix: use dict to record crawled fild ids and treat it as finished if all crawled filmed are already crawled.
+  http://maoyan.com/films?yearId=5&sortId=2&offset=1956007 
+    will still return films even the offset is far larger than the real number. 
+    
+
+fix: avoid the empty param
+  crash: pymongo update's $set with empty param
+
+feature: added proxy for film detail crawler
+  tested with aliyun test server, and could not obtain real source ip
+
+improved the proxy feature:
+  tested out several useful proxies by trying maoyan webpages.
+  caught all exceptions met during the test
+  do not exit until all proxies are tried out
 
 --------- 2017-02-03 10:12:33
 1. 整理下爬虫接下来的主要工作项
@@ -99,7 +124,6 @@ scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.26.103.174:~/
 ---------- 2016-12-05 13:28:37
 > db.measures.find({type : {$ne : 0}, datasetId : "wind_information"}).count()
 225
-
 
 ----------- 2016-12-05 11:43:08
 apes-crawler

@@ -14,6 +14,11 @@ how to make setup.exe:
   use "agent-installer-quickstart.nsi" which will copy agent.exe and related dlls to .exe file.
   how to make agent.exe, use debug mode in vs to build the apes-agent project, which will generate apes-agent.exe.
 
+----------- 2017-02-14 11:25:01
+git windows:
+ssh-keygen -t rsa
+    default: /c/Users/kidd/.ssh/id_rsa
+
 ------- 2017-01-22 11:16:04
 windows批处理bat脚本：退出进程或者杀死进程 taskkill or  ntsd
 

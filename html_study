@@ -1,6 +1,17 @@
 
 
+------------- 2017-02-08 16:22:50
+http://pcwanli.blog.163.com/blog/static/4531561120152141313243/
 
+不知道大家有没有见过下面这种 url 写法：
+<img src="//lvtao.net/img/logo.png">
+img 中的url是以双斜杠“//”开头的，这种写法有特殊的用途，它会判断当前的页面协议是http 还是 https 来决定请求 url 的协议。防止IE下出现“This Page Contains Both Secure and Non-Secure Items”的报错。
+但是当你浏览本地文件的时候，它会解析为 file:// 协议。这种特性可以用来加载CDN：
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script> 
+也适用于CSS：
+.omgomg { background: url(//lvtao.net/lvtao.gif); } 
+注意：如果在IE7，IE8中使用 <link> 和 @import 引入 CSS 的时候，会下载两次 CSS 文件。
+p
 ----------- 2016-11-01 10:22:35
 for a single web page in chrome, if there are multiple url references to the same picture, e.g. as below, the picture will be loaded once only.
 

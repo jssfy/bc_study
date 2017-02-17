@@ -1,5 +1,518 @@
 
 
+libs
+
+beautifulsoup
+  https://www.crummy.com/software/BeautifulSoup/
+
+
+----------- 2017-02-17 11:27:46
+self.measures = Dataset.get_measures(dataset, id_only = False)
+        self.measure_types = {}
+        for measure in self.measures:
+            measure['id'] = measure['id'].upper()
+            self.measure_types[measure['id']] = measure['dataType']
+        self.measure_types['date'] = 1 # add 'date' to the list, so that date will be converted to unix time before persistence
+        self.day_measures = filter(lambda m: m.get('frequency', None) == 'day', self.measures)
+
+------------- 2017-02-16 14:30:20
+datetime, unix timestamp conversion
+
+    format = '%Y-%m-%d' # %H:%M:%S
+    for k in stats:
+        start = time.strftime(format, time.localtime(stats[k]['start']/1000))
+
+# -*- coding: utf-8 -*-
+import time
+def timestamp_datetime(value):
+ format = '%Y-%m-%d %H:%M:%S'
+ # value为传入的值为时间戳(整形)，如：1332888820
+ value = time.localtime(value)
+ ## 经过localtime转换后变成
+ ## time.struct_time(tm_year=2012, tm_mon=3, tm_mday=28, tm_hour=6, tm_min=53, tm_sec=40, tm_wday=2, tm_yday=88, tm_isdst=0)
+ # 最后再经过strftime函数转换为正常日期格式。
+ dt = time.strftime(format, value)
+ return dt
+def datetime_timestamp(dt):
+  #dt为字符串
+  #中间过程，一般都需要将字符串转化为时间数组
+  time.strptime(dt, '%Y-%m-%d %H:%M:%S')
+  ## time.struct_time(tm_year=2012, tm_mon=3, tm_mday=28, tm_hour=6, tm_min=53, tm_sec=40, tm_wday=2, tm_yday=88, tm_isdst=-1)
+  #将"2012-03-28 06:53:40"转化为时间戳
+  s = time.mktime(time.strptime(dt, '%Y-%m-%d %H:%M:%S'))
+  return int(s)
+if __name__ == '__main__':
+ d = datetime_timestamp('2012-03-28 06:53:40')
+ print d
+ s = timestamp_datetime(1332888820)
+ print s
+
+
+time.strptime(date, "%Y-%m-%d")
+  time.struct_time(tm_year=2011, tm_mon=1, tm_mday=8, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=5, tm_yday=8, tm_isdst=-1)
+
+datetime.strptime(date, "%Y-%m-%d") -> datetime
+
+---------- 2017-02-15 16:57:56
+datetime.strptime('2016-12-31', '%Y-%m-%d')
+
+-------- 2017-02-15 16:01:13
+too many values to unpack
+      for k, v in data:
+
+python只支持对于key的遍历，所以不能使用for k,v这种形式，这个时候会提示ValueError: too many values to unpack，使用粗体的形式代替
+
+i.e. you could have done this:
+
+for k in last:
+    print "Key is %s, value is %s" % (k, last[k])
+
+Alternatively, you can use the iteritems() method;
+
+for k, v in last.iteritems():
+    print "Key is %s, value is %s" % (k, v)
+
+------------ 2017-02-14 14:52:51
+BeautifulSoup 技巧
+得到某一节点下的所有文本
+texts = soup.findAll(text=True)
+all_text = "\n".join(texts)
+
+
+def bs_test():
+    # doc = ['<html><head><title>PythonClub.org</title></head>',
+    #        '<body><p id="firstpara" align="center">This is paragraph <b>one</b> of ptyhonclub.org.',
+    #        '<p id="secondpara" align="blah">This is paragraph <b>two</b> of pythonclub.org.',
+    #        '</html>']
+    # soup = BeautifulSoup(''.join(doc))
+    proxies = []
+    try:
+        url = 'http://www.pythonclub.org/modules/beautifulsoup/start'
+        req = urllib2.Request(url, headers=header)
+        res = urllib2.urlopen(req).read()
+        soup = BeautifulSoup(res)
+        ips = soup.findAll('tr')
+        print soup.html.head.title
+
+        print soup.html.head.title.string
+
+        print soup.html.head.title.contents[0]
+
+        print soup.findAll(text=re.compile("para"))[0].parent
+        print soup.originalEncoding
+    except Exception, ex:
+        print ex
+    return proxies
+
+---------- 2017-02-14 14:07:47
+>>> L=[{'id' : 3 , 'he' : 5}, {'id' : 2 , 'he' : 2}, {'id' : 3 , 'he' : 3 }, {'id' : 5 , 'he' : 1}, {'id' : 1 , 'he' : 4}]
+>>> 
+>>> L.sort()
+>>> print L
+[{'id': 5, 'he': 1}, {'id': 2, 'he': 2}, {'id': 3, 'he': 3}, {'id': 1, 'he': 4}, {'id': 3, 'he': 5}]
+>>> L=[{'ad' : 3 , 'he' : 5}, {'ad' : 2 , 'he' : 2}, {'ad' : 3 , 'he' : 3 }, {'ad' : 5 , 'he' : 1}, {'ad' : 1 , 'he' : 4}]
+>>> print L
+[{'ad': 3, 'he': 5}, {'ad': 2, 'he': 2}, {'ad': 3, 'he': 3}, {'ad': 5, 'he': 1}, {'ad': 1, 'he': 4}]
+
+http://blog.csdn.net/liuzhoulong/article/details/7484941
+>>> sorted(L, cmp=None, key=lambda t:t['he'], reverse=False)
+[{'ad': 5, 'he': 1}, {'ad': 2, 'he': 2}, {'ad': 3, 'he': 3}, {'ad': 1, 'he': 4}, {'ad': 3, 'he': 5}]
+>>> sorted(L, cmp=None, key=lambda t:t['ad'], reverse=False)
+[{'ad': 1, 'he': 4}, {'ad': 2, 'he': 2}, {'ad': 3, 'he': 3}, {'ad': 3, 'he': 5}, {'ad': 5, 'he': 1}]
+
+-------- 2017-02-14 14:06:41
+http://www.cnblogs.com/wanpython/archive/2010/11/01/1865919.html
+
+>>> info = [lambda a: a**3, lambda b: b**3]
+>>> info[0](2)
+8
+下面举几个python lambda的例子吧
+1单个参数的：
+g = lambda x:x*2
+print g(3)
+结果是6
+
+2多个参数的：
+m = lambda x,y,z: (x-y)*z
+print m(3,1,2)
+结果是4
+
+---------- 2017-02-14 13:51:34
+python合并两个数组
+方法1
+a=[1,2,3]
+b=[4,5,6]
+a=a+b
+方法2
+view sourceprint?
+a=[1,2,3]
+b=[4,5,6]
+a.extend(b)
+
+
+L=[{'ad' : 3 , 'he' : 5}, {'ad' : 2 , 'he' : 2}, {'ad' : 3 , 'he' : 3 }, {'ad' : 5 , 'he' : 1}, {'ad' : 1 , 'he' : 4}]
+
+-------- 2017-02-13 11:28:31
+python proxy
+
+urllib:
+        proxy_host = "http://" + proxy_info['host'] + ":" + str(proxy_info['port'])
+        proxy_temp = {"http": proxy_host}
+        print 'validating ' + proxy_host
+        r = urllib.urlopen(url, proxies=proxy_temp).read()
+
+urllib2:
+def switch_to_next_proxy():
+    # print 'crawl: %s' % url
+    # The proxy address and port:
+    # proxy_info = get_random_proxy()
+    proxy_info = get_next_proxy()
+    if not proxy_info:
+        print 'No more proxies'
+        return False
+    # We create a handler for the proxy
+    proxy_support = urllib2.ProxyHandler({"http": "http://%(host)s:%(port)d" % proxy_info})
+    # We create an opener which uses this handler:
+    opener = urllib2.build_opener(proxy_support)
+    # Then we install this opener as the default opener for urllib2:
+    urllib2.install_opener(opener)
+    global _CURRENT_PROXY
+    _CURRENT_PROXY = '%s:%d' % (proxy_info['host'], proxy_info['port'])
+    print 'switched to: %s' % _CURRENT_PROXY
+    return True
+
+def crawl(url, id):
+    global _TO_RETRY
+    tries = 6
+
+    while tries > 0:
+        try:
+            r = urllib2.urlopen(url).read()
+            break
+        except urllib2.HTTPError, e:
+            print 'HTTPError: ' + str(e.code)
+            tries -= 1
+            if tries <= 0:
+                return False
+        except Exception, ex:
+            # need to remove the proxy if found blacklisted, TBD
+            print Exception, ":", ex
+            # print proxy_info
+            tries -= 1
+            if tries <= 0:
+                return False
+            else:
+                s = 2 # random.randint(1, 10)
+                print 'to sleep a while: ' + str(s)
+                time.sleep(s)
+
+
+------------ 2017-02-10 12:23:33
+
+<urlopen error [Errno 111] Connection refused>
+
+
+------------- 2017-02-10 11:44:38
+http://www.jb51.net/article/90783.htm
+python proxy:
+
+
+------------ 2017-02-10 10:50:33
+Traceback (most recent call last):
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/filmdetailspider.py", line 217, in <module>
+    main()
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/filmdetailspider.py", line 208, in main
+    if not crawl(url, id):
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/filmdetailspider.py", line 170, in crawl
+    _db.films.update({'_id': ObjectId(_LAST_OBJECT_ID)}, {'$set': film}, upsert=True)
+  File "/usr/local/lib/python2.7/dist-packages/pymongo/collection.py", line 2503, in update
+    collation=collation)
+  File "/usr/local/lib/python2.7/dist-packages/pymongo/collection.py", line 754, in _update
+    _check_write_command_response([(0, result)])
+  File "/usr/local/lib/python2.7/dist-packages/pymongo/helpers.py", line 315, in _check_write_command_response
+    raise WriteError(error.get("errmsg"), error.get("code"), error)
+pymongo.errors.WriteError: '$set' is empty. You must specify a field like so: {$set: {<field>: ...}}
+
+be aware of the potential empty $set param:
+_db.films.update({'_id': ObjectId(_LAST_OBJECT_ID)}, {'$set': {}}, upsert=True)
+
+------------ 2017-02-10 10:49:07
+fix:
+  http://maoyan.com/films?yearId=5&sortId=2&offset=1956007 
+    will still return films even the offset is far larger than the real number. 
+    use dict to record crawled fild ids and treat it as finished if all crawled filmed are already crawled.
+
+            if _CRAWLED_FILMS.has_key(k):
+                # already crawled, skip
+                continue
+            else:
+                _CRAWLED_FILMS[k] = 1
+
+can also use set like below:
+>>> a = set(['y', 'b', 'o'])
+>>> 'y' in a
+True
+
+-------------- 2017-02-09 14:04:50
+to fake source ip:
+
+java server:
+    public String getIpAddr() {
+        String ip = servletRequest.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = servletRequest.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = servletRequest.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = servletRequest.getRemoteAddr();
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = servletRequest.getHeader("http_client_ip");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = servletRequest.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        // 如果是多级代理，那么取第一个ip为客户ip
+        if (ip != null && ip.contains(",")) {
+            ip = ip.substring(ip.lastIndexOf(",") + 1, ip.length()).trim();
+        }
+        return ip;
+    }
+
+
+from faker import Factory
+from random import randrange
+def get_random_ip():
+    """gen random ip address
+    """
+    not_valid = [10,127,169,172,192]
+
+    first = randrange(1,256)
+    while first in not_valid:
+        first = randrange(1,256)
+
+    ip = ".".join([str(first),str(randrange(1,256)),
+                   str(randrange(1,256)),str(randrange(1,256))])
+    return ip
+
+
+def get_random_ua():
+    """gen random ua
+    """
+    ua = Factory.create()
+
+    return ua.user_agent()
+
+def main():
+    try:
+        opener = urllib2.build_opener()
+        opener.addheaders.append(('Cookie', 'token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKZXJzZXktU2VjdXJpdHktQmFzaWMiLCJzdWIiOiI1ODNkMzQyODI2ZWZkNDY1NjA1YzM0ZTQiLCJhdWQiOiJ1c2VyIiwiZXhwIjoxNDg2NzIwMTgwLCJpYXQiOjE0ODY1NDczODAsImp0aSI6IjEifQ.cxwXI9P6sO_MhuJGO-EWebOqYaqArsgUCTK_CSzl0cQ'))
+        fake_ip = get_random_ip()
+        opener.addheaders.append(('X-Forwarded-For', fake_ip))
+        opener.addheaders.append(('Proxy-Client-IP', fake_ip))
+        opener.addheaders.append(('WL-Proxy-Client-IP', fake_ip))
+        opener.addheaders.append(('http_client_ip', fake_ip))
+        opener.addheaders.append(('XHTTP_X_FORWARDED_FOR', fake_ip))
+        opener.addheaders.append(('User-Agent', get_random_ua()))
+        r = opener.open(url).read()
+        # r = urllib2.urlopen(url).read()
+    except urllib2.HTTPError, e:
+        print e.code
+        return
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class HelloWorld extends HttpServlet {
+    private String message;
+
+    @Override
+    public void init() throws ServletException {
+        message = "Hello world, this message is from servlet!";
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //设置响应内容类型
+        resp.setContentType("text/html");
+        //设置逻辑实现
+        PrintWriter out = resp.getWriter();
+        out.println("<h3>" + message + "</h3>");
+
+        out.println("<br/>x-forwarded-for: " + req.getHeader("x-forwarded-for"));
+        out.println("<br/>Proxy-Client-IP: " + req.getHeader("Proxy-Client-IP"));
+        out.println("<br/>WL-Proxy-Client-IP: " + req.getHeader("WL-Proxy-Client-IP"));
+        out.println("<br/>getRemoteAddr(): " + req.getRemoteAddr());
+        out.println("<br/>http_client_ip: " + req.getHeader("http_client_ip"));
+        out.println("<br/>HTTP_X_FORWARDED_FOR: " + req.getHeader("HTTP_X_FORWARDED_FOR"));
+    }
+}
+
+$ python /home/kidd/workspace/python/http/spider.py
+last object id loaded: 589806d8c189e5c954bb81a7
+<h3>Hello world, this message is from servlet!</h3>
+<br/>x-forwarded-for: 38.146.133.179
+<br/>Proxy-Client-IP: 38.146.133.179
+<br/>WL-Proxy-Client-IP: 38.146.133.179
+<br/>getRemoteAddr(): 127.0.0.1
+<br/>http_client_ip: 38.146.133.179
+<br/>HTTP_X_FORWARDED_FOR: 38.146.133.179
+
+tested with aliyun tomcat java web app: http://123.57.227.173:8080/javaweb_demo/hello
+$ python spider.py
+last object id loaded: 5898070cc189e5c954bb81e7
+<h3>Hello world, this message is from servlet!</h3>
+<br/>x-forwarded-for: 211.48.164.132
+<br/>Proxy-Client-IP: 211.48.164.132
+<br/>WL-Proxy-Client-IP: 211.48.164.132
+<br/>getRemoteAddr(): 123.126.24.14
+<br/>http_client_ip: 211.48.164.132
+<br/>HTTP_X_FORWARDED_FOR: 211.48.164.132
+
+
+----------- 2017-02-09 11:51:31
+sudo pip install fake-factory
+sudo pip uninstall fake-factory
+
+ImportError: The ``fake-factory`` package is now called ``Faker``
+  faker should by uninstalled. fake-factory==0.7.4 works.
+
+sudo pip install fake-factory==0.7.4
+
+from faker import Factory
+    fake = Factory.create()
+ 
+    # OR
+    from faker import Faker
+    fake = Faker()
+ 
+    fake.name()
+    # 'Lucy Cechtelar'
+ 
+    fake.address()
+    # "426 Jordy Lodge
+    #  Cartwrightshire, SC 88120-6700"
+ 
+    fake.text()
+
+----------- 2017-02-09 10:35:39
+socket.error: [Errno 104] Connection reset by peer
+
+def crawl(url, id):
+    tries = 5
+    while tries > 0:
+        try:
+            r = urllib2.urlopen(url).read()
+            break
+        except urllib2.HTTPError, e:
+            print 'HTTPError: ' + str(e.code)
+            tries -= 1
+            if tries <= 0:
+                return False
+        except Exception, ex:
+            print Exception, ":", ex
+            tries -= 1
+            if tries <= 0:
+                return False
+
+------------- 2017-02-08 20:12:43
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+
+http://blog.csdn.net/junshao90/article/details/7974030
+字符集的问题，在文件前加两句话：
+  reload(sys)
+  sys.setdefaultencoding('utf-8')
+
+
+print sys.getdefaultencoding()
+  ascii
+基本上是ascii编码方式，由此Python自然调用ascii编码解码程序去处理字符流，当字符流不属于ascii范围内，就会抛出异常（ordinal not in range(128)）。
+
+解决的方案很简单，修改默认的编码模式，很多朋友会想到setdefaultencoding，是的，我们可以通过sys.setdefaultencoding(‘utf-8’)来将当前的字符处理模式修改为utf-8编码模式，值得注意的是，如果单纯这么调用的话，Python会抛出一个AttributeError异常：竟然说sys没有setdefaultencoding的方法，其实sys是有这个方法的，但是要请出她老人家需要调用一次reload(sys)
+
+
+----------- 2017-02-08 17:19:40
+https://docs.python.org/2/library/urlparse.html
+
+url = 'http://www.something.com:1234/foo/index.html?name=kzc&age=29#second'
+>> up = urlparse.urlparse(url)
+>> up.scheme
+'http'
+>> up.hostname
+'www.something.com'
+>> up.port
+1234
+>> up.path
+'/foo/index.html'
+>> up.query
+'name=kzc&age=29'
+>> up.fragment
+'second'
+
+_START_URL = 'http://maoyan.com/films?sortId=2&yearId=11'
+_NEXT_URL = _START_URL
+
+def construct_next_url(count):
+    global _NEXT_URL
+    u = urlparse.urlparse(_NEXT_URL)
+    query = urlparse.parse_qs(u.query)
+    if 'offset' not in query:
+        query['offset'] = [count]
+    else:
+        query['offset'][0] = int(query['offset'][0]) + count
+    q = ''
+    for k, v in query.items():
+        if len(q) != 0:
+            q += '&'
+        q += '%s=%s' % (k, v[0])
+    _NEXT_URL = urlparse.urlunparse((u.scheme, u.netloc, u.path, u.params, q, u.fragment))
+    
+--------- 2017-02-08 14:52:20
+ python去除空格和换行符的方法
+一、去除空格
+　　strip()
+"   xyz   ".strip()            # returns "xyz"  
+"   xyz   ".lstrip()           # returns "xyz   "  
+"   xyz   ".rstrip()           # returns "   xyz"  
+"  x y z  ".replace(' ', '')   # returns "xyz" 
+二、替换 replace("space","")
+　　用replace("\n", ""),后边的串替换掉前边的
+
+------------ 2017-02-08 12:29:19
+excel
+import xlrd
+def main():
+    data = xlrd.open_workbook('measures.xlsx')
+
+    sheets = data.sheets()
+    for sheet in sheets:
+        print '\n\n\n'
+        names = sheet.row_values(0)
+        ids = sheet.row_values(1)
+        if len(names) != len(ids):
+            raise Exception('names and ids not match')
+        for i in range(2, len(names)):
+            print '%s%s:%s' % (' ' * 12, names[i], ids[i])
+
+if __name__ == '__main__':
+    main()
+
+
+-------- 2017-02-08 11:35:21
+在编写程序的时候，如果想为一个在函数外的变量重新赋值，并且这个变量会作用于许多函数中时，就需要告诉python这个变量的作用域是全局变量。此时用global语句就可以变成这个任务，也就是说没有用global语句的情况下，是不能修改全局变量的。
+
+----------- 2017-02-04 19:19:29
+python深拷贝浅拷贝 
+import copy
+f = copy.deepcopy(a)        # 对象拷贝，深拷贝，两个对象完全没关系  
+print a is f #False  
+print a == f #True  
 
 ---------- 2017-02-03 18:15:07
 xrange 用法与 range 完全相同，所不同的是生成的不是一个list对象，而是一个生成器。
@@ -1213,3 +1726,133 @@ Collecting wheel
 Installing collected packages: pip, wheel
 Successfully installed pip-8.1.2 wheel-0.29.0
 /tmp/tmpHWvX8Y/pip.zip/pip/_vendor/requests/packages/urllib3/util/ssl_.py:122: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. You can upgrade to a newer version of Python to solve this. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+
+---------- 2017-02-08 13:37:42
+cprint
+# coding=u8
+
+'''
+库名：cprint
+函数名：cprint()
+功能：格式化输出list/set/tuple/dict等复杂类型对象，支持中文正常显示。
+ '''
+
+import sys
+
+def __create_spaces(lvl):
+    spaces = ''
+    tab = '    '
+    for i in range(lvl-1):
+        spaces = spaces + tab
+    return spaces
+
+def __print(obj,end='\n'):
+    if isinstance(obj,unicode):
+        obj = obj.encode('u8')
+    if isinstance(obj,str):
+        sys.stdout.write(obj+end)
+    else:
+        print(obj),
+        sys.stdout.write(end)
+
+def cprint(obj,lvl=0,indict=False,islast=True):
+    lvl = lvl + 1 
+    spaces = __create_spaces(lvl)
+    index = 0
+
+    if isinstance(obj,list):
+        if not indict:
+            __print(spaces,end='')
+        __print('[')
+        for item in obj:
+            if index+1 < len(obj):
+                cprint(item,lvl,islast=False)
+            else:
+                cprint(item,lvl)
+            index = index + 1
+        __print(spaces + ']',end='')
+        if islast:
+            __print('')
+        else:
+            __print(',')
+
+    elif isinstance(obj,tuple):
+        if not indict:
+            __print(spaces,end='')
+        __print('(')
+        for item in obj:
+            if index+1 < len(obj):
+                cprint(item,lvl,islast=False)
+            else:
+                cprint(item,lvl)
+            index = index + 1
+        __print(spaces + ')',end='')
+        if islast:
+            __print('')
+        else:
+            __print(',')
+
+    elif isinstance(obj,set):
+        if not indict:
+            __print(spaces,end='')
+        __print('set(')
+        for item in obj:
+            if index+1 < len(obj):
+                cprint(item,lvl,islast=False)
+            else:
+                cprint(item,lvl)
+            index = index + 1
+        __print(spaces + ')',end='')
+        if islast:
+            __print('')
+        else:
+            __print(',')
+
+    elif isinstance(obj,dict):
+        __print(spaces + '{')
+        for key in obj:
+            __print(__create_spaces(lvl+1)+str(key) + ': ',end='')
+            if index+1 < len(obj):
+                cprint(obj[key],lvl,indict=True,islast=False)
+            else:
+                cprint(obj[key],lvl,indict=True)
+            index = index + 1
+        __print(spaces + '}',end='')
+        if islast:
+            __print('')
+        else:
+            __print(',')
+
+    else:
+        if not indict:
+            __print(spaces,end='')
+        __print(obj,end='')
+        if islast:
+            __print('')
+        else:
+            __print(',')
+
+
+
+if __name__ == '__main__':
+    obj1 = {
+        'data':[
+            {
+            'data_id':'1',
+            'content':'西红柿'
+            },
+            {
+            'data_id':'2',
+            'content':'胡萝卜'
+            }
+        ],
+        'name':'蔬菜',
+        'id':1,
+    }
+    print(obj1)
+    print('\n')
+    import pprint
+    pprint.pprint(obj1)
+    print('\n')
+    cprint(obj1)
+

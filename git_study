@@ -16,6 +16,27 @@ origin  https://github.com/jssfy/bc_study.git (push)
 3. git push origin 
 
 
+------- 2017-02-14 11:08:22
+$ gpm
+git push origin HEAD:refs/for/master
+Counting objects: 21, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 1.19 KiB | 0 bytes/s, done.
+Total 5 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas: 100% (3/3)
+remote: Processing changes: refs: 1, done    
+remote: ERROR: [cb33428] missing Change-Id in commit message footer
+remote: 
+remote: Hint: To automatically insert Change-Id, install the hook:
+remote:   gitdir=$(git rev-parse --git-dir); scp -p -P 29418 ahye@10.12.6.6:hooks/commit-msg ${gitdir}/hooks/
+remote: And then amend the commit:
+remote:   git commit --amend
+remote: 
+To ssh://ahye@10.12.6.6:29418/apes-spy
+ ! [remote rejected] HEAD -> refs/for/master ([cb33428] missing Change-Id in commit message footer)
+error: failed to push some refs to 'ssh://ahye@10.12.6.6:29418/apes-spy'
+
 ----------- 2016-12-05 18:23:56
 
 

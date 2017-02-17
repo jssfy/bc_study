@@ -1,4 +1,6 @@
 
+您已达到允许的最大指标提取数，请稍后再使用！
+
 sample cmds:
   sudo python runcrawler.py offline "Daily Market Spider"
   export CRAWLER_ENV=release
@@ -126,6 +128,75 @@ switched to db apes
 上证综指已有数据:
   [2016-10-24, 2016-11-06]
   [2016-12-16, 2017-1-13]
+
+--------------- 2017-02-17 16:23:24
+[ahye@tz8-demo ~]$ mongoexport -h 10.51.3.146 --port 3017 -d apes -c wind_edb -o ~/wind_edb_online_bak.dat
+2017-02-17T16:23:04.309+0800  connected to: 10.51.3.146:3017
+2017-02-17T16:23:04.740+0800  exported 5785 records
+
+[ahye@tz8-demo ~]$ mongoimport -h 10.51.3.146 --port 3017 -d apes -c wind_edb wind_edb.dat
+2017-02-17T16:26:13.824+0800  connected to: 10.51.3.146:3017
+2017-02-17T16:26:14.342+0800  imported 5836 documents
+
+----------- 2017-02-17 11:56:29
+db.wind_edb.find().count()
+5785
+
+local:
+> db.wind_edb.find().count()
+5824
+> 
+
+----------- 2017-02-17 11:25:02
+online measures:
+> use apes
+switched to db apes
+> db.measures.find({datasetId : 'wind_edb', frequency : 'year'}).count()
+6
+> db.measures.find({datasetId : 'wind_edb', frequency : 'quarter'}).count()
+11
+> db.measures.find({datasetId : 'wind_edb'}).count()
+675
+
+$ sudo python runcrawler.py offline "Daily Market Spider"
+['anhye@abcft.com']
+2017-02-17 12:37:12,796 - 19045 - INFO - connect websocket
+2017-02-17 12:37:14,088 - 19045 - INFO - connect finished
+total count: 242371
+None
+2017-02-17 12:37:14,943 - 19045 - INFO - close websocket
+run offline spider "Daily Market Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "Daily Market Spider"
+[sudo] password for kidd: 
+['anhye@abcft.com']
+2017-02-17 13:53:33,073 - 13675 - INFO - connect websocket
+2017-02-17 13:53:33,149 - 13675 - INFO - connect finished
+total count: 248905
+None
+2017-02-17 13:53:34,014 - 13675 - INFO - close websocket
+run offline spider "Daily Market Spider" finished
+
+---------- 2017-02-15 20:09:28
+$ sudo python runcrawler.py offline "EDB Data Spider"
+
+sudo python runcrawler.py offline "Daily Market Spider"
+
+---------- 2017-02-09 15:18:06
+> db.wind_wsd.find({windcode : '000001.SH'}).sort({date : -1}).limit(1).pretty()
+
+{
+  "_id" : ObjectId("58844dd8878544f6a1e51fe2"),
+  "date" : NumberLong("1484841600000"),
+  "windcode" : "000001.SH",
+  "close" : 3123.1389,
+  "sec_name" : "上证综指"
+}
+
+2017/1/20 0:0:0
+
+
 
 -------- 2017-02-04 12:36:04
 switch ip/port to 10.51.3.146/3017 in the code before execution
@@ -655,3 +726,429 @@ $ {'errorCode': 0, 'codeList': ['M0061577', 'M0043757', 'M0009808', 'M0060448', 
 > db.wind_edb.find().count()
 5778
 
+----------- 2017-02-06 11:21:15
+to request for measures: 
+['M0061614']
+2017-02-05
+2017-02-05
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ {'errorCode': 0, 'codeList': ['M0061614'], 'data': [-700.0], 'fieldList': ['CLOSE'], 'timeList': ['2017-02-03T00:00:00']}
+
+
+$ to request for measures: 
+['M0061614', 'S2703477']
+2017-02-05
+2017-02-05
+{'errorCode': 0, 'codeList': ['M0061614', 'S2703477'], 'data': ['NaN', 47.37, -700.0, 47.37], 'fieldList': ['CLOSE'], 'timeList': ['2017-01-23T00:00:00', '2017-02-03T00:00:00']}
+1485100800000
+1486051200000
+
+[u'M0061614', u'S2703477', u'S2703476', u'S2703479', u'S2703478', u'S2703480', u'S2703481', u'S2707387', u'S2707388', u'M0062611']
+
+fix:
+  the results contain many lines with update-date as the line key, while for different indexes, their update-dates might be different. Hence skip all lines with NaN, the often the last line is the correct line with no NaN.
+  this seems to be a big waste of quota
+
+[root@bj-tz8-db001 ahye]# python test.py
+2015-09-24T00:00:00
+2015-10-24T00:00:00
+2016-01-29T00:00:00
+2017-01-24T00:00:00
+2016-12-31T00:00:00 month, need to re-crawl
+2017-02-04T00:00:00
+got infos count: 6
+
+------------- 2017-02-06 15:01:03
+transform.py
+
+# -*- coding:utf-8 -*- 
+
+import json
+import sys
+from cprint import cprint
+
+PHRASE_MAP = {
+    '国家': 'nation',
+    '表名': 'tableName',
+    '指标名称': 'name',
+    '频率': 'frequency',
+    '单位': 'unit',
+    '指标ID': 'id',
+    '来源': 'source',
+}
+
+file = open("input.txt")
+# file = open("/home/kidd/workspace/python/file/jy_raw_api")
+output = open('output.txt', 'w')
+
+try:
+  raw_input = []
+  while 1:
+      # lines = file.readlines(100000)
+      content = file.read()
+      if not content:
+          break
+      lines = content.split('\n')
+      height = len(lines)
+      print str(len(lines)) + ' lines'
+      # lines = content.split('\r\n')
+      for i in range(len(lines)):
+        arr = lines[i].split(' ')
+        raw_input.append(arr)
+        width = len(arr)
+        # print "len: " + str(len(arr))
+        if len(arr) <= 1:
+          print 'invalid line detected'
+          continue
+        # print lines[i]
+        # print str(i) + ': ' + str(len(arr) - 1)
+        # if arr[2] == '股票' or arr[3] == '股票':
+        #   output.write(arr[0] + ',' + arr[1] + ',' + arr[len(arr) - 1] + '\n')
+        print 'lenght of line fields: ' + str(len(arr)) + ' starting with ' + PHRASE_MAP[arr[0]]
+        # break
+      
+      docs = []
+      for i in range(1, width):
+        # print '----------' + str(height)
+        doc = {}
+        for j in range(0, height):
+          # print PHRASE_MAP[raw_input[j][0]]
+          key = '\'' + PHRASE_MAP[raw_input[j][0]] + '\''
+          if PHRASE_MAP[raw_input[j][0]] == 'frequency':
+            if raw_input[j][i] == '月':
+              doc[key] = '\'month\''
+            elif raw_input[j][i] == '日':
+              doc[key] = '\'day\''
+            elif raw_input[j][i] == '周':
+              doc[key] = '\'week\''
+            # elif raw_input[j][i] == '季':
+            #   doc[key] = '\'quater\''
+            else:
+              doc[key] = '\'' + raw_input[j][i] + '\''
+          else:
+            doc[key] = '\'' + raw_input[j][i] + '\''
+        # print json.dumps(doc)
+        doc['\'type\''] = 2
+        doc['\'dataType\''] = 4
+        doc['\'datasetId\''] = '\'wind_edb\''
+        docs.append(doc)
+      cprint(docs)
+
+finally:
+  file.close()
+  output.close()
+
+---------- 2017-02-06 15:45:35
+curl 'http://120.26.95.121/api/v1/chart/query-data?id=773&tqx=reqId%3A0' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36' -H 'Accept: */*' -H 'Referer: http://120.26.95.121/views/dashboard/index.html' -H 'X-DataSource-Auth: a' -H 'Cookie: token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKZXJzZXktU2VjdXJpdHktQmFzaWMiLCJzdWIiOiI1ODNiOWYxOTVkMzJjYjJjYTNkOGM5ZTciLCJhdWQiOiJ1c2VyIiwiZXhwIjoxNDg2NTM4MjE0LCJpYXQiOjE0ODYzNjU0MTQsImp0aSI6IjEifQ.0ttXsgHRQe460WsCj8teup2s0HNI_cfK--fgKC7lWko' -H 'Connection: keep-alive' --compressed
+
+cache method needs to be improved.
+
+-------- 2017-02-06 16:55:12
+> db.wind_edb.find({"G1100313" : {$exists : true}}, {'date' : 1}).sort({date : -1})
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413ef"), "date" : NumberLong("1480435200000") }
+2016/11/30 0:0:0
+
+after adding more measures for 'us treasures'
+> db.measures.find({datasetId : 'wind_edb'}).count()
+674
+
+------------- 2017-02-07 15:25:16
+data on 12-31 (1483113600000) missing in M0043804
+> db.wind_edb.find({'M0043804' : {$exists : true } }, {date : 1}).sort({date : -1}).limit(6)
+{ "_id" : ObjectId("589442b7c189e5c954bb7539"), "date" : NumberLong("1485792000000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413ef"), "date" : NumberLong("1480435200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413df"), "date" : NumberLong("1477843200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413d3"), "date" : NumberLong("1475164800000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413c3"), "date" : NumberLong("1472572800000") }
+{ "_id" : ObjectId("583ec4c9c3f6af591d8414d6"), "date" : NumberLong("1469894400000") }
+> db.wind_edb.find({'M0000612' : {$exists : true } }, {date : 1}).sort({date : -1}).limit(6)
+{ "_id" : ObjectId("589442b7c189e5c954bb7539"), "date" : NumberLong("1485792000000") }
+{ "_id" : ObjectId("58731fd2878544f6a1e470e0"), "date" : NumberLong("1483113600000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413ef"), "date" : NumberLong("1480435200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413df"), "date" : NumberLong("1477843200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413d3"), "date" : NumberLong("1475164800000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413c3"), "date" : NumberLong("1472572800000") }
+
+db.wind_edb.find({'M0001227' : {$exists : true } }, {date : 1}).sort({date : -1}).limit(6)
+{ "_id" : ObjectId("589442b7c189e5c954bb7539"), "date" : NumberLong("1485792000000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413ef"), "date" : NumberLong("1480435200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413df"), "date" : NumberLong("1477843200000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413d3"), "date" : NumberLong("1475164800000") }
+{ "_id" : ObjectId("583e8e8fc3f6af591d8413c3"), "date" : NumberLong("1472572800000") }
+{ "_id" : ObjectId("583ec4c9c3f6af591d8414d6"), "date" : NumberLong("1469894400000") }
+
+
+
+db.wind_wsd.find({windcode : '000001.SH'}, {date : 1}).sort({date : -1}).limit(100)
+{ "_id" : ObjectId("58844dd8878544f6a1e51fe2"), "date" : NumberLong("1484841600000") }
+{ "_id" : ObjectId("5879e9ee878544f6a1e51f55"), "date" : NumberLong("1484323200000") }
+{ "_id" : ObjectId("5879e9ee878544f6a1e51f54"), "date" : NumberLong("1484236800000") }
+{ "_id" : ObjectId("5878b8b9878544f6a1e473d4"), "date" : NumberLong("1484150400000") }
+{ "_id" : ObjectId("5878b8b9878544f6a1e473d3"), "date" : NumberLong("1484064000000") }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473d2"), "date" : NumberLong("1483977600000") }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473d1"), "date" : NumberLong("1483891200000") }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473d0"), "date" : NumberLong("1483804800000") }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473cf"), "date" : NumberLong("1483718400000") }
+....
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c9"), "date" : NumberLong("1483200000000"), "windcode" : "000001.SH", "close" : 3103.6373 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c8"), "date" : NumberLong("1483113600000"), "windcode" : "000001.SH", "close" : 3103.6373 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c7"), "date" : NumberLong("1483027200000"), "windcode" : "000001.SH", "close" : 3103.6373 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c6"), "date" : NumberLong("1482940800000"), "windcode" : "000001.SH", "close" : 3096.0968 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c5"), "date" : NumberLong("1482854400000"), "windcode" : "000001.SH", "close" : 3102.2357 }
+{ "_id" : ObjectId("5878b8b8878544f6a1e473c4"), "date" : NumberLong("1482768000000"), "windcode" : "000001.SH", "close" : 3114.664 }
+
+
+to crawl the data for the specific index:
+  date_ranges = [[datetime.fromtimestamp(1483113600), datetime.fromtimestamp(1483113600)]]
+  for start, stop, measures in self._get_measures(date_ranges):
+      if start is None or stop is None or len(measures) == 0:
+          self.logger.info('no measures need to be crawled')
+          return
+      measures = ['M0043804']
+
+---------- 2017-02-09 15:29:07
+echo "2017 1 14 2017 2 5" > /tmp/spider.ranges
+export CRAWLER_ENV=release
+sudo python runcrawler.py offline "Daily Index Market Spider"
+
+
+online index data:
+> db.wind_wsd.find({windcode : '000001.SH'}, {date : 1}).sort({date : -1}).limit(20).pretty()
+{
+  "_id" : ObjectId("589be5afca6d38f77b4f5cbe"),
+  "date" : NumberLong("1486483200000")
+}
+{
+  "_id" : ObjectId("5899ef14ca6d38f77b4f4503"),
+  "date" : NumberLong("1486396800000")
+}
+{
+  "_id" : ObjectId("58989d90ca6d38f77b4f2d14"),
+  "date" : NumberLong("1486310400000")
+}
+{
+  "_id" : ObjectId("5879f3b1b14e9901adf5ed97"),
+  "date" : NumberLong("1484323200000") # 2017/1/14 0:0:0
+}
+......
+
+temp fix: 
+  add below param to "index_market" spider
+    'extraParams': 'Days=Alldays;Fill=Previous',
+
+> db.charts.find({_id : 761}, {thumbnail : 0}).pretty()
+{
+  "_id" : NumberLong(761),
+  "chartLib" : "highChart",
+  "title" : "通胀、利率、实际利率、上证指数",
+  "dataSource" : {
+    "parameters" : {
+      ":endDate" : {
+        "default" : "1478188800000"
+      },
+      ":startDate" : {
+        "default" : "1477584000000"
+      }
+    },
+    "columns" : [
+      {
+        "type" : "string",
+        "dataType" : "date",
+        "id" : "date",
+        "label" : "日期",
+        "pattern" : "yyyy-MM"
+      },
+      {
+        "type" : "number",
+        "id" : "M0000612",
+        "label" : "CPI:当月同比"
+      },
+      {
+        "type" : "number",
+        "id" : "M0043804",
+        "label" : "定期存款利率:1年(整存整取)(月)"
+      },
+      {
+        "type" : "number",
+        "id" : "s2",
+        "label" : "上证指数(右)"
+      },
+      {
+        "type" : "number",
+        "id" : "s1",
+        "label" : "实际利率(定存-CPI)"
+      }
+    ],
+    "aggregates" : [
+      {
+        "collection" : "wind_edb",
+        "aggregate" : [
+          {
+            "＄match" : {
+              "M0000612" : {
+                "＄exists" : true
+              },
+              "M0043804" : {
+                "＄exists" : true
+              }
+            }
+          },
+          {
+            "＄project" : {
+              "_id" : 0,
+              "date" : 1,
+              "M0000612" : 1,
+              "M0043804" : 1,
+              "s1" : {
+                "＄subtract" : [
+                  "$M0043804",
+                  "$M0000612"
+                ]
+              }
+            }
+          },
+          {
+            "＄lookup" : {
+              "from" : "wind_wsd",
+              "localField" : "date",
+              "foreignField" : "date",
+              "as" : "s2"
+            }
+          },
+          {
+            "＄unwind" : "$s2"
+          },
+          {
+            "＄match" : {
+              "s2．windcode" : "000001.SH"
+            }
+          },
+          {
+            "＄group" : {
+              "_id" : "$date",
+              "date" : {
+                "＄first" : "$date"
+              },
+              "M0000612" : {
+                "＄first" : "$M0000612"
+              },
+              "M0043804" : {
+                "＄first" : "$M0043804"
+              },
+              "s1" : {
+                "＄first" : "$s1"
+              },
+              "s2" : {
+                "＄first" : "$s2.close"
+              }
+            }
+          },
+          {
+            "＄sort" : {
+              "date" : 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "options" : {
+    "series" : [
+      {
+        "color" : "#984807"
+      },
+      {
+        "color" : "#E46C0A"
+      },
+      {
+        "color" : "#aaaaaa",
+        "dashStyle" : "shortdash",
+        "yAxis" : 1
+      },
+      {
+        "color" : "#FAC090",
+        "type" : "column"
+      }
+    ],
+    "xAxis" : [
+      {
+        "tickInterval" : 5,
+        "labels" : {
+          "rotation" : -45
+        },
+        "type" : "category"
+      }
+    ],
+    "yAxis" : [
+      {
+        "title" : {
+          "text" : null
+        },
+        "max" : 30,
+        "min" : -30,
+        "tickInterval" : 15
+      },
+      {
+        "title" : {
+          "text" : null
+        },
+        "labels" : {
+          "format" : "{value:,.0f}"
+        },
+        "opposite" : true,
+        "max" : 6000,
+        "tickInterval" : 1500
+      }
+    ],
+    "chart" : {
+      "marginBottom" : 110,
+      "marginRight" : 50,
+      "alignTicks" : false
+    },
+    "legend" : {
+      "itemMarginTop" : 10
+    },
+    "plotOptions" : {
+      "line" : {
+        "marker" : {
+          "enabled" : false
+        }
+      }
+    }
+  },
+  "tags" : [ ],
+  "status" : 0,
+  "company_id" : "system",
+  "creator_id" : "58398b6952fe904c135d47c8",
+  "create_at" : "2017-01-22 18:02:44.648",
+  "update_at" : "2017-02-08 11:42:24.311"
+}
+
+------------- 2017-02-09 19:15:46
+  print 'get_market_measurements(): ' + str(len(get_market_measurements()))
+  print 'get_analysis_measurements(): ' + str(len(get_analysis_measurements()))
+  print 'edb measures: ' + str(len(Dataset.get_measures('wind_edb', id_only = False)))
+  print 'wind_performance measures: ' + str(len(Dataset.get_measures('wind_performance', id_only = False)))
+  print 'wind_finance measures: ' + str(len(Dataset.get_measures('wind_finance', id_only = False)))
+  print 'wind_events measures: ' + str(len(Dataset.get_measures('wind_events', id_only = False)))
+  print 'get_index_codes(): ' + str(len(get_index_codes()))
+  print 'get_zj_index_codes(): ' + str(len(get_zj_index_codes()))
+  print 'SectorManager.get_securities(u"沪深股票/市场类/全部A股"): ' + str(len(SectorManager.get_securities(u'沪深股票/市场类/全部A股')))
+
+$ sudo python runcrawler.py offline "Daily Market Spider"
+['anhye@abcft.com']
+2017-02-09 19:15:29,736 - 16064 - INFO - connect websocket
+2017-02-09 19:15:29,961 - 16064 - INFO - connect finished
+get_market_measurements(): 105
+get_analysis_measurements(): 144
+edb measures: 674
+wind_performance measures: 281
+wind_finance measures: 1435
+wind_events measures: 235
+
+[105 market measurements]
+get_index_codes(): 9
+get_zj_index_codes(): 62
+2017-02-09 19:15:30,063 - 16064 - INFO - close websocket
+run offline spider "Daily Market Spider" finished

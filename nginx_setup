@@ -1,4 +1,7 @@
 
+
+
+
 /etc/nginx
 $ tree
 .
@@ -22,6 +25,9 @@ $ tree
 └── win-utf
 
 3 directories, 15 files
+
+------------- 2017-02-06 18:39:11
+/etc/nginx/nginx.conf
 
 ------- 2016-11-01 18:09:19
 $ sudo nginx -t

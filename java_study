@@ -1,6 +1,18 @@
 
 
+------------- 2017-02-09 15:57:18
+java中打印输出数组
+    int[] myList = new int[size];
+    System.out.println(Arrays.toString(myList));
 
+For-Each循环也叫增强型的for循环，或者叫foreach循环。
+　　For-Each循环是JDK5.0的新特性（其他新特性比如泛型、自动装箱等）。
+　　For-Each循环的加入简化了集合的遍历。
+其语法如下：
+　　for(type element: array)
+　　{
+      　　System.out.println(element);
+　　}
 ------------ 2016-12-20 15:25:28
 
 http://www.jb51.net/article/51357.htm
