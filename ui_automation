@@ -1,5 +1,35 @@
 
 
+---------- 2017-02-27 19:25:37
+http://www.cnblogs.com/Yinkaisheng/p/3444132.html
+https://github.com/yinkaisheng/Python-UIAutomation-for-Windows
+
+def main():
+  # taskbar = automation.PaneControl(searchDepth = 2, ClassName = "#32770")
+  taskbar = automation.WindowControl(searchDepth = 2, ClassName = "#32770") # not found if searchDepth is 4
+
+  test = automation.ButtonControl(searchDepth=7, AutomationId='8271', searchFromControl=taskbar) #, ClassName="Button"
+  left, top, right, bottom = test.BoundingRectangle
+  automation.EnumControl(test)
+  # double_click(left, top)
+  # test.Click() # refer to uiautomation.py -> Control
+
+
+
+------- 2017-02-21 14:50:54
+spy++ 是微软 Visual Studio 编译器自带的一款工具。它可以显示系统对象（包括进程、线程和窗口）之间关系的图形树，搜索指定的窗口、线程、进程或消息， 查看选定的窗口、线程、进程或消息的属性等等。因此，在 spy++ 的帮助下，我们进行程序调试将容易得多。 
+
+http://www.cnblogs.com/Yinkaisheng/p/3444132.html
+参考msdn： UI Automation Client Programmer's Guide
+我就是根据这个用Python和C++对UIAutomation做了一层简单的封装，方便我自己的使用。
+UIAutomation底层是COM实现的，也可以用其它语言来封装调用。
+我写的工具中有两个文件：automation.py, AutomationClient.dll，支持py2, py3
+运行的时候automation.py 通过AutomationClient.dll调用UIAutomation的COM API，支持平台包括Windows XP(SP3), Windows 7, Windows 8、8.1、10。
+  https://github.com/yinkaisheng/Python-UIAutomation-for-Windows
+  Only 3 files(uiautomation.py, AutomationClientX86.dll and AutomationClientX64.dll) are needed for UIAutomation. Other scripts are all demos. You can install uiautomation by "pip install uiautomation"
+  Run 'uiautomation.py -h' for help. Run automate_notepad_py3.py to see a simple demo.
+
+
 --------- 2016-11-22 10:42:03
 https://msdn.microsoft.com/en-us/library/windows/desktop/ee684007.aspx
 
@@ -50,3 +80,308 @@ Back to the top | Give Feedback
 Note This is a "FAST PUBLISH" article created directly from within the Microsoft support organization. The information contained herein is provided as-is in response to emerging issues. As a result of the speed in making it available, the materials may include typographical errors and may be revised at any time without notice. See Terms of Use for other considerations.
 
 
+---------- 2017-02-27 20:35:47
+sample code:
+#encoding=utf8
+import sys
+import time
+import uiautomation as automation
+
+# automation.ShowDesktop()
+
+print automation.__file__
+# exit()
+
+all_count = 0
+
+f = open("output.txt", "w")
+
+m = {}
+
+WAIT_TIME = 0.2
+
+NO_COUNT = 0
+
+ALL_COUNT = 0
+
+def get_measure(list, indent=0):
+  global NO_COUNT, ALL_COUNT
+  children = list.GetChildren()
+  items = []
+  for child in children:
+    if child.ControlTypeName == "ListItemControl":
+      items.append(child)
+  count = 0
+  print str(len(items)) + ' items'
+  for item in reversed(items):
+    children = item.GetChildren()
+    if len(children) < 2:
+      print 'unexpected count of elements'
+      continue
+    id = children[0].Name
+    name = children[1].Name
+    # wset
+    param = children[2].Name
+    if not param:
+      param = 'null'
+    param2 = children[3].Name
+    if not param2:
+      param2 = 'null'
+    if id in m:
+                        print 'continue?'
+      continue
+    m[id] = True
+    count += 1
+    ALL_COUNT += 1
+    s = ''
+    for i in range(0, indent):
+      s += '\t'
+    print "%s:%s:%s:%s:%s" % (ALL_COUNT, id, name, param, param2)
+    f.write((s + "%s:%s:%s:%s\n") % (id.encode("utf-8"), name.encode("utf-8"), param.encode('utf-8'), param2.encode('utf-8')))
+    # wsi
+    # param = children[2].Name
+    # if not param:
+    #   param = 'null'
+    # if id in m:
+    #   continue
+    # m[id] = True
+    # count += 1
+    # ALL_COUNT += 1
+    # s = ''
+    # for i in range(0, indent):
+    #   s += '\t'
+    # print "%s:%s:%s:%s" % (ALL_COUNT, id, name, param)
+    # f.write((s + "%s:%s:%s\n") % (id.encode("utf-8"), name.encode("utf-8"), param.encode('utf-8')))
+
+    # wst
+    # count += 1
+    # ALL_COUNT += 1
+    # s = ''
+    # for i in range(0, indent):
+    #   s += '\t'
+    # print "%s:%s:%s" % (ALL_COUNT, id, name)
+    # f.write((s + "%s:%s\n") % (id.encode("utf-8"), name.encode("utf-8")))
+
+    # wsd
+    # param = children[2].Name
+    # if not param:
+    #   param = 'null'
+    # scope = children[4].Name
+    # children[3].Click(WAIT_TIME)
+    # if id in m:
+    #   continue
+    # m[id] = True
+    # count += 1
+    # ALL_COUNT += 1
+    # s = ''
+    # for i in range(0, indent):
+    #   s += '\t'
+    # print "%s:%s:%s:%s:%s" % (ALL_COUNT, id, name, scope, param)
+    # f.write((s + "%s:%s:%s:%s\n") % (id.encode("utf-8"), name.encode("utf-8"), scope.encode('utf-8'), param.encode('utf-8')))
+  if count == 0:
+    NO_COUNT += 1
+  else:
+    NO_COUNT = 0
+
+
+def get_parameters(list, indent=0):
+        s = ''
+        for i in range(0, indent):
+                s += '\t'
+  f.write(s + 'parameters:\n')
+  print '--------------'
+  global NO_COUNT, ALL_COUNT
+  children = list.GetChildren()
+  items = []
+  for child in children:
+    if child.ControlTypeName == "ListItemControl":
+      items.append(child)
+  count = 0
+  print str(len(items)) + ' items'
+  for item in reversed(items):
+    children = item.GetChildren()
+    if len(children) < 2:
+      print 'unexpected count of elements'
+      continue
+    id = children[0].Name
+    name = children[1].Name
+    # print name
+    # wset
+    param = children[2].Name
+    if not param:
+      param = 'null'
+    param2 = children[3].Name
+    if not param2:
+      param2 = 'null'
+    count += 1
+    # ALL_COUNT += 1
+    print "%s:%s:%s:%s:%s" % (count, id, name, param, param2)
+    f.write((s + "%s:%s:%s:%s\n") % (id.encode("utf-8"), name.encode("utf-8"), param.encode('utf-8'), param2.encode('utf-8')))
+
+
+def get_output(list, indent=0):
+        s = ''
+        for i in range(0, indent):
+                s += '\t'
+  f.write(s + 'output:\n')
+  print '~~~~'
+  children = list.GetChildren()
+  items = []
+  for child in children:
+    if child.ControlTypeName == "ListItemControl":
+      items.append(child)
+  count = 0
+  print str(len(items)) + ' items'
+  for item in reversed(items):
+    children = item.GetChildren()
+    if len(children) < 2:
+      print 'unexpected count of elements'
+      continue
+    # id = children[0].Name
+    cname = children[1].Name
+    # print name
+    # wset
+    ename = children[2].Name
+    count += 1
+    print "%s:%s:%s" % (count, cname, ename)
+    f.write((s + "%s:%s\n") % (cname.encode("utf-8"), ename.encode("utf-8")))
+
+    
+def double_click(x, y):
+  automation.Win32API.MouseMoveTo(x, y)
+  automation.Win32API.MouseClick(x, y, 0)
+  time.sleep(automation.Win32API.GetDoubleClickTime() * 1.0 / 2000)
+  automation.Win32API.MouseClick(x, y, WAIT_TIME)
+
+def get_classifications(tree, indent = 0, all_delete=None, list=None, outside_top=0, output_list=None):
+        # print 'outside_top: ' + str(outside_top)
+  if not tree:
+    print 'no tree found, error!'
+    return
+  tree.SetFocus()
+  global NO_COUNT, ALL_COUNT
+  children = tree.GetChildren()
+  if len(children) <= 0:
+    return
+  items = []
+  for child in children:
+    if child.ControlTypeName == "TreeItemControl":
+      items.append(child)
+      s = ''
+      for i in range(0, indent):
+        s += '\t'
+      if (automation.ExpandCollapseState.Expanded == child.CurrentExpandCollapseState()):
+        flag = 'expanded'
+      else:
+        flag = 'collapsed'
+        # left, top, right, bottom = child.BoundingRectangle
+        # print left
+        # print top
+        # print 'to double click on: ' + child.Name
+        child.Click()
+        child.DoubleClick()
+        if list:
+                                        # wset
+                                        f.write(s + child.Name.encode('utf-8') + '\n')
+          get_parameters(list, indent + 1)
+          if output_list:
+                                                get_output(output_list, indent + 1)
+
+                                        # others
+                                        # get_measure(list, indent)
+          pass
+        if all_delete:
+          all_delete.Click()
+        child.Click()
+        # exit()
+        #if top >= 729:
+          #automation.Win32API.SendKey(automation.Keys.VK_NEXT)
+      bottom = child.BoundingRectangle[3]
+      # print outside_top
+      # print bottom
+      # automation.Win32API.SendKey(automation.Keys.VK_DOWN)
+      # wsd 410
+      # wst 370
+      # wsq 318
+      # wset 450
+      if (bottom - outside_top) >= 450:
+                                automation.Win32API.SendKey(automation.Keys.VK_NEXT)
+                                pass
+      # print s + child.Name + ' '  + flag
+      # f.write("%s\t%s\n" % (id.encode("utf-8"), name.encode("utf-8")))
+      if (automation.ExpandCollapseState.Expanded == child.CurrentExpandCollapseState()):
+        f.write(s + child.Name.encode("utf-8") + '\n')
+      get_classifications(child, indent + 1, all_delete, list, outside_top, output_list)
+  # print len(items)
+
+def main():
+  global NO_COUNT
+  # taskbar = automation.PaneControl(searchDepth = 2, ClassName = "#32770")
+  taskbar = automation.WindowControl(searchDepth = 2, ClassName = "#32770") # not found if searchDepth is 4
+  # automation.EnumControl(taskbar)
+  # exit()
+  # for wset, taskbar should be WindowPanel
+  # window = automation.PaneControl(searchDepth = 2, ClassName="#32770", searchFromControl=taskbar)
+  # automation.EnumControl(taskbar)
+
+  tree = automation.TreeControl(searchDepth=2, ClassName="SysTreeView32", searchFromControl=taskbar)
+  list = automation.ListControl(searchDepth=2, ClassName="SysListView32", searchFromControl=taskbar)
+  #wset
+  list2 = automation.ListControl(searchDepth=2, AutomationId="8127", searchFromControl=taskbar)
+  # tree = automation.TreeControl(searchDepth=4, ClassName="SysTreeView32", searchFromControl=taskbar)
+  left, top, right, bottom = tree.BoundingRectangle
+
+  # top += 18
+  # left += 300
+  # height =  20
+
+  print left
+  print top
+  print right
+  print bottom
+  # automation.EnumControl(list2)
+  # exit()
+
+  tree.SetFocus()
+
+  # delete_all not for wset
+
+  # delete_all = automation.ButtonControl(searchDepth=7, AutomationId='8272', searchFromControl=taskbar) # delete all
+  # delete_all.Click()
+  delete_all = None
+  # test = automation.PaneControl(AutomationId=8286)
+  # left, top, right, bottom = delete_all.BoundingRectangle
+  # wset
+  get_classifications(tree, 0, delete_all, list2, top, list)
+  # get_classifications(tree, 0, delete_all, list, top)
+  # print left
+  # print top
+  # print right
+  # print bottom
+  # test.Click()
+  # automation.EnumControl(tree)
+  # double_click(left, top)
+
+  exit()
+
+  i = 1
+  while True:
+    x = left
+    y = top + i * height/2
+    automation.Win32API.MouseMoveTo(x, y)
+    automation.Win32API.MouseClick(x, y, 0)
+    time.sleep(automation.Win32API.GetDoubleClickTime() * 1.0 / 2000)
+    automation.Win32API.MouseClick(x, y, WAIT_TIME)
+    i += 2
+    if (y > bottom - 2 * height):
+      automation.Win32API.SendKey(automation.Keys.VK_NEXT)
+      # start from the second one after scroll
+      i = 3
+    get_measure(list)
+    # can not get measure for 10 times, assume no more measures
+    if NO_COUNT >= 10000:
+      break
+
+main()
+
+f.close()

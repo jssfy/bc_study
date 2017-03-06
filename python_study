@@ -5,6 +5,66 @@ libs
 beautifulsoup
   https://www.crummy.com/software/BeautifulSoup/
 
+---------- 2017-02-27 14:48:26
+C:\Users\Administrator\Downloads\codes\uiautomation.pyc
+Traceback (most recent call last):
+  File "test.py", line 119, in <module>
+    main()
+  File "test.py", line 98, in main
+    get_classifications(tree)
+  File "test.py", line 76, in get_classifications
+    f.write(s + child.Name + '\n')
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+
+f.write(s + child.Name.encode("utf-8") + '\n')
+  =>
+f.write(s + child.Name + '\n')
+
+------------- 2017-02-24 17:10:54
+>>> pattern='\d{4}'
+>>> match = re.search(pattern, '一级行业;2016-11-24')
+>>> print match.group()
+2016
+
+
+-------- 2017-02-23 16:22:22
+
+hello.py
+from mod2.mod2 import info
+info()
+
+mod1.py
+def info():
+  print 'this is mod1'
+
+mod2.py
+from mod1 import mod1
+def info():
+  print 'this is mod2'
+  mod1.info()
+
+$ tree
+.
+├── hello.py
+├── mod1
+│   ├── __init__.py
+│   ├── __init__.pyc
+│   ├── mod1.py
+│   └── mod1.pyc
+└── mod2
+    ├── __init__.py
+    ├── __init__.pyc
+    ├── mod2.py
+    └── mod2.pyc
+
+---------- 2017-02-21 10:58:37
+uiautomation
+
+http://www.cnblogs.com/Yinkaisheng/p/3444132.html
+https://github.com/yinkaisheng/Python-UIAutomation-for-Windows
+http://blog.csdn.net/vagabond1/article/details/5648902
+https://msdn.microsoft.com/en-us/library/ee684021
+
 
 ----------- 2017-02-17 11:27:46
 self.measures = Dataset.get_measures(dataset, id_only = False)
@@ -21,6 +81,8 @@ datetime, unix timestamp conversion
     format = '%Y-%m-%d' # %H:%M:%S
     for k in stats:
         start = time.strftime(format, time.localtime(stats[k]['start']/1000))
+
+    datetime.now().strftime('%Y-%m-%d')
 
 # -*- coding: utf-8 -*-
 import time

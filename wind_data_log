@@ -1,0 +1,2316 @@
+
+
+------------ 2017-03-03 17:53:22
+120.26.168.180: M0008127
+1980-01-01->1989-12-31: M0008127
+2017-03-03 17:32:11,674 - 8423 - INFO - response process succeed: EDB Data Spider
+1990-01-01->1999-12-31: M0008127
+2017-03-03 17:32:12,024 - 8423 - INFO - response process succeed: EDB Data Spider
+2000-01-01->2017-03-03: M0008127
+2017-03-03 17:32:12,499 - 8423 - INFO - response process succeed: EDB Data Spider
+10.171.177.232: M5447795
+1980-01-01->1989-12-31: M5447795
+2017-03-03 17:32:12,659 - 8423 - INFO - response process succeed: EDB Data Spider
+1990-01-01->1999-12-31: M5447795
+2017-03-03 17:32:12,899 - 8423 - INFO - response process succeed: EDB Data Spider
+2000-01-01->2017-03-03: M5447795
+2017-03-03 17:32:13,245 - 8423 - INFO - response process succeed: EDB Data Spider
+10.132.17.144: M0059092
+1980-01-01->1989-12-31: M0059092
+2017-03-03 17:32:13,320 - 8423 - INFO - response process succeed: EDB Data Spider
+1990-01-01->1999-12-31: M0059092
+2017-03-03 17:32:13,435 - 8423 - INFO - response process succeed: EDB Data Spider
+2000-01-01->2017-03-03: M0059092
+2017-03-03 17:32:13,888 - 8423 - INFO - response process succeed: EDB Data Spider
+10.165.100.160: M0053398
+1980-01-01->1989-12-31: M0053398
+2017-03-03 17:32:13,964 - 8423 - INFO - response process succeed: EDB Data Spider
+1990-01-01->1999-12-31: M0053398
+2017-03-03 17:32:14,196 - 8423 - INFO - response process succeed: EDB Data Spider
+2000-01-01->2017-03-03: M0053398
+2017-03-03 17:32:14,702 - 8423 - INFO - response process succeed: EDB Data Spider
+120.26.168.180: M0008128
+1980-01-01->1989-12-31: M0008128
+2017-03-03 17:32:16,799 - 8423 - ERROR - data request failed: {"cmd":"edb","agent":"120.26.168.180","param":["M0008128","1980-01-01","1989-12-31","Fill=Previous"],"id":2524,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-03-03T17:32:17\"],\"data\":[\"CWSDService: quota exceeded.\"],\"errorCode\":-40522017}"}
+
+----------------2017-03-02 16:56:49
+wsd measures' parameters:
+
+上海
+上证50指数
+一级行业
+元
+门类行业
+申万行业;一级行业
+股
+份
+前10名
+股;第1名
+第1名
+户
+股;流通股本
+流通股本
+张;第1名
+0
+赎回
+国内评级机构(除中债资信)
+国内评级机构(除中债资信);主体信用评级
+主体信用评级;国内评级机构(除中债资信)
+标普
+标普;长期信用评级
+国泰君安
+全部
+元;全部
+银河证券
+一级分类
+前端
+推荐
+全价
+元;全价
+0;全价
+元;机构
+股;机构
+-5
+上证指数
+否
+过去1个月
+2015
+2016
+2020
+元;原始币种
+最新年报(LYR)
+当年一季
+上年年报
+当年年报增长率
+23;8;ADTM
+14;TR
+3;6;12;24
+10;3;BBI
+12
+26;2;MID
+14
+CDP
+10;50;10;DDD
+14;6;PDI
+20;6;DPO
+14;UPPER
+9;3;3;K
+9;3;3;5;K
+5
+26;12;9;DIFF
+12;WR
+6;6;MTM
+26;12
+50
+12;6;ROC
+6
+26
+6;TAPI
+12;26;9;DIFF
+12;26
+10
+24;6;WVAD
+3
+3;60
+60;3
+5;10;20;30;看涨
+周;普通收益率
+普通收益率
+周;普通收益率;上证综合指数
+周;普通收益率;一年定存利率（税前）
+周;普通收益率;一年定存利率（税前）;上证综合指数
+央行规则
+一年定存利率（税前）
+本季
+2016;1月
+Wind资讯;2016;1月
+Wind资讯;3年
+周;普通收益率;0
+周;普通收益率;一级分类
+日;普通收益率;零
+普通收益率;一年定存利率（税前）
+普通收益率;一年定存利率（税前）;一级分类
+周;普通收益率;一年定存利率（税前）;上证综合指数;一级分类
+周;普通收益率;上证综合指数;一级分类
+2016;一级分类
+6个月
+银行间
+元;2016
+元;2016;原始币种
+元;2016;万得一致预测
+2016;万得一致预测
+元;2020;万得一致预测
+股;2020;万得一致预测
+元;2016;万得一致预测;原始币种
+元;2020;万得一致预测;原始币种
+2016;大事后预测
+元;万得一致预测
+原始币种
+合并报表
+2015;3
+元;合并报表
+元;合并报表;本外币
+合并报表;本外币
+元;合并报表;本外币;制造业
+元;合并报表;原始币种
+按行业
+元;第1名
+元;1年以内
+1年以内
+单项金额重大
+境内
+元;境内
+元;申万宏源证券
+累计报
+除权除息日
+2017
+万股;基金公司;第1名
+基金公司;第1名
+元;基金公司;第1名
+股;2015
+元;2015
+户;2015
+亿元
+万元
+元;农、林、牧、渔业(A)
+农、林、牧、渔业(A)
+第1名;全价
+params: 1717
+139 different params
+
+params: 1717
+139 different params
+20;6;DPO => 1
+[
+    DPO
+]
+2016;1月 => 17
+[
+    rating_wind3y,
+    rating_wind5y,
+    rating_windavg,
+    rating_yinhe3y,
+    rating_marketavg,
+    rating_shanghaisharpe3y,
+    rating_shanghaitiming3y,
+    rating_shanghaioverall3y,
+    rating_shanghaistocking3y,
+    rating_shanghaisharpe5y,
+    rating_shanghaitiming5y,
+    rating_shanghaioverall5y,
+    rating_shanghaistocking5y,
+    rating_wind1y,
+    rating_wind2y,
+    rating_yinhe2y,
+    rating_zhaoshang3y
+]
+亿元 => 6
+[
+    issue_regamount,
+    issue_amountplan,
+    issue_issueol,
+    tender_cmptamnt,
+    tender_underwriting,
+    issue_amountact
+]
+12;26 => 1
+[
+    VOSC
+]
+元;机构 => 6
+[
+    mfd_buyamt_d,
+    mfd_sellamt_d,
+    mfd_netbuyamt,
+    mfd_buyamt_a,
+    mfd_sellamt_a,
+    mfd_netbuyamt_a
+]
+周;普通收益率;0 => 1
+[
+    risk_correcoefficient
+]
+26 => 1
+[
+    STD
+]
+股;2020;万得一致预测 => 1
+[
+    west_avgshares
+]
+全价 => 15
+[
+    bondsettle_YTM,
+    bondsettle_average,
+    bondsettle_open,
+    bondsettle_high,
+    bondsettle_low,
+    bondsettle_close,
+    bondsettle_change,
+    close_fixedincome,
+    avgprice_fixedincome,
+    pq_tradedays,
+    pq_preclose,
+    pq_high,
+    pq_low,
+    pq_change,
+    pq_pctchange
+]
+0 => 6
+[
+    paymentdate,
+    prepaymentdate,
+    prepayportion,
+    close2,
+    nxcupn_duration,
+    tbf_cvf
+]
+元;2020;万得一致预测 => 3
+[
+    west_avgoc,
+    west_minoc,
+    west_mediaoc
+]
+当年一季 => 1
+[
+    pb
+]
+2017 => 2
+[
+    div_payoutratio,
+    fellow_IECApprovalDate
+]
+2016 => 26
+[
+    pe_est,
+    pe_est_last,
+    est_peg,
+    style_averagepositiontime,
+    est_instnum,
+    est_eps,
+    est_maxeps,
+    est_mineps,
+    est_medianeps,
+    est_stdeps,
+    est_avgroa,
+    est_maxroa,
+    est_minroa,
+    est_medianroa,
+    est_stdroa,
+    est_avgroe,
+    est_maxroe,
+    est_minroe,
+    est_medianroe,
+    est_stdroe,
+    est_sales_upgrade,
+    est_sales_downgrade,
+    est_sales_maintain,
+    est_netprofit_upgrade,
+    est_netprofit_downgrade,
+    est_yoynetprofit
+]
+Wind资讯;2016;1月 => 4
+[
+    rating_3y,
+    rating_5y,
+    rating_1y,
+    rating_2y
+]
+万股;基金公司;第1名 => 2
+[
+    ipo_lotwinningnumber,
+    ipo_subscriptionshares
+]
+23;8;ADTM => 1
+[
+    ADTM
+]
+6;6;MTM => 1
+[
+    MTM
+]
+国泰君安 => 2
+[
+    bondscore,
+    issuerscore
+]
+周;普通收益率;一年定存利率（税前）;上证综合指数 => 7
+[
+    treynor,
+    jensen,
+    jenseny,
+    risk_time,
+    risk_stock,
+    risk_inforatio,
+    risk_annuinforatio
+]
+日;普通收益率;零 => 2
+[
+    risk_downsidestdev,
+    risk_upsidestdev
+]
+2015;3 => 2
+[
+    growth_cagr_tr,
+    growth_cagr_netprofit
+]
+户;2015 => 5
+[
+    fellow_distor,
+    fellow_capratio,
+    fellow_capeffacc,
+    fellow_subaccbypub,
+    fellow_amtbyplacing
+]
+本季 => 10
+[
+    tbf_cvf2,
+    tbf_IRR,
+    tbf_interest,
+    tbf_payment,
+    tbf_deliverprice,
+    tbf_invoiceprice,
+    tbf_spread,
+    tbf_basis,
+    tbf_FYTM,
+    tbf_netbasis
+]
+元;2020;万得一致预测;原始币种 => 2
+[
+    west_maxoc1,
+    west_stoc1
+]
+元;2016;万得一致预测;原始币种 => 2
+[
+    west_avgebit1,
+    west_medianebit1
+]
+50 => 1
+[
+    RC
+]
+-5 => 1
+[
+    NAV_return_nd
+]
+央行规则 => 1
+[
+    ytm_b
+]
+第1名;全价 => 1
+[
+    prt_heavilyheldbondsperchange
+]
+元;2016;原始币种 => 19
+[
+    est_avgcps1,
+    est_maxcps1,
+    est_mincps1,
+    est_mediancps1,
+    est_stdcps1,
+    est_avgdps1,
+    est_maxdps1,
+    est_mindps1,
+    est_mediandps1,
+    est_stddps1,
+    est_maxebit1,
+    est_minebit1,
+    est_stdebit1,
+    est_avgbps1,
+    est_maxbps1,
+    est_minbps1,
+    est_medianbps1,
+    est_stdbps1,
+    est_avgebt1
+]
+元;1年以内 => 2
+[
+    stmnote_ar_1,
+    stmnote_ar_3
+]
+银行间 => 1
+[
+    tbf_CTD
+]
+一年定存利率（税前） => 1
+[
+    impliedvol
+]
+14;UPPER => 1
+[
+    ENV
+]
+26;12;9;DIFF => 1
+[
+    MACD
+]
+户 => 2
+[
+    holder_num,
+    ipo_casheffacc
+]
+2016;大事后预测 => 14
+[
+    west_eps_surprise,
+    west_sales_surprise,
+    west_netprofit_surprise,
+    west_bps_surprise,
+    west_avgebt_surprise,
+    west_avgoperatingprofit_surprise,
+    west_avgoc_surprise,
+    west_eps_surprise_pct,
+    west_sales_surprise_pct,
+    west_netprofit_surprise_pct,
+    west_bps_surprise_pct,
+    west_avgebt_surprise_pct,
+    west_avgoperatingprofit_surprise_pct,
+    west_avgoc_surprise_pct
+]
+元;合并报表 => 435
+[
+    total_deposit_n,
+    baddebtprov_n,
+    stmnote_bank_26,
+    stmnote_bank_351,
+    stmnote_bank_381,
+    stmnote_bank_431,
+    stmnote_bank_411,
+    stmnote_bank_341,
+    stmnote_bank_133_n,
+    stmnote_bank_132_n,
+    stmnote_bank_131_n,
+    stmnote_bank_RweightedAssets,
+    stmnote_bank_CoreTier1Cap,
+    stmnote_bank_Tier1Cap,
+    stmnote_bank_NetEquityCap,
+    stmnote_bank_0001,
+    stmnote_bank_0002,
+    stmnote_bank_0003,
+    stmnote_bank_0004,
+    stmnote_bank_0005,
+    stmnote_bank_0021,
+    stmnote_bank_0022,
+    stmnote_bank_0023,
+    stmnote_bank_0024,
+    stmnote_bank_0025,
+    stmnote_bank_0011,
+    stmnote_bank_0012,
+    stmnote_bank_0013,
+    stmnote_bank_0014,
+    stmnote_bank_0015,
+    stmnote_bank_0031,
+    stmnote_bank_0032,
+    stmnote_bank_0033,
+    stmnote_bank_0034,
+    stmnote_bank_0035,
+    stmnote_bank_0041,
+    stmnote_bank_0042,
+    stmnote_bank_0043,
+    stmnote_bank_0044,
+    stmnote_bank_0045,
+    stmnote_bank_0052,
+    stmnote_bank_0053,
+    stmnote_bank_0055,
+    stmnote_sec_1,
+    stmnote_sec_2,
+    stmnote_sec_op_2,
+    stmnote_sec_op_3,
+    stmnote_sec_op_4,
+    stmnote_sec_op_5,
+    stmnote_sec_op_1,
+    stmnote_insur_13,
+    stmnote_insur_14,
+    stmnote_insur_16,
+    stmnote_insur_17,
+    stmnote_insur_18,
+    stmnote_insur_19,
+    stmnote_InvestmentIncome_0001,
+    stmnote_InvestmentIncome_0002,
+    stmnote_InvestmentIncome_0004,
+    stmnote_InvestmentIncome_0005,
+    stmnote_InvestmentIncome_0007,
+    stmnote_InvestmentIncome_0008,
+    stmnote_InvestmentIncome_0010,
+    notes_rcv,
+    acct_rcv,
+    oth_rcv,
+    prepay,
+    dvd_rcv,
+    int_rcv,
+    consumptive_bio_assets,
+    deferred_exp,
+    hfs_assets,
+    non_cur_assets_due_within_1y,
+    settle_rsrv,
+    margin_acct,
+    rcv_from_reinsurer,
+    rcv_from_ceded_insur_cont_rsrv,
+    red_monetary_cap_for_sale,
+    tot_acct_rcv,
+    fin_assets_avail_for_sale,
+    long_term_eqy_invest,
+    long_term_rec,
+    proj_matl,
+    const_in_prog,
+    productive_bio_assets,
+    oil_and_natural_gas_assets,
+    r_and_d_costs,
+    goodwill,
+    loans_and_adv_granted,
+    cash_deposits_central_bank,
+    agency_bus_assets,
+    rcv_invest,
+    asset_dep_oth_banks_fin_inst,
+    precious_metals,
+    rcv_ceded_unearned_prem_rsrv,
+    rcv_ceded_claim_rsrv,
+    rcv_ceded_life_insur_rsrv,
+    rcv_ceded_lt_health_insur_rsrv,
+    insured_pledge_loan,
+    cap_mrgn_paid,
+    independent_acct_assets,
+    subr_rec,
+    mrgn_paid,
+    seat_fees_exchange,
+    clients_cap_deposit,
+    clients_rsrv_settle,
+    derivative_fin_assets,
+    tot_assets,
+    st_borrow,
+    tradable_fin_liab,
+    notes_payable,
+    acct_payable,
+    adv_from_cust,
+    empl_ben_payable,
+    taxes_surcharges_payable,
+    tot_acct_payable,
+    int_payable,
+    dvd_payable,
+    oth_payable,
+    acc_exp,
+    deferred_inc_cur_liab,
+    hfs_liab,
+    non_cur_liab_due_within_1y,
+    st_bonds_payable,
+    borrow_central_bank,
+    deposit_received_ib_deposits,
+    fund_sales_fin_assets_rp,
+    handling_charges_comm_payable,
+    payable_to_reinsurer,
+    rsrv_insur_cont,
+    acting_trading_sec,
+    acting_uw_sec,
+    tot_cur_liab,
+    lt_borrow,
+    lt_payable,
+    lt_empl_ben_payable,
+    provisions,
+    deferred_tax_liab,
+    tot_non_cur_liab,
+    agency_bus_liab,
+    cust_bank_dep,
+    deposit_received,
+    insured_deposit_invest,
+    unearned_prem_rsrv,
+    out_loss_rsrv,
+    life_insur_rsrv,
+    lt_health_insur_v,
+    independent_acct_liab,
+    prem_received_adv,
+    pledge_loan,
+    st_finl_inst_payable,
+    derivative_fin_liab,
+    tot_liab,
+    cap_stk,
+    other_equity_instruments,
+    cap_rsrv,
+    surplus_rsrv,
+    undistributed_profit,
+    other_compreh_inc_bs,
+    prov_nom_risks,
+    cnvd_diff_foreign_curr_stat,
+    unconfirmed_invest_loss_bs,
+    eqy_belongto_parcomsh,
+    tot_equity,
+    tot_liab_shrhldr_eqy,
+    tot_oper_rev,
+    oper_rev,
+    insur_prem_unearned,
+    tot_prem_inc,
+    reinsur_inc,
+    prem_ceded,
+    unearned_prem_rsrv_withdraw,
+    net_inc_agency business,
+    net_inc_underwriting-business,
+    net_inc_customerasset-management business,
+    other_oper_inc,
+    net_other_oper_inc,
+    tot_oper_cost,
+    handling_chrg_comm_exp,
+    oper_exp,
+    taxes_surcharges_ops,
+    selling_dist_exp,
+    gerl_admin_exp,
+    fin_exp_is,
+    prepay_surr,
+    net_claim_exp,
+    dvd_exp_insured,
+    reinsurance_exp,
+    reinsur_exp_recoverable,
+    other_oper_exp,
+    net_gain_chg_fv,
+    net_invest_inc,
+    inc_invest_assoc_jv_entp,
+    net_gain_fx_trans,
+    non_oper_rev,
+    non_oper_exp,
+    net_loss_disp_noncur_asset,
+    tax,
+    tot_compreh_inc,
+    tot_compreh_inc_min_shrhldr,
+    tot_compreh_inc_parent_comp,
+    cash_recp_sg_and_rs,
+    other_cash_recp_ral_oper_act,
+    net_incr_insured_dep,
+    net_incr_dep_cob,
+    net_incr_loans_central_bank,
+    net_incr_fund_borr_ofi,
+    net_incr_int_handling_chrg,
+    cash_recp_prem_orig_inco,
+    net_cash_received_reinsu_bus,
+    net_incr_disp_tfa,
+    net_incr_disp_fin_assets_avail,
+    net_incr_loans_other_bank,
+    net_incr_repurch_bus_fund,
+    net_cash_from_seurities,
+    stot_cash_inflows_oper_act,
+    net_incr_lending_fund,
+    net_fina_instruments_measured_at_fmv,
+    cash_pay_goods_purch_serv_rec,
+    cash_pay_beh_empl,
+    pay_all_typ_tax,
+    other_cash_pay_ral_oper_act,
+    net_incr_clients_loan_adv,
+    net_incr_dep_cbob,
+    handling_chrg_paid,
+    cash_recp_disp_withdrwl_invest,
+    cash_recp_return_invest,
+    net_cash_recp_disp_sobu,
+    other_cash_recp_ral_inv_act,
+    cash_pay_acq_const_fiolta,
+    cash_paid_invest,
+    net_cash_pay_aquis_sobu,
+    other_cash_pay_ral_inv_act,
+    cash_recp_cap_contrib,
+    cash_rec_saims,
+    proc_issue_bonds,
+    stot_cash_inflows_fnc_act,
+    cash_prepay_amt_borr,
+    cash_pay_dist_dpcp_int_exp,
+    dvd_profit_paid_sc_ms,
+    other_cash_pay_ral_fnc_act,
+    stot_cash_outflows_fnc_act,
+    eff_fx_flu_cash,
+    cash_cash_equ_beg_period,
+    cash_cash_equ_end_period,
+    prov_depr_assets,
+    depr_fa_coga_dpba,
+    amort_intang_assets,
+    amort_lt_deferred_exp,
+    decr_deferred_exp,
+    incr_acc_exp,
+    loss_disp_fiolta,
+    loss_scr_fa,
+    loss_fv_chg,
+    invest_loss,
+    decr_deferred_inc_tax_assets,
+    incr_deferred_inc_tax_liab,
+    decr_inventories,
+    decr_oper_payable,
+    incr_oper_payable,
+    others,
+    im_net_cash_flows_oper_act,
+    conv_corp_bonds_due_within_1y,
+    fa_fnc_leases,
+    beg_bal_cash,
+    end_bal_cash_equ,
+    net_incr_cash_cash_equ_im,
+    qfa_tot_oper_rev,
+    qfa_oper_rev,
+    qfa_handling_chrg_comm_inc,
+    qfa_tot_prem_inc,
+    qfa_reinsur_inc,
+    qfa_prem_ceded,
+    qfa_unearned_prem_rsrv,
+    qfa_net_inc_agency business,
+    qfa_net_inc_underwriting-business,
+    qfa_net_inc_customerasset-management business,
+    qfa_other_oper_inc,
+    qfa_net_int_inc,
+    qfa_net_fee_and_commission_inc,
+    qfa_net_other_oper_inc,
+    qfa_tot_oper_cost,
+    qfa_oper_cost,
+    qfa_grossmargin,
+    qfa_interest_exp,
+    qfa_handling_chrg_comm_exp,
+    qfa_oper_exp,
+    qfa_taxes_surcharges_ops,
+    qfa_selling_dist_exp,
+    qfa_gerl_admin_exp,
+    qfa_fin_exp_is,
+    qfa_impair_loss_assets,
+    qfa_prepay_surr,
+    qfa_net_claim_exp,
+    qfa_net_insur_cont_rsrv,
+    qfa_reinsurance_exp,
+    qfa_claim_exp_recoverable,
+    qfa_other_oper_exp,
+    qfa_net_gain_chg_fv,
+    qfa_net_invest_inc,
+    qfa_inc_invest_assoc_jv_entp,
+    qfa_net_gain_fx_trans,
+    qfa_opprofit,
+    qfa_non_oper_rev,
+    qfa_non_oper_exp,
+    qfa_net_loss_disp_noncur_asset,
+    qfa_tot_profit,
+    qfa_tax,
+    qfa_unconfirmed_invest_loss_is,
+    qfa_net_profit_is,
+    qfa_minority_int_inc,
+    qfa_np_belongto_parcomsh,
+    qfa_other_compreh_inc,
+    qfa_tot_compreh_inc,
+    qfa_tot_compreh_inc_min_shrhldr,
+    qfa_tot_compreh_inc_parent_comp,
+    qfa_cash_recp_sg_and_rs,
+    qfa_recp_tax_rends,
+    qfa_other_cash_recp_ral_oper_act,
+    qfa_net_incr_insured_dep,
+    qfa_net_incr_dep_cob,
+    qfa_net_incr_loans_central_bank,
+    qfa_net_incr_fund_borr_ofi,
+    qfa_net_incr_int_handling_chrg,
+    qfa_cash_recp_prem_orig_inco,
+    qfa_net_cash_received_reinsu_bus,
+    qfa_net_incr_disp_tfa,
+    qfa_net_incr_disp_fin_assets_avail,
+    qfa_net_incr_loans_other_bank,
+    qfa_net_incr_repurch_bus_fund,
+    qfa_stot_cash_inflows_oper_act,
+    qfa_cash_pay_goods_purch_serv_rec,
+    qfa_cash_pay_beh_empl,
+    qfa_pay_all_typ_tax,
+    qfa_other_cash_pay_ral_oper_act,
+    qfa_net_incr_clients_loan_adv,
+    qfa_net_incr_dep_cbob,
+    qfa_cash_pay_claims_orig_inco,
+    qfa_handling_chrg_paid,
+    qfa_net_cash_flows_oper_act,
+    qfa_cash_recp_disp_withdrwl_invest,
+    qfa_cash_recp_return_invest,
+    qfa_net_cash_recp_disp_sobu,
+    qfa_other_cash_recp_ral_inv_act,
+    qfa_cash_paid_invest,
+    qfa_net_incr_pledge_loan,
+    qfa_net_cash_pay_aquis_sobu,
+    qfa_other_cash_pay_ral_inv_act,
+    qfa_stot_cash_outflows_inv_act,
+    qfa_net_cash_flows_inv_act,
+    qfa_cash_recp_cap_contrib,
+    qfa_cash_rec_saims,
+    qfa_cash_recp_borrow,
+    qfa_other_cash_recp_ral_fnc_act,
+    qfa_proc_issue_bonds,
+    qfa_stot_cash_inflows_fnc_act,
+    qfa_cash_prepay_amt_borr,
+    qfa_cash_pay_dist_dpcp_int_exp,
+    qfa_dvd_profit_paid_sc_ms,
+    qfa_other_cash_pay_ral_fnc_act,
+    qfa_stot_cash_outflows_fnc_act,
+    qfa_net_cash_flows_fnc_act,
+    qfa_eff_fx_flu_cash,
+    qfa_net_incr_cash_cash_equ_dm,
+    qfa_cash_cash_equ_end_period,
+    qfa_prov_depr_assets,
+    qfa_depr_fa_coga_dpba,
+    qfa_amort_intang_assets,
+    qfa_amort_lt_deferred_exp,
+    qfa_decr_deferred_exp,
+    qfa_incr_acc_exp,
+    qfa_loss_disp_fiolta,
+    qfa_loss_scr_fa,
+    qfa_loss_fv_chg,
+    qfa_invest_loss,
+    qfa_deferred_tax_assets_decr,
+    qfa_incr_deferred_inc_tax_liab,
+    qfa_decr_inventories,
+    qfa_decr_oper_payable,
+    qfa_incr_oper_payable,
+    qfa_others,
+    qfa_im_net_cash_flows_oper_act,
+    qfa_conv_debt_into_cap,
+    qfa_fa_fnc_leases,
+    qfa_end_bal_cash_equ,
+    stmnote_finexp_4,
+    stmnote_finexp_5,
+    stmnote_finexp_13,
+    stmnote_finexp_6,
+    stmnote_finexp_7,
+    stmnote_finexp_8,
+    stmnote_RDexp_cost,
+    stmnote_RDexp_capital,
+    stmnote_RDexp,
+    stmnote_LandUseRights_19,
+    stmnote_LandUseRights_20,
+    stmnote_LandUseRights_21,
+    stmnote_LandUseRights_22,
+    stmnote_ImpairmentLoss_4,
+    stmnote_ImpairmentLoss_5,
+    stmnote_ImpairmentLoss_6,
+    stmnote_ImpairmentLoss_7,
+    stmnote_ImpairmentLoss_8,
+    stmnote_ImpairmentLoss_9,
+    stmnote_FAAviableForSale_0004,
+    stmnote_Eoitems_6,
+    stmnote_Eoitems_7,
+    stmnote_Eoitems_8,
+    stmnote_Eoitems_9,
+    stmnote_Eoitems_10,
+    stmnote_Eoitems_11,
+    stmnote_Eoitems_12,
+    stmnote_Eoitems_14,
+    stmnote_Eoitems_15,
+    stmnote_Eoitems_16,
+    stmnote_Eoitems_17,
+    stmnote_Eoitems_18,
+    stmnote_Eoitems_19,
+    stmnote_Eoitems_20,
+    stmnote_Eoitems_21,
+    stmnote_Eoitems_22,
+    stmnote_Eoitems_23,
+    stmnote_Eoitems_24,
+    stmnote_others_7626,
+    stmnote_others_7627,
+    stmnote_others_7628,
+    stmnote_others_7629,
+    stmnote_others_7630,
+    stmnote_others_7631,
+    stmnote_others_7632,
+    stmnote_others_7633,
+    stmnote_others_7636,
+    stmnote_others_7637,
+    stmnote_others_7639,
+    stmnote_others_4504
+]
+元;2016;万得一致预测 => 5
+[
+    west_minebit,
+    west_avgebitda,
+    west_medianebitda,
+    west_maxbps,
+    west_stdbps
+]
+24;6;WVAD => 1
+[
+    WVAD
+]
+3 => 18
+[
+    history_low,
+    history_high,
+    growth_gr,
+    growth_gc,
+    growth_or,
+    growth_op,
+    growth_operateincome,
+    growth_investincome,
+    growth_ebt,
+    growth_profit,
+    growth_netprofit,
+    growth_netprofit_deducted,
+    growth_ocf,
+    growth_assets,
+    growth_totalequity,
+    growth_equity,
+    growth_profittosales,
+    growth_roe
+]
+元;合并报表;本外币 => 63
+[
+    stmnote_bank_611,
+    stmnote_bank_612,
+    stmnote_bank_613,
+    stmnote_bank_614,
+    stmnote_bank_615,
+    stmnote_bank_621,
+    stmnote_bank_622,
+    stmnote_bank_623,
+    stmnote_bank_624,
+    stmnote_bank_625,
+    stmnote_bank_631,
+    stmnote_bank_632,
+    stmnote_bank_633,
+    stmnote_bank_634,
+    stmnote_bank_635,
+    stmnote_bank_682,
+    stmnote_bank_683,
+    stmnote_bank_685,
+    stmnote_bank_686,
+    stmnote_bank_688,
+    stmnote_bank_689,
+    stmnote_bank_692,
+    stmnote_bank_693,
+    stmnote_bank_695,
+    stmnote_bank_696,
+    stmnote_bank_698,
+    stmnote_bank_699,
+    stmnote_bank_712,
+    stmnote_bank_713,
+    stmnote_bank_715,
+    stmnote_bank_716,
+    stmnote_bank_717,
+    stmnote_bank_718,
+    stmnote_bank_719,
+    stmnote_bank_721,
+    stmnote_bank_722,
+    stmnote_bank_723,
+    stmnote_bank_724,
+    stmnote_bank_725,
+    stmnote_bank_726,
+    stmnote_bank_727,
+    stmnote_bank_728,
+    stmnote_bank_729,
+    stmnote_bank_741,
+    stmnote_bank_742,
+    stmnote_bank_743,
+    stmnote_bank_744,
+    stmnote_bank_752,
+    stmnote_bank_753,
+    stmnote_bank_771,
+    stmnote_bank_772,
+    stmnote_bank_773,
+    stmnote_bank_774,
+    stmnote_bank_781,
+    stmnote_bank_782,
+    stmnote_bank_783,
+    stmnote_bank_784,
+    stmnote_bank_801,
+    stmnote_bank_802,
+    stmnote_bank_811,
+    stmnote_bank_812,
+    stmnote_bank_841,
+    stmnote_bank_842
+]
+元;原始币种 => 23
+[
+    mkt_cap_float,
+    operateincome_ttm3,
+    adminexpense_ttm3,
+    ebit_ttm3,
+    ebit2_ttm3,
+    ebitda_ttm3,
+    ebitda2_ttm2,
+    ebt_ttm3,
+    periodexpense_ttm,
+    expense_ttm3,
+    finaexpense_ttm3,
+    gc_ttm3,
+    grossmargin_ttm3,
+    interestexpense_ttm2,
+    minorityinterest_ttm2,
+    nonconnp_ttm,
+    nonop_ttm,
+    op_ttm3,
+    operateexpense_ttm3,
+    tax_ttm2,
+    investcashflow_ttm3,
+    financecashflow_ttm3,
+    div_aualaccmdiv2
+]
+2020 => 5
+[
+    estpb,
+    west_nproc_1w,
+    west_nproc_4w,
+    west_nproc_13w,
+    west_nproc_26w
+]
+元 => 320
+[
+    regcapital,
+    fundhold_position,
+    issueamount,
+    clause_conversion2_bondlot,
+    chg_settlement,
+    volume_fixedincome,
+    mrg_long_amt,
+    mrg_long_repay,
+    mrg_long_bal,
+    margin_saletradingamount,
+    margin_salerepayamount,
+    mrg_short_bal,
+    mrg_bal,
+    mrg_long_amt_int,
+    mrg_long_repay_int,
+    mrg_long_bal_int_avg,
+    margin_shortamountint,
+    margin_shortamountrepayint,
+    mrg_short_bal_int_avg,
+    mrg_bal_int_avg,
+    mfd_inflow_close_m,
+    mmf_totalunityield,
+    us_amount,
+    ev,
+    mkt_cap_ard,
+    ev1,
+    ev2,
+    mkt_cap,
+    mkt_cap_CSRC,
+    mkt_freeshares,
+    mkt_cap_ashare2,
+    mkt_cap_ashare,
+    val_bshrmarketvalue4,
+    val_bshrmarketvalue3,
+    val_bshrmarketvalue2,
+    val_bshrmarketvalue,
+    mamv,
+    manetprofit_fy0,
+    manetprofit_fy1,
+    manetprofit_fy2,
+    manetprofit_fy3,
+    gr_ttm,
+    or_ttm,
+    profit_ttm,
+    netprofit_ttm,
+    deductedprofit_ttm,
+    operatecashflow_ttm,
+    cashflow_ttm,
+    west_netprofit_FY1,
+    west_netprofit_FY2,
+    west_netprofit_FY3,
+    west_netprofit_FTM,
+    west_sales_FY1,
+    west_sales_FY2,
+    west_sales_FY3,
+    west_sales_FTM,
+    west_avgebit_FY1,
+    west_avgebit_FY2,
+    west_avgebit_FTM,
+    west_avgebitda_FY1,
+    west_avgebitda_FY2,
+    west_avgebitda_FTM,
+    west_avgebt_FY1,
+    west_avgebt_FY2,
+    west_avgebt_FTM,
+    west_avgoperatingprofit_FY1,
+    west_avgoperatingprofit_FY2,
+    west_avgoperatingprofit_FTM,
+    west_avgoc_FY1,
+    west_avgoc_FY2,
+    west_avgoc_FTM,
+    performanceexpress_perfexincome,
+    performanceexpress_perfexprofit,
+    performanceexpress_perfextotalprofit,
+    performanceexpress_perfexnetprofittoshareholder,
+    performanceexpress_perfextotalassets,
+    cost_ttm2,
+    impairment_ttm2,
+    investincome_ttm2,
+    nonoperateprofit_ttm2,
+    salescashin_ttm2,
+    ebit_ttm,
+    extraordinary,
+    deductedprofit,
+    grossmargin,
+    operateincome,
+    investincome,
+    ebit,
+    ebitda,
+    researchanddevelopmentexpenses,
+    investcapital,
+    workingcapital,
+    networkingcapital,
+    tangibleasset,
+    retainedearnings,
+    interestdebt,
+    netdebt,
+    exinterestdebt_current,
+    exinterestdebt_noncurrent,
+    fcff,
+    fcfe,
+    da_perid,
+    asset_mrq,
+    debt_mrq,
+    totalequity_mrq,
+    equity_mrq,
+    equity_new,
+    stmnote_bank_1778,
+    total_loan,
+    stmnote_bank_31,
+    stmnote_bank_340,
+    stmnote_bank_37,
+    stmnote_bank_40,
+    stmnote_bank_430,
+    stmnote_bank_50,
+    stmnote_bank_52,
+    stmnote_bank_46,
+    stmnote_bank_48,
+    stmnote_sec_1500,
+    stmnote_sec_1520,
+    stmnote_sec_1510,
+    stmnote_sec_1530,
+    stmnote_sec_1540,
+    stmnote_sec_1542,
+    stmnote_sec_1543,
+    stmnote_sec_1551,
+    stmnote_sec_1552,
+    stmnote_assetmanage,
+    stmnote_assetmanage_inc_d,
+    stmnote_assetmanage_inc_c,
+    stmnote_assetmanage_inc_s,
+    stmnote_insur_7801,
+    stmnote_insur_7802,
+    stmnote_insur_7804,
+    stmnote_insur_7805,
+    stmnote_insur_7807,
+    stmnote_insur_7808,
+    qfa_deductedprofit,
+    stmnote_seg_1501,
+    stmnote_profitapr_1,
+    stmnote_profitapr_2,
+    stmnote_profitapr_3,
+    stmnote_profitapr_4,
+    stmnote_profitapr_5,
+    stmnote_profitapr_6,
+    stmnote_profitapr_8,
+    stmnote_profitapr_9,
+    stmnote_inv_1,
+    stmnote_inv_2,
+    stmnote_inv_3,
+    stmnote_inv_4,
+    stmnote_inv_5,
+    stmnote_inv_6,
+    stmnote_inv_7,
+    stmnote_inv_8,
+    stmnote_guarantee_1,
+    stmnote_guarantee_2,
+    stmnote_guarantee_3,
+    stmnote_guarantee_4,
+    stmnote_guarantee_5,
+    stmnote_assetdetail_1,
+    stmnote_assetdetail_2,
+    stmnote_assetdetail_3,
+    stmnote_assetdetail_4,
+    stmnote_assetdetail_5,
+    stmnote_assetdetail_6,
+    stmnote_assetdetail_7,
+    stmnote_assetdetail_8,
+    stmnote_assetdetail_9,
+    stmnote_assetdetail_10,
+    stmnote_assetdetail_11,
+    stmnote_assetdetail_12,
+    stmnote_assetdetail_13,
+    stmnote_assetdetail_14,
+    stmnote_assetdetail_15,
+    stmnote_assetdetail_16,
+    stmnote_assetdetail_17,
+    stmnote_assetdetail_18,
+    stmnote_assetdetail_19,
+    stmnote_assetdetail_20,
+    stmnote_associated_1,
+    stmnote_associated_2,
+    stmnote_associated_3,
+    stmnote_associated_4,
+    stmnote_associated_5,
+    stmnote_associated_6,
+    stmnote_STBorrow_4505,
+    stmnote_STBorrow_4506,
+    stmnote_STBorrow_4507,
+    stmnote_STBorrow_4508,
+    stmnote_STBorrow_4509,
+    stmnote_STBorrow_4510,
+    stmnote_STBorrow_4511,
+    stmnote_STBorrow_4512,
+    stmnote_LTBorrow_4505,
+    stmnote_LTBorrow_4506,
+    stmnote_LTBorrow_4507,
+    stmnote_LTBorrow_4508,
+    stmnote_LTBorrow_4509,
+    stmnote_LTBorrow_4510,
+    stmnote_LTBorrow_4511,
+    stmnote_LTBorrow_4512,
+    stmnote_Borrow_4512,
+    stmnote_DPST_4405,
+    stmnote_DPST_4406,
+    stmnote_DPST_4407,
+    stmnote_DPST_4408,
+    stmnote_DPST_4409,
+    stmnote_DPST_4411,
+    stmnote_DPST_4412,
+    qanal_income,
+    qanal_decutednetincome,
+    qanal_netasset,
+    anal_income,
+    anal_netincome,
+    anal_avgnetincomeperunit,
+    anal_distributable,
+    anal_distributableperunit,
+    stm_bs_1,
+    stm_bs_5,
+    stm_bs_8,
+    stm_bs_72,
+    stm_bs_10,
+    stm_bs_14,
+    stm_bs_19,
+    stm_bs_28,
+    stm_bs_26,
+    stm_bs_20,
+    stm_bs_153,
+    stm_bs_24,
+    stm_bs_30,
+    stm_bs_34,
+    stm_bs_201,
+    stm_bs_202,
+    stm_bs_39,
+    stm_is_10,
+    stm_is_6,
+    stm_is_5,
+    stm_is_3,
+    stm_is_69,
+    stm_is_76,
+    stm_is_81,
+    stm_is_1,
+    stm_is_75,
+    stm_is_71,
+    stm_is_29,
+    stm_is_4,
+    stm_is_82,
+    stm_is_24,
+    stm_is_101,
+    stm_is_102,
+    stm_is_103,
+    stm_is_104,
+    stm_is_105,
+    stm_is_9,
+    stm_is_22,
+    stm_is_74,
+    stm_is_12,
+    stm_is_13,
+    stm_is_201,
+    stm_is_37,
+    stm_is_19,
+    stm_is_25,
+    stm_is_78,
+    stm_is_79_total,
+    stm_navchange_1,
+    stm_navchange_6,
+    stm_navchange_9,
+    stm_navchange_7,
+    stm_navchange_8,
+    stm_navchange_10,
+    stm_navchange_11,
+    commission_total,
+    ipo_collection_total,
+    ipo_collection,
+    ipo_collection_oldshares,
+    ipo_netcollection,
+    ipo_expectedcollection,
+    ipo_volume,
+    ipo_SAmt_uplimit,
+    ipo_Bfund,
+    ipo_op_amount,
+    ipo_netcollection_est,
+    ipo_beyondactualcollec,
+    ipo_underwritingfees_shareholder,
+    fellow_collection_t,
+    tendrst_payamount,
+    tendrst_underwriting,
+    tendrst_amnt,
+    tendrst_tenderamount,
+    tendrst_effectamnt,
+    tendrst_winningamnt,
+    tendrst_privatetrade,
+    tendrst_margwinbidder,
+    div_accumulatedpayout,
+    div_periodperunit,
+    div_periodpayout,
+    netasset_total,
+    prt_totalasset,
+    prt_netasset,
+    prt_fundnetasset_total,
+    prt_netassetchange,
+    prt_totalassetchange,
+    prt_stockvalue,
+    prt_bondvalue,
+    prt_fundvalue,
+    prt_SIfutures,
+    prt_warrantvalue,
+    prt_CDs,
+    prt_centralbankbill,
+    prt_financialbond,
+    prt_pfbvalue,
+    prt_corporatebond,
+    prt_convertiblebond,
+    prt_absvalue,
+    prt_mmivalue,
+    prt_buystockcost,
+    prt_sellstockincome,
+    mmrepurchase1,
+    mmrepurchase2
+]
+元;合并报表;原始币种 => 109
+[
+    wgsd_invest_trading,
+    wgsd_invest_st_oth,
+    wgsd_receiv_tot,
+    wgsd_inventories,
+    wgsd_assets_curr_oth,
+    wgsd_assets_curr,
+    wgsd_ppe_net,
+    wgsd_invest_eq,
+    wgsd_invest_htm,
+    wgsd_invest_afs,
+    wgsd_invest_lt_oth,
+    wgsd_gw_intang_,
+    wgsd_land_use_rights,
+    wgsd_assets_lt_oth,
+    wgsd_assets_lt,
+    wgsd_lend_ib,
+    wgsd_sec_colla,
+    wgsd_loans_net,
+    wgsd_loans_hfs,
+    wgsd_assets_oth,
+    wgsd_invest_oth,
+    wgsd_receiv_insur,
+    wgsd_receiv_reinsur,
+    wgsd_receiv_net,
+    wgsd_loans_mtg_net,
+    wgsd_real_estate_net,
+    wgsd_pay_acct,
+    wgsd_pay_tax,
+    wgsd_debt_st,
+    wgsd_liabs_curr_oth,
+    wgsd_debt_lt,
+    wgsd_liabs_lt_oth,
+    wgsd_deposits,
+    wgsd_borrow_ib,
+    wgsd_liabs_oth,
+    wgsd_liabs_insur_contract,
+    wgsd_liabs_invest_contract,
+    wgsd_com_eq_par,
+    wgsd_rsv,
+    wgsd_apic,
+    wgsd_rsv_other,
+    wgsd_treas_stk,
+    wgsd_com_eq_for_exch,
+    wgsd_com_eq_paholder,
+    wgsd_com_eq,
+    wgsd_min_int,
+    wgsd_stkhldrs_eq,
+    wgsd_liabs_stkhldrs_eq,
+    wgsd_sales_oper,
+    wgsd_sales_oth,
+    wgsd_sales,
+    wgsd_int_inc_net,
+    wgsd_int_inc,
+    wgsd_fee_comm_inc_net,
+    wgsd_fee_comm_inc,
+    wgsd_trade_inc_net,
+    wgsd_premiums_earned,
+    wgsd_int_inverst_inc,
+    wgsd_policyhldr_ben,
+    wgsd_rev_comm_inc,
+    wgsd_broker_comm_inc,
+    wgsd_uw_ib_inc,
+    wgsd_aum_inc,
+    wgsd_trade_inc,
+    wgsd_rev_rent,
+    wgsd_tenant_reim_exp,
+    wgsd_gain_sale_real_estate,
+    wgsd_mtg_inc,
+    wgsd_oper_cost,
+    wgsd_oper_exp,
+    wgsd_sga_exp,
+    wgsd_oper_exp_tot,
+    wgsd_int_exp,
+    wgsd_prov_loan_loss,
+    wgsd_invest_gain,
+    wgsd_no_oper_inc,
+    wgsd_unusual_items,
+    wgsd_inc_pretax,
+    wgsd_min_int_exp,
+    wgsd_continue_oper,
+    wgsd_exod,
+    wgsd_net_inc,
+    wgsd_dvd_pfd_adj,
+    wgsd_net_inc_dil,
+    wgsd_compr_inc,
+    is_sharepayments,
+    is_ebitda_ard,
+    wgsd_dep_exp_cf,
+    wgsd_wkcap_chg,
+    wgsd_non_cash_chg,
+    wgsd_oper_cf,
+    wgsd_capex_ff,
+    wgsd_assets_bus_cf,
+    wgsd_invest_purch_cf,
+    wgsd_invest_sale_cf,
+    wgsd_invest_oth_cf,
+    wgsd_invest_cf,
+    wgsd_debt_iss_cf,
+    wgsd_debt_reduct_cf,
+    wgsd_stk_purch_cf,
+    wgsd_stk_sale_cf,
+    wgsd_div_cf,
+    wgsd_fin_oth_cf,
+    wgsd_fin_cf,
+    wgsd_chg_cash_cf,
+    wgsd_cash_beg_bal_cf,
+    wgsd_cash_end_bal_cf,
+    wgsd_for_exch_cf,
+    wgsd_cash_bal_chg_cf
+]
+上证指数 => 1
+[
+    rel_NAV_adj_return
+]
+前端 => 3
+[
+    fund_subscriptionfee,
+    fund_purchasefee,
+    fund_redemptionfee
+]
+国内评级机构(除中债资信) => 2
+[
+    rate_ratebond,
+    rate_chngbond
+]
+银河证券 => 1
+[
+    fund_thirdpartyfundtype
+]
+10;3;BBI => 1
+[
+    BBIBOLL
+]
+5;10;20;30;看涨 => 1
+[
+    bull_bear_ma
+]
+元;第1名 => 10
+[
+    segment_industry_sales,
+    segment_industry_cost,
+    segment_industry_profit,
+    segment_product_cost,
+    segment_product_profit,
+    segment_region_sales,
+    segment_region_cost,
+    segment_region_profit,
+    prt_topstockvalue,
+    prt_topbondvalue
+]
+境内 => 3
+[
+    stmnote_audit_agency,
+    stmnote_audit_cpa,
+    stmnote_audit_category
+]
+周;普通收益率;上证综合指数;一级分类 => 1
+[
+    risk_trackerrorranking
+]
+流通股本 => 6
+[
+    holder_avgpct,
+    holder_havgpctchange,
+    holder_qavgpctchange,
+    holder_havgchange,
+    holder_qavgchange,
+    holder_avgpctchange
+]
+累计报 => 2
+[
+    stm_rpt_s,
+    stm_rpt_e
+]
+最新年报(LYR) => 1
+[
+    pe
+]
+0;全价 => 2
+[
+    nq_originclose,
+    nq_close
+]
+26;2;MID => 1
+[
+    BOLL
+]
+上证50指数 => 1
+[
+    compindex2
+]
+元;合并报表;本外币;制造业 => 2
+[
+    stmnote_bank_65,
+    stmnote_bank_66
+]
+全部 => 10
+[
+    dcm_unuesdamount,
+    dcm_uesdamount,
+    dcm_meetingdata,
+    dcm_expirationdata,
+    dcm_number,
+    dcm_underwriter,
+    dcm_accumamount,
+    fina_totalamount,
+    fina_totalnumber,
+    fina_remainingnumber
+]
+国内评级机构(除中债资信);主体信用评级 => 1
+[
+    latestissurercreditrating2
+]
+主体信用评级;国内评级机构(除中债资信) => 5
+[
+    rate_fwdissuer,
+    rate_chngissuer,
+    rate_rateguarantor,
+    rate_fwdguarantor,
+    rate_chngguarantor
+]
+除权除息日 => 2
+[
+    div_cashpaidbeforetax,
+    div_cashpaidaftertax
+]
+10;50;10;DDD => 1
+[
+    DMA
+]
+9;3;3;K => 1
+[
+    KDJ
+]
+1年以内 => 1
+[
+    stmnote_ar_2
+]
+3;6;12;24 => 1
+[
+    BBI
+]
+合并报表;本外币 => 27
+[
+    stmnote_bank_641,
+    stmnote_bank_642,
+    stmnote_bank_644,
+    stmnote_bank_645,
+    stmnote_bank_702,
+    stmnote_bank_703,
+    stmnote_bank_705,
+    stmnote_bank_706,
+    stmnote_bank_708,
+    stmnote_bank_709,
+    stmnote_bank_731,
+    stmnote_bank_732,
+    stmnote_bank_733,
+    stmnote_bank_734,
+    stmnote_bank_735,
+    stmnote_bank_736,
+    stmnote_bank_737,
+    stmnote_bank_738,
+    stmnote_bank_739,
+    stmnote_bank_761,
+    stmnote_bank_762,
+    stmnote_bank_791,
+    stmnote_bank_792,
+    stmnote_bank_793,
+    stmnote_bank_794,
+    stmnote_bank_821,
+    stmnote_bank_822
+]
+14;6;PDI => 1
+[
+    DMI
+]
+元;境内 => 1
+[
+    stmnote_audit_expense
+]
+12;6;ROC => 1
+[
+    ROC
+]
+3;60 => 2
+[
+    stage_high,
+    stage_low
+]
+按行业 => 1
+[
+    segment_sales
+]
+元;2015 => 7
+[
+    fellow_collection,
+    fellow_expense,
+    fellow_netcollection,
+    rightsissue_collection,
+    rightsissue_expense,
+    rightsissue_netcollection,
+    div_payout
+]
+元;2016 => 38
+[
+    est_sales,
+    est_maxsales,
+    est_minsales,
+    est_mediansales,
+    est_stdsales,
+    est_netprofit,
+    est_maxnetprofit,
+    est_minnetprofit,
+    est_mediannetprofit,
+    est_stdnetprofit,
+    est_avgcps,
+    est_maxcps,
+    est_mincps,
+    est_mediancps,
+    est_stdcps,
+    est_avgdps,
+    est_maxdps,
+    est_mindps,
+    est_mediandps,
+    est_avgebit,
+    est_maxebit,
+    est_medianebit,
+    est_stdebit,
+    est_maxebitda,
+    est_minebitda,
+    est_stdebitda,
+    est_avgbps,
+    est_minbps,
+    est_medianbps,
+    est_maxebt,
+    est_minebt,
+    est_medianebt,
+    est_stdebt,
+    est_avgoperatingprofit,
+    est_maxoperatingprofit,
+    est_minoperatingprofit,
+    est_medianoperatingprofit,
+    est_stdoperatingprofit
+]
+股;机构 => 7
+[
+    mfd_buyvol_d,
+    mfd_sellvol_d,
+    mfd_buyord,
+    mfd_sellord,
+    mfd_buyvol_a,
+    mfd_sellvol_a,
+    mfd_netbuyvol_a
+]
+股;2015 => 31
+[
+    fellow_amount,
+    fellow_intercodnator,
+    fellow_cashamt,
+    fellow_capeffamt,
+    fellow_oversubratio,
+    fellow_subamtbyplacing,
+    fellow_amttoinst,
+    fellow_otcpreamt_org,
+    fellow_amt_otherpub,
+    fellow_amt_targeted,
+    fellow_amt_fund,
+    fellow_amt_orgtradable,
+    fellow_otcamt,
+    fellow_subbydistr,
+    fellow_pubamt,
+    fellow_trnffamt,
+    rightsissue_baseshare,
+    rightsissue_planamt,
+    rightsissue_amount,
+    rightsissue_theornumtostate,
+    rightsissue_theornumtojur,
+    rightsissue_theornumtoemp,
+    rightsissue_theornumtotrsf,
+    rightsissue_theornumtotrd,
+    rightsissue_actlnumtostate,
+    rightsissue_actlnumtojur,
+    rightsissue_actlnumtoemp,
+    rightsissue_actlnumtotrsf,
+    rightsissue_actlnumtotrd,
+    rightsissue_up5pctnum,
+    rightsissue_up5pcttheornum
+]
+元;全价 => 1
+[
+    amount_fixedincome
+]
+否 => 10
+[
+    return_1w,
+    return_1m,
+    return_3m,
+    return_6m,
+    return_1y,
+    return_2y,
+    return_3y,
+    return_5y,
+    return_ytd,
+    return_std
+]
+上海 => 1
+[
+    relationCode
+]
+元;全部 => 1
+[
+    fina_totalamount2
+]
+2016;万得一致预测 => 3
+[
+    west_medianroa,
+    west_netprofit_maintain,
+    west_yoysales
+]
+普通收益率;一年定存利率（税前） => 1
+[
+    risk_downsiderisk
+]
+Wind资讯;3年 => 1
+[
+    rating_latestmonth
+]
+周;普通收益率;一级分类 => 1
+[
+    risk_annualvolranking
+]
+6 => 1
+[
+    RSI
+]
+6;TAPI => 1
+[
+    TAPI
+]
+门类行业 => 3
+[
+    industry_CSRCcode12,
+    industry_CSRC,
+    industry_CSRCcode
+]
+一级行业 => 12
+[
+    industry_neeqgics,
+    industry_neeqgicscode,
+    industry_gics,
+    industry_gicscode,
+    indexcode_wind,
+    industry_sw,
+    industry_swcode,
+    indexcode_sw,
+    industry_citic,
+    industry_citiccode,
+    industry_gx,
+    industry_HS
+]
+股;流通股本 => 1
+[
+    holder_avgnum
+]
+元;农、林、牧、渔业(A) => 1
+[
+    prt_stockvalue_industry2
+]
+2015 => 51
+[
+    dividendyield,
+    stmnote_tax,
+    div_divpct_3yearaccu,
+    div_aualaccmdiv,
+    div_aualaccmdivpershare,
+    fellow_progress,
+    fellow_price,
+    fellow_listeddate,
+    fellow_totalratio,
+    fellow_publicratio,
+    fellow_issuetype,
+    fellow_undrtype,
+    fellow_leadundr,
+    fellow_deputyundr,
+    fellow_nominator,
+    fellow_cashratio,
+    fellow_casheffacc,
+    fellow_amttoincorp,
+    fellow_otcamt_pct,
+    fellow_offeringdate,
+    fellow_issuedate,
+    fellow_otcdate,
+    fellow_instlistdate,
+    fellow_resultdate,
+    fellow_anncedate,
+    fellow_recorddate,
+    fellow_paystartdate,
+    fellow_payenddate,
+    fellow_discntratio,
+    fellow_pricemax,
+    fellow_pricemin,
+    fellow_dilutedpe,
+    fellow_netprice,
+    rightsissue_progress,
+    rightsissue_price,
+    rightsissue_pershare,
+    rightsissue_regdateshareb,
+    rightsissue_exdividenddate,
+    rightsissue_listeddate,
+    rightsissue_paystartdate,
+    rightsissue_payenddate,
+    rightsissue_approveddate,
+    rightsissue_anncedate,
+    rightsissue_leadundr,
+    rightsissue_type,
+    rightsissue_undrtype,
+    rightsissue_deputyundr,
+    rightsissue_maxpricepreplan,
+    rightsissue_minpricepreplan,
+    div_perunit,
+    div_times
+]
+张;第1名 => 1
+[
+    bondholder_quantity
+]
+10 => 1
+[
+    VSTD
+]
+标普;长期信用评级 => 1
+[
+    issuer2
+]
+12 => 2
+[
+    BIAS,
+    EXPMA
+]
+14 => 1
+[
+    CCI
+]
+CDP => 1
+[
+    CDP
+]
+标普 => 1
+[
+    ratebond2
+]
+当年年报增长率 => 1
+[
+    peg
+]
+推荐 => 25
+[
+    yield_cnbd,
+    net_cnbd,
+    dirty_cnbd,
+    modidura_cnbd,
+    matu_cnbd,
+    accruedinterest_cnbd,
+    vobp_cnbd,
+    sprdura_cnbd,
+    interestduration_cnbd,
+    spreadyield_cnbd,
+    cnvxty_cnbd,
+    sprcnxt_cnbd,
+    interestcnvxty_cnbd,
+    price_cnbd,
+    accrint_dayend_cnbd,
+    mcyield_cnbd,
+    mcnet_cnbd,
+    mdirty_cnbd,
+    weight_modidura,
+    weight_sprdura,
+    weight_interestduration,
+    weight_vobp,
+    weight_cnvxty,
+    weight_sprcnxt,
+    weight_interestcnvxty
+]
+股;第1名 => 2
+[
+    holder_quantity,
+    holder_liqquantity
+]
+上年年报 => 3
+[
+    ps,
+    pcf_ncf,
+    pcf_ocf
+]
+12;WR => 1
+[
+    MIKE
+]
+股 => 81
+[
+    total_shares,
+    free_float_shares,
+    float_a_shares,
+    share_restricteda,
+    share_totala,
+    share_liqb,
+    share_restrictedb,
+    share_totalb,
+    share_totalotc,
+    share_h,
+    share_oversea,
+    share_totaltradable,
+    share_totalrestricted,
+    share_nontradable,
+    share_ntrd_prfshare,
+    share_issuing,
+    share_rtd_state,
+    share_rtd_statejur,
+    share_rtd_subotherdomes,
+    share_rtd_domesjur,
+    share_rtd_inst,
+    share_rtd_domesnp,
+    share_rtd_subfrgn,
+    share_rtd_frgnjur,
+    share_rtd_frgnnp,
+    share_pledgeda,
+    share_liqa_pledged,
+    share_restricteda_pledged,
+    share_otca,
+    share_otcb,
+    holder_top10quantity,
+    holder_top10liqquantity,
+    holder_totalbyinst,
+    holder_totalbyfund,
+    holder_totalbybysec,
+    holder_totalbybywmp,
+    holder_totalbyhf,
+    holder_totalbyqfii,
+    holder_totalbyinsur,
+    holder_totalbyssfund,
+    holder_totalbycorppension,
+    holder_totalbytrustcorp,
+    holder_totalbyfinancecorp,
+    holder_totalbybank,
+    holder_totalbygeneralcorp,
+    holder_totalbylnfcorp,
+    mrg_short_vol,
+    mrg_short_vol_repay,
+    mrg_short_vol_bal,
+    mrg_short_vol_int,
+    mrg_short_vol_repay_int,
+    mrg_short_vol_bal_int_avg,
+    mfd_inflowvolume_open_a,
+    mfd_inflowvolume_close_a,
+    mfd_buyvol_m,
+    mfd_buyvol_open_m,
+    mfd_buyvol_close_m,
+    us_volume,
+    matotalshares,
+    ipo_amount,
+    ipo_newshares,
+    ipo_oldshares,
+    ipo_totcapafterissue,
+    ipo_cashamt,
+    ipo_amttojur,
+    ipo_VSShares_s,
+    ipo_lstnum,
+    ipo_SShares_uplimit,
+    ipo_VSShares,
+    ipo_InvSShares_a,
+    ipo_PShares_mf,
+    ipo_PShares_ssf,
+    ipo_PShares_SP,
+    ipo_PShares_IF,
+    ipo_SShares_t,
+    ipo_totcapbeforeissue,
+    ipo_amount_est,
+    ipo_totcapafterissue_est,
+    ipo_subbydistr,
+    ipo_amttoinstinvestor,
+    ipo_amttoother
+]
+过去1个月 => 6
+[
+    NAV_return,
+    NAV_stddevreturn,
+    NAV_benchreturn,
+    NAV_benchstddev,
+    NAV_benchdevreturn,
+    NAV_stddevnavbench
+]
+前10名 => 2
+[
+    holder_name,
+    holder_liqname
+]
+26;12 => 1
+[
+    PRICEOSC
+]
+原始币种 => 8
+[
+    eps_basic,
+    eps_diluted,
+    bps,
+    ocfps,
+    orps,
+    cfps,
+    div_cashbeforetax2,
+    div_cashaftertax2
+]
+赎回 => 3
+[
+    clauseitem,
+    fundarrialdate,
+    nxoptiondate
+]
+农、林、牧、渔业(A) => 3
+[
+    prt_stockvalue_industryvaluegrowth2,
+    prt_stockvalue_industrytoasset2,
+    prt_stockvalue_industrytonavgrowth2
+]
+2016;一级分类 => 1
+[
+    style_avgpositiontimeranking
+]
+周;普通收益率 => 10
+[
+    avgreturn,
+    stdevr,
+    stdevry,
+    stdcof,
+    risk_returnyearly,
+    risk_gemreturn,
+    risk_correcoefficient_trackindex,
+    risk_stdev,
+    risk_stdevyearly,
+    risk_trackerror_trackindex
+]
+周;普通收益率;一年定存利率（税前） => 5
+[
+    sharpe,
+    risk_avgriskreturn,
+    risk_gemavgriskreturn,
+    risk_annusharpe,
+    risk_annuSortino
+]
+合并报表 => 52
+[
+    cashtostdebt,
+    stmnote_bank_AR,
+    stmnote_bank_129_n,
+    loan_depo_ratio_n,
+    npl_ratio_n,
+    baddebtprovcoverage_n,
+    lend_to_banks_ratio_n,
+    loan_from_banks_ratio_n,
+    reserveratio_rmb_n,
+    reserveratio_fc_n,
+    loan_depo_ratio_rmb_n,
+    loan_depo_ratio_normb_n,
+    medlongloanratio_rmb_n,
+    medlongloanratio_fc_n,
+    st_asset_liq_ratio_rmb_n,
+    st_asset_liq_ratio_normb_n,
+    intcolratio_n,
+    busloanratio_n,
+    forcaputratio_n,
+    largest_customer_loan_n,
+    top_ten_customer_loan_n,
+    stmnote_bank_147_n,
+    stmnote_bank_60,
+    core_capi_ade_ratio_n,
+    capi_ade_ratio_n,
+    stmnote_bank_CapAdequacyRatio_CT1,
+    stmnote_bank_CapAdequacyRatio_T1,
+    stmnote_bank_CapAdequacyRatio,
+    stmnote_sec_3,
+    stmnote_sec_4,
+    stmnote_sec_5,
+    stmnote_sec_6,
+    stmnote_sec_7,
+    stmnote_sec_8,
+    stmnote_sec_1853,
+    stmnote_insur_5,
+    stmnote_insur_6,
+    stmnote_insur_8,
+    stmnote_insur_1,
+    stmnote_insur_2,
+    stmnote_insur_3,
+    stmnote_insur_4,
+    stmnote_insur_12,
+    stmnote_insur_9,
+    stmnote_insur_10,
+    stmnote_insur_11,
+    stmnote_insur_15,
+    special_rsrv,
+    net_inc_other_ops,
+    comm_insur_plcy_paid,
+    qfa_comm_insur_plcy_paid,
+    stmnote_RDexptosales
+]
+5 => 10
+[
+    MA,
+    VMA,
+    vol_ratio,
+    style_topnproportiontoallshares,
+    style_topnproportiontoallindustries,
+    ipo_npctchange,
+    ipo_nturn,
+    prt_topnstocktonav,
+    prt_top5tobond,
+    prt_top5tonav
+]
+6个月 => 2
+[
+    absolute_highestreturnofconmonth,
+    absolute_lowestreturnofconmonth
+]
+份 => 12
+[
+    unit_total,
+    unit_floortrading,
+    unit_change,
+    unit_purchase,
+    unit_redemption,
+    unit_netpurchase,
+    unit_purchase_qty,
+    unit_redemption_qty,
+    unit_netpurchase_qty,
+    holder_avgholding,
+    holder_institution_holding,
+    holder_mngemp_holding
+]
+单项金额重大 => 1
+[
+    stmnote_ar_cat
+]
+普通收益率;一年定存利率（税前）;一级分类 => 1
+[
+    risk_downsideriskranking
+]
+基金公司;第1名 => 1
+[
+    ipo_allotmentsubjects
+]
+第1名 => 27
+[
+    holder_sharecategory,
+    holder_liqpct,
+    holder_liqsharecategory,
+    shareholderbriefing,
+    shareholdernature,
+    bondholder_name,
+    bondholder_pct,
+    segment_industry_item,
+    segment_product_item,
+    segment_region_item,
+    prt_topstockname,
+    prt_topstockcode,
+    prt_topstockquantity,
+    prt_topstockholdingchanging,
+    prt_heavilyheldstocktostock,
+    prt_heavilyheldstocktonav,
+    prt_heavilyheldstocktoasset,
+    prt_heavilyheldstocksperchange,
+    prt_fundnoofstocks,
+    prt_topbondname,
+    prt_topbondsymbol,
+    prt_topbondquantity,
+    prt_topbondholdingchanging,
+    prt_heavilyheldbondtobond,
+    prt_heavilyheldbondtonav,
+    prt_heavilyheldbondtoasset,
+    prt_fundnoofbonds
+]
+60;3 => 2
+[
+    breakout_ma,
+    breakdown_ma
+]
+一级分类 => 6
+[
+    fund_similarfundno,
+    fund_qsimilarproductsimilarranking,
+    peer_fund_avg_return_per,
+    peer_fund_ return_rank_per,
+    peer_fund_return_rank_prop_per,
+    peer_SAM_ return_rank_per
+]
+元;万得一致预测 => 2
+[
+    targetprice_max,
+    targetprice_min
+]
+9;3;3;5;K => 1
+[
+    slowKD
+]
+申万行业;一级行业 => 3
+[
+    industry2,
+    industrycode,
+    industryname
+]
+周;普通收益率;一年定存利率（税前）;上证综合指数;一级分类 => 3
+[
+    risk_timeranking,
+    risk_stockranking,
+    risk_inforatioranking
+]
+12;26;9;DIFF => 1
+[
+    VMACD
+]
+普通收益率 => 2
+[
+    avgreturny,
+    risk_navoverbenchannualreturn
+]
+元;申万宏源证券 => 1
+[
+    commission_detailed
+]
+14;TR => 1
+[
+    ATR
+]
+万元 => 3
+[
+    tender_tenderunit,
+    tender_lowestamnt,
+    tender_highestamnt
+]
+元;基金公司;第1名 => 1
+[
+    ipo_subscriptionprice
+]
+周;普通收益率;上证综合指数 => 9
+[
+    risk_nonsysrisk1,
+    r2,
+    alpha2,
+    beta,
+    betadf,
+    risk_r2,
+    risk_annualpha,
+    risk_trackerror,
+    risk_annutrackerror
+]

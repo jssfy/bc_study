@@ -4,6 +4,20 @@ shell cmds:
   use db_name
   db.stats()
 
+----------- 2017-03-02 20:47:53
+http://www.cnblogs.com/chang290/p/3437527.html
+
+https://www.zhihu.com/question/20655375
+由于MongoDB单个文档大小限制为16MB，而且其分片机制仅支持对集合进行分片，不能对单个文档进行分片。所以对于有可能无限增长的数组结构，是不是就不能存放在单个文档中，而只能作为一个单独的collection进行存储？
+
+MongoDB 有一种叫做 GridFS 的机制来解决单个 doc 容量上限的问题，建议题主仔细查查 MongoDB 的文档。
+
+
+--------- 2017-02-22 10:49:40
+db.course.update({},{$unset:{"lectures.lectures_count":""}},{multi:true})
+db.temp_edb_measures.update({_id : {$gt : ObjectId("58a40ca3cbc889b495789562")}, 'frequency' : {$exists : true}}, {$unset:{"frequency":""}},{multi:false})
+
+db.temp_edb_measures.update({_id : {$gt : ObjectId("58a40ca3cbc889b495789562")}, 'frequency' : {$exists : true}}, {$unset:{"frequency":""}},{multi:false})
 ----------- 2017-02-15 17:47:28
  db.temp_wind_edb.find({date : {$in : [1451491200000, 1467216000000]}})
 { "_id" : ObjectId("58a42040cbc889b49579427f"), "date" : NumberLong("1451491200000"), "dateObj" : ISODate("2015-12-31T00:00:00Z"), "M0017126" : 49.7 }

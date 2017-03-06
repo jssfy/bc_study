@@ -129,6 +129,466 @@ switched to db apes
   [2016-10-24, 2016-11-06]
   [2016-12-16, 2017-1-13]
 
+
+---------- 2017-03-06 14:40:41
+考虑到安全因素,线上linux服务器通过jumper访问:　(如果访问受限请联系max开通权限)
+jumper: ssh <your_id>@120.26.195.205 -p 9527
+登录jumper后可以进一步通过如下命令登录相应linux服务器 (需要让max帮忙开通以下两台机器的sudo权限)
+  nb-ssh bj-tz8-db001
+   (120.26.245.253) python策略脚本机器 (启动方式:　http://10.12.6.6:9000/job/apes-crawler-production/　立即构建)　/niub/bj/apes-crawler/apes-crawler-production
+  nb-ssh bj-tz8-demo
+   (120.26.95.121)　node server /niub/bj/app/wsservice 手动拷贝后到机器上手动运行
+
+手动拷贝方式:
+本地到jumper: scp -P 9527 ../apes-crawler.tgz ahye@120.26.195.205:~/
+jumper到目标机器:　scp -i /etc/nbrsa/id_rsa <<file>> 10.51.3.146:~/
+
+---------- 2017-03-06 14:22:14
+jenkins:
+/var/lib/jenkins/workspace/apes-crawler-production
+
+dir=/tmp
+echo "creating .tar.gz file ..."
+rm -f $dir/crawler.tar.gz.old
+if [ -f "$dir/crawler.tar.gz" ]; then
+  mv "$dir/crawler.tar.gz" "$dir/crawler.tar.gz.old"
+fi
+tar zcvf $dir/crawler.tar.gz ../apes-crawler-production
+echo "upload tar.gz..."
+scp $dir/crawler.tar.gz jenkins@120.26.245.253:/home/jenkins/crawler.tar.gz.tmp
+ssh -T jenkins@120.26.245.253 << EOF
+  sudo -s
+  cp /home/jenkins/crawler.tar.gz.tmp /niub/bj/apes-crawler/crawler.tar.gz.tmp
+    rm -f /niub/bj/apes-crawler/crawler.tar.gz.old
+    if [ -f "/niub/bj/apes-crawler/crawler.tar.gz" ]; then
+      mv "/niub/bj/apes-crawler/crawler.tar.gz" "/niub/bj/apes-crawler/crawler.tar.gz.old"
+    fi
+    mv "/niub/bj/apes-crawler/crawler.tar.gz.tmp" "/niub/bj/apes-crawler/crawler.tar.gz"
+    rm -rf /niub/bj/apes-crawler/apes-crawler
+    tar xzf /niub/bj/apes-crawler/crawler.tar.gz -C /niub/bj/apes-crawler/
+    export CRAWLER_ENV=release
+    # to start the crawler here
+    cd /niub/bj/apes-crawler/apes-crawler-production/
+    python runcrawler.py restart
+EOF
+echo "done"
+
+------- 2017-03-06 12:31:20
+$ sudo python runcrawler.py offline "EDB Data Spider"
+[sudo] password for kidd: 
+['anhye@abcft.com']
+2017-03-06 12:30:03,103 - 24579 - INFO - connect websocket
+2017-03-06 12:30:03,180 - 24579 - INFO - connect finished
+10.168.152.131: M0053706
+1980-01-01->1989-12-31: M0053706
+2017-03-06 12:30:09,556 - 24579 - INFO - response process succeed: EDB Data Spider
+1990-01-01->1999-12-31: M0053706
+2017-03-06 12:30:10,029 - 24579 - INFO - response process succeed: EDB Data Spider
+2000-01-01->2017-03-06: M0053706
+2017-03-06 12:30:10,434 - 24579 - INFO - response process succeed: EDB Data Spider
+2017-03-06 12:30:12,436 - 24579 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+M0053706 is not supported in 120.26.169.235
+
+------------ 2017-03-06 10:44:22
+[2017-03-06 10:43:21.646] [INFO] app - cmd: {"cmd":"edb","agent":"10.171.177.232","param":["M0053706","1980-01-01","1989-12-31","Fill=Previous"],"id":1,"quota_usage":1089751,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-03-06T10:43:20\"],\"data\":[\"Unsupportted wind_codes in free edition.\"],\"errorCode\":-40522005}"}
+
+
+---------- 2017-03-03 13:39:30
+> db.temp_edb_measures.find().count()
+46311
+> db.temp_edb_measures_p1.find({id : 'M0269492'})
+{ "_id" : ObjectId("58b803cc90410fd977d2afb2"), "datasetId" : "wind_edb", "id" : "M0269492", "name" : "全国国有企业:利润总额:社会服务业", "parent" : null, "dataType" : 4, "type" : 2 }
+> db.temp_edb_measures_p1.find({_id : {$lt : ObjectId("58b803cc90410fd977d2afb2")}}).count()
+791
+
+
+
+---------- 2017-03-02 19:58:59
+sourcedb.get_temp_edb_data_count()
+
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-03-02 19:58:42,951 - 29145 - INFO - connect websocket
+2017-03-02 19:58:43,016 - 29145 - INFO - connect finished
+total count: 1603
+2017-03-02 19:58:43,022 - 29145 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+
+----------- 2017-03-01 14:57:16
+-40521009 数据解码失败
+
+--------------- 2017-03-01 11:47:12
+$ file /home/kidd/abc/edb/uiautomation/automation_measures/180/edb_measures_180_房地产开发投资完成额累计值.txt
+/home/kidd/abc/edb/uiautomation/automation_measures/180/edb_measures_180_房地产开发投资完成额累计值.txt: UTF-8 Unicode (with BOM) text, with CRLF line terminators
+
+----------- 2017-02-28 18:08:35
+[root@bj-tz8-db001 apes-crawler]# python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-28 18:08:15,084 - 25887 - INFO - connect websocket
+2017-02-28 18:08:15,087 - 25887 - INFO - connect finished
+total count: 249471
+  -> 249717
+
+------------- 2017-02-27 14:56:37
+{ "datasetId" : "wind_edb", "targets" : [ { "id" : "M0043761", "name" : "固定利率国债到期收益率:3个月", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0043764", "name" : "固定利率国债到期收益率:6个月", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0043758", "name" : "固定利率国债到期收益率:1年", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0043762", "name" : "固定利率国债到期收益率:3年", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0043763", "name" : "固定利率国债到期收益率:5年", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0057945", "name" : "固定利率国债到期收益率:6年", "dataType" : 4, "filters" : [ ], "parameters" : [ ] }, { "id" : "M0043757", "name" : "固定利率国债到期收益率:10年", "dataType" : 4, "filters" : [ ], "parameters" : [ ] } ], "appendix" : { "postFilters" : [ ], "sort" : [ ] }, "time" : { "id" : "date", "name" : "时间设置", "dataType" : 1, "filters" : [ { "＄timerange" : { "date" : { "＄gte" : NumberLong("1010073600000"), "＄lt" : NumberLong("1487347200000") } } } ] } } } ], 
+
+--------- 2017-02-27 11:40:44
+add more edb measures:
+db.measures.find({datasetId : 'wind_edb'}).count()
+775
+
+~/tmp
+$ mongoexport -h 10.12.6.6 --port 27017 -d apes -c measures -o ~/measures_0227.dat
+connected to: 10.12.6.6:27017
+exported 5750 records
+
+python /home/kidd/workspace/abc/apes-crawler/tools/import_edb_measurements.py
+date without frequency
+190
+
+db.measures.find({datasetId : 'wind_edb'}).count()
+956
+
+
+----------- 2017-02-24 11:19:20
+echo "2017 2 3 2017 2 21" > /tmp/spider.ranges
+export CRAWLER_ENV=release
+python runcrawler.py offline "Daily Analysis Spider"
+
+121.199.19.105 (10.132.17.144)
+  daily analysis: 400w+
+  continue with 121.199.19.218 (10.132.19.39):
+
+2017-02-24 12:26:40,051 - 20266 - INFO - need to upsert daily analysis for 603167.SH
+2017-02-24 12:26:40,052 - 20266 - INFO - crawl finished: 5677 for code 603167.SH
+2017-02-24 12:26:40,052 - 20266 - INFO - send websocket request: 5678
+2017-02-24 12:27:46,019 - 20266 - INFO - errorCode -40522002 for 603168.SH
+2017-02-24 12:27:46,019 - 20266 - INFO - crawl finished: 5678 for code 603168.SH
+2017-02-24 12:27:46,022 - 20266 - INFO - close websocket
+run offline spider "Daily Analysis Spider" finished
+
+非法数据服务
+  not sure about the exact reason, restarting the agent fixes this issue.
+
+------------ 2017-02-23 19:00:19
+crawl history data for daily market:
+echo "2017 2 3 2017 2 21" > /tmp/spider.ranges
+  spent 419w quota
+
+> db.wind_wsd.find({rel_ipo_pct_chg : {$exists : true}}, {date : 1}).sort({date : -1})
+{ "_id" : ObjectId("58ae8c812fb11c7495d307f5"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c292fb11c7495d307da"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c782fb11c7495d307df"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c7a2fb11c7495d307e3"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c7c2fb11c7495d307e7"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c7d2fb11c7495d307eb"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c7f2fb11c7495d307ef"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c802fb11c7495d307f3"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c822fb11c7495d307f7"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c842fb11c7495d307fb"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c852fb11c7495d307fe"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c862fb11c7495d30801"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c872fb11c7495d30804"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c882fb11c7495d30807"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c8a2fb11c7495d3080a"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c8b2fb11c7495d3080d"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c8c2fb11c7495d30810"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c8d2fb11c7495d30813"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c8f2fb11c7495d30816"), "date" : NumberLong("1487692800000") }
+{ "_id" : ObjectId("58ae8c902fb11c7495d30819"), "date" : NumberLong("1487692800000") }
+Type "it" for more
+> db.wind_wsd.find({rel_ipo_pct_chg : {$exists : true}, date : {$lt : 1487692800000}}, {date : 1}).sort({date : -1})
+{ "_id" : ObjectId("58a9c10a2fb11c7495d307d5"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1092fb11c7495d307d4"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1072fb11c7495d307ce"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1082fb11c7495d307d0"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1072fb11c7495d307cf"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1082fb11c7495d307d1"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1082fb11c7495d307d2"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c1092fb11c7495d307d3"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a9c10a2fb11c7495d307d6"), "date" : NumberLong("1487433600000") }
+{ "_id" : ObjectId("58a86f8b2fb11c7495d307cb"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f8b2fb11c7495d307ca"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f892fb11c7495d307c4"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f892fb11c7495d307c6"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f892fb11c7495d307c5"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f8a2fb11c7495d307c7"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f8a2fb11c7495d307c8"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f8b2fb11c7495d307c9"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a86f8c2fb11c7495d307cc"), "date" : NumberLong("1487347200000") }
+{ "_id" : ObjectId("58a71e1f2fb11c7495d2f068"), "date" : NumberLong("1487260800000") }
+{ "_id" : ObjectId("58a71e102fb11c7495d2f04b"), "date" : NumberLong("1487260800000") }
+Type "it" for more
+
+---------- 2017-02-23 15:11:14
+tried 5 accounts, we have got only 2000 quota for edb every 7 days. (every 7 rolling days)
+  http://dajiangzhang.com/document#pointa_ea9f1e59-1915-4e0b-b4aa-2fcaecc7974f
+
+----------- 2017-02-23 13:50:33
+the data is sometimes corrupted, need to re-crawl:
+2 / 41135
+data is none: 
+{'errorCode': -40520012, 'codeList': None, 'data': None, 'fieldList': None, 'timeList': None}
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/gevent/greenlet.py", line 534, in run
+    result = self._run(*self.args, **self.kwargs)
+  File "/home/kidd/workspace/abc/apes-crawler/websocket/client.py", line 64, in response
+    callback(resp, **kwargs)
+  File "/home/kidd/workspace/abc/apes-crawler/spiders/edbspider.py", line 412, in sample_response
+    self.result_data_len = len(data['data'])
+TypeError: object of type 'NoneType' has no len()
+<Greenlet at 0x7f698860a550: response> failed with TypeError
+
+
+---------- 2017-02-23 10:02:28
+2017-02-22 19:51:37,832 - 29194 - ERROR - data request failed: {"cmd":"edb","param":["M5400671","2015-11-30","2015-12-2","Fill=Previous"],"id":7080,"quota_usage":5505,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-02-22T19:51:39\"],\"data\":[\"CWSDService: quota exceeded.\"],\"errorCode\":-40522017}"}
+
+
+--------- 2017-02-22 16:52:27
+edb daily crawler fix for _get_measures: (culprit: even indexes having same frequency might have different updating time point every period)
+  crawl all and only those indexes which do not have last time-period's data. ignore those already up-to-date.
+
+# week: M5558006, day: M0020237, month: M0017126, year: M0041963, quater: M0012976, half-year: M5543440
+
+sample data:
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:24:03,379 - 2850 - INFO - connect websocket
+2017-02-22 17:24:03,448 - 2850 - INFO - connect finished
+2017-02-22 17:24:03,449 - 2850 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M5558006", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:24:03,449 - 2850 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M5558006'], 'data': [21.85], 'fieldList': ['CLOSE'], 'timeList': ['2017-02-03T00:00:00']}
+2017-02-22 17:24:06,528 - 2850 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:24:37,564 - 5168 - INFO - connect websocket
+2017-02-22 17:24:37,871 - 5168 - INFO - connect finished
+2017-02-22 17:24:37,872 - 5168 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0020237", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:24:37,872 - 5168 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M0020237'], 'data': [159.8795], 'fieldList': ['CLOSE'], 'timeList': ['2017-02-21T00:00:00']}
+2017-02-22 17:24:41,133 - 5168 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:24:46,904 - 5768 - INFO - connect websocket
+2017-02-22 17:24:46,967 - 5768 - INFO - connect finished
+2017-02-22 17:24:46,968 - 5768 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0017126", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:24:46,968 - 5768 - INFO - request measures count: 1
+{'errorCode': -40520012, 'codeList': None, 'data': None, 'fieldList': None, 'timeList': None}
+2017-02-22 17:24:53,346 - 5768 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:25:03,336 - 6807 - INFO - connect websocket
+2017-02-22 17:25:03,412 - 6807 - INFO - connect finished
+2017-02-22 17:25:03,413 - 6807 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0017126", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:25:03,414 - 6807 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M0017126'], 'data': [51.3], 'fieldList': ['CLOSE'], 'timeList': ['2017-01-31T00:00:00']}
+2017-02-22 17:25:07,498 - 6807 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:25:25,378 - 8211 - INFO - connect websocket
+2017-02-22 17:25:25,450 - 8211 - INFO - connect finished
+2017-02-22 17:25:25,451 - 8211 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0041963", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:25:25,451 - 8211 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M0041963'], 'data': [247860.1], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-31T00:00:00']}
+2017-02-22 17:25:26,737 - 8211 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:25:33,793 - 8742 - INFO - connect websocket
+2017-02-22 17:25:33,856 - 8742 - INFO - connect finished
+2017-02-22 17:25:33,857 - 8742 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M0012976", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:25:33,857 - 8742 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M0012976'], 'data': [101.4], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-31T00:00:00']}
+2017-02-22 17:25:35,002 - 8742 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:25:42,089 - 9256 - INFO - connect websocket
+2017-02-22 17:25:42,163 - 9256 - INFO - connect finished
+2017-02-22 17:25:42,164 - 9256 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["M5543440", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:25:42,164 - 9256 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['M5543440'], 'data': [3120.319687], 'fieldList': ['CLOSE'], 'timeList': ['2016-06-30T00:00:00']}
+2017-02-22 17:25:45,281 - 9256 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 17:26:00,271 - 10326 - INFO - connect websocket
+2017-02-22 17:26:00,329 - 10326 - INFO - connect finished
+2017-02-22 17:26:00,331 - 10326 - INFO - 1: request cmd: {"cmd": "edb", "type": "cmd", "param": ["G0003758", "2017-02-21", "2017-02-21", "Fill=Previous"]}
+2017-02-22 17:26:00,331 - 10326 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['G0003758'], 'data': [189.3], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-31T00:00:00']}
+2017-02-22 17:26:04,542 - 10326 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+--------- 2017-02-22 14:28:20
+$ sudo python runcrawler.py offline "EDB Data Spider"
+[sudo] password for kidd: 
+['anhye@abcft.com']
+2017-02-22 14:27:01,435 - 23656 - INFO - connect websocket
+2017-02-22 14:27:01,520 - 23656 - INFO - connect finished
+2017-02-22 14:27:01,520 - 23656 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["G0003749", "2016-08-17", "2017-02-17", "Fill=Previous"]}
+2017-02-22 14:27:01,520 - 23656 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['G0003749'], 'data': [6196.4, 6154.9, 6041.9, 5944.7, 6003.9], 'fieldList': ['CLOSE'], 'timeList': ['2016-08-31T00:00:00', '2016-09-30T00:00:00', '2016-10-31T00:00:00', '2016-11-30T00:00:00', '2016-12-31T00:00:00']}
+2017-02-22 14:27:02,613 - 23656 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 14:27:57,606 - 27060 - INFO - connect websocket
+2017-02-22 14:27:57,683 - 27060 - INFO - connect finished
+2017-02-22 14:27:57,683 - 27060 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700349", "2016-08-17", "2017-02-17", "Fill=Previous"]}
+2017-02-22 14:27:57,683 - 27060 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['S2700349'], 'data': [12541.0, 12734.0, 12965.0, 13083.0], 'fieldList': ['CLOSE'], 'timeList': ['2016-08-31T00:00:00', '2016-09-30T00:00:00', '2016-10-31T00:00:00', '2016-11-30T00:00:00']}
+2017-02-22 14:27:57,861 - 27060 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 14:30:11,737 - 2976 - INFO - connect websocket
+2017-02-22 14:30:11,795 - 2976 - INFO - connect finished
+2017-02-22 14:30:11,796 - 2976 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700349,G0003749", "2016-10-17", "2017-02-17", "Fill=Previous"]}
+2017-02-22 14:30:11,796 - 2976 - INFO - request measures count: 2
+{'errorCode': 0, 'codeList': ['S2700349', 'G0003749'], 'data': [12965.0, 6041.9, 13083.0, 5944.7, 13083.0, 6003.9], 'fieldList': ['CLOSE'], 'timeList': ['2016-10-31T00:00:00', '2016-11-30T00:00:00', '2016-12-31T00:00:00']}
+2017-02-22 14:30:12,648 - 2976 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+without "'extraParams': 'Fill=Previous',"
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 14:29:38,330 - 785 - INFO - connect websocket
+2017-02-22 14:29:38,403 - 785 - INFO - connect finished
+2017-02-22 14:29:38,403 - 785 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700349,G0003749", "2016-10-17", "2017-02-17"]}
+2017-02-22 14:29:38,403 - 785 - INFO - request measures count: 2
+{'errorCode': -40520012, 'codeList': None, 'data': None, 'fieldList': None, 'timeList': None}
+2017-02-22 14:29:43,420 - 785 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+with "'extraParams': 'Fill=Previous',", need to fix the db update strategy:
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-22 14:38:51,977 - 2716 - INFO - connect websocket
+2017-02-22 14:38:53,046 - 2716 - INFO - connect finished
+2017-02-22 14:38:53,046 - 2716 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700349,G0003749", "2017-2-17", "2017-2-17", "Fill=Previous"]}
+2017-02-22 14:38:53,046 - 2716 - INFO - request measures count: 2
+{'errorCode': 0, 'codeList': ['S2700349', 'G0003749'], 'data': [13083.0, 'NaN', 13083.0, 6003.9], 'fieldList': ['CLOSE'], 'timeList': ['2016-11-30T00:00:00', '2016-12-31T00:00:00']}
+2017-02-22 14:38:54,529 - 2716 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+$ sudo python runcrawler.py offline "EDB Data Spider"
+[sudo] password for kidd: 
+['anhye@abcft.com']
+2017-02-22 16:04:46,030 - 31473 - INFO - connect websocket
+2017-02-22 16:04:46,348 - 31473 - INFO - connect finished
+2017-02-22 16:04:46,348 - 31473 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700349", "2017-2-17", "2017-2-17", "Fill=Previous"]}
+2017-02-22 16:04:46,348 - 31473 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['S2700349'], 'data': [13083.0], 'fieldList': ['CLOSE'], 'timeList': ['2016-11-30T00:00:00']}
+2017-02-22 16:04:46,439 - 31473 - INFO - response process succeed: EDB Data Spider
+2017-02-22 16:04:46,439 - 31473 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+------------- 2017-02-22 10:43:22
+120.55.112.51(10.168.152.131),
+120.26.169.235(10.171.177.232)，
+已经有两台机器才抓了一点点就超限了
+
+node:
+[2017-02-22 10:42:41.767] [INFO] app - cmd: {"cmd":"edb","param":["S0190177","2016-11-30","2016-12-2","Fill=Previous"],"id":7933,"quota_usage":8186,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-02-22T10:42:38\"],\"data\":[\"CWSDService: quota exceeded.\"],\"errorCode\":-40522017}"}
+[2017-02-22 10:42:41.767] [INFO] app - quota usage: 8186
+[2017-02-22 10:42:41.768] [INFO] app - reply data to manager: {"cmd":"edb","param":["S0190177","2016-11-30","2016-12-2","Fill=Previous"],"id":7933,"quota_usage":8186,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-02-22T10:42:38\"],\"data\":[\"CWSDService: quota exceeded.\"],\"errorCode\":-40522017}"} lEQ0qG8ytZrwkDzKF+BHBA==
+[2017-02-22 10:42:41.768] [INFO] app - update error status to: -40522017 for PkGO/wJY4q/Q7JG5pjkCOg==
+[2017-02-22 10:42:42.277] [INFO] app - connection closed  lEQ0qG8ytZrwkDzKF+BHBA==
+
+crawler:
+$ sudo python runcrawler.py offline "EDB Data Spider"
+[sudo] password for kidd: 
+['anhye@abcft.com']
+2017-02-22 10:42:09,311 - 28249 - INFO - connect websocket
+2017-02-22 10:42:09,373 - 28249 - INFO - connect finished
+crawling day data...
+1 / 1
+2017-02-22 10:42:40,338 - 28249 - ERROR - data request failed: {"cmd":"edb","param":["S0190177","2016-11-30","2016-12-2","Fill=Previous"],"id":7933,"quota_usage":8186,"type":"cmd-response","data":"{\"codeList\":[\"ErrorReport\"],\"fieldList\":[\"OUTMESSAGE\"],\"timeList\":[\"2017-02-22T10:42:38\"],\"data\":[\"CWSDService: quota exceeded.\"],\"errorCode\":-40522017}"}
+
+
+-------------- 2017-02-21 20:43:12
+  日 周 月 季 半年  年 total 帐户周
+27年消耗 69349635  10793952  12972636  318708  2376  573804  94011111  15.6685185
+
+
+total: 220, day count: 0. M5513086 not
+221 / 46307
+
+------- 2017-02-21 20:19:48
+result for day-field with none-day field:
+2016-12-20 - 2016-12-22
+{'errorCode': 0, 'codeList': ['M5567891', 'M0020237'], 'data': ['NaN', 159.4901, 'NaN', 159.5329, 'NaN', 159.7158, 84582.8, 159.7158], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-20T00:00:00', '2016-12-21T00:00:00', '2016-12-22T00:00:00', '2016-12-31T00:00:00']}
+finished crawling day data
+
+result for a day field:
+{'errorCode': 0, 'codeList': ['M0020237'], 'data': [159.4901, 159.5329, 159.7158], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-20T00:00:00', '2016-12-21T00:00:00', '2016-12-22T00:00:00']}
+finished crawling day data
+
+result for a none-day field:
+2016-12-20 - 2016-12-22
+{'errorCode': 0, 'codeList': ['M5567891'], 'data': [84582.8], 'fieldList': ['CLOSE'], 'timeList': ['2016-12-31T00:00:00']}
+finished crawling day data
+
+
+------- 2017-02-20 16:28:02
+房地产销售及投资
+刷新
+添加图表
+  updating too slow, e.g., 
+
+  $ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-20 16:23:11,898 - 9070 - INFO - connect websocket
+2017-02-20 16:23:11,973 - 9070 - INFO - connect finished
+2017-02-20 16:23:11,974 - 9070 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700452", "2016-06-17", "2017-02-17", "Fill=Previous"]}
+2017-02-20 16:23:11,974 - 9070 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['S2700452'], 'data': [22.0, 30.0, 29.0, 18.0, 21.0, 19.0], 'fieldList': ['CLOSE'], 'timeList': ['2016-06-30T00:00:00', '2016-07-31T00:00:00', '2016-08-31T00:00:00', '2016-09-30T00:00:00', '2016-10-31T00:00:00', '2016-11-30T00:00:00']}
+2017-02-20 16:23:13,060 - 9070 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+kidd@kidd-OptiPlex-9020:
+~/workspace/abc/apes-crawler
+$ sudo python runcrawler.py offline "EDB Data Spider"
+['anhye@abcft.com']
+2017-02-20 16:26:57,177 - 22893 - INFO - connect websocket
+2017-02-20 16:26:57,239 - 22893 - INFO - connect finished
+2017-02-20 16:26:57,240 - 22893 - INFO - request cmd: {"cmd": "edb", "type": "cmd", "param": ["S2700453", "2016-06-17", "2017-02-17", "Fill=Previous"]}
+2017-02-20 16:26:57,240 - 22893 - INFO - request measures count: 1
+{'errorCode': 0, 'codeList': ['S2700453'], 'data': [1.32, 1.63, 2.17, 2.83, 1.65, 0.88], 'fieldList': ['CLOSE'], 'timeList': ['2016-06-30T00:00:00', '2016-07-31T00:00:00', '2016-08-31T00:00:00', '2016-09-30T00:00:00', '2016-10-31T00:00:00', '2016-11-30T00:00:00']}
+2017-02-20 16:26:57,893 - 22893 - INFO - close websocket
+run offline spider "EDB Data Spider" finished
+
+
+---------- 2017-02-20 15:34:49
+db.wind_edb.find({M0012990 : {$exists : true}}, {date : 1, dateObj : 1}).sort({date : -1}).limit(3)
+
+> db.charts.find({_id : 4331}, {thumbnail : 0}).limit(1).pretty()
+db.work_sheet.find({_id : ObjectId("58a68a775d32cb37ee262bc7")}, {raw : 0, thumbnail : 0, data : 0})
+
 --------------- 2017-02-17 16:23:24
 [ahye@tz8-demo ~]$ mongoexport -h 10.51.3.146 --port 3017 -d apes -c wind_edb -o ~/wind_edb_online_bak.dat
 2017-02-17T16:23:04.309+0800  connected to: 10.51.3.146:3017
@@ -576,6 +1036,7 @@ wind_analysis
 switched account on: 2017-01-11 10:40:38
   and re-deployed the crawler to restart the spiders, which will exit in case of errors like -40522017
   need to restart history data crawler for daily analysis
+
 
 
 ------------- 2017-01-11 15:57:18
@@ -1152,3 +1613,36 @@ get_index_codes(): 9
 get_zj_index_codes(): 62
 2017-02-09 19:15:30,063 - 16064 - INFO - close websocket
 run offline spider "Daily Market Spider" finished
+
+
+------------ 2017-03-02 11:58:28
+[2017-03-02 00:12:13.289] [INFO] app - send to agent:  { cmd: 'wsd',
+  type: 'cmd',
+  param: 
+   [ '000001.SZ',
+     'pre_close,open,high,low,close,volume,amt,dealnum,chg,pct_chg,swing,vwap,adjfactor,close2,turn,free_turn,last_trade_day,rel_ipo_chg,rel_ipo_pct_chg,trade_status,susp_days,susp_reason,maxupordown,open3,high3,low3,close3,mrg_long_amt,mrg_long_repay,mrg_long_bal,mrg_short_vol,mrg_short_vol_repay,margin_saletradingamount,lastradeday_s,margin_salerepayamount,mrg_short_vol_bal,mrg_short_bal,shortsell_turnover,shortsell_turnoverpct,shortsell_volume,shortsell_volumepct,shortsell_volumetohshares,mfd_buyamt_d,mfd_sellamt_d,mfd_buyvol_d,mfd_sellvol_d,mfd_netbuyamt,mfd_netbuyvol,mfd_buyord,mfd_sellord,mfd_buyamt_a,mfd_sellamt_a,mfd_buyvol_a,mrg_bal,mfd_sellvol_a,mfd_netbuyamt_a,mfd_netbuyvol_a,mf_amt_open,mf_amt_close,mf_amt_ratio,mfd_inflowrate_open_a,mfd_inflowrate_close_a,mfd_inflowproportion_a,mfd_inflowproportion_open_a,mfd_inflowproportion_close_a,mf_vol,mfd_inflowvolume_open_a,mfd_inflowvolume_close_a,mfd_volinflowrate_a,mfd_volinflowrate_open_a,mfd_volinflowrate_close_a,mf_amt,mfd_volinflowproportion_open_a,mf_vol_ratio,mfd_inflow_m,mfd_inflow_open_m,mfd_inflow_close_m,mfd_inflowrate_m,mfd_inflowrate_open_m,mfd_inflowrate_close_m,mfd_volinflowproportion_close_a,mfd_inflowproportion_open_m,mfd_inflowproportion_close_m,mfd_buyvol_m,mfd_buyvol_open_m,mfd_buyvol_close_m,mfd_volinflowrate_m,mfd_volinflowrate_open_m,mfd_volinflowrate_close_m,mfd_volinflowproportion_m,mfd_volinflowproportion_open_m,mfd_volinflowproportion_close_m,us_preclose,us_open,us_high,us_low,us_close,us_avgprice,us_change,us_pctchange,us_turn,us_volume,us_amount,us_swing,mfd_inflowproportion_m',
+     '2017-03-01',
+     '2017-03-01' ],
+  id: 6020 }
+[2017-03-02 00:15:33.593] [ERROR] app - Error  { [Error: read ETIMEDOUT] code: 'ETIMEDOUT', errno: 'ETIMEDOUT', syscall: 'read' }
+Error: read ETIMEDOUT
+    at exports._errnoException (util.js:907:11)
+    at TCP.onread (net.js:557:26)
+[2017-03-02 00:15:33.644] [INFO] app - connection closed  9z1te5IhMM9LfsTjsVQ7Xw==
+[2017-03-02 00:18:08.067] [INFO] app - connection closed  yckItH6CYzAvfL40vs+geg==
+[2017-03-02 00:18:08.068] [INFO] app - connection closed  eX7CeIl+7ApiuZKhQ0SPQw==
+[2017-03-02 00:18:08.070] [INFO] app - connection vaHKOR+DzAstE9yTjMojYg== from 10.117.84.60
+[2017-03-02 00:18:08.071] [INFO] app - connection kBPLnSImQ2WpBnS1hYV31g== from 10.117.84.60
+[2017-03-02 00:18:08.091] [INFO] app - cmd: {"cmd": "wsd", "type": "cmd", "param": ["000903.SH", "pre_close,open,high,low,close,volume,amt,dealnum,chg,pct_chg,swing,vwap,adjfactor,close2,turn,free_turn,last_trade_day,rel_ipo_chg,rel_ipo_pct_chg,trade_status,susp_days,susp_reason,maxupordown,open3,high3,low3,close3,mrg_long_amt,mrg_long_repay,mrg_long_bal,mrg_short_vol,mrg_short_vol_repay,margin_saletradingamount,lastradeday_s,margin_salerepayamount,mrg_short_vol_bal,mrg_short_bal,shortsell_turnover,shortsell_turnoverpct,shortsell_volume,shortsell_volumepct,shortsell_volumetohshares,mfd_buyamt_d,mfd_sellamt_d,mfd_buyvol_d,mfd_sellvol_d,mfd_netbuyamt,mfd_netbuyvol,mfd_buyord,mfd_sellord,mfd_buyamt_a,mfd_sellamt_a,mfd_buyvol_a,mrg_bal,mfd_sellvol_a,mfd_netbuyamt_a,mfd_netbuyvol_a,mf_amt_open,mf_amt_close,mf_amt_ratio,mfd_inflowrate_open_a,mfd_inflowrate_close_a,mfd_inflowproportion_a,mfd_inflowproportion_open_a,mfd_inflowproportion_close_a,mf_vol,mfd_inflowvolume_open_a,mfd_inflowvolume_close_a,mfd_volinflowrate_a,mfd_volinflowrate_open_a,mfd_volinflowrate_close_a,mf_amt,mfd_volinflowproportion_open_a,mf_vol_ratio,mfd_inflow_m,mfd_inflow_open_m,mfd_inflow_close_m,mfd_inflowrate_m,mfd_inflowrate_open_m,mfd_inflowrate_close_m,mfd_volinflowproportion_close_a,mfd_inflowproportion_open_m,mfd_inflowproportion_close_m,mfd_buyvol_m,mfd_buyvol_open_m,mfd_buyvol_close_m,mfd_volinflowrate_m,mfd_volinflowrate_open_m,mfd_volinflowrate_close_m,mfd_volinflowproportion_m,mfd_volinflowproportion_open_m,mfd_volinflowproportion_close_m,us_preclose,us_open,us_high,us_low,us_close,us_avgprice,us_change,us_pctchange,us_turn,us_volume,us_amount,us_swing,mfd_inflowproportion_m", "2017-03-01", "2017-03-01", "Days=Alldays;Fill=Previous"]}
+[2017-03-02 00:18:08.092] [WARN] app - no client found
+
+c# agent:
+2017-03-02 11:56:32 wd started
+2017-03-02 11:56:32 cmd come: wsd
+2017-03-02 11:57:39 wd stopped
+2017-03-02 12:57:29 Closed: An exception has occurred while receiving.
+2017-03-02 12:57:30 Closed: An exception has occurred while connecting.
+2017-03-02 12:57:31  Closed: An exception has occurred while connecting.
+2017-03-02 12:57:32  Closed: An exception has occurred while connecting.
+2017-03-02 12:57:33  Closed: An exception has occurred while connecting.
+  https://github.com/sta/websocket-sharp/blob/master/websocket-sharp/WebSocket.cs

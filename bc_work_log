@@ -92,6 +92,47 @@ $ scp -P 9527 ../apes-crawler.tgz ahye@120.26.195.205:~/
 scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.26.103.174:~/
 scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.51.3.146:~/
 
+
+----------- 2017-03-02 11:40:44
+
+交接内容
+1, 2, 3交接项可以同时进行,相互不影响
+具体的交接方式在微信群沟通
+
+１.　wind爬虫
+  http://10.12.6.6:8080/#/admin/projects/apes-spy
+    wind c#交互(apes-agent子目录)
+    nodejs server进行中间请求转发(wsservice子目录)
+  http://10.12.6.6:8080/#/admin/projects/apes-crawler
+    python客户端调度策略实现
+a. 环境搭建　1-2天　
+  熟悉c# - nodejs - python三方交互环境搭建并跑通基本场景(利用测试帐号在本地跑通基本股票行情数据抓取)
+b. 具体策略　２天　
+  1) 离线手动抓取　２)　在线实时抓取　３)　按需触发抓取
+第３)点是web端请求数据时发现数据缺失时将动态触发数据请求,该模块交接需要王强协助.
+
+２. 电影爬虫 (仅两个py文件,实现一次性抓取) 1天
+  http://10.12.6.6:8080/#/admin/projects/apes-crawler
+
+３. 房价爬虫 (该模块交接需要朱正义协助)　１天
+  http://10.12.6.6:8080/#/admin/projects/apes-crawler
+
+
+---------- 2017-02-27 10:03:46
+抓取历史数据(证券分析)
+  抓了一部分后出"非法数据服务"错误
+
+edb　P1指标整理(筛选出P1范围的,6w左右),excel格式发到RAA群
+
+measures.txt的\t格式处理,由于一些指标存在问题,多花了些时间
+
+今日任务
+济仁上周五发现缺少measures集合中缺少一些edb字段,今天补全
+如果有时间,集中测试agent的不稳定问题以及node的一些问题(如超时处理)
+继续证券分析的历史数据抓取
+检查日常抓取
+edb抓取策略
+
 ----------- 2017-02-14 10:09:31
 代理　另一个页面的代理爬虫
 bs和lxml对比

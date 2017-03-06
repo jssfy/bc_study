@@ -1,0 +1,890 @@
+
+
+
+--------------- 2017-03-01 11:50:34
+when loading from txt files, be careful with utf-8 files with BOM, as the prefixing will be loaded with the text, which might corrupt the real data.
+$ file /home/kidd/abc/edb/uiautomation/automation_measures/180/edb_measures_180_房地产开发投资完成额累计值.txt
+/home/kidd/abc/edb/uiautomation/automation_measures/180/edb_measures_180_房地产开发投资完成额累计值.txt: UTF-8 Unicode (with BOM) text, with CRLF line terminators
+
+# step 1: transform the line endings to \n if necessary, e.g., with sublime, view->line endings->unix, and then save
+# step 2: replace \t with ' '(one space) if necessary
+# step 3: replace the file name in the code
+AUTO_DATA = {}
+INVALID_FIELD_COUNT = 0
+def load_ui_auto_data(file_name=None):
+    global AUTO_DATA
+    global INVALID_FIELD_COUNT
+    if file_name:
+        file = open(file_name)
+    else:
+        file = open("/home/kidd/abc/edb/edb_measures/merge")
+    # data = {}
+    try:
+        lines = file.readlines()
+        valid = 0
+        # print len(lines)
+        size = len(lines)
+        i = 0
+        while i < size:
+            arr = lines[i].split('\t')
+            i += 1
+            if (len(arr) != 2):
+                print 'an invalid line, skipped'
+                print lines[i]
+                print len(arr)
+                continue
+            else:
+                if AUTO_DATA.has_key(arr[0]):
+                    pass
+                    # print 'duplicated code: ' + arr[0]
+                else:
+                    valid += 1
+                    if (len(arr[0]) != 8):
+                        INVALID_FIELD_COUNT += 1
+                        print str(INVALID_FIELD_COUNT) + ': \'' + arr[0] + '\''
+                        print 'len: ' + str(len(arr[0]))
+                        print arr[0][0]
+                        print file_name
+                        # need to trim to 8
+                        arr[0] = arr[0][3:]
+                        # print arr[0] == 'M0000272'
+                        print len(arr[0])
+                        print arr[0]
+                    AUTO_DATA[arr[0]] = arr[1].replace('\n', '')
+        # print file_name
+        # print 'valid: ' + str(valid) + '/' + str(len(lines))
+        # print 'total invalid: ' + str(INVALID_FIELD_COUNT)
+        # print 'total: ' + str(len(AUTO_DATA))
+    except Exception, ex:
+        print ex
+    finally:
+        file.close()
+    return AUTO_DATA
+
+def save_to_temp_collection(data):
+    info_connection = pymongo.MongoClient('10.12.6.6', 27017)
+    info_db = info_connection.apes
+    info_col = info_db.temp_edb_measures
+    percent = 0
+    size = len(data)
+    i = 0
+    for k in data:
+        i += 1
+        # print 'percent: ' + str(percent)
+        # print i
+        # print int(i * 100 / size)
+        if int(i * 100 / size) != percent:
+            percent = int(i * 100 / size)
+            print '%' + str(percent) + '...'
+        row = {
+            'id' : k,
+            'datasetId' : 'wind_edb',
+            'name': data[k],
+            'type': 2,
+            'parent': None,
+            'dataType': 4
+        }
+        # print row
+        info_col.update({'id': k, 'datasetId': 'wind_edb'}, {'$set': row}, upsert=True)
+        # break
+        # info_col.update({'id': k, 'datasetId': 'wind_edb'}, {'$set': row}, upsert=True)
+        # if row['frequency'] == 'year' or row['frequency'] == 'quarter':
+        #     # info_col.update({'id': row['id'], 'datasetId': row['datasetId']}, {'$set': row}, upsert=True)
+        #     print row['id']
+
+def walk_dir(dir_name=None):
+    if dir_name:
+        rootdir = dir_name
+    else:
+        rootdir = '/home/kidd/abc/edb/uiautomation/automation_measures' # 指明被遍历的文件夹
+
+    for parent, dirnames, filenames in os.walk(rootdir):  # 三个参数：分别返回1.父目录 2.所有文件夹名字（不含路径） 3.所有文件名字
+        # for dirname in dirnames:  # 输出文件夹信息
+        #     print "parent is: " + parent
+        #     print "dirname is: " + dirname
+        #     pass
+
+        for filename in filenames:  # 输出文件信息
+            # print "parent is: " + parent
+            # print "filename is: " + filename
+            # print "full name: " + os.path.join(parent, filename)  # 输出文件路径信息
+            yield os.path.join(parent, filename)
+
+
+
+------------ 2017-02-24 12:01:40
+http://www.cnblogs.com/Yinkaisheng/p/3444132.html
+https://github.com/yinkaisheng/Python-UIAutomation-for-Windows
+  git clone https://github.com/yinkaisheng/Python-UIAutomation-for-Windows.git
+  Author mail: yinkaisheng@foxmail.com
+  
+Python wrapper of Microsoft IUIAutomation. Compatible with py2,py3,x86,x64. Support UIAutomation for MFC, WindowsForm, WPF, Modern UI(Metro UI), Qt, IE, Firefox ... 
+
+Another UI tool inspectX86.exe or inspectX64.exe supplied by Microsoft can also be used to see the UI elements.
+  https://msdn.microsoft.com/en-us/library/windows/desktop/dd318521%28v=vs.85%29.aspx
+
+------- 2017-02-20 14:41:42
+word count:
+
+# -*- coding:utf-8 -*- 
+
+import json
+import sys
+from cprint import cprint
+
+PHRASE_MAP = {
+    '国家': 'nation',
+    '表名': 'tableName',
+    '指标名称': 'name',
+    '频率': 'frequency',
+    '单位': 'unit',
+    '指标ID': 'id',
+    '来源': 'source',
+}
+
+ARR = [
+  u'国',
+  u'表',
+  u'指',
+  u'频',
+  u'单',
+  u'指',
+  u'来',
+]
+
+
+file = open("/tmp/input")
+# file = open("/home/kidd/workspace/python/file/jy_raw_api")
+output = open('output.txt', 'w')
+
+try:
+  raw_input = []
+  # s=u"中文"
+  # if isinstance(s, unicode):  
+  # #s=u"中文"
+  #     print 'unicode: '
+  #     print s.encode('utf-8')  
+  # else:  
+  # #s="中文"  
+  #     print 'utf-8: '
+  #     print s
+  # print s
+  # obj = ['指标ID']
+  # cprint(obj)
+
+  # if isinstance(obj,unicode):
+  #     obj = obj.encode('u8')
+  # if isinstance(obj,str):
+  #     print 2
+  #     sys.stdout.write(obj)
+  # else:
+  #     print 1
+  #     print(obj)
+
+  # print json.dumps(PHRASE_MAP).decode('gbk')
+  while 1:
+      # lines = file.readlines(100000)
+      content = file.read()
+      if not content:
+          break
+      lines = content.split(' ') # \n
+      words = {}
+      for line in lines:
+        if not words.has_key(line):
+          words[line] = 1
+        else:
+          words[line] = words[line] + 1
+
+      for (d,x) in words.items():
+        if x > 1:
+          print "key:"+d+",value:"+str(x)
+
+finally:
+  file.close()
+  output.close()
+
+----------- 2017-02-14 13:48:00
+# encoding=utf8
+import urllib2
+from bs4 import BeautifulSoup
+import urllib
+import socket
+import time
+
+# http://www.xicidaili.com/
+def getXiCiProxyIp():
+    proxies = []
+    try:
+        url = 'http://www.xicidaili.com/'
+        req = urllib2.Request(url, headers=header)
+        res = urllib2.urlopen(req).read()
+        soup = BeautifulSoup(res)
+        ips = soup.findAll('tr')
+        started = False # started set to True if met the 1st class=subtitle tr
+        for x in range(1, len(ips)):
+            ip = ips[x]
+            if not ip:
+                print 'ip is none'
+                return
+            if not ip.has_attr('class'):
+                # print 'no class attr, skip'
+                continue
+            cl = ip.get('class', None)
+            # print cl[0]
+            if started:
+                # check if met end
+                if not cl or cl[0] == 'subtitle':
+                    break
+                else:
+                    # print 'to append ip'
+                    tds = ip.findAll('td')
+                    # print tds[1].contents[0]
+                    ip_temp = tds[1].contents[0] + "\t" + tds[2].contents[0]
+                    proxies.append(ip_temp)
+            else:
+                if cl and cl[0] == 'subtitle':
+                    started = True
+                    print 'started to parse proxies...'
+    except Exception, ex:
+        print ex
+    return proxies
+
+--------- 2017-02-10 11:54:47
+fake ip:
+
+def crawl(url, id):
+    # print 'crawl: %s' % url
+    try:
+        proxy_info = {
+            'host': '117.28.29.219',
+            'port': 8118,
+        }
+
+        # We create a handler for the proxy
+        proxy_support = urllib2.ProxyHandler({"http": "http://%(host)s:%(port)d" % proxy_info})
+
+        # We create an opener which uses this handler:
+        opener = urllib2.build_opener(proxy_support)
+
+
+        # opener = urllib2.build_opener()
+        opener.addheaders.append(('Cookie', 'token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKZXJzZXktU2VjdXJpdHktQmFzaWMiLCJzdWIiOiI1ODNkMzQyODI2ZWZkNDY1NjA1YzM0ZTQiLCJhdWQiOiJ1c2VyIiwiZXhwIjoxNDg2NzIwMTgwLCJpYXQiOjE0ODY1NDczODAsImp0aSI6IjEifQ.cxwXI9P6sO_MhuJGO-EWebOqYaqArsgUCTK_CSzl0cQ'))
+
+        # Then we install this opener as the default opener for urllib2:
+        urllib2.install_opener(opener) # this opener seems to overwrite previous opener
+        
+        fake_ip = get_random_ip()
+        print 'fake_ip: ' + fake_ip
+        opener.addheaders.append(('X-Forwarded-For', fake_ip))
+        opener.addheaders.append(('Proxy-Client-IP', fake_ip))
+        opener.addheaders.append(('WL-Proxy-Client-IP', fake_ip))
+        opener.addheaders.append(('http_client_ip', fake_ip))
+        opener.addheaders.append(('HTTP_X_FORWARDED_FOR', fake_ip))
+        opener.addheaders.append(('User-Agent', get_random_ua()))
+        r = opener.open(url).read()
+        # r = urllib2.urlopen(url).read()
+    except urllib2.HTTPError, e:
+        print e.code
+        return
+
+$ python spider.py 
+last object id loaded: 58980da9c189e5c954bb84ac
+fake_ip: 63.137.152.61
+<h3>Hello world, this message is from servlet!</h3>
+<br/>x-forwarded-for: 63.137.152.61
+<br/>Proxy-Client-IP: 63.137.152.61
+<br/>WL-Proxy-Client-IP: 63.137.152.61
+<br/>getRemoteAddr(): 117.28.29.219
+<br/>http_client_ip: 63.137.152.61
+<br/>HTTP_X_FORWARDED_FOR: 63.137.152.61
+
+
+---------- 2017-02-10 11:47:38
+http://www.jb51.net/article/90783.htm
+我们平时在用Python爬虫时，有时会要用到IP代理。网上有很多的免费代理IP网站,但不是所有的ip都能用，所以这篇文章教大家如何爬取可用的代理IP。
+用Python写了个脚本，该脚本可以把能用的代理IP检测出来。
+
+#encoding=utf8
+import urllib2
+from bs4 import BeautifulSoup
+import urllib
+import socket
+  
+User_Agent = 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0'
+header = {}
+header['User-Agent'] = User_Agent
+  
+'''
+获取所有代理IP地址
+'''
+def getProxyIp():
+ proxy = []
+ for i in range(1,2):
+  try:
+   url = 'http://www.xicidaili.com/nn/'+str(i)
+   req = urllib2.Request(url,headers=header)
+   res = urllib2.urlopen(req).read()
+   soup = BeautifulSoup(res)
+   ips = soup.findAll('tr')
+   for x in range(1,len(ips)):
+    ip = ips[x]
+    tds = ip.findAll("td")
+    ip_temp = tds[1].contents[0]+"\t"+tds[2].contents[0]
+    proxy.append(ip_temp)
+  except:
+   continue
+ return proxy
+   
+'''
+验证获得的代理IP地址是否可用
+'''
+def validateIp(proxy):
+ url = "http://ip.chinaz.com/getip.aspx"
+ f = open("E:\ip.txt","w")
+ socket.setdefaulttimeout(3)
+ for i in range(0,len(proxy)):
+  try:
+   ip = proxy[i].strip().split("\t")
+   proxy_host = "http://"+ip[0]+":"+ip[1]
+   proxy_temp = {"http":proxy_host}
+   res = urllib.urlopen(url,proxies=proxy_temp).read()
+   f.write(proxy[i]+'\n')
+   print proxy[i]
+  except Exception,e:
+   continue
+ f.close()
+
+
+def getValidateProxy():
+ proxy = getProxyIp()
+ url = "http://ip.chinaz.com/getip.aspx"
+ socket.setdefaulttimeout(3)
+ for i in range(0,len(proxy)):
+  try:
+   ip = proxy[i].strip().split("\t")
+   proxy_host = "http://"+ip[0]+":"+ip[1]
+   proxy_temp = {"http":proxy_host}
+   res = urllib.urlopen(url,proxies=proxy_temp).read()
+   print type(ip[0])
+   print type(ip[1])
+   return {
+      'host': ip[0],
+      'port': int(ip[1]),
+    }
+  except Exception,e:
+   continue
+     
+if __name__ == '__main__':
+ proxy = getProxyIp()
+ validateIp(proxy)
+
+output:
+$ python get_proxy.py 
+117.28.29.219 8118
+106.46.136.33 808
+124.88.67.52  843
+27.197.199.25 9999
+114.228.185.57  8118
+36.101.90.178 8118
+222.134.134.250 8118
+49.68.7.2 8118
+115.50.204.186  8118
+14.159.178.20 808
+39.71.107.25  9999
+106.46.136.79 808
+113.221.251.177 8118
+122.193.14.103  80
+182.204.18.65 8118
+106.46.136.92 808
+218.93.171.111  808
+180.95.154.221  80
+124.88.67.10  80
+111.76.133.63 808
+39.87.248.20  9999
+
+
+--------------- 2017-02-10 16:00:07
+# -*- coding: utf-8 -*-
+
+import urllib2
+import time
+import random
+import pymongo
+import urlparse
+from lxml.html import fromstring
+from bson.objectid import ObjectId
+from datetime import datetime
+import sys
+import httplib
+import socket
+
+socket.setdefaulttimeout(20.0)
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+# from cprint import cprint
+
+_URL_FORMAT = 'http://piaofang.maoyan.com/movie/%d?_v_=yes'
+_LAST_OBJECT_ID = None
+_GLOBAL_COUNT = 0
+
+_FIELD_MAP = {
+    u'制作' : 'zhizuo',
+    u'联合制作' : 'lh_zhizuo',
+    u'出品' : 'chupin',
+    u'联合出品' : 'lh_chupin',
+    u'发行' : 'faxing',
+    u'联合发行' : 'lh_faxing',
+    u'其他' : 'others',
+    u'导演' : 'directors',
+    u'演员' : 'actors',
+    u'编剧' : 'bianju',
+    u'制片人' : 'zhipianren',
+    u'监制' : 'jianzhi',
+    u'原著作者' : 'yuanzhuzuozhe',
+    u'摄影' : 'sheying',
+    u'美术设计' : 'meishusheji',
+    u'顾问' : 'guwen',
+    u'出品人' : 'chupinren',
+    u'武术指导' : 'wushuzhidao',
+    u'音乐' : 'yinyue',
+    u'剪辑' : 'jianji',
+    u'副导演/助理导演' : 'fudaoyan',
+    u'特效' : 'texiao',
+    u'策划' : 'cehua',
+    u'动作指导' : 'dongzuozhidao',
+}
+
+_PROXIES = [
+    {
+    'host': '114.228.185.57',
+    'port': 8118,
+    },
+    {
+    'host': '117.28.29.219',
+    'port': 8118,
+    },
+    {
+    'host': '124.88.67.52',
+    'port': 843,
+    },
+    {
+    'host': '49.68.7.2',
+    'port': 8118,
+    },
+    {
+    'host': '14.159.178.20',
+    'port': 808,
+    },
+    {
+    'host': '122.193.14.103',
+    'port': 80,
+    },
+    {
+    'host': '182.204.18.65',
+    'port': 8118,
+    },
+    {
+    'host': '106.46.136.92',
+    'port': 808,
+    },
+    {
+    'host': '180.95.154.221',
+    'port': 80,
+    },
+]
+_PROXY_INDEX = -1
+
+_TO_RETRY = False
+
+_START_URL = 'http://maoyan.com/films?sortId=2&yearId=11'
+_NEXT_URL = None
+
+_con = pymongo.MongoClient('10.12.6.6')
+_db = _con['films']
+
+def load_last_object_id():
+    # to load _LAST_OBJECT_ID from db
+    global _LAST_OBJECT_ID
+    last_crawl = _db.last_crawl.find_one({'key': 'filmdetailspider'})
+    if last_crawl:
+        _LAST_OBJECT_ID = last_crawl['last_object_id']
+        print 'last object id loaded: ' + str(_LAST_OBJECT_ID)
+
+def get_id_for_next_film_to_crawl():
+    global _LAST_OBJECT_ID
+    if not _LAST_OBJECT_ID:
+        # get the 1st item
+        next = _db.films.find_one()
+    else:
+        next = _db.films.find_one({'_id' : {'$gt' : ObjectId(_LAST_OBJECT_ID)}})
+    if not next:
+        return None
+    # print 'got link: ' + next['link']
+    _LAST_OBJECT_ID = next['_id']
+    parts = next['link'].split('/')
+    return int(parts[len(parts) - 1])
+
+def construct_detail_url_from_id(id):
+    return _URL_FORMAT % id
+
+def update_last_crawl(object_id):
+    last_crawl = {
+        'key' : 'filmdetailspider',
+        'last_object_id' : object_id,
+        'crawl_time' : datetime.now(),
+    }
+    _db.last_crawl.update({'key': 'filmdetailspider'}, {'$set': last_crawl}, upsert=True)
+
+def get_random_proxy():
+    return _PROXIES[random.randint(0, len(_PROXIES)-1)]
+
+httplib.HTTPConnection._http_vsn = 10
+httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+
+def get_next_proxy():
+    global _PROXY_INDEX
+    _PROXY_INDEX += 1
+    if _PROXY_INDEX >= len(_PROXIES):
+        return None
+    return _PROXIES[_PROXY_INDEX]
+
+_CURRENT_PROXY = None
+def switch_to_next_proxy():
+    # print 'crawl: %s' % url
+    # The proxy address and port:
+    # proxy_info = get_random_proxy()
+    proxy_info = get_next_proxy()
+    if not proxy_info:
+        print 'No more proxies'
+        return False
+    # We create a handler for the proxy
+    proxy_support = urllib2.ProxyHandler({"http": "http://%(host)s:%(port)d" % proxy_info})
+    # We create an opener which uses this handler:
+    opener = urllib2.build_opener(proxy_support)
+    # Then we install this opener as the default opener for urllib2:
+    urllib2.install_opener(opener)
+    global _CURRENT_PROXY
+    _CURRENT_PROXY = '%s:%d' % (proxy_info['host'], proxy_info['port'])
+    print 'switched to: %s' % _CURRENT_PROXY
+    return True
+
+def crawl(url, id):
+    tries = 3
+
+    while tries > 0:
+        try:
+            r = urllib2.urlopen(url).read()
+            break
+        except urllib2.HTTPError, e:
+            print 'HTTPError: ' + str(e.code)
+            tries -= 1
+            if tries <= 0:
+                return False
+        except Exception, ex:
+            # need to remove the proxy if found blacklisted, TBD
+            print Exception, ":", ex
+            # print proxy_info
+            tries -= 1
+            if tries <= 0:
+                return False
+            else:
+                s = 2 # random.randint(1, 10)
+                print 'to sleep a while: ' + str(s)
+                time.sleep(s)
+    dom = None
+    try:
+        dom = fromstring(unicode(r, 'utf-8'))
+    except Exception, ex:
+        print Exception, ":", ex
+        _TO_RETRY = True
+        return False
+    dom.make_links_absolute(url)
+    film = {}
+    # unnecessary to initialize as of now, data user should be aware of this missing data
+    # for v in _FIELD_MAP.values():
+    #     film[v] = []
+    # company section
+    divs = dom.xpath('.//section[@class="company-section"]//div[contains(@class, "sticky-container")]'
+                     '//div[contains(@class, "cat-wrapper")]//div[contains(@class, "cat-content")]'
+                     '//div[contains(@class, "hc-layout")]//div[contains(@class, "category")]')
+    for div in divs:
+        header = div.xpath('div[contains(@class, "cat-header")]//h2')
+        if header:
+            field = header[0].text
+            if _FIELD_MAP.has_key(field):
+                # print field + ' is corresponding to: ' + _FIELD_MAP[field]
+                values = []
+                items = div.xpath('div[contains(@class, "items")]//div[contains(@class, "item")]')
+                for item in items:
+                    title = item.xpath('p[contains(@class, "title")]')
+                    if title:
+                        # print title[0].text
+                        values.append(title[0].text)
+                film[_FIELD_MAP[field]] = values
+            else:
+                print 'Warning: field ' + field + ' not existing with type: ' + str(type(field))
+    # celebrity section
+    celebrities = dom.xpath('.//section[@class="celebrity-section"]//div[contains(@class, "sticky-container")]'
+                     '//div[contains(@class, "cat-wrapper")]//div[contains(@class, "cat-content")]'
+                     '//div[contains(@class, "hc-layout")]//div[contains(@class, "category")]')
+    for div in celebrities:
+        header = div.xpath('div[contains(@class, "cat-header")]//h2')
+        if header:
+            field = header[0].text
+            if _FIELD_MAP.has_key(field):
+                # print field + ' is corresponding to: ' + _FIELD_MAP[field]
+                values = []
+                items = div.xpath('div[contains(@class, "items")]//a//div[contains(@class, "item")]')
+                for item in items:
+                    title = item.xpath('p[contains(@class, "title")]')
+                    if title:
+                        # print title[0].text
+                        values.append(title[0].text)
+                film[_FIELD_MAP[field]] = values
+            else:
+                print 'Warning: field ' + field + ' not existing with type: ' + str(type(field))
+    info_details = dom.xpath('.//div[contains(@class, "info-detail")]')
+    title = 'blank'
+    if len(info_details) > 0:
+        title = info_details[0].xpath('p[contains(@class, "info-title")]')
+        if title:
+            title = title[0].text
+        etitle = info_details[0].xpath('p[contains(@class, "info-etitle")]')
+        if etitle:
+            etitle = etitle[0].text
+            film['etitle'] = etitle
+        release = info_details[0].xpath('p[contains(@class, "info-release")]')
+        if release:
+            release = release[0].text
+            film['dateStr'] = release
+        category = info_details[0].xpath('p[contains(@class, "info-category")]//node()')
+        if len(category) == 3:
+            location = category[0]
+            t = category[2]
+            film['location'] = location.lstrip()
+            film['type'] = t.rstrip().replace("/", "")
+    # cprint(film)
+    if len(film) == 0:
+        print 'failed to obtain any info from ' + url
+        global _TO_RETRY
+        _TO_RETRY = True
+        return False
+    _db.films.update({'_id': ObjectId(_LAST_OBJECT_ID)}, {'$set': film}, upsert=True)
+    update_last_crawl(_LAST_OBJECT_ID)
+    global _GLOBAL_COUNT
+    _GLOBAL_COUNT += 1
+    print str(_GLOBAL_COUNT) + ': finished upserting ' + str(_LAST_OBJECT_ID) + ' with title: ' + title
+    return True
+
+def construct_next_url(count):
+    global _NEXT_URL
+    u = urlparse.urlparse(_NEXT_URL)
+    query = urlparse.parse_qs(u.query)
+    if 'offset' not in query:
+        query['offset'] = [count]
+    else:
+        query['offset'][0] = int(query['offset'][0]) + count
+    q = ''
+    for k, v in query.items():
+        if len(q) != 0:
+            q += '&'
+        q += '%s=%s' % (k, v[0])
+    _NEXT_URL = urlparse.urlunparse((u.scheme, u.netloc, u.path, u.params, q, u.fragment))
+
+def run():
+    global _NEXT_URL
+    if not _NEXT_URL:
+        _NEXT_URL = _START_URL
+    # crawl
+    count = crawl(_NEXT_URL)
+    # construct next url
+    construct_next_url(count)
+    return count > 0
+
+
+def test():
+    load_last_object_id()
+    id = get_id_for_next_film_to_crawl()
+    while switch_to_next_proxy():
+        if not id:
+            print 'Done: no more fild detail to crawl, YEAH!'
+            return
+        else:
+            url = construct_detail_url_from_id(id)
+            print 'crawling ' + url
+            start = time.time()
+            if not crawl(url, id):
+                print 'crawling failed after retries'
+                global _TO_RETRY
+                if _TO_RETRY:
+                    _TO_RETRY = False
+                    print 'but need to try more as the obtained page is empty'
+                else:
+                    end = time.time()
+                    print _CURRENT_PROXY + ' failed after %dms' % (end - start)
+            else:
+                end = time.time()
+                print _CURRENT_PROXY + ' spent %dms' % (end-start)
+        time.sleep(3) # random.randint(1, 5))
+
+
+def main():
+    load_last_object_id()
+    # if not switch_to_next_proxy():
+    #     print 'Failure: no proxy available'
+    #     return False
+    while switch_to_next_proxy():
+        while True:
+            id = get_id_for_next_film_to_crawl()
+            if not id:
+                print 'Done: no more fild detail to crawl, YEAH!'
+                return
+            else:
+                url = construct_detail_url_from_id(id)
+                print 'crawling ' + url
+                if not crawl(url, id):
+                    print 'crawling failed after retries'
+                    global _TO_RETRY
+                    if _TO_RETRY:
+                        _TO_RETRY = False
+                        print 'but need to try more as the obtained page is empty'
+                    else:
+                        break
+            time.sleep(1) # random.randint(1, 5))
+
+if __name__ == '__main__':
+    # test()
+    main()
+
+----------- 2017-02-23 16:09:35
+# -*- coding: utf-8 -*-
+
+from selenium import webdriver
+from PIL import Image
+import datetime
+from cprint import cprint
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+driver = webdriver.Firefox() # 创建webdriver对象
+
+url = "http://piaofang.maoyan.com" # 定义目标url
+driver.get(url) # 打开目标页面
+
+movie_count = 21
+
+# 获取当前电影名称列表
+movie_names_tmp = [driver.find_element_by_xpath(".//*[@id='ticket_tbody']/ul[{}]/li[1]/b".format(i)).text for i in range(1,movie_count)]
+cprint(movie_names_tmp)
+movie_names = ["{}".format(i) for i in range(0, movie_count)]
+movie_names = movie_names_tmp
+print len(movie_names)
+
+print '----------------'
+# 获取实时票房列表
+current_piaofang = [driver.find_element_by_xpath(".//*[@id='ticket_tbody']/ul[{}]/li[2]/b/i".format(i)).text for i in range(1,movie_count)]
+# cprint(current_piaofang)
+print len(current_piaofang)
+# exit()
+
+# 定义截图函数
+def snap_shot(url, image_path, scroll_top=90):
+
+    # 打开页面，窗口最大化
+    driver.get(url)
+    driver.maximize_window()
+
+    # 调用JS脚本滚动页面
+    scroll_js = "var q=document.documentElement.scrollTop={}".format(scroll_top)
+    driver.execute_script(scroll_js)
+
+    # 截图存储
+    driver.save_screenshot(image_path)
+
+
+# 定义抠图函数
+def crop_image(image_path, pattern_xpath, crop_path, scroll_top=90):
+
+    print crop_path
+
+    # 获取页面元素及其位置、尺寸
+    element = driver.find_element_by_xpath(pattern_xpath)
+    location = element.location
+    size = element.size
+
+    # 计算抠取区域的绝对坐标
+    left = int(location['x'])
+    top = int(location['y'] - scroll_top)
+    right = int(location['x'] + size['width'])
+    bottom = int(location['y'] + size['height'] - scroll_top)
+
+    # 打开图片，抠取相应区域并存储
+    im = Image.open(image_path)
+    im = im.crop((left, top, right, bottom))
+
+    im.save(crop_path)
+
+
+# 获取当前时间戳
+now = datetime.datetime.now()
+now_sign = str(now.day)+str(now.hour)+str(now.minute)+str(now.second)
+
+
+# 启动截图函数，获取当前页面
+snap_shot_path_1 = "snap_shot/maoyan_{0}_{1}.png".format('1', now_sign)
+snap_shot_path_2 = "snap_shot/maoyan_{0}_{1}.png".format('2', now_sign)
+
+snap_shot(url, snap_shot_path_1, scroll_top=90)
+snap_shot(url, snap_shot_path_2, scroll_top=720)
+
+
+# 启动抠图函数
+for i in range(1,13):
+    pattern = ".//*[@id='ticket_tbody']/ul[{}]/li[2]/b/i".format(i)
+    crop_path = "snap_shot/crop/current_piaofang_{}.png".format(movie_names[i-1])
+    crop_image(snap_shot_path_1, pattern, crop_path, scroll_top=90)
+
+for i in range(13,movie_count):
+    pattern = ".//*[@id='ticket_tbody']/ul[{}]/li[2]/b/i".format(i)
+    crop_path = "snap_shot/crop/current_piaofang_{}.png".format(movie_names[i-1])
+    crop_image(snap_shot_path_2, pattern, crop_path, scroll_top=720)
+
+
+# 获取实时票房数据的有效数字长度列表
+curpf_lenths = [len(current_piaofang[i-1]) for i in range(1,movie_count)]
+print curpf_lenths
+
+# 定义切图函数
+def single_digit(index=1):
+    lenth = curpf_lenths[index-1]
+    name = movie_names[index-1]
+
+    try:
+        im = Image.open("snap_shot/crop/current_piaofang_{}.png".format(name))
+    except Exception, ex:
+        print ex
+        return
+
+    # 转换为灰度图像
+    im = im.convert('L')
+
+    # 切分整数部分
+    for j in range(lenth-3):
+        locals()['digit_'+ str(j)] = im.crop((0+j*6, 0, 6+j*6, 12))
+
+    # 切分小数部分
+    for j in range(lenth-3, lenth-1):
+        locals()['digit_'+ str(j)] = im.crop((int(j*6+4.8), 0, int(6+j*6+4.8), 12))
+
+    # 对每部电影，按位存储图片
+    for k in range(0, lenth-2):
+        locals()['digit_'+ str(k)].save("snap_shot/train/digit_{0}_{1}_{2}.png".format(k, name, now_sign))
+
+
+# 启动切图函数
+for i in range(1,movie_count):
+    single_digit(i)
+
