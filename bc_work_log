@@ -92,6 +92,9 @@ $ scp -P 9527 ../apes-crawler.tgz ahye@120.26.195.205:~/
 scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.26.103.174:~/
 scp -i /etc/nbrsa/id_rsa apes-crawler.tgz 10.51.3.146:~/
 
+------------ 2017-03-08 10:44:39
+1) daily crawler:
+  wuhan was crawling history edb data. commented out edb daily crawler in code, and committed.
 
 ----------- 2017-03-02 11:40:44
 

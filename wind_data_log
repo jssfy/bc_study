@@ -1,5 +1,14 @@
 
 
+------------- 2017-03-09 13:11:42
+daily analysis:
+echo "2017 2 23 2017 3 7" > /tmp/spider.ranges
+export CRAWLER_ENV=release
+python runcrawler.py offline "Daily Analysis Spider"
+
+performance_data 2017-03-09 13:12:28
+python runcrawler.py offline "Performance Spider"
+
 ------------ 2017-03-03 17:53:22
 120.26.168.180: M0008127
 1980-01-01->1989-12-31: M0008127

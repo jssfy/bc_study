@@ -129,6 +129,165 @@ switched to db apes
   [2016-10-24, 2016-11-06]
   [2016-12-16, 2017-1-13]
 
+------------ 2017-03-09 16:42:18
+switched to db apes
+> db.temp_wind_edb.find().count()
+100
+> db.wind_edb.find().count()
+5865
+
+
+------------ 2017-03-08 19:03:20
+[root@bj-tz8-db001 apes-crawler-production]# echo "2017 2 23 2017 3 7" > /tmp/spider.ranges
+[root@bj-tz8-db001 apes-crawler-production]# export CRAWLER_ENV=release
+[root@bj-tz8-db001 apes-crawler-production]# python runcrawler.py offline "Daily Market Spider"
+
+---------- 2017-03-08 18:55:46
+:-40521009
+
+----------- 2017-03-08 16:13:38
+> db.temp_edb_measures_p1.find({'priority' : '11'}).count()
+3942
+> db.temp_edb_measures_p1.find({'priority' : '12'}).count()
+34087
+> db.temp_edb_measures_p1.find({'priority' : '13'}).count()
+22034
+
+p1 edb指标数量进一步细分(以及爬完所有历史数据所需时间):
+p1: 3942　->　需要２帐户周
+p2: 34087　->　需要18帐户周
+p3: 22034　->　需要12帐户周
+
+-------- 2017-03-07 18:04:43
+
+navigator shows the count of each category:
+
+一年大概有251个工作日
+
+wsd measures
+{
+    利率: 93,
+    债券: 1597,
+    外汇: 93,
+    期货商品: 136,
+    基金: 535,
+    指数: 257,
+    股票: 1980
+}
+
+沪深股票 8592
+全部AB股　3127
+全部上市公司　3145
+全部公司:　8592　(内部使用)包括待上市/退市/BHO, QLE结尾的
+
+香港股票 2786
+全部港股　2021 不包括待上市/已摘牌等等
+全部香港公司　2786
+
+台湾股票 2609
+全部台股　1930
+摘牌台股　679
+
+全球股票 31702
+中国概念股
+  全部中国股　331
+  其它　230+22+15+56+61
+美国股票
+  全部美国公司(内部使用)　14910
+发达市场 15363
+  澳大利亚　1865
+  日本　3566
+  新西兰　147
+  新加坡　776
+  欧非中东/加拿大　9009
+新兴市场　714
+  
+基金 162681
+中国公募基金　14671 (全部基金(内部使用))
+中国非公募产品　137018 (含未成立/已到期) 
+ＲＱＦＩＩ　315
+香港公募基金　8458
+全部美国基金　2219
+
+全部债券　(内部使用)　18353
+
+全部利率　(内部使用)　946
+
+外汇　43
+
+指数　
+  股票指数　全部指数　6253
+  基金指数　6363
+  债券指数　1458
+  外汇指数　12
+  期货指数　351
+
+期货 40289
+  全部期货合约　39660
+  全部现货合约　427
+
+期权 19641 (手动找到12个指标[证券分析->期权指标],可能更多)
+  全部国内期权合约　16987
+  香港交易所期权　2654
+
+理财产品 55743
+  全部资管产品　178
+  理财产品　按收益类型分类　4306
+
+基本面数据／行情数据      数量  指标数（个）  年历史数据抓取时间（周）  
+沪深股票  8592  1980    711.67536
+香港股票  2786  1980    230.76438
+台湾股票  2609  1980    216.10347
+全球股票  31702 1980    2625.87666
+基金  162681  535   3640.9363475
+债券  18353 1597    1226.1241651667
+利率  946 93    3.680413
+外汇  43  93    0.1672915
+指数  6253  257   67.2270451667
+期货  40289 136   229.2175506667
+期权  19641 12    9.859782
+理财产品  55743 not available   
+
+
+-------- 2017-03-08 12:00:45
+to add more detailed priorities to p1 measures:
+
+/home/kidd/workspace/abc/apes-crawler/utils/edbtransformer.py
+    # p1_03
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M0000604', 'M0000611', 11)
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M5447790', 'M5469148', 11)
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M0053635', 'M0053629', 11)
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M0043603', 'M0043657', 12)
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M5447794', 'M5469151', 12)
+    add_priority_and_append_to_new_file('/home/kidd/abc/edb/data/p1_03', '/home/kidd/abc/edb/data/output_03',
+                                        'M0054763', 'G1237783', 12)
+    add_priority_and_append_to_new_file_for_other_lines('/home/kidd/abc/edb/data/p1_03',
+                                                        '/home/kidd/abc/edb/data/output_03', 13)
+
+----------- 2017-03-07 17:05:36
+# 3-3
+120.55.112.51 count=1000, offset=0
+121.199.19.218 count=2000, offset=1000
+121.199.19.105 count=2000, offset=3000
+120.26.169.235 count=2000, offset=5000
+120.26.61.228 count=2000, offset=7000
+120.26.168.180 count=1000, offset=9000
+
+# 3-6
+120.26.60.199 count=2000, offset=10000
+
+中间有一部分数据没有抓取成功,　回头需要补抓
+count=2000, offset=5000 从M0053706开始　建议使用120.55.112.51这台机器,其它帐户可能不支持这个指标
+-40522005
+
+---------- 2017-03-06 20:12:18
+M0053706和M0053707这两个指标,　120.55.112.51(w1149793003)机器上的帐号可以访问　120.26.169.235(w1149793004)没有权限,错误码为-40522005,这两个帐号皆为第二批的帐号
+
 
 ---------- 2017-03-06 14:40:41
 考虑到安全因素,线上linux服务器通过jumper访问:　(如果访问受限请联系max开通权限)
@@ -253,7 +412,17 @@ db.measures.find({datasetId : 'wind_edb'}).count()
 956
 
 
+--------- 2017-03-09 10:11:54
+> use apes
+switched to db apes
+> db.last_fail_point.find()
+{ "_id" : ObjectId("58afb6422fb11c7495d3bf09"), "spider" : "offline_daily_analysis", "start" : "2017-02-03", "code" : "603168.SH", "end" : "2017-02-13" }
+> db.last_fail_point.remove({})
+WriteResult({ "nRemoved" : 1 })
+
 ----------- 2017-02-24 11:19:20
+[root@bj-tz8-db001 apes-crawler-production]# pwd
+/niub/bj/apes-crawler/apes-crawler-production
 echo "2017 2 3 2017 2 21" > /tmp/spider.ranges
 export CRAWLER_ENV=release
 python runcrawler.py offline "Daily Analysis Spider"

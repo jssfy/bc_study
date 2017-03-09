@@ -4,6 +4,30 @@ shell cmds:
   use db_name
   db.stats()
 
+
+------------ 2017-03-09 16:28:11
+[root@tz8-demo ~]# mongoexport -h 10.51.3.146 -p 3017 -d apes -c wind_edb -o ~/wind_edb.dat
+2017-03-09T16:27:11.867+0800  error connecting to db server: no reachable servers
+[root@tz8-demo ~]# mongoexport --host 10.51.3.146 --port 3017 -d apes -c wind_edb -o ~/wind_edb.dat
+2017-03-09T16:27:58.209+0800  connected to: 10.51.3.146:3017
+2017-03-09T16:27:59.210+0800  [........................]  apes.wind_edb  0/5850  (0.0%)
+2017-03-09T16:27:59.226+0800  [########################]  apes.wind_edb  5850/5850  (100.0%)
+2017-03-09T16:27:59.226+0800  exported 5850 records
+[root@tz8-demo ~]# ls
+apes                                     mongo
+apes-1.0-SNAPSHOT.war                    msttcorefonts
+a.tgz                                    out.html
+code                                     out.png
+dump                                     pdf2htmlEX
+dump.tar.gz                              pdf2htmlEX-master
+eris                                     pdf2htmlEX-master.zip
+eris-cm                                  pdf2htmlEX.tgz
+eris-db                                  scripts
+eris-dir                                 secure-20170101
+fonts.tgz                                test
+get-pip.py                               wind_edb.dat
+jetty-distribution-9.3.13.v20161014.zip
+
 ----------- 2017-03-02 20:47:53
 http://www.cnblogs.com/chang290/p/3437527.html
 
