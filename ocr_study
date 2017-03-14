@@ -1,0 +1,170 @@
+
+
+尚书七号ocr
+
+ABBYY FineReader 是世界排名第一的 OCR 字识别工具，提供高效和精准的文档识别、数据提取解决方案，支持多国字符和彩色文件识别，主要用于将扫描图像、图片型PDF转化成可编辑的文本。
+
+http://leadtools.gcpowertools.com.cn/products/ocr/
+
+----------- 2017-03-14 18:29:17
+https://www.zhihu.com/question/19593313
+真正能把中文OCR做得比较专业的，一共也没几家，国内2家，国外2家。国内是文通和汉王，国外是ABBYY和IRIS（台湾原来有2家丹青和蒙恬，这两年没什么动静了）。像大家提到的紫光OCR、CAJViewer、MS Office、清华OCR、包括慧视小灵鼠，这些都是文通的产品或者使用文通的识别引擎，尚书则是汉王的产品，和中晶扫描仪捆绑销售的。这两家的中文识别率都是非常不错的。而国外的2家，主要特点是西方语言的识别率很好，而且支持多种西欧语言，产品化程度也很高，不过中文方面速度和识别率还是有差距的，当然这两年人家也是在不断进步。Google的开源项目，至少在中文方面，和这些家相比，各项性能指标水平差距还蛮大的呢。
+
+作者：张岩
+链接：https://www.zhihu.com/question/19593313/answer/14199596
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+------------- 2017-03-14 15:11:42
+pytesser
+http://www.cnblogs.com/congbo/archive/2012/10/31/2746943.html
+
+sudo apt-get install libpng12-dev
+sudo apt-get install libjpeg62-dev # vpn might be necessary
+sudo apt-get install libtiff4-dev
+
+sudo apt-get install gcc
+sudo apt-get install g++
+sudo apt-get install automake
+
+tesseract: https://github.com/tesseract-ocr
+https://github.com/tesseract-ocr/tesseract/wiki/Compiling
+  sudo apt-get install libleptonica-dev
+https://github.com/tesseract-ocr/tesseract
+  ./autogen.sh
+  ./configure --enable-debug
+  LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" make
+  sudo make install
+  sudo ldconfig
+https://github.com/tesseract-ocr/tessdata
+
+
+If configure fails with an error like "syntax error near unexpected token `-mavx,'" and/or AX_CHECK_COMPILE_FLAG(...) then double check you have installed autoconf-archive.
+
+$ make
+$ sudo make install
+
+Training tools can be build and installed (after building of tesseract) with:
+
+$ make training
+$ sudo make training-install
+
+
+Tesseract versions and the minimum version of Leptonica required:
+
+Tesseract Leptonica Ubuntu
+4.00  1.74.0  Must build from source
+3.04  1.71  Ubuntu 16.04
+3.03  1.70  Ubuntu 14.04
+3.02  1.69  Ubuntu 12.04
+3.01  1.67  
+http://www.leptonica.org/
+  http://www.leptonica.org/download.html
+  https://github.com/danbloomberg/leptonica
+
+for ubuntu 14.04, below version is installed via apt-get install
+  libleptonica-dev (1.70.1-1)
+  sudo apt-get remove libleptonica-dev --purge
+
+
+错误记录
+1.遇到这个错误
+$ python test.py 
+tesseract: error while loading shared libraries: libtesseract.so.4: cannot open shared object file: No such file or directory
+
+$ sudo ldconfig
+
+2. 
+$ python test.py 
+Error opening data file /usr/local/share/tessdata/eng.traineddata
+Please make sure the TESSDATA_PREFIX environment variable is set to the parent directory of your "tessdata" directory.
+Failed loading language 'eng'
+Tesseract couldn't load any languages!
+Could not initialize tesseract.
+  
+  tesseract-ocr所需要的英文数据，在运行pytesseract报错：Error opening data file /usr/local/share/tessdata/eng.traineddata 解决办法，将其中的eng.traineddata复制到/usr/local/share/tessdata/
+  http://download.csdn.net/download/bh_binghu/8586219
+
+usage:
+http://www.cnblogs.com/brooks-dotnet/archive/2010/10/05/1844203.html
+  这里注意命令的格式：imagename要加上扩展名.jpg，输出文件和语言包不需要加扩展名。
+  $ tesseract /home/kidd/Pictures/test.png /tmp/hello -l eng
+  Tesseract Open Source OCR Engine v4.00.00alpha with Leptonica
+  kidd@kidd-OptiPlex-9020:
+  ~/software/ocr/tesseract-master
+  $ subl /tmp/hello.txt 
+  kidd@kidd-OptiPlex-9020:
+  ~/software/ocr/tesseract-master
+
+Tesseract命令行不支持直接OCR网络图片，故先下载
+
+
+
+----------- 2017-03-14 11:56:22
+https://www.zhihu.com/question/20191727
+
+作者：钟翰廷
+链接：https://www.zhihu.com/question/20191727/answer/22310364
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+我来回答一下吧，毕竟我毕业设计做的这个（虽然烂尾了）。首先OCR是模式识别的一个领域，所以整体过程也就是模式识别的过程。其过程整体来说可以分为以下几个步骤：预处理：对包含文字的图像进行处理以便后续进行特征提取、学习。这个过程的主要目的是减少图像中的无用信息，以便方便后面的处理。在这个步骤通常有：灰度化（如果是彩色图像）、降噪、二值化、字符切分以及归一化这些子步骤。经过二值化后，图像只剩下两种颜色，即黑和白，其中一个是图像背景，另一个颜色就是要识别的文字了。降噪在这个阶段非常重要，降噪算法的好坏对特征提取的影响很大。字符切分则是将图像中的文字分割成单个文字——识别的时候是一个字一个字识别的。如果文字行有倾斜的话往往还要进行倾斜校正。归一化则是将单个的文字图像规整到同样的尺寸，在同一个规格下，才能应用统一的算法。特征提取和降维：特征是用来识别文字的关键信息，每个不同的文字都能通过特征来和其他文字进行区分。对于数字和英文字母来说，这个特征提取是比较容易的，因为数字只有10个，英文字母只有52个，都是小字符集。对于汉字来说，特征提取比较困难，因为首先汉字是大字符集，国标中光是最常用的第一级汉字就有3755个；第二个汉字结构复杂，形近字多。在确定了使用何种特征后，视情况而定，还有可能要进行特征降维，这种情况就是如果特征的维数太高（特征一般用一个向量表示，维数即该向量的分量数），分类器的效率会受到很大的影响，为了提高识别速率，往往就要进行降维，这个过程也很重要，既要降低维数吧，又得使得减少维数后的特征向量还保留了足够的信息量（以区分不同的文字）。分类器设计、训练和实际识别：分类器是用来进行识别的，就是对于第二步，你对一个文字图像，提取出特征给，丢给分类器，分类器就对其进行分类，告诉你这个特征该识别成哪个文字。在进行实际识别前，往往还要对分类器进行训练，这是一个监督学习的案例。成熟的分类器也很多，什么svm，kn，神经网络etc。我当时不知天高地厚用经典bp神经网络去学习，结果……呵呵……后处理：后处理是用来对分类结果进行优化的，第一个，分类器的分类有时候不一定是完全正确的（实际上也做不到完全正确），比如对汉字的识别，由于汉字中形近字的存在，很容易将一个字识别成其形近字。后处理中可以去解决这个问题，比如通过语言模型来进行校正——如果分类器将“在哪里”识别成“存哪里”，通过语言模型会发现“存哪里”是错误的，然后进行校正。第二个，OCR的识别图像往往是有大量文字的，而且这些文字存在排版、字体大小等复杂情况，后处理中可以尝试去对识别结果进行格式化，比如按照图像中的排版排列什么的，举个栗子，一张图像，其左半部分的文字和右半部分的文字毫无关系，而在字符切分过程中，往往是按行切分的，那么识别结果中左半部分的第一行后面会跟着右半部分的第一行诸如此类。OCR的大致内容差不多就是这样。由于我对模式识别尚处于入门阶段，如果有什么地方说错了，还请指出（并多多包涵）。以上。
+
+
+
+作者：庾金科
+链接：https://www.zhihu.com/question/20191727/answer/99677591
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+其实主要问题还是Text Detection。单个字符 OCR的话传统的就是特征工程+分类器。一般流程是 灰度 -> 二值化->矫正图像 -> 提取特征(方法多种多样例如pca lbp 等等) ->分类器(分类器大致有SVM ANN KNN等等 )。不过现在很火的 CNN（卷积神经网络）可以很大程度上免去特征工程。直接往cnn里面塞图像就行了。不过相对来说后期调参难度也比较大。用CNN做的车牌的中文字符识别，识别率98.41% http://blog.csdn.net/relocy/article/details/50989742还有一点就是端到端（end to end）的识别，但前提是你需要大量的标注好的数据集。这种方法可以不分割图像直接以连续的输出字符序列。对于短长度的可以使用mutli-label classification 。比如像车牌，验证码。这里我试过一个车牌的多标签分类。车牌识别中的不分割字符的端到端(End-to-End)识别google做街景门牌号识别就是用的这种方法。如果字符序列长度较比如很长的手写体 而且不固定的话。可以使用类似于语音识别中采用的方法，让训练好的单个字符分类器在序列图像上滑动，输出概率图，接着用 lstm cnn 等序列模型 输出字符序列。
+
+
+刚好现在在公司做OCR和STR, 现在主流的方法是CNN（基于featuremap的文字检测）+lstm（任意序列的文字行识别），ICDAR2015文字竞赛上top的成绩基本都是这种方法了，另外题主如果想实现end to end的训练和预测可以直接考虑简单暴力的fasterrcnn，出来的结果用cnn过滤下可以达到ICDAR几个challenge的top3.
+
+作者：steve tim
+链接：https://www.zhihu.com/question/20191727/answer/126167192
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+第一个答主已经说得很详细了，补充一点分类器方面的材料，汉字识别以前主要采用最近邻分类器（KNN）和修正二次判别函数(MQDF)，主要是针对扫描文档OCR和手写汉字OCR。当然现在深度学习发展迅猛，卷积神经网络（CNN）已经开始大行其道，具体可以看看百度深度学习研究院的技术报告。
+
+作者：张阳
+链接：https://www.zhihu.com/question/20191727/answer/58870255
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+----------- 2017-03-14 17:01:37
+
+$ python test.py 
+Traceback (most recent call last):
+  File "test.py", line 7, in <module>
+    text = image_to_string(im)
+  File "/home/kidd/software/ocr/pytesser_v0.0.1/pytesser.py", line 30, in image_to_string
+    util.image_to_scratch(im, scratch_image_name)
+  File "/home/kidd/software/ocr/pytesser_v0.0.1/util.py", line 7, in image_to_scratch
+    im.save(scratch_image_name, dpi=(200,200))
+  File "/usr/lib/python2.7/dist-packages/PIL/Image.py", line 1468, in save
+    save_handler(self, fp, filename)
+  File "/usr/lib/python2.7/dist-packages/PIL/BmpImagePlugin.py", line 195, in _save
+    raise IOError("cannot write mode %s as BMP" % im.mode)
+IOError: cannot write mode RGBA as BMP
+
+
+------------- 2017-03-14 17:22:34
+pytesser
+
+http://www.itnose.net/detail/6166735.html
+PyTesser使用Tesseract OCR引擎，将图像转换到可接受的格式，然后执行tesseract提取出文本信息。使用PyTesser ，你无须安装Tesseract OCR引擎,但必须要先安装PIL模块（Python Image Library，python的图形库）
+
+pytesser源码
+　　通过查看pytesser.py的源码，可以看到几个主要函数：
+　（1）call_tesseract(input_filename, output_filename)
+　　该函数调用tesseract外部执行程序，提取图片中的文本信息　
+  （2）image_to_string(im, cleanup = cleanup_scratch_flag)
+　　该函数处理的是image对象，所以需用使用im = open(filename)打开文件，返回一个image对象。其中调用util.image_to_scratch(im, scratch_image_name)将内存中的图像文件保存为bmp，以便tesserac程序能正常处理。
+  （3）image_file_to_string(filename, cleanup = cleanup_scratch_flag, graceful_errors=True)
+　 该函数直接使用Tesseract读取图像文件，如果图像是不相容的，会先转换成兼容的格式，然后再提取图片中的文本信息。
+
+

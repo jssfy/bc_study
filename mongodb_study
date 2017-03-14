@@ -5,6 +5,25 @@ shell cmds:
   db.stats()
 
 
+------------ 2017-03-10 17:56:25
+mongoexport -h 10.12.6.6 -d apes -c wind_information -q '{}, {windcode : 1, sec_name : 1, comp_name : 1}' -o ~/tmp/wind_information.txt
+ -q '{date : {$gte : 1480262400000, $lte : 1484150400000}, "windcode":{"$in":["000001.SH","000903.SH","000904.SH","000905.SH","000906.SH","000300.SH","399001.SZ","399005.SZ","399006.SZ"]}}' 
+
+do not quote -f parameter:
+  mongoexport -h 10.12.6.6 -d apes -c measures -f name,id -o /tmp/measures.txt
+  connected to: 10.12.6.6
+  exported 5931 records
+
+参数说明：
+-h:指明数据库宿主机的IP
+-u:指明数据库的用户名
+-p:指明数据库的密码
+-d:指明数据库的名字
+-c:指明collection的名字
+-f:指明要导出那些列
+-o:指明到要导出的文件名
+-q:指明导出数据的过滤条件
+
 ------------ 2017-03-09 16:28:11
 [root@tz8-demo ~]# mongoexport -h 10.51.3.146 -p 3017 -d apes -c wind_edb -o ~/wind_edb.dat
 2017-03-09T16:27:11.867+0800  error connecting to db server: no reachable servers

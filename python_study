@@ -5,6 +5,65 @@ libs
 beautifulsoup
   https://www.crummy.com/software/BeautifulSoup/
 
+
+---------- 2017-03-14 16:15:10
+import sys
+sys.stdout.write('.')
+
+# 在 python 2.x 下用 python 3 的 print
+from __future__ import print_function
+print('.', end='')
+
+# ps. 这种写法并不是正确的，会在末尾多一个空格
+print '.',
+
+作者：李寒
+链接：https://www.zhihu.com/question/20390166/answer/20034584
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+for i in range(10):
+    print i,
+    sys.stdout.flush()
+    time.sleep(1)
+
+print i,在具体执行时,并不会实时显示,每次都是在换行时才把整行指令打出来.
+如果要实时显示,需要在每次sys.stdout.write后面加上一行sys.stdout.flush()让屏幕输出
+
+do not put '\r' at the end, the previous output will be cleared.
+for i in range(10):
+    print '\r' + str(i),
+    sys.stdout.flush()
+    time.sleep(1)
+
+--------- 2017-03-14 10:12:25
+查找Python 安装路径
+
+$ python 
+Python 2.7.6 (default, Jun 22 2015, 17:58:13) 
+[GCC 4.8.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from distutils.sysconfig import get_python_lib
+>>> print(get_python_lib())
+/usr/lib/python2.7/dist-packages
+
+
+
+------------- 2017-03-14 10:06:00
+在UBUNTU系统下，使用python进行语言开发时，在必要时需要安装不同的python包进行扩展。那么，通常用到的两种方式：pip install和ubuntu系统独有的apt-get install有什么区别呢？这里略作记录。
+（主要参考：http://askubuntu.com/questions/431780/apt-get-install-vs-pip-install）
+pip install的源是pyPI,apt-get 的源是ubuntu仓库。
+对于python的包来说，pyPI的源要比ubuntu更多，对于同一个包，
+pyPI可以提供更多的版本以供下载。
+apt-get 安装的包是系统化的包，在系统内完全安装。
+pip install安装的python包，可以只安装在当前工程内
+apt-get 和 pip install 中，对于相同python包，命名可能会不同：
+apt-get install：对于python2来说，包的名称可能是python-<package_name>
+对于python3来说，包的名称可能是python3-<package_name>
+pip install:直接使用<package_name>进行下载
+
+
 ---------- 2017-02-27 14:48:26
 C:\Users\Administrator\Downloads\codes\uiautomation.pyc
 Traceback (most recent call last):
@@ -1917,4 +1976,109 @@ if __name__ == '__main__':
     pprint.pprint(obj1)
     print('\n')
     cprint(obj1)
+
+----------- 2017-03-13 18:09:08
+python web
+
+WSGI接口定义非常简单，它只要求Web开发者实现一个函数，就可以响应HTTP请求。我们来看一个最简单的Web版本的“Hello, web!”：
+
+def application(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return '<h1>Hello, web!</h1>'
+上面的application()函数就是符合WSGI标准的一个HTTP处理函数，它接收两个参数：
+
+environ：一个包含所有HTTP请求信息的dict对象；
+
+start_response：一个发送HTTP响应的函数。
+
+在application()函数中，调用：
+
+start_response('200 OK', [('Content-Type', 'text/html')])
+就发送了HTTP响应的Header，注意Header只能发送一次，也就是只能调用一次start_response()函数。start_response()函数接收两个参数，一个是HTTP响应码，一个是一组list表示的HTTP Header，每个Header用一个包含两个str的tuple表示。
+
+通常情况下，都应该把Content-Type头发送给浏览器。其他很多常用的HTTP Header也应该发送。
+
+然后，函数的返回值'<h1>Hello, web!</h1>'将作为HTTP响应的Body发送给浏览器。
+
+有了WSGI，我们关心的就是如何从environ这个dict对象拿到HTTP请求信息，然后构造HTML，通过start_response()发送Header，最后返回Body。
+
+整个application()函数本身没有涉及到任何解析HTTP的部分，也就是说，底层代码不需要我们自己编写，我们只负责在更高层次上考虑如何响应请求就可以了。
+
+不过，等等，这个application()函数怎么调用？如果我们自己调用，两个参数environ和start_response我们没法提供，返回的str也没法发给浏览器。
+
+所以application()函数必须由WSGI服务器来调用。有很多符合WSGI规范的服务器，我们可以挑选一个来用。但是现在，我们只想尽快测试一下我们编写的application()函数真的可以把HTML输出到浏览器，所以，要赶紧找一个最简单的WSGI服务器，把我们的Web应用程序跑起来。
+
+好消息是Python内置了一个WSGI服务器，这个模块叫wsgiref，它是用纯Python编写的WSGI服务器的参考实现。所谓“参考实现”是指该实现完全符合WSGI标准，但是不考虑任何运行效率，仅供开发和测试使用。
+
+运行WSGI服务
+
+我们先编写hello.py，实现Web应用程序的WSGI处理函数：
+
+# hello.py
+
+def application(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return '<h1>Hello, web!</h1>'
+然后，再编写一个server.py，负责启动WSGI服务器，加载application()函数：
+
+# server.py
+# 从wsgiref模块导入:
+from wsgiref.simple_server import make_server
+# 导入我们自己编写的application函数:
+from hello import application
+
+# 创建一个服务器，IP地址为空，端口是8000，处理函数是application:
+httpd = make_server('', 8000, application)
+print "Serving HTTP on port 8000..."
+# 开始监听HTTP请求:
+httpd.serve_forever()
+
+sample run:
+    ~/workspace/python/scipy/wsgi
+    $ python server.py 
+    Serving HTTP on port 8000...
+    10.12.0.11 - - [13/Mar/2017 18:08:34] "GET / HTTP/1.1" 200 20
+    10.12.0.11 - - [13/Mar/2017 18:08:35] "GET /favicon.ico HTTP/1.1" 200 20
+
+----------- 2017-03-13 20:32:50
+sudo apt-get install python-flask
+
+pip install flask [failed]
+easy_install flask [failed]
+
+#!encoding=utf-8
+
+from flask import Flask
+from flask import request
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    return '<h1>Home</h1>'
+
+@app.route('/signin', methods=['GET'])
+def signin_form():
+    return '''<form action="/signin" method="post">
+              <p><input name="username"></p>
+              <p><input name="password" type="password"></p>
+              <p><button type="submit">Sign In</button></p>
+              </form>'''
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    # 需要从request对象读取表单内容：
+    if request.form['username']=='admin' and request.form['password']=='password':
+        return '<h3>Hello, admin!</h3>'
+    return '<h3>Bad username or password.</h3>'
+
+if __name__ == '__main__':
+    app.run()
+
+除了Flask，常见的Python Web框架还有：
+Django：全能型Web框架；
+web.py：一个小巧的Web框架；
+Bottle：和Flask类似的Web框架；
+Tornado：Facebook的开源异步Web框架。
+
 

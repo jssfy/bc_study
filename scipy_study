@@ -1,0 +1,122 @@
+
+scipy installation:
+    http://www.scipy.org/install.html#head-e68e4e32955ab584e1ac94e2b767f00179eac137
+  0. 下载scipy与numpy的package
+  http://www.scipy.org/Download#head-e68e4e32955ab584e1ac94e2b767f00179eac137
+  1. sudo apt-get install libatlas-sse2-dev（科学计算库）
+  2. sudo apt-get install gfortran（编译器）
+  3. 执行下面的命令：
+  Image
+  在安装libatlas-sse2-dev2后，libblas.so的路径为：/usr/lib/sse2/atlas/
+  4. 进入numpy的目录, 执行（安装numpy）
+  python setup.py build --fcompiler=gnu95
+  sudo python setup.py install --prefix=/usr/local
+  5. 进入scipy的目录，执行下面相同的命令
+  python setup.py build --fcompiler=gnu95
+  sudo python setup.py install --prefix=/usr/local 
+
+http://www.scipy.org/install.html#head-e68e4e32955ab584e1ac94e2b767f00179eac137
+Installing via pip
+Mac and Linux users can install pre-built binary packages for the SciPy stack using pip. Pip can install pre-built binary packages in the wheel package format.
+Note that you need to have Python and pip already installed on your system.
+pip does not work well for Windows because the standard pip package index site, PyPI, does not yet have Windows wheels for some packages, such as SciPy.
+To install via pip on Mac or Linux, first upgrade pip to the latest version:
+  !!!!!!!!!!!! python -m pip install --upgrade pip
+Then install the SciPy stack packages with pip. We recommend a user install, using the --user flag to pip (note: don’t use sudo pip, that will give problems). This installs packages for your local user, and does not need extra permissions to write to the system directories:
+  !!!!!!!!!!!! pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
+For user installs, make sure your user install executable directory is on your PATH. Here are example commands for setting the user PATH:
+Linux:
+# Consider adding this at the end of your ~/.bashrc file
+export PATH="$PATH:/home/your_user/.local/bin"
+OSX:
+# Consider adding this at the end of your ~/.bash_profile file
+export PATH="$PATH:/Users/your_user/Library/Python/3.5/bin"
+Replace your_user with your username, and “3.5” with your Python version.
+
+  export PATH=$PATH:/home/kidd/.local/bin
+  ~/.local/bin
+  $ ls
+  easy_install      ipython2         jupyter-kernelspec   jupyter-qtconsole
+  easy_install-2.7  isympy           jupyter-migrate      jupyter-run
+  iptest            jsonschema       jupyter-nbconvert    jupyter-serverextension
+  iptest2           jupyter          jupyter-nbextension  jupyter-troubleshoot
+  ipython           jupyter-console  jupyter-notebook     jupyter-trust
+
+
+Install systemwide via a Linux package manager
+  sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+
+
+
+---------- 2017-03-13 11:15:07
+http://blog.csdn.net/lwfcgz/article/details/23290623
+
+scipy 由一些特定功能的子模块组成：
+模块  功能
+scipy.cluster   矢量量化 / K-均值
+scipy.constants   物理和数学常数
+scipy.fftpack   傅里叶变换
+scipy.integrate   积分程序
+scipy.interpolate   插值
+scipy.io  数据输入输出
+scipy.linalg  线性代数程序
+scipy.ndimage   n维图像包
+scipy.odr   正交距离回归
+scipy.optimize  优化
+scipy.signal  信号处理
+scipy.sparse  稀疏矩阵
+scipy.spatial   空间数据结构和算法
+scipy.special   任何特殊数学函数
+scipy.stats   统计
+
+它们全依赖numpy,但是每个之间基本独立。导入Numpy和这些scipy模块的标准方式是：
+
+import numpy as np
+from scipy import stats  # 其它子模块相同
+
+主scipy命名空间大多包含真正的numpy函数(尝试 scipy.cos 就是 np.cos)。这些仅仅是由于历史原因，通常没有理由在你的代码中使用import scipy
+
+----------- 2017-03-13 12:00:31
+od -c file.mat
+
+from scipy import io as spio
+import numpy as np
+
+a = np.ones((3,3))
+spio.savemat('file.mat', {'a': a})
+
+----------- 2017-03-13 16:30:07
+import numpy as np
+a = np.arange(0,12,0.5).reshape(4,-1)
+np.savetxt("a.txt", a) # 缺省按照'%.18e'格式保存数据，以空格分隔 0.000000000000000000e+00
+
+np.savetxt("a.txt", a, fmt="%d", delimiter=",") #改为保存为整数，以逗号分隔
+np.loadtxt("a.txt",delimiter=",") # 读入的时候也需要指定逗号分隔
+
+
+---------- 2017-03-13 17:10:42
+numpy
+
+genfromtxt函数
+- genfromtxt函数创建数组表格数据
+- genfromtxt主要执行两个循环运算。第一个循环将文件的每一行转换成字符串序列。第二个循环将每个字符串序列转换为相应的数据类型。
+- genfromtxt能够考虑缺失的数据,但其他更快和更简单的函数像loadtxt不能考虑缺失值。
+- 使用前需导入相应模块
+
+>>> import numpy as np
+>>> from StringIO import StringIO
+
+genfromtxt唯一的强制参数是数据的来源。它可以是一个对应于一个本地或远程文件的名字字符串,或一个有read方法的file-like对象(如一个实际的文件或StringIO。StringIO对象)。如果参数是一个远程文件的URL,后者在当前目录中自动下载。输入文件可以是一个文本文件或存档，目前,该函数识别gzip和bz2(bzip2)。归档文件的类型是检查文件的扩展：如果文件名以“.gz”结尾”,gzip存档;如果它结尾是“bz2”,bzip2存档。
+
+data = "123456789\n  4  7 9\n  4567 9"
+print np.genfromtxt(StringIO(data), delimiter=(3, 3, 3))
+  [[ 123.  456.  789.]
+   [   4.    7.    9.]
+   [   4.  567.    9.]]
+
+print np.genfromtxt(StringIO(data), delimiter=(4, 3, 2))
+  [[ 1234.   567.    89.]
+   [    4.     7.     9.]
+   [   45.    67.     9.]]
+
+
