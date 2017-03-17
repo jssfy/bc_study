@@ -129,6 +129,26 @@ switched to db apes
   [2016-10-24, 2016-11-06]
   [2016-12-16, 2017-1-13]
 
+------------- 2017-03-16 10:01:58
+$ sudo python runcrawler.py offline "Daily Market Spider"
+['anhye@abcft.com']
+2017-03-16 10:01:07,365 - 14544 - INFO - connect websocket
+2017-03-16 10:01:07,448 - 14544 - INFO - connect finished
+start:  2017-03-16 10:01:07.547838
+2017-03-16 10:01:07,547 - 14544 - INFO - crawl for DailyMarketSpider
+got last fail point: 
+None
+2017-03-16 10:01:07,557 - 14544 - INFO - send websocket request: 1
+end: 2017-03-16 10:01:08.062128
+{u'errorCode': 0, u'codeList': [u'000001.SZ'], u'data': [9.57, u'\u5e73\u5b89\u94f6\u884c'], u'fieldList': [u'CLOSE', u'SEC_NAME'], u'timeList': [u'2017-02-21T00:00:00']}
+2017-03-16 10:01:08,062 - 14544 - INFO - data size: 2 for 000001.SZ
+2017-03-16 10:01:08,066 - 14544 - INFO - need to upsert daily market for 000001.SZ
+2017-03-16 10:01:08,067 - 14544 - INFO - crawl finished: 1 for code 000001.SZ
+2017-03-16 10:01:08,067 - 14544 - INFO - close websocket
+run offline spider "Daily Market Spider" finished
+
+
+
 ------------- 2017-03-13 17:27:25
 -40520012
   restart the agent

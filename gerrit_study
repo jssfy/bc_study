@@ -3,6 +3,19 @@
 
 
 
+-------------- 2017-03-16 18:09:36
+我的也没有admin这个菜单项，不知道是不是新版的没有了这个选项，还有好像新版不能通过ssh直接运行gsql了，会报没有权限访问数据库。。。
+
+添加用户得看你装gerrit的时候用的是什么认证方式，如果是采用http，apache2反向代理的话，可以在服务器上运行:htpasswd <gerrit安装目录>/etc/passwords username，passwords这个文件还需要跟你的/etc/apache2/http.conf底下的配置指的同一个文件。
+
+
+-------- 2017-03-15 12:04:41
+https://www.slant.co/versus/4860/4868/~gitlab_vs_gerrit
+
+web-based Git repository managers?” GitLab is ranked 1st while Gerrit is ranked 9th.The most important reason people chose GitLab is:
+  GitLab is a free and open source project licensed under MIT. Source code for Enterprise Edition can be found [here](https://gitlab.com/gitlab-org/gitlab-ee) and Community Edition [here](https://gitlab.com/gitlab-org/gitlab-ce).
+
+
 -------------- 2016-12-05 19:35:46
 
 ~/software/gerrit
