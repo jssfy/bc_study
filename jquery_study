@@ -1,0 +1,53 @@
+
+
+---------------2016-10-25 00:33:13
+
+jQuery 库 - 特性
+jQuery 是一个 JavaScript 函数库。
+jQuery 库包含以下特性：
+    HTML 元素选取
+    HTML 元素操作
+    CSS 操作
+    HTML 事件函数
+    JavaScript 特效和动画
+    HTML DOM 遍历和修改
+    AJAX
+    Utilities
+
+<script> 标签应该位于页面的 <head> 部分。
+  no. but inclusion of jquery.js should be before using.
+
+共有两个版本的 jQuery 可供下载：一份是精简过的，另一份是未压缩的（供调试或阅读）。
+如果您不愿意在自己的计算机上存放 jQuery 库，那么可以从 Google 或 Microsoft 加载 CDN jQuery 核心文件。[but might be slow]
+使用 Google 的 CDN
+
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs
+/jquery/1.4.0/jquery.min.js"></script>
+</head>
+
+使用 Microsoft 的 CDN
+
+<head>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery
+/jquery-1.4.min.js"></script>
+</head>
+
+提示：您是否很疑惑为什么我们没有在 <script> 标签中使用 type="text/javascript" ？
+在 HTML5 中，不必那样做了。JavaScript 是 HTML5 以及所有现代浏览器中的默认脚本语言！
+
+
+
+-------------2016-10-24 23:49:56
+http://www.oschina.net/question/264729_141663
+
+ 一般原则是越新越好，jQuery版本是在不断进步和发展的，最新版是当时最高技术水平，也是最先进的技术理念。
+
+但个人的角度来看。是最新版本x.x.0的上一版本最好。比如说1.10.0版，上一版本是1.9.3，这个版本应该最稳定，因为x.x.0表示着有很多新的功能，但是潜在的bug还没有显现，而0变成1-3的时候一般都是bug的修复版，稳定性会更好。
+
+
+另外更加情况选用1系列还是2系列，2系列不支持ie6，7，8 
+
+
+1.9以及以上版本有些很厉害的bug. 
+非常认同宏哥。1.8.3是目前最好用的 

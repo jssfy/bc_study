@@ -13,4 +13,10 @@ Traceback (most recent call last):
   File "/home/kidd/workspace/python/wxBot/wxbot.py", line 18, in <module>
     from requests.exceptions import ConnectionError, ReadTimeout
 ImportError: cannot import name ReadTimeout
+--------- 2016-10-30 12:44:27
+
+1 实现方案
+用 wxBot登录微信，接收、发送微信消息。
+用 图灵机器人 API对消息作回复。
+>>>>>>> Stashed changes
 

@@ -1,6 +1,15 @@
 
 
 
+----------- 2017-02-05 13:24:42
+chrome for ubuntu 14.04
+
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb 
+
+kidd@kidd-T430:~/Downloads$ which google-chrome-stable
+/usr/bin/google-chrome-stable
+
 
 ------------ 2017-01-12 20:45:49
 $ nm-tool

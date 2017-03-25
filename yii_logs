@@ -1,0 +1,236 @@
+
+
+
+---------- 
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/Logger.php
+
+    /**
+     * Initializes the logger by registering [[flush()]] as a shutdown function.
+     */
+    public function init()
+    {
+        parent::init();
+        register_shutdown_function(function () {
+            error_log('shutdown!!!!!!!!');
+            // make regular flush before other shutdown functions, which allows session data collection and so on
+            $this->flush();
+            // make sure log entries written by shutdown functions are also flushed
+            // ensure "flush()" is called last when there are multiple shutdown functions
+            register_shutdown_function([$this, 'flush'], true);
+        });
+    }
+
+    /**
+     * Flushes log messages from memory to targets.
+     * @param boolean $final whether this is a final call during a request.
+     */
+    public function flush($final = false)
+    {
+        $messages = $this->messages;
+        // https://github.com/yiisoft/yii2/issues/5619
+        // new messages could be logged while the existing ones are being handled by targets
+        $this->messages = [];
+        if ($this->dispatcher instanceof Dispatcher) {
+            $this->dispatcher->dispatch($messages, $final);
+        }
+    }
+
+!!! comment out below commented line:
+  otherwise there will be extra context info appended to each log, which is too much.
+
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/Target.php
+    /**
+     * Processes the given log messages.
+     * This method will filter the given messages with [[levels]] and [[categories]].
+     * And if requested, it will also export the filtering result to specific medium (e.g. email).
+     * @param array $messages log messages to be processed. See [[Logger::messages]] for the structure
+     * of each message.
+     * @param boolean $final whether this method is called at the end of the current application
+     */
+    public function collect($messages, $final)
+    {
+        error_log('look 1: ' . get_called_class());
+        if (get_class($this) == 'yii\log\FileTarget') {
+            error_log('look 2 filename: ' . $this->logFile);
+        }
+        error_log('to collect\n' . json_encode($this->messages));
+        $this->messages = array_merge($this->messages, static::filterMessages($messages, $this->getLevels(), $this->categories, $this->except));
+
+        error_log('to collect after filtering\n' . json_encode($this->messages));
+        $count = count($this->messages);
+        if ($count > 0 && ($final || $this->exportInterval > 0 && $count >= $this->exportInterval)) {
+            error_log('look 3: ' . $this->logFile);
+            if (($context = $this->getContextMessage()) !== '') {
+//                $this->messages[] = [$context, Logger::LEVEL_INFO, 'application', YII_BEGIN_TIME];
+            }
+            // set exportInterval to 0 to avoid triggering export again while exporting
+            $oldExportInterval = $this->exportInterval;
+            $this->exportInterval = 0;
+            error_log('class name: ' . get_class($this) . ' and final: ' . $final);
+            $this->export();
+            $this->exportInterval = $oldExportInterval;
+
+            $this->messages = [];
+        }
+    }
+
+    /**
+     * Generates the context information to be logged.
+     * The default implementation will dump user information, system variables, etc.
+     * @return string the context information. If an empty string, it means no context information.
+     */
+    protected function getContextMessage()
+    {
+        $context = ArrayHelper::filter($GLOBALS, $this->logVars);
+        $result = [];
+        foreach ($context as $key => $value) {
+            $result[] = "\${$key} = " . VarDumper::dumpAsString($value);
+        }
+        return implode("\n\n", $result);
+    }
+
+--------- 2016-10-23 12:05:43
+it seems multiple \Yii::info are flushed altogether:
+  as seen from below, 'to return vendorPath' and 'error test' are actually logged from 2 separate \Yii::info calls.
+
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/FileTarget.php
+    /**
+     * Writes log messages to a file.
+     * @throws InvalidConfigException if unable to open the log file for writing
+     */
+    public function export()
+    {
+        $text = implode("\n", array_map([$this, 'formatMessage'], $this->messages)) . "\n";
+        error_log('\n-------------' . json_encode($this->messages));
+
+[Sun Oct 23 12:03:18.498274 2016] [:error] [pid 12118] [client 127.0.0.1:59522] \\n-------------[["to return vendorPath: \\/home\\/kidd\\/workspace\\/yii\\/basic",4,"application",1477195398.4897,[]],["error test",4,"application",1477195398.492,[{"file":"\\/home\\/kidd\\/workspace\\/yii\\/basic\\/controllers\\/SiteController.php","line":64,"function":"info","class":"yii\\\\BaseYii","type":"::"}]],["$_COOKIE = [\\n    '_csrf' => 'cf1056f7c1458be907355043228ae61f23c47c30e3d900351c910e9f7567d0b5a:2:{i:0;s:5:\\\\\\"_csrf\\\\\\";i:1;s:32:\\\\\\"0_OcuTAFFBCQBY4JUq4PE7r2_B5nhuEE\\\\\\";}'\\n]\\n\\n$_SERVER = [\\n    'REDIRECT_STATUS' => '200'\\n    'HTTP_HOST' => 'localhost'\\n    'HTTP_USER_AGENT' => 'Mozilla\\/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko\\/20100101 Firefox\\/38.0'\\n    'HTTP_ACCEPT' => 'text\\/html,application\\/xhtml+xml,application\\/xml;q=0.9,*\\/*;q=0.8'\\n    'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.5'\\n    'HTTP_ACCEPT_ENCODING' => 'gzip, deflate'\\n    'HTTP_COOKIE' => '_csrf=cf1056f7c1458be907355043228ae61f23c47c30e3d900351c910e9f7567d0b5a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%220_OcuTAFFBCQBY4JUq4PE7r2_B5nhuEE%22%3B%7D'\\n    'HTTP_CONNECTION' => 'keep-alive'\\n    'HTTP_CACHE_CONTROL' => 'max-age=0'\\n    'PATH' => '\\/usr\\/local\\/sbin:\\/usr\\/local\\/bin:\\/usr\\/sbin:\\/usr\\/bin:\\/sbin:\\/bin'\\n    'SERVER_SIGNATURE' => '<address>Apache\\/2.4.7 (Ubuntu) Server at localhost Port 80<\\/address>\\n'\\n    'SERVER_SOFTWARE' => 'Apache\\/2.4.7 (Ubuntu)'\\n    'SERVER_NAME' => 'localhost'\\n    'SERVER_ADDR' => '127.0.0.1'\\n    'SERVER_PORT' => '80'\\n    'REMOTE_ADDR' => '127.0.0.1'\\n    'DOCUMENT_ROOT' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web'\\n    'REQUEST_SCHEME' => 'http'\\n    'CONTEXT_PREFIX' => ''\\n    'CONTEXT_DOCUMENT_ROOT' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web'\\n    'SERVER_ADMIN' => 'webmaster@localhost'\\n    'SCRIPT_FILENAME' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web\\/index.php'\\n    'REMOTE_PORT' => '59522'\\n    'REDIRECT_URL' => '\\/r=site\\/index'\\n    'GATEWAY_INTERFACE' => 'CGI\\/1.1'\\n    'SERVER_PROTOCOL' => 'HTTP\\/1.1'\\n    'REQUEST_METHOD' => 'GET'\\n    'QUERY_STRING' => ''\\n    'REQUEST_URI' => '\\/r=site\\/index'\\n    'SCRIPT_NAME' => '\\/index.php'\\n    'PHP_SELF' => '\\/index.php'\\n    'REQUEST_TIME_FLOAT' => 1477195398.487\\n    'REQUEST_TIME' => 1477195398\\n]",4,"application",1477195398.4888]]
+
+[Sun Oct 23 12:24:24.185281 2016] [:error] [pid 7545] [client 127.0.0.1:59600] look
+[Sun Oct 23 12:24:24.185300 2016] [:error] [pid 7545] [client 127.0.0.1:59600] to collect\\n[{"file":"\\/home\\/kidd\\/workspace\\/yii\\/basic\\/vendor\\/yiisoft\\/yii2\\/log\\/Dispatcher.php","line":188,"function":"collect","class":"yii\\\\log\\\\Target","type":"->"},{"file":"\\/home\\/kidd\\/workspace\\/yii\\/basic\\/vendor\\/yiisoft\\/yii2\\/log\\/Logger.php","line":176,"function":"dispatch","class":"yii\\\\log\\\\Dispatcher","type":"->"},{"function":"flush","class":"yii\\\\log\\\\Logger","type":"->"}]
+
+
+
+        \Yii::info('error test', 'kidd');
+        \Yii::info('log test', 'kidd');
+[Sun Oct 23 17:59:04.500652 2016] [:error] [pid 3653] [client 127.0.0.1:54990] class name: yii\\log\\FileTarget and final: 1
+[Sun Oct 23 17:59:04.501229 2016] [:error] [pid 3653] [client 127.0.0.1:54990] \\n-------------[["error test",4,"kidd",1477216744.4932,[{"file":"\\/home\\/kidd\\/workspace\\/yii\\/basic\\/controllers\\/SiteController.php","line":64,"function":"info","class":"yii\\\\BaseYii","type":"::"}]],["log test",4,"kidd",1477216744.4933,[{"file":"\\/home\\/kidd\\/workspace\\/yii\\/basic\\/controllers\\/SiteController.php","line":65,"function":"info","class":"yii\\\\BaseYii","type":"::"}]],["$_COOKIE = [\\n    '_csrf' => '0174e0517152261059b9c3ffe950545b6112a3ef2e293c7abdfb6819818be89fa:2:{i:0;s:5:\\\\\\"_csrf\\\\\\";i:1;s:32:\\\\\\"-hFlnaRiXkzh14nu38r_cfT9IQbXZsnj\\\\\\";}'\\n]\\n\\n$_SERVER = [\\n    'REDIRECT_STATUS' => '200'\\n    'HTTP_HOST' => 'localhost'\\n    'HTTP_USER_AGENT' => 'Mozilla\\/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko\\/20100101 Firefox\\/38.0'\\n    'HTTP_ACCEPT' => 'text\\/html,application\\/xhtml+xml,application\\/xml;q=0.9,*\\/*;q=0.8'\\n    'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.5'\\n    'HTTP_ACCEPT_ENCODING' => 'gzip, deflate'\\n    'HTTP_COOKIE' => '_csrf=0174e0517152261059b9c3ffe950545b6112a3ef2e293c7abdfb6819818be89fa%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22-hFlnaRiXkzh14nu38r_cfT9IQbXZsnj%22%3B%7D'\\n    'HTTP_CONNECTION' => 'keep-alive'\\n    'HTTP_CACHE_CONTROL' => 'max-age=0'\\n    'PATH' => '\\/usr\\/local\\/sbin:\\/usr\\/local\\/bin:\\/usr\\/sbin:\\/usr\\/bin:\\/sbin:\\/bin'\\n    'SERVER_SIGNATURE' => '<address>Apache\\/2.4.7 (Ubuntu) Server at localhost Port 80<\\/address>\\n'\\n    'SERVER_SOFTWARE' => 'Apache\\/2.4.7 (Ubuntu)'\\n    'SERVER_NAME' => 'localhost'\\n    'SERVER_ADDR' => '127.0.0.1'\\n    'SERVER_PORT' => '80'\\n    'REMOTE_ADDR' => '127.0.0.1'\\n    'DOCUMENT_ROOT' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web'\\n    'REQUEST_SCHEME' => 'http'\\n    'CONTEXT_PREFIX' => ''\\n    'CONTEXT_DOCUMENT_ROOT' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web'\\n    'SERVER_ADMIN' => 'webmaster@localhost'\\n    'SCRIPT_FILENAME' => '\\/home\\/kidd\\/workspace\\/yii\\/basic\\/web\\/index.php'\\n    'REMOTE_PORT' => '54990'\\n    'REDIRECT_URL' => '\\/r=site\\/index'\\n    'GATEWAY_INTERFACE' => 'CGI\\/1.1'\\n    'SERVER_PROTOCOL' => 'HTTP\\/1.1'\\n    'REQUEST_METHOD' => 'GET'\\n    'QUERY_STRING' => ''\\n    'REQUEST_URI' => '\\/r=site\\/index'\\n    'SCRIPT_NAME' => '\\/index.php'\\n    'PHP_SELF' => '\\/index.php'\\n    'REQUEST_TIME_FLOAT' => 1477216744.48\\n    'REQUEST_TIME' => 1477216744\\n]",4,"application",1477216744.4819]]
+
+------------- 2016-10-22 11:57:29
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/FileTarget.php
+
+    /**
+     * Writes log messages to a file.
+     * @throws InvalidConfigException if unable to open the log file for writing
+     */
+    public function export()
+
+for a single \yii\info, the final result will be appended with more info by default:
+  e.g., in addition to "error test": 
+
+[Sat Oct 22 11:58:26.901595 2016] [:error] [pid 15793] [client 127.0.0.1:59132] 2016-10-22 03:58:26 [127.0.0.1][-][-][info][application] error test\n    in /home/kidd/workspace/yii/basic/controllers/SiteController.php:64\n2016-10-22 03:58:26 [127.0.0.1][-][-][info][application] $_COOKIE = [\n    '_csrf' => 'cf1056f7c1458be907355043228ae61f23c47c30e3d900351c910e9f7567d0b5a:2:{i:0;s:5:\\"_csrf\\";i:1;s:32:\\"0_OcuTAFFBCQBY4JUq4PE7r2_B5nhuEE\\";}'\n]\n\n$_SERVER = [\n    'REDIRECT_STATUS' => '200'\n    'HTTP_HOST' => 'localhost'\n    'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0'\n    'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'\n    'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.5'\n    'HTTP_ACCEPT_ENCODING' => 'gzip, deflate'\n    'HTTP_COOKIE' => '_csrf=cf1056f7c1458be907355043228ae61f23c47c30e3d900351c910e9f7567d0b5a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%220_OcuTAFFBCQBY4JUq4PE7r2_B5nhuEE%22%3B%7D'\n    'HTTP_CONNECTION' => 'keep-alive'\n    'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\n    'SERVER_SIGNATURE' => '<address>Apache/2.4.7 (Ubuntu) Server at localhost Port 80</address>\n'\n    'SERVER_SOFTWARE' => 'Apache/2.4.7 (Ubuntu)'\n    'SERVER_NAME' => 'localhost'\n    'SERVER_ADDR' => '127.0.0.1'\n    'SERVER_PORT' => '80'\n    'REMOTE_ADDR' => '127.0.0.1'\n    'DOCUMENT_ROOT' => '/home/kidd/workspace/yii/basic/web'\n    'REQUEST_SCHEME' => 'http'\n    'CONTEXT_PREFIX' => ''\n    'CONTEXT_DOCUMENT_ROOT' => '/home/kidd/workspace/yii/basic/web'\n    'SERVER_ADMIN' => 'webmaster@localhost'\n    'SCRIPT_FILENAME' => '/home/kidd/workspace/yii/basic/web/index.php'\n    'REMOTE_PORT' => '59132'\n    'REDIRECT_URL' => '/r=site/index'\n    'GATEWAY_INTERFACE' => 'CGI/1.1'\n    'SERVER_PROTOCOL' => 'HTTP/1.1'\n    'REQUEST_METHOD' => 'GET'\n    'QUERY_STRING' => ''\n    'REQUEST_URI' => '/r=site/index'\n    'SCRIPT_NAME' => '/index.php'\n    'PHP_SELF' => '/index.php'\n    'REQUEST_TIME_FLOAT' => 1477108706.88\n    'REQUEST_TIME' => 1477108706\n]\n
+
+
+---------------2016-10-22 11:26:39
+error_log() is appened to:
+  tail -f /var/log/apache2/error.log
+
+php error_log can be set in php.ini (which can be seen from phpinfo())
+
+
+
+ 
+-------------- 2016-10-22 11:02:11
+
+all targets will be traversed and log will be appended to each target if matching.
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning'],
+                ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'info'],
+                    'categories' => [
+                        'kidd',
+                    ],
+                    'logFile' => '@runtime/logs/test.log',
+                ],
+            ],
+        ],
+
+category: (test.log)
+2016-10-22 03:16:08 [127.0.0.1][-][-][info][app\controllers\SiteController::actionIndex] error test
+    we can see "app\controllers\SiteController::actionIndex" can be filtered by 'app\controllers\*'
+config: 
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'info'],
+                    'categories' => [
+                        'app\controllers\*',
+                    ],
+                    'logFile' => '@runtime/logs/test.log',
+                ],
+
+/home/kidd/workspace/yii/basic/controllers/SiteController.php
+    public function actionIndex()
+    {
+        \Yii::info('error test', __METHOD__);
+
+------------ 2016-10-22 10:37:05
+http://www.jb51.net/article/76069.htm
+
+消息的trace等级
+在开发的过程当中，我们总是期望能够知道每一条日志消息是来自哪里。在Yii中你可以通过配置[[yii\log\Dispatcher::traceLevel|traceLevel]] 属性来实现。配置的示例如下：
+return [
+'bootstrap' => ['log'],
+'components' => [
+  'log' => [
+    'traceLevel' => YII_DEBUG ? 3 : 0,
+    'targets' => [...],
+  ],
+],
+];
+
+上面的示例在YII_DEBUG为true的时候将[[yii\log\Dispatcher::traceLevel|traceLevel]] 设置为3，反之设置为0. 意思是什么呢？3表示每一条日志记录都会记录与之相关的三层栈调用信息，0表示不记录任何相关的栈调用信息
+
+提示：没有必要总是记录调用的堆栈信息，比较耗性能。所以，你应该只在你开发的时候或者用于调试的情况下使用该功能。
+
+
+------ 2016-10-22 10:38:34
+FileTarget
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/FileTarget.php
+
+class FileTarget extends Target
+{
+    /**
+     * @var string log file path or path alias. If not set, it will use the "@runtime/logs/app.log" file.
+     * The directory containing the log files will be automatically created if not existing.
+     */
+    public $logFile;
+
+$this->logFile = Yii::$app->getRuntimePath() . '/logs/app.log';
+
+-------------- 2016-10-22 10:41:18
+alias:
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/BaseYii.php
+
+    /**
+     * Translates a path alias into an actual path.
+     *
+     * The translation is done according to the following procedure:
+     *
+     * 1. If the given alias does not start with '@', it is returned back without change;
+     * 2. Otherwise, look for the longest registered alias that matches the beginning part
+     *    of the given alias. If it exists, replace the matching part of the given alias with
+     *    the corresponding registered path.
+     * 3. Throw an exception or return false, depending on the `$throwException` parameter.
+     *
+     * For example, by default '@yii' is registered as the alias to the Yii framework directory,
+     * say '/path/to/yii'. The alias '@yii/web' would then be translated into '/path/to/yii/web'.
+     *
+
+    public static function getAlias($alias, $throwException = true)
+
+

@@ -15,6 +15,7 @@ echo $coding;
 UTF-8
 
 phpinfo()
+--------- 2016-11-03 11:59:11
 
   $ php test.php | grep charset
   default_charset => UTF-8 => UTF-8
@@ -97,6 +98,95 @@ if (YII_ENV_PROD) {
         
 -------- 2016-10-24 10:16:53
 在单引号串中反斜线失去了它的扩展含义（除了添入反斜杠\\和添入单引号\'）。所以，当你想在字串中进行变量代换和包含\n（换行符）等转义序列时，你应该使用双引号。
+
+----------- 2016-10-30 12:28:57
+
+display_errors
+错误回显，一般常用语开发模式，但是很多应用在正式环境中也忘记了关闭此选项。错误回显可以暴露出非常多的敏感信息，为攻击者下一步攻击提供便利。推荐关闭此选项。
+display_errors = On
+开启状态下，若出现错误，则报错，出现错误提示
+dispaly_errors = Off
+关闭状态下，若出现错误，则提示：服务器错误。但是不会出现错误提示 
+  e.g., language errors will be displayed
+
+http://localhost/index.php?echostr=hello
+Notice: Undefined index: signature in /home/kidd/workspace/php/ch28/index.php on line 73
+Notice: Undefined index: timestamp in /home/kidd/workspace/php/ch28/index.php on line 74
+Notice: Undefined index: nonce in /home/kidd/workspace/php/ch28/index.php on line 75
+check false
+
+log_errors
+在正式环境下用这个就行了，把错误信息记录在日志里。正好可以关闭错误回显。 
+将PHP的log_errors开启即可，默认是记录到WEB服务器的日志文件里，比如Apache的error.log文件。
+当然也可以记录错误日志到指定的文件中。
+复制代码 代码如下:
+
+# vim /etc/php.inidisplay_errors = Off
+log_errors = On
+error_log = /var/log/php-error.log 
+另外也可以设定error_log = syslog，使这些错误信息记录到操作系统的日志里
+
+error_reporting 设定错误讯息回报的等级 
+
+经查log_errors= On，据官方的说法，当这个log_errors设置为On，那么必须指定error_log文件，如果没指定或者指定的文件没有权限写入，那么照样会输出到正常的输出渠道，那么也就使得display_errors 这个指定的Off失效，错误信息还是打印了出来。于是将log_errors = Off，问题就解决了。 
+
+经常见到error_reporting（7）直意为：设定错误讯息回报的等级。
+value constant
+1 E_ERROR
+2 E_WARNING
+4 E_PARSE
+8 E_NOTICE
+16 E_CORE_ERROR
+32 E_CORE_WARNING
+64 E_COMPILE_ERROR
+128 E_COMPILE_WARNING
+256 E_USER_ERROR
+512 E_USER_WARNING
+1024 E_USER_NOTICE
+2047 E_ALL
+2048 E_STRICT
+然而7=1+2+4
+就是出错时显示1 E_ERROR 2 E_WARNING 4 E_PARSE
+
+e.g.,
+<?php
+  //禁用错误报告
+  error_reporting(0);
+  //报告运行时错误
+  error_reporting(E_ERROR | E_WARNING | E_PARSE);
+  //报告所有错误
+  error_reporting(E_ALL);
+?> 
+
+------- 2016-10-29 18:53:54
+在命令行里输入程序参数来更改其运行方式是很常见的做法。你也可以对CLI程序这样做。PHP CLI带有两个特殊的变量，专门用来达到这个
+
+目的：一个是$argv变量，它通过命令行把传递给PHP脚本的参数保存为单独的数组元素；另一个是$argc变量，它用来保存$argv数组里元素的 
+
+
+--------- 
+class Base {
+    public function log() {
+
+        // 目标类，输出：A、C
+        echo static::class;
+        //echo get_called_class();
+        //echo get_class($this);
+        
+        
+        // 基类，输出：Base
+        //echo __CLASS__; 
+        //echo self::class;
+        
+    }
+}
+
+class A extends Base {}
+class C extends Base {}
+
+
+echo (new A)->log();  // 输出： A
+echo (new C)->log();  // 输出： C
 
 ------------ 2016-10-14 21:24:55
 
@@ -435,7 +525,7 @@ getImg("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQGB7zoAAAAAAAAAASxod
 $ tree tmp
 tmp
 └── test.jpg
-
+error_log
 --------------- 2016-08-30 16:05:15
 php -S
 

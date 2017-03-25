@@ -207,3 +207,26 @@ class wechatCallbackapiTest
 }
 
 ?>
+
+
+-------------2016-10-29 14:18:35
+logs:
+phpinfo():
+  Loaded Configuration File   /etc/php5/apache2/php.ini 
+error_log
+  after setting error_log in php.ini, need to restart apache2 or reload
+  
+local apache logs:
+  /var/log/apache2/error.log [refer to  ErrorLog ${APACHE_LOG_DIR}/error.log under sites-enabled]
+
+--------------- 2016-10-29 14:32:33
+code distribution:
+
+local:
+  git push
+
+aliyun
+  462  git checkout master
+  463  git diff master..develop
+  464  git merge develop
+

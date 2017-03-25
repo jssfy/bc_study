@@ -1,0 +1,82 @@
+
+
+
+----------- 2016-11-16 00:32:45
+
+http://www.cnblogs.com/kwliu/p/4773517.html
+after writing a servlet, need to copy the class file under root/classes, and the root should be moved to webapps of tomcat.
+
+
+------------ 2016-11-15 23:19:16
+
+kidd@kidd-T430:~/software/apache-tomcat-7.0.69/webapps/hello$ tree
+.
+├── index.html
+├── META-INF
+│   └── MANIFEST.MF
+└── WEB-INF
+    ├── classes
+    │   └── com
+    │       └── jssfy
+    │           └── HelloWorld.class
+    └── lib
+        └── javax.json-1.0.4.jar
+
+6 directories, 4 files
+
+
+as in the '/home/kidd/IdeaProjects/hello-gradle/out/artifacts/hello-gradle/exploded/hello-gradle-1.0-SNAPSHOT.war' folder
+
+when "apply plugin: 'war'" in build.gradle, "./gradlew war" will generate corresponding .war file. and then deploy the war file to the webapps folder of tomcat or jetty.
+
+--------- 2016-11-15 23:44:39
+create a servlet with idea:
+
+public class HelloServlet extends javax.servlet.http.HttpServlet {
+
+might need to introduce dependency of servlet in build.gradle:
+  compile group: 'org.glassfish', name: 'javax.json', version: '1.0.4',
+            "javax.servlet:javax.servlet-api:3.1-b07"
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'org.glassfish', name: 'javax.json', version: '1.0.4'
+    providedCompile "javax.servlet:javax.servlet-api:3.1-b07"
+}
+
+with providedCompile, the jar will not be compiled into .war file.
+
+kidd@kidd-T430:~/IdeaProjects/hello-gradle$ ./gradlew war
+:compileJava UP-TO-DATE
+:processResources UP-TO-DATE
+:classes UP-TO-DATE
+:war
+
+BUILD SUCCESSFUL
+
+Total time: 4.349 secs
+
+This build could be faster, please consider using the Gradle Daemon: https://docs.gradle.org/2.13/userguide/gradle_daemon.html
+kidd@kidd-T430:~/IdeaProjects/hello-gradle$ jar tf ./build/libs/hello-gradle-1.0-SNAPSHOT.war
+META-INF/
+META-INF/MANIFEST.MF
+WEB-INF/
+WEB-INF/classes/
+WEB-INF/classes/com/
+WEB-INF/classes/com/jssfy/
+WEB-INF/classes/com/jssfy/HelloWorld.class
+WEB-INF/classes/com/jssfy/servelet/
+WEB-INF/classes/com/jssfy/servelet/HelloServlet.class
+WEB-INF/lib/
+WEB-INF/lib/javax.json-1.0.4.jar
+index.html
+kidd@kidd-T430:~/IdeaProjects/hello-gradle$
+
+
+!!!!!!!! for the gradle war project, use ./gradlew war to generate the war file.
+  to make servlet work, web.xml should be unser WEB_INF, the router does not work if web.xml is unser the root folder.
+
+
+  
+
+

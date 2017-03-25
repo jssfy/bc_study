@@ -1,0 +1,99 @@
+
+
+
+ 
+-------------- 2016-10-22 11:02:11
+
+all targets will be traversed and log will be appended to each target if matching.
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning'],
+                ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'info'],
+                    'categories' => [
+                        'kidd',
+                    ],
+                    'logFile' => '@runtime/logs/test.log',
+                ],
+            ],
+        ],
+
+category: (test.log)
+2016-10-22 03:16:08 [127.0.0.1][-][-][info][app\controllers\SiteController::actionIndex] error test
+    we can see "app\controllers\SiteController::actionIndex" can be filtered by 'app\controllers\*'
+config: 
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'info'],
+                    'categories' => [
+                        'app\controllers\*',
+                    ],
+                    'logFile' => '@runtime/logs/test.log',
+                ],
+
+/home/kidd/workspace/yii/basic/controllers/SiteController.php
+    public function actionIndex()
+    {
+        \Yii::info('error test', __METHOD__);
+
+------------ 2016-10-22 10:37:05
+http://www.jb51.net/article/76069.htm
+
+消息的trace等级
+在开发的过程当中，我们总是期望能够知道每一条日志消息是来自哪里。在Yii中你可以通过配置[[yii\log\Dispatcher::traceLevel|traceLevel]] 属性来实现。配置的示例如下：
+return [
+'bootstrap' => ['log'],
+'components' => [
+  'log' => [
+    'traceLevel' => YII_DEBUG ? 3 : 0,
+    'targets' => [...],
+  ],
+],
+];
+
+上面的示例在YII_DEBUG为true的时候将[[yii\log\Dispatcher::traceLevel|traceLevel]] 设置为3，反之设置为0. 意思是什么呢？3表示每一条日志记录都会记录与之相关的三层栈调用信息，0表示不记录任何相关的栈调用信息
+
+提示：没有必要总是记录调用的堆栈信息，比较耗性能。所以，你应该只在你开发的时候或者用于调试的情况下使用该功能。
+
+
+------ 2016-10-22 10:38:34
+FileTarget
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/log/FileTarget.php
+
+class FileTarget extends Target
+{
+    /**
+     * @var string log file path or path alias. If not set, it will use the "@runtime/logs/app.log" file.
+     * The directory containing the log files will be automatically created if not existing.
+     */
+    public $logFile;
+
+$this->logFile = Yii::$app->getRuntimePath() . '/logs/app.log';
+
+-------------- 2016-10-22 10:41:18
+alias:
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/BaseYii.php
+
+    /**
+     * Translates a path alias into an actual path.
+     *
+     * The translation is done according to the following procedure:
+     *
+     * 1. If the given alias does not start with '@', it is returned back without change;
+     * 2. Otherwise, look for the longest registered alias that matches the beginning part
+     *    of the given alias. If it exists, replace the matching part of the given alias with
+     *    the corresponding registered path.
+     * 3. Throw an exception or return false, depending on the `$throwException` parameter.
+     *
+     * For example, by default '@yii' is registered as the alias to the Yii framework directory,
+     * say '/path/to/yii'. The alias '@yii/web' would then be translated into '/path/to/yii/web'.
+     *
+
+    public static function getAlias($alias, $throwException = true)
+
+

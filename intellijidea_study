@@ -1,4 +1,22 @@
 
+every psvm from idea can be run by right clicking on the .java file -> run xxx.main()
+
+
+
+-------- 2016-11-20 14:32:38
+加入web框架和maven框架
+　　右键单击项目名-> Add Frameworks Support，分别勾选Web Application和Maven。
+
+
+------------ 2016-11-20 14:00:17
+1、IntellJ的快捷键：
+神器之所以是神器，当然有不一样的地方，比如我们想写一个main方法，不用输入一大串，只要输入“psvm”，回车，搞定！
+类似的还有输出，只要输入“souf”，右键。类的还有很多，自己去慢慢发现。
+2、Jetty占用了端口号没有释放，每次都换一个端口号很麻烦，那么应该怎么办？
+因为我是在windows7上做的，那么win+R打开DOS命令行，输入netstat -ano | findstr "8090"：
+最后一栏为进程ID，pid.所以只要kill掉就ok了，接着输入：taskkill /PID 12336 /F 
+结果：
+这里因为12236已经挂了所以换了个PID，效果一样。
 
 after creating a gradle project with java and web checked, the project structure shows the artifacts which will load src/main/webapp into the root folder.
 

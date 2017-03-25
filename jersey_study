@@ -166,6 +166,187 @@ task integrationTest(type: Test) {
 }
 
 
+=======
+https://medium.com/@jamsesso/starting-out-with-jersey-apache-tomcat-using-intellij-6338d93ffd40#.9qfo5iejt
+JAX-RS is a Java API developed by Oracle. There are multiple reference implementations of this API including Jersey, Apache CXF, RESTeasy, etc…
+Jersey, as previously stated, is a reference implementation of the JAX-RS 2.0 API. Jersey is extensible and provides additional functionality to the API.
+
+
+
+
+-------- 2016-11-21 00:37:10
+
+http://localhost:8080/rest/hello
+
+http://blog.csdn.net/kkkloveyou/article/details/21391033
+一、环境
+1. idea
+2. Tomcat 7
+3. Jersey 2.7  下载地址（ https://jersey.java.net/download.html）
+
+解压jaxrs-ri-2.7，
+将api、ext、lib文件夹下的jar包都放到项目的lib下
+
+lib is set in project structure -> libraries for the corresponding module. and lib folder it exported to WEB-INF/lib during deploying.
+
+├── out
+│   └── artifacts
+│       └── gradle_jersey
+│           └── exploded
+│               └── gradle_jersey-1.0-SNAPSHOT.war
+│                   ├── index.jsp
+│                   └── WEB-INF
+│                       ├── classes
+│                       │   └── com
+│                       │       └── jssfy
+│                       │           └── HelloResource.class
+│                       ├── lib
+│                       │   ├── aopalliance-repackaged-2.5.0-b05.jar
+│                       │   ├── hk2-api-2.5.0-b05.jar
+│                       │   ├── hk2-locator-2.5.0-b05.jar
+│                       │   ├── hk2-utils-2.5.0-b05.jar
+│                       │   ├── javassist-3.20.0-GA.jar
+│                       │   ├── javax.annotation-api-1.2.jar
+│                       │   ├── javax.inject-2.5.0-b05.jar
+│                       │   ├── javax.servlet-api-3.0.1.jar
+│                       │   ├── javax.ws.rs-api-2.0.1.jar
+│                       │   ├── jaxb-api-2.2.7.jar
+│                       │   ├── jersey-client.jar
+│                       │   ├── jersey-common.jar
+│                       │   ├── jersey-container-servlet-core.jar
+│                       │   ├── jersey-container-servlet.jar
+│                       │   ├── jersey-guava-2.24.jar
+│                       │   ├── jersey-media-jaxb.jar
+│                       │   ├── jersey-server.jar
+│                       │   ├── org.osgi.core-4.2.0.jar
+│                       │   ├── osgi-resource-locator-1.0.1.jar
+│                       │   ├── persistence-api-1.0.jar
+│                       │   └── validation-api-1.1.0.Final.jar
+│                       └── web.xml
+
+
+HelloResource.java
+package com.jssfy;
+
+/**
+ * Created by kidd on 16-11-21.
+ */
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.MediaType;
+
+
+@Path("/hello")
+public class HelloResource {
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String sayHello() {
+        return "Hello World!" ;
+    }
+    
+    @GET
+    @Path("/{param}")
+    @Produces("text/plain;charset=UTF-8")
+    public String sayHelloToUTF8(@PathParam("param") String username) {
+        System.out.println("hello console test");
+        return "Hello " + username;
+    }
+
+}
+
+web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <servlet>
+        <servlet-name>Way REST Service</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>com.jssfy</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Way REST Service</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+</web-app>
+
+
+--------- 2016-11-20 23:57:38
+Nov 20, 2016 11:56:22 PM com.sun.jersey.api.core.ScanningResourceConfig logClasses
+INFO: Root resource classes found:
+  class com.jssfy.HelloWorld
+  class com.jssfy.Books
+Nov 20, 2016 11:56:22 PM com.sun.jersey.api.core.ScanningResourceConfig init
+INFO: No provider classes found.
+Nov 20, 2016 11:56:22 PM com.sun.jersey.server.impl.application.WebApplicationImpl _initiate
+INFO: Initiating Jersey application, version 'Jersey: 1.19 02/11/2015 05:39 AM'
+
+
+
+-------- 2016-11-20 14:35:58
+org.glassfish.jersey.servlet.ServletContainer
+com.sun.jersey.spi.container.servlet.ServletContainer
+
+----------------2016-11-20 10:24:30
+http://blog.csdn.net/zwlforever/article/details/45647733
+
+REST是一种跨平台、跨语言的架构风格，RESTful Web Service是REST风格在Web领域的实现，JAX-RS标准是Java语言对RESTful Web Service的规范，Jersey是JAX-RS的参考实现，也是Java EE参考实现项目GlassFish的子项目；REST架构风格中各种抽象对象被描述为资源，资源的瞬时状态称为representation且可用XML/JSON/Atom等格式表示。RESTful Web Servcie也可以分解为类似MVC的三层结构，即资源、业务和数据访问对象，资源位于最前端用于接收请求和返回响应；JAX-RS2.0中定义的标准方法包括DELETE、GET、HEAD、OPTIONS、POST和PUT。
+
+
+---------- 2016-11-20 14:05:16
+http://www.cnblogs.com/puyangsky/p/5368132.html
+
+created a gradle java webapp with idea:
+
+build.gradle
+
+group 'com.jssfy'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'war'
+
+sourceCompatibility = 1.5
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group:'org.glassfish.jersey.containers',name:'jersey-container-grizzly2-http',version:'2.17'
+    compile group:'org.glassfish.jersey.media',name:'jersey-media-json-jackson',version:'2.17'
+    compile group:'org.mortbay.jetty',name:'jetty',version:'6.1.26'
+    compile group: 'com.sun.jersey', name: 'jersey-bundle', version: '1.19'
+}
+
+HelloWorld.java
+package com.jssfy;
+
+/**
+ * Created by kidd on 16-11-20.
+ */
+import javax.ws.rs.*;
+
+//Path注解来设置url访问路径
+@Path("/hello")
+public class HelloWorld {
+    @GET
+    @Produces("text/plain")
+    public String getString() {
+        return "hello jersey!";
+      }
+    }
+
+    
 building artifact and copy the war file to tomcat/webapps/hello.war, then it is accessible via:
   http://localhost:8080/hello/hello
 
@@ -208,4 +389,44 @@ hello
 
 6 directories, 24 files
 
+=======
+StartEntity.java
+package com.jssfy;
+
+/**
+ * Created by kidd on 16-11-20.
+ */
+
+import com.sun.jersey.api.core.PackagesResourceConfig;
+import com.sun.jersey.spi.container.servlet.ServletContainer;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
+
+/**
+ * Created by user01 on 2016/4/8.com.sun.jersey.api.core
+ */
+public class StartEntity {
+    public static void main(String[] args) {
+        Server server = new Server(8090); // 端口号，可以自己设置
+        ServletHolder sh = new ServletHolder(ServletContainer.class);
+        sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", PackagesResourceConfig.class.getCanonicalName());
+        sh.setInitParameter("com.sun.jersey.config.property.packages", "com.jssfy"); // 需要你自己修改的，即第一个HelloWorld.java所在的包名。
+        //start server
+        Context context = new Context(server, null);
+        context.addServlet(sh, "/*");
+        try {
+            server.start();
+            server.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+点击右键，Run "StartEntity.main()" 
+在浏览器中访问http://localhost:8090/hello，或使用IntelliJ中的Test RESTful Web Service
+http://localhost:8090/hello
+>>>>>>> Stashed changes
 

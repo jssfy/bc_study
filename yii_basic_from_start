@@ -1,0 +1,224 @@
+
+composer global require "fxp/composer-asset-plugin:~1.1.1"
+composer create-project --prefer-dist yiisoft/yii2-app-basic basic [the result does not have vendor subfolder]
+composer create-project yiisoft/yii2-app-basic basic 2.0.9 [the result has vendor subfolder]
+composer create-project yiisoft/yii2-app-advanced advanced
+
+
+----------- 2016-10-23 11:32:11
+aliases:
+
+yii\BaseYii::$aliases 用于保存整个Yii应用的所有的别名。 这里默认地把 yii\BaseYii.php 所在的目录作为 @yii 别名。
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/BaseYii.php
+    public static function setAlias($alias, $path)
+
+/home/kidd/workspace/yii/basic/vendor/yiisoft/yii2/base/Application.php
+    public function preInit(&$config)
+        if (isset($config['vendorPath'])) {
+            \Yii::info('vendorPath set', 'kidd');
+            $this->setVendorPath($config['vendorPath']);
+            unset($config['vendorPath']);
+        } else {
+            // set "@vendor"
+            \Yii::info('vendorPath not set in config', 'kidd');
+            $this->getVendorPath();
+        }
+        
+    public function getVendorPath()
+    {
+        if ($this->_vendorPath === null) {
+            $this->setVendorPath($this->getBasePath() . DIRECTORY_SEPARATOR . 'vendor');
+            \Yii::info('to return vendorPath: ' . $this->getBasePath());
+        }
+
+        return $this->_vendorPath;
+    }
+
+
+----------- 2016-10-23 11:25:56
+
+/home/kidd/workspace/yii/basic/web/index.php
+
+// comment out the following two lines when deployed to production
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
+
+
+-------------- 2016-10-16 10:26:46
+http://www.yiichina.com/doc/guide/2.0
+
+你可以通过两种方式安装 Yii：使用 Composer 或下载一个归档文件。 推荐使用前者，这样只需执行一条简单的命令就可以安装新的扩展或更新 Yii 了。
+
+Standard installations of Yii result in both the framework and a project template being downloaded and installed. A project template is a working Yii project implementing some basic features, such as login, contact form, etc. Its code is organized in a recommended way. Therefore, it can serve as a good starting point for your projects.
+
+通过 Composer 安装
+如果还没有安装 Composer，你可以按 getcomposer.org [https://getcomposer.org/download/]中的方法安装。 在 Linux 和 Mac OS X 中可以运行如下命令：
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+
+如果你已经安装有 Composer 请确保使用的是最新版本， 你可以用 composer self-update 命令更新 Composer 为最新版本。
+
+issue 01: 
+kidd@kidd-T430:~/workspace/bc_study$ composer -v                                                                  
+  [RuntimeException]                                                           
+  Could not read /home/kidd/.composer/config.json                              
+  file_get_contents(/home/kidd/.composer/config.json): failed to open stream:  
+   Permission denied
+
+fix 01: 
+kidd@kidd-T430:~/workspace/bc_study$ sudo chown -R kidd:kidd ~/.composer
+
+compser -v
+Composer version 1.2.0 2016-07-19 01:28:52
+
+如果你已经安装有 Composer 请确保使用的是最新版本， 你可以用 composer self-update 命令更新 Composer 为最新版本。
+
+Composer 安装后，切换到一个可通过 Web 访问的目录，执行如下命令即可安装 Yii ：
+
+composer global require "fxp/composer-asset-plugin:~1.1.1"
+composer create-project --prefer-dist yiisoft/yii2-app-basic basic
+
+第一条命令安装 Composer asset plugin， 它是通过 Composer 管理 bower 和 npm 包所必须的，此命令全局生效，一劳永逸。 第二条命令会将 Yii 安装在名为 basic 的目录中，你也可以随便选择其他名称。
+
+    Note: 在安装过程中 Composer 可能会询问你 GitHub 账户的登录信息，因为可能在使用中超过了 GitHub API （对匿名用户的）使用限制。因为 Composer 需要为所有扩展包从 GitHub 中获取大量信息，所以超限非常正常。（译注：也意味着作为程序猿没有 GitHub 账号，就真不能愉快地玩耍了）登陆 GitHub 之后可以得到更高的 API 限额，这样 Composer 才能正常运行。更多细节请参考 Composer 文档（该段 Composer中文文档期待您的参与）。
+
+issue 02:
+kidd@kidd-T430:~/workspace/yii$ composer create-project --prefer-dist yiisoft/yii2-app-basic basic                                                                  
+  [Composer\Downloader\TransportException]                                     
+  Your configuration does not allow connections to http://pkg.phpcomposer.com  
+  /repo/packagist/packages.json. See https://getcomposer.org/doc/06-config.md  
+  #secure-http for details.
+
+fix 02:
+http://blog.csdn.net/ownfire/article/details/50923619
+解决方法是设置一个本地或全局的composer配置：
+composer config secure-http false
+全局设置：
+composer config -g secure-http false
+意义是默认禁用https请求，就可以了
+
+kidd@kidd-T430:~/workspace/yii$ composer create-project --prefer-dist yiisoft/yii2-app-basic basic
+Warning: Accessing pkg.phpcomposer.com over http which is an insecure protocol.
+
+
+issue 03: 
+kidd@kidd-T430:~/workspace/yii$ composer create-project --prefer-dist yiisoft/yii2-app-basic basic 
+  [UnexpectedValueException]                                    
+  Repository "0" ({"packagist":true}) must have a type defined                                                             
+create-project [-s|--stability STABILITY] [--prefer-source] [--prefer-dist] [--repository REPOSITORY] [--repository-url REPOSITORY-URL] [--dev] [--no-dev] [--no-custom-installers] [--no-scripts] [--no-progress] [--no-secure-http] [--keep-vcs] [--no-install] [--ignore-platform-reqs] [--] [<package>] [<directory>] [<version>]
+
+
+/home/kidd/.composer/config.json
+remove configurations for 
+    "repositories": {
+        "0": {
+            "type": "composer",
+            "url": "http://pkg.phpcomposer.com/repo/packagist/"
+        },
+        "1": {
+            "packagist": false
+        },
+
+  Problem 1
+    - yiisoft/yii2 2.0.9 requires bower-asset/jquery 2.2.*@stable | 2.1.*@stable | 1.11.*@stable | 1.12.*@stable -> no matching package found.
+    - yiisoft/yii2 2.0.8 requires bower-asset/jquery 2.2.*@stable | 2.1.*@stable | 1.11.*@stable -> no matching package found.
+    - yiisoft/yii2 2.0.7 requires bower-asset/jquery 2.2.*@stable | 2.1.*@stable | 1.11.*@stable -> no matching package found.
+    - yiisoft/yii2 2.0.6 requires bower-asset/jquery 2.1.*@stable | 1.11.*@stable -> no matching package found.
+    - yiisoft/yii2 2.0.5 requires bower-asset/jquery 2.1.*@stable | 1.11.*@stable -> no matching package found.
+    - Installation request for yiisoft/yii2 >=2.0.5 -> satisfiable by yiisoft/yii2[2.0.5, 2.0.6, 2.0.7, 2.0.8, 2.0.9].
+
+Potential causes:
+ - A typo in the package name
+ - The package is not available in a stable-enough version according to your minimum-stability setting
+   see <https://getcomposer.org/doc/04-schema.md#minimum-stability> for more details.
+
+Read <https://getcomposer.org/doc/articles/troubleshooting.md> for further common problems.
+
+fix 03:
+http://www.9696e.com/archives/1478
+更新composer版本composer selfupdate，删除缓存后OK了。
+
+kidd@kidd-T430:~/workspace/yii/basic$ composer selfupdate [run this if global composer.json is modified]
+Updating to version 1.2.1 (stable channel).
+    Downloading: 100%         
+Use composer self-update --rollback to return to version 1.2.0
+
+issue 04:
+ail -f /var/log/apache2/error.log
+
+[Mon Oct 17 01:03:57.594085 2016] [:error] [pid 7546] [client 127.0.0.1:56396] PHP Warning:  require(/home/kidd/workspace/yii/basic/web/../vendor/autoload.php): failed to open stream: No such file or directory in /home/kidd/workspace/yii/basic/web/index.php on line 7
+[Mon Oct 17 01:03:57.594158 2016] [:error] [pid 7546] [client 127.0.0.1:56396] PHP Fatal error:  require(): Failed opening required '/home/kidd/workspace/yii/basic/web/../vendor/autoload.php' (include_path='.:/usr/share/php:/usr/share/pear') in /home/kidd/workspace/yii/basic/web/index.php on line 7
+        
+http://www.yiiframework.com/download/
+Install via Composer
+This is the preferred way of installing Yii 2.0. If you do not have Composer yet, you may install it by following the instructions here.
+After installing Composer, run the following command to install the Composer Asset Plugin:
+php composer.phar global require "fxp/composer-asset-plugin:~1.1.1"
+Now choose one of the application templates to start installing Yii 2.0. An application template is a package that contains a skeleton Web application written in Yii.
+    To install the basic application template, run the command below:
+    php composer.phar create-project yiisoft/yii2-app-basic basic 2.0.9
+    To install the advanced application template, run the command below:
+    php composer.phar create-project yiisoft/yii2-app-advanced advanced 2.0.9
+Note that you may be prompted to enter your GitHub username and password during the installation process. This is normal. Just enter them and continue.
+Install from an Archive File
+Download one of the following archive files, and then extract it to a Web-accessible folder:
+    Yii 2 with basic application template
+    Yii 2 with advanced application template
+
+
+issue 05:
+The directory is not writable by the Web process: /home/kidd/workspace/yii/basic/web/assets
+
+Run these command after going into the /frontend/web folder:
+sudo chgrp www-data ./assets
+and
+sudo chmod g+w ./assets/
+
+kidd@kidd-T430:~/workspace/yii$ sudo chgrp www-data /home/kidd/workspace/yii/basic/web/assets
+kidd@kidd-T430:~/workspace/yii$ chmod g+w /home/kidd/workspace/yii/basic/web/assets
+
+issue 06:
+yii\web\Request::cookieValidationKey must be configured with a secret key.
+
+To solve this error, open your config/web.php file and you must insert a secret key on cookieValidationKey.
+You can add any type of key you want:
+
+
+kidd@kidd-T430:~/workspace/yii/test$ composer create-project yiisoft/yii2-app-basic basic 2.0.9
+Installing yiisoft/yii2-app-basic (2.0.9)
+  - Installing yiisoft/yii2-app-basic (2.0.9)
+    Downloading: Connecting...
+Could not fetch https://api.github.com/repos/yiisoft/yii2-app-basic/zipball/5319c23281f4543da41f7f5ed72837f597fe9ab4, please create a GitHub OAuth token to go over the API rate limit
+Head to https://github.com/settings/tokens/new?scopes=repo&description=Composer+on+kidd-T430+2016-10-17+0206
+to retrieve a token. It will be stored in "/home/kidd/.config/composer/auth.json" for future use by Composer.
+Token (hidden): 
+Token stored successfully.
+    Downloading: 100%         
+
+Created project in basic
+Loading composer repositories with package information
+Updating dependencies (including require-dev)
+
+/home/kidd/.config/composer/auth.json
+{
+    "github-oauth": {
+        "github.com": "449c6e107ce0ae61d78404d25eb25ba620e163f2"
+    }
+}
+
+
+------------- 2016-10-18 00:14:13
+yii logging:
+
+kidd@kidd-T430:~/workspace/yii/basic$ cat ./runtime/logs/app.log
+2016-10-17 16:13:17 [127.0.0.1][-][-][error][application] hello
+    in /home/kidd/workspace/yii/basic/controllers/SiteController.php:63
+2016-10-17 16:13:17 [127.0.0.1][-][-][info][application] $_COOKIE = [
+    '_csrf' => 'cf1056f7c1458be907355043228ae61f23c47c30e3d900351c910e9f7567d0b5a:2:{i:0;s:5:\"_csrf\";i:1;s:32:\"0_OcuTAFFBCQBY4JUq4PE7r2_B5nhuEE\";}'
+]
+
+    public function actionIndex()
+    {
+        \Yii::error('hello');
+        return $this->render('index');
+    }

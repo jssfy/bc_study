@@ -1,6 +1,5 @@
 
 
-
 ------------ 2016-11-17 16:13:59
 intellij idea -> java web
 
@@ -102,7 +101,15 @@ build.gradle  .idea  settings.gradle  src
 8. 然后选择server 旁边的Deployment， 页面之后，点击加号，在弹出的页面选择名字更长的那个，也就是后面有（exploded）的那条，点击OK。 
 9. 在右侧输入Application context的名字，这个对应就是等会儿运行时，默认路径（http://localhost:8080/demo/）中的demo, 所以如果你不配置这项，它的默认路径将会是（http://localhost:8080/）这样的。最后点击apply, 再点击ok. 
 
+------------- 2016-11-11 00:57:04
+intellij idea
 
+http://www.cnblogs.com/guogangj/p/5465740.html
+create a gradle project with java enabled:
+
+jar can not be applied to groovy.lang.closure
+  the error with build.gradle disappears after gradle is downloaded.
+  after gradle is downloaded, the folder structures will be established, otherwise the folder is almost empty.
 
 ----------- 2016-11-04 16:07:01
 首先创建一个gradle项目目录，然后在其目录下运行：
