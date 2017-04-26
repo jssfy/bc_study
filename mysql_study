@@ -3,6 +3,19 @@ mysql manual:
 
 ?? which is more efficient: accessing db multiple times on different tables or by joining tables?
 
+----------- 2017-04-25 14:09:29
+http://blog.sina.com.cn/s/blog_5221305c0100bqb6.html
+
+为了省去每次链接数据库都输入主机地址，用户，密码，在.my.conf中可以添加。
+[client]
+host=[serverhost]
+user=[yourname]
+password=[yourpass]
+(如果你的MYSQL用户名和UNIX的登陆名相同，可以不写user行)
+ 
+当然，偷懒也可以用
+alias xxx_db='mysql -h [IP] -u [yourname] -p xxx_db'。
+
 ----------- 2017-01-20 17:43:28
 mysql> status
 --------------
