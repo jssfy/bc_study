@@ -1,5 +1,37 @@
 
 
+------------- 2017-06-13 13:56:22
+using expect to avoid auto exit:
+
+cat 30_expect 
+#!/usr/bin/expect -f
+set timeout 30
+spawn ssh yeanhua@10.0.8.241
+expect "password:"
+send "password\n"
+expect "Ip:"
+send "10.10.30.91\r"
+interact {
+  timeout 10 {send "\x20"}
+}
+
+~~~~~~~~
+expect 30_expect 10.10.30.91
+http://www.2cto.com/os/201305/209605.html
+
+#!/usr/bin/expect -f
+set timeout 30
+set hostname [lindex $argv 0] 
+spawn ssh yeanhua@10.0.8.241
+expect "password:"
+send "Kidd0000\n"
+expect "Ip:"
+send "$hostname\r"
+interact {
+  timeout 60 {send "\x20"}
+}
+
+
 ------------- 2017-01-24 11:49:24
 http://www.2cto.com/os/201306/216238.html
 

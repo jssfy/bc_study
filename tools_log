@@ -1,5 +1,25 @@
 
 
+
+----------- 2017-06-13 14:35:16
+
+alias stssh='expect /home/kidd/workspace/ssh/30_expect'
+
+cat /home/kidd/workspace/ssh/30_expect
+#!/usr/bin/expect -f
+set timeout 30
+set hostname [lindex $argv 0] 
+spawn ssh yeanhua@10.0.8.241
+expect "password:"
+send "xxxxxx\n"
+expect "Ip:"
+send "$hostname\r"
+interact {
+  timeout 60 {send "\x20"}
+}
+
+e.g., stssh 10.10.30.91
+
 -------- 2016-11-22 10:37:07
 
 quick synergy for ubuntu to share mouse with other machines
